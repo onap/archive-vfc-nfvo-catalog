@@ -38,8 +38,9 @@ public class HttpFileManagerImpl implements FileManager {
         }
         // File dstFile = new File(ToolUtil.getHttpServerPath() + dstPath);
         // LOGGER.info("dstFile AbsolutePath:" + dstFile.getAbsolutePath());
+        String targetDir = Class.class.getClass().getResource("/").getPath() + ToolUtil.getHttpServerPath() + dstPath;
         try {
-            ToolUtil.copyDirectory(srcPath, ToolUtil.getHttpServerPath() + dstPath, true);
+            ToolUtil.copyDirectory(srcPath, targetDir, true);
         } catch (IOException e) {
             flag = false;
             LOGGER.error("copy file failed.errorMsg:" + e.getMessage());

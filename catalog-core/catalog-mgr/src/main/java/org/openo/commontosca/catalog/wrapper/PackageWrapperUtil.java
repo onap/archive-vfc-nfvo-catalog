@@ -42,6 +42,7 @@ import org.openo.commontosca.catalog.model.externalservice.lifecycle.LifeCycleSe
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.entity.PackageData;
 import org.openo.commontosca.catalog.entity.CSARPackage;
+import org.openo.commontosca.catalog.entity.EnumOnboardState;
 import org.openo.commontosca.catalog.entity.EnumOperationalState;
 import org.openo.commontosca.catalog.entity.EnumUsageState;
 import org.openo.commontosca.catalog.entity.response.PackageMeta;
@@ -146,7 +147,7 @@ public class PackageWrapperUtil {
         packageMeta.setModifyTime(currentTime);
         packageMeta.setOperationalState(EnumOperationalState.Disabled);
         packageMeta.setUsageState(EnumUsageState.NotInUse);
-        packageMeta.setOnBoardState("false");
+        packageMeta.setOnBoardState(EnumOnboardState.nonOnBoarded.getValue());
         packageMeta.setProcessState(EnumProcessState.normal);
         return packageMeta;
     }
@@ -291,6 +292,14 @@ public class PackageWrapperUtil {
             metas.add(meta);
         }
         return metas;
+    }
+    
+    public static EnumOnboardState getEnumByValue(String value) {
+        if(value == "non-onBoarded") {
+            return EnumOnboardState.nonOnBoarded;
+        } else {
+            return EnumOnboardState.onBoarded;
+        }
     }
 
     private static PackageMeta packageData2PackageMeta(PackageData packageData) {

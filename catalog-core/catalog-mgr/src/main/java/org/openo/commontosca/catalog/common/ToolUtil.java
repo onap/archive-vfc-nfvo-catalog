@@ -87,12 +87,10 @@ public class ToolUtil {
             InputStream uploadedInputStream) throws IOException {
         File tmpDir = new File(dirName);
         LOG.info("tmpdir = " + File.separator + dirName);
-        LOG.info("tmpDir.getAbsolutePath() = " + tmpDir.getAbsolutePath());
         if (!tmpDir.exists()) {
             tmpDir.mkdirs();
         }
-
-        File file = new File(tmpDir.getAbsolutePath() + File.separator + fileName);
+        File file = new File(tmpDir + File.separator + fileName);
         OutputStream os = null;
         try {
             int read = 0;
@@ -112,7 +110,7 @@ public class ToolUtil {
 
     public static String getTempDir(String dirName, String fileName) {
         // File tmpDir = new File(File.separator + dirName);
-        return dirName + File.separator + fileName.replace(".csar", "");
+        return Class.class.getClass().getResource("/").getPath() + dirName + File.separator + fileName.replace(".csar", "");
     }
 
     public static String getUnzipDir(String dirName) {

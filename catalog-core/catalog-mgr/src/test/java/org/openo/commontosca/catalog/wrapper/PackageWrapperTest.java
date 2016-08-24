@@ -44,6 +44,7 @@ import org.openo.commontosca.catalog.db.dao.DaoManager;
 import org.openo.commontosca.catalog.db.entity.PackageData;
 import org.openo.commontosca.catalog.db.util.H2DbServer;
 import org.openo.commontosca.catalog.db.util.HibernateSession;
+import org.openo.commontosca.catalog.entity.EnumOnboardState;
 import org.openo.commontosca.catalog.entity.EnumOperationalState;
 import org.openo.commontosca.catalog.entity.EnumProcessState;
 import org.openo.commontosca.catalog.entity.EnumUsageState;
@@ -274,7 +275,7 @@ public class PackageWrapperTest {
         packageData.setFormat("yml");
         packageData.setModifyTime("2016-06-29 03:33:15");
         packageData.setName("NanocellGW");
-        packageData.setOnBoardState("false");
+        packageData.setOnBoardState("non-onBoarded");
         packageData.setOperationalState("Disabled");
         packageData.setProvider("ZTE");
         packageData.setSize("0.93M");
@@ -310,7 +311,7 @@ public class PackageWrapperTest {
         meta.setType("NSAR");
         meta.setUsageState(EnumUsageState.valueOf("InUse"));
         meta.setVersion("V1.0");
-        meta.setOnBoardState("false");
+        meta.setOnBoardState(EnumOnboardState.nonOnBoarded.getValue());
         meta.setProcessState(EnumProcessState.valueOf("normal"));
         metas.add(meta);
         return metas;
