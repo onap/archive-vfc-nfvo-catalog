@@ -17,7 +17,7 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.openo.commontosca.catalog</groupId>
+        <groupId>org.openo.common-tosca.catalog</groupId>
         <artifactId>distribution</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -43,7 +43,7 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeGroupIds>org.openo.commontosca.catalog</includeGroupIds>
+                            <includeGroupIds>org.openo.common-tosca.catalog</includeGroupIds>
                             <includeArtifactIds>catalog-standalone</includeArtifactIds>
                             <outputDirectory>
                                 target/assembly/catalog
@@ -57,7 +57,7 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeGroupIds>org.openo.commontosca.catalog</includeGroupIds>
+                            <includeGroupIds>org.openo.common-tosca.catalog</includeGroupIds>
                             <includeArtifactIds>httpserver</includeArtifactIds>
                             <outputDirectory>
                                 target/assembly/
@@ -111,13 +111,13 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.openo.commontosca.catalog</groupId>
+            <groupId>org.openo.common-tosca.catalog</groupId>
             <artifactId>catalog-standalone</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.openo.commontosca.catalog</groupId>
+            <groupId>org.openo.common-tosca.catalog</groupId>
             <artifactId>httpserver</artifactId>
             <version>${project.version}</version>
             <type>zip</type>

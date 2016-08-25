@@ -17,14 +17,14 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.openo.commontosca.catalog</groupId>
+        <groupId>org.openo.common-tosca.catalog</groupId>
         <artifactId>catalogparent-lite</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>catalogparent-lite</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.openo.commontosca.catalog</groupId>
+    <groupId>org.openo.common-tosca.catalog</groupId>
     <artifactId>catalogparent-aggregator</artifactId>
     <name>openo/commontosca/catalog/catalogparent-aggregator</name>
     <packaging>pom</packaging>
