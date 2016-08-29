@@ -34,6 +34,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.openo.commontosca.catalog.common.Config;
 import org.openo.commontosca.catalog.common.MsbAddrConfig;
+import org.openo.commontosca.catalog.common.ServiceRegistrer;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateData;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateMappingData;
 import org.openo.commontosca.catalog.health.ConsoleHealthCheck;
@@ -114,6 +115,7 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
         initSwaggerConfig(environment, configuration);
         initCometd(environment);
         Config.setConfigration(configuration);
+        initService();
         LOGGER.info("Initialize catalogue finished.");
     }
 
@@ -143,7 +145,12 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
         config.setBasePath(basePath);
         config.setScan(true);
     }
-
+    private void initService()
+    {
+        Thread registerCatalogService=new Thread(new ServiceRegistrer());
+        registerCatalogService.setName("register catalog service to Microservice Bus");
+        registerCatalogService.start();
+    }
     /**
      * initialize cometd server.
      * 
