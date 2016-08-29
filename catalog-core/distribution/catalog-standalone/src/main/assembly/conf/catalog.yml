@@ -42,7 +42,7 @@ database:
   password: catalog
 
   # the JDBC URL
-  url: jdbc:mysql://10.74.148.157:3306/catalog
+  url: jdbc:mysql://127.0.0.1:3306/catalog
 #LDAP
 ldapServerIp: 127.0.0.1
 ldapServerPort: 20096
@@ -63,7 +63,7 @@ server:
   adminContextPath: /admin
   connector:
     type: http
-    port: 8212
+    port: 8200
 
 # Logging settings.
 logging:
