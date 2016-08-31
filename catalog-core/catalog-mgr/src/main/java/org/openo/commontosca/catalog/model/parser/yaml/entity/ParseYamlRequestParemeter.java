@@ -13,49 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser.yaml.entity;
 
 import java.util.List;
 
 public class ParseYamlRequestParemeter {
-    private String path = "E:\\NFVO\\130. yaml2xml\\0. tosca-parser\\sample\\ag-vnfd-floatingIp.zip";
-    
-    private List<Extension> extensionList;
-    
-    public String getPath() {
-        return path;
+  private String path = "E:\\NFVO\\130. yaml2xml\\0. tosca-parser\\sample\\ag-vnfd-floatingIp.zip";
+
+  private List<Extension> extensionList;
+
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
+
+  public List<Extension> getExtensionList() {
+    return extensionList;
+  }
+
+  public void setExtensionList(List<Extension> extensionList) {
+    this.extensionList = extensionList;
+  }
+
+  public Extension createExtension() {
+    return new Extension();
+  }
+
+  public class Extension {
+    private String name;
+    private String value;
+
+    public String getName() {
+      return name;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setName(String name) {
+      this.name = name;
     }
 
-    public List<Extension> getExtensionList() {
-        return extensionList;
+    public String getValue() {
+      return value;
     }
 
-    public void setExtensionList(List<Extension> extensionList) {
-        this.extensionList = extensionList;
+    public void setValue(String value) {
+      this.value = value;
     }
-
-    public Extension createExtension(){
-        return new Extension();
-    }
-    
-    public class Extension {
-        private String name;
-        private String value;
-        public String getName() {
-            return name;
-        }
-        public void setName(String name) {
-            this.name = name;
-        }
-        public String getValue() {
-            return value;
-        }
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
+  }
 }

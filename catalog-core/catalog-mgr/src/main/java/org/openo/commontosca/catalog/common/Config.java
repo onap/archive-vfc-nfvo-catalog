@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
 import org.openo.commontosca.catalog.CatalogAppConfiguration;
 
 
 public class Config {
-    private static CatalogAppConfiguration configration;
+  private static CatalogAppConfiguration configration;
 
-    public static CatalogAppConfiguration getConfigration() {
-        return configration;
-    }
+  public static CatalogAppConfiguration getConfigration() {
+    return configration;
+  }
 
-    public static void setConfigration(CatalogAppConfiguration config) {
-        configration = config;
-    }
+  public static void setConfigration(CatalogAppConfiguration config) {
+    configration = config;
+  }
 }

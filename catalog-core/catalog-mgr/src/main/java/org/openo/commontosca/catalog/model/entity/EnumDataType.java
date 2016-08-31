@@ -13,30 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.entity;
 
 import lombok.AllArgsConstructor;
 
-/**
- * @author 10090474
- *
- */
 @AllArgsConstructor
 public enum EnumDataType {
-    STRING("String"), INTEGER("Integer"), FLOAT("Float"), BOOLEAN("Boolean");
-    
-    private String value;
+  STRING("String"), INTEGER("Integer"), FLOAT("Float"), BOOLEAN("Boolean");
 
-    public String getValue() {
-        return value;
-    }
+  private String value;
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public String getValue() {
+    return value;
+  }
 
-    @Override
-    public String toString() {
-        return value;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return value;
+  }
 }

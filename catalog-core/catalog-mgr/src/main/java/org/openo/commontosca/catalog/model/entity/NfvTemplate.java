@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.entity;
 
-import java.util.List;
+package org.openo.commontosca.catalog.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class NfvTemplate {
-	private List<NodeTemplate> vduNodes;
-	private List<NodeTemplate> networkNodes;
-	private List<NodeTemplate> vnfcNodes;
-	private List<NodeTemplate> vnfNodes;
+  private List<NodeTemplate> vduNodes;
+  private List<NodeTemplate> networkNodes;
+  private List<NodeTemplate> vnfcNodes;
+  private List<NodeTemplate> vnfNodes;
 
 }

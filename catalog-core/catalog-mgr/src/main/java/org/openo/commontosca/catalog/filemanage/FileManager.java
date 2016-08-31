@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.filemanage;
 
-import java.util.ArrayList;
+package org.openo.commontosca.catalog.filemanage;
 
 import org.openo.commontosca.catalog.filemanage.entity.FileLink;
 
+import java.util.ArrayList;
+
+
 public interface FileManager {
-    /**
-     * @param srcPath
-     * @param dstPath/packageType/provider/packageName/version
-     * @return
-     */
-    boolean upload(String srcPath, String dstPath);
+  
+  /**
+   * package upload api.
+   * @param srcPath source path
+   * @param dstPath/packageType/provider/packageName/version
+   * @return boolean
+   */
+  boolean upload(String srcPath, String dstPath);
 
-    boolean download(String srcPath, String dstPath);
+  boolean download(String srcPath, String dstPath);
 
-    boolean delete(String srcPath);
+  boolean delete(String srcPath);
 
-    ArrayList<FileLink> queryWorkFlow(String path);
+  ArrayList<FileLink> queryWorkFlow(String path);
 
 }

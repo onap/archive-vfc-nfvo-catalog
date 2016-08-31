@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.entity.response;
 
 import lombok.AllArgsConstructor;
@@ -25,6 +26,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UploadPackageResponse {
 
-    private String csarId;
+  private String csarId;
 
 }

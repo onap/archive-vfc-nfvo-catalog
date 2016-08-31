@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.externalservice.msb;
 
-import java.util.ArrayList;
+package org.openo.commontosca.catalog.externalservice.msb;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -23,29 +22,33 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author 10159474
- *
- */
+import java.util.ArrayList;
+
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ServiceRegisterEntity {
-    private String serviceName;
-    private String version;
-    private String url;
-    private String protocol;
-    private String visualRange;
-    private ArrayList<ServiceNode> nodes = new ArrayList<ServiceNode>();
+  private String serviceName;
+  private String version;
+  private String url;
+  private String protocol;
+  private String visualRange;
+  private ArrayList<ServiceNode> nodes = new ArrayList<ServiceNode>();
 
-    public void setSingleNode(String ip, String port, int ttl) {
-        ServiceNode node = new ServiceNode();
-        node.setIp(ip);
-        node.setPort(port);
-        node.setTtl(ttl);
-        nodes.add(node);
-    }
+  /**
+   * set single node.
+   * @param ip ip
+   * @param port port
+   * @param ttl ttl
+   */
+  public void setSingleNode(String ip, String port, int ttl) {
+    ServiceNode node = new ServiceNode();
+    node.setIp(ip);
+    node.setPort(port);
+    node.setTtl(ttl);
+    nodes.add(node);
+  }
 
 }
-

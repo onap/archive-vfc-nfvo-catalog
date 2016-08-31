@@ -13,34 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.common;
 
 public enum EnumToscaRelationShipDefinition {
-    VirtualBindsTo{
-        @Override
-        public String getName(){
-            return "tosca.relationships.nfv.VirtualBindsTo";
-        }
-    },
-    VirtualLinksTo{
-        @Override
-        public String getName(){
-            return "tosca.relationships.nfv.VirtualLinksTo";
-        }
-    },
-    DeployedOn{
-        @Override
-        public String getName(){
-            return "tosca.relationships.nfv.DeployedOn";
-        }
-    },
-    BelongTo{
-        @Override
-        public String getName(){
-            return "tosca.relationships.nfv.BelongTo";
-        }
-    };
-    
-    public abstract String getName();
-    
+  VirtualBindsTo {
+    @Override
+    public String getName() {
+      return "tosca.relationships.nfv.VirtualBindsTo";
+    }
+  },
+  VirtualLinksTo {
+    @Override
+    public String getName() {
+      return "tosca.relationships.nfv.VirtualLinksTo";
+    }
+  },
+  DeployedOn {
+    @Override
+    public String getName() {
+      return "tosca.relationships.nfv.DeployedOn";
+    }
+  },
+  BelongTo {
+    @Override
+    public String getName() {
+      return "tosca.relationships.nfv.BelongTo";
+    }
+  };
+
+  public abstract String getName();
+
 }

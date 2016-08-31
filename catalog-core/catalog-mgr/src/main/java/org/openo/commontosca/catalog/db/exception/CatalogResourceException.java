@@ -13,61 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.exception;
 
-/**
- *
- */
 public class CatalogResourceException extends ErrorCodeException {
-    private static final long serialVersionUID = 5699508780537383310L;
+  private static final long serialVersionUID = 5699508780537383310L;
 
 
-    public CatalogResourceException(int errcode) {
-        super(errcode, "");
-    }
+  public CatalogResourceException(int errcode) {
+    super(errcode, "");
+  }
 
 
-    public CatalogResourceException(int errcode, Throwable cause) {
-        super(cause, errcode);
-    }
+  public CatalogResourceException(int errcode, Throwable cause) {
+    super(cause, errcode);
+  }
 
 
-    public CatalogResourceException(int errcode, String message, Throwable cause) {
-        super(cause, errcode, message);
-    }
+  public CatalogResourceException(int errcode, String message, Throwable cause) {
+    super(cause, errcode, message);
+  }
 
 
-    public CatalogResourceException() {
-        super(9999999, null);
-    }
+  public CatalogResourceException() {
+    super(9999999, null);
+  }
 
 
-    public CatalogResourceException(String message) {
-        super(9999999, message);
-    }
+  public CatalogResourceException(String message) {
+    super(9999999, message);
+  }
 
 
-    public CatalogResourceException(Throwable cause) {
-        super(cause, 9999999);
-    }
+  public CatalogResourceException(Throwable cause) {
+    super(cause, 9999999);
+  }
 
 
-    public CatalogResourceException(String message, Throwable cause) {
-        super(cause, 9999999, message);
-    }
+  public CatalogResourceException(String message, Throwable cause) {
+    super(cause, 9999999, message);
+  }
 
 
-    public CatalogResourceException(Throwable source, int errID, String debugMessage,
-            String[] arguments) {
-        super(source, errID, debugMessage, arguments);
-    }
+  /**
+   * catalog resource exception.
+   * @param source throwable source
+   * @param errId error Id
+   * @param debugMessage debug message
+   * @param arguments arguments
+   */
+  public CatalogResourceException(Throwable source, int errId, String debugMessage,
+      String[] arguments) {
+    super(source, errId, debugMessage, arguments);
+  }
 
-    public CatalogResourceException(Throwable source, int category, int code, String debugMessage,
-            String[] arguments) {
-        super(source, category, code, debugMessage, arguments);
-    }
+  public CatalogResourceException(Throwable source, int category, int code, String debugMessage,
+      String[] arguments) {
+    super(source, category, code, debugMessage, arguments);
+  }
 
-    public int getErrcode() {
-        return super.getErrorCode();
-    }
+  public int getErrcode() {
+    return super.getErrorCode();
+  }
 }

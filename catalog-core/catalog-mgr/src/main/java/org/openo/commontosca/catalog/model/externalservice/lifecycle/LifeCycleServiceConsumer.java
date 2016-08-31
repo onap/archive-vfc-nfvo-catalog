@@ -13,49 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.lifecycle;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
+import org.openo.commontosca.catalog.common.MsbUtil;
+import org.openo.commontosca.catalog.common.ToolUtil;
+import org.openo.commontosca.catalog.model.externalservice.entity.lifecycle.InstanceEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import org.openo.commontosca.catalog.common.MSBUtil;
-import org.openo.commontosca.catalog.common.ToolUtil;
-import org.openo.commontosca.catalog.model.externalservice.entity.lifecycleEnity.InstanceEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * The lifecycle service.
+ * 
  * @author 10189609
- *
+ * 
  */
 public class LifeCycleServiceConsumer {
-	private static final Logger LOG = LoggerFactory.getLogger(LifeCycleServiceConsumer.class);
-	
-	/**
-	 * get lifecycle application instances.
-	 * @return instance entity
-	 */
-	public static ArrayList<InstanceEntity> getInstances() {
-		ILifeCycleServiceRest resourceserviceproxy = ConsumerFactory
-				.createConsumer(MSBUtil.getNsocLifecycleBaseUrl(), ILifeCycleServiceRest.class);	
-		String result = "";
-		try {
-			result = resourceserviceproxy.getVNFInstances();
-		} catch (Exception e) {
-			LOG.error("query vim info faild.", e);
-			return null;
-		}
-		if (ToolUtil.isEmptyString(result)) {
-			return null;
-		}
-		
-		Gson gson = new Gson();
-		Type listType = new TypeToken<ArrayList<InstanceEntity>>() {}.getType();
-		return gson.fromJson(result, listType);
-	}
+  private static final Logger LOG = LoggerFactory.getLogger(LifeCycleServiceConsumer.class);
+
+  /**
+   * get lifecycle application instances.
+   * 
+   * @return instance entity
+   */
+  public static ArrayList<InstanceEntity> getInstances() {
+    ILifeCycleServiceRest resourceserviceproxy =
+        ConsumerFactory.createConsumer(MsbUtil.getNsocLifecycleBaseUrl(),
+            ILifeCycleServiceRest.class);
+    String result = "";
+    try {
+      result = resourceserviceproxy.getVnfInstances();
+    } catch (Exception e1) {
+      LOG.error("query vim info faild.", e1);
+      return null;
+    }
+    if (ToolUtil.isEmptyString(result)) {
+      return null;
+    }
+
+    Gson gson = new Gson();
+    Type listType = new TypeToken<ArrayList<InstanceEntity>>() {}.getType();
+    return gson.fromJson(result, listType);
+  }
 }

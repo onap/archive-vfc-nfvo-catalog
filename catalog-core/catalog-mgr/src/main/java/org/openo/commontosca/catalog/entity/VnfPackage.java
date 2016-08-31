@@ -13,88 +13,89 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.entity;
 
 public class VnfPackage {
-    private String vnfPackageId;
-    private String name;
-    private String version;
-    private String provider;
-    private String vnfd;
-    private EnumOperationalState operationalState = EnumOperationalState.Disabled;
-    private EnumUsageState usageState = EnumUsageState.InUse;
-    private String deletionPending;
-    private String vnfPackageUrl;
+  private String vnfPackageId;
+  private String name;
+  private String version;
+  private String provider;
+  private String vnfd;
+  private EnumOperationalState operationalState = EnumOperationalState.Disabled;
+  private EnumUsageState usageState = EnumUsageState.InUse;
+  private String deletionPending;
+  private String vnfPackageUrl;
 
-    public String getVnfPackageId() {
-        return vnfPackageId;
-    }
+  public String getVnfPackageId() {
+    return vnfPackageId;
+  }
 
-    public void setVnfPackageId(String vnfPackageId) {
-        this.vnfPackageId = vnfPackageId;
-    }
+  public void setVnfPackageId(String vnfPackageId) {
+    this.vnfPackageId = vnfPackageId;
+  }
 
-    public String getVersion() {
-        return version;
-    }
+  public String getVersion() {
+    return version;
+  }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+  public void setVersion(String version) {
+    this.version = version;
+  }
 
-    public String getProvider() {
-        return provider;
-    }
+  public String getProvider() {
+    return provider;
+  }
 
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
+  public void setProvider(String provider) {
+    this.provider = provider;
+  }
 
-    public String getVnfd() {
-        return vnfd;
-    }
+  public String getVnfd() {
+    return vnfd;
+  }
 
-    public void setVnfd(String vnfd) {
-        this.vnfd = vnfd;
-    }
+  public void setVnfd(String vnfd) {
+    this.vnfd = vnfd;
+  }
 
-    public EnumOperationalState getOperationalState() {
-        return operationalState;
-    }
+  public EnumOperationalState getOperationalState() {
+    return operationalState;
+  }
 
-    public void setOperationalState(EnumOperationalState operationalState) {
-        this.operationalState = operationalState;
-    }
+  public void setOperationalState(EnumOperationalState operationalState) {
+    this.operationalState = operationalState;
+  }
 
-    public EnumUsageState getUsageState() {
-        return usageState;
-    }
+  public EnumUsageState getUsageState() {
+    return usageState;
+  }
 
-    public void setUsageState(EnumUsageState usageState) {
-        this.usageState = usageState;
-    }
+  public void setUsageState(EnumUsageState usageState) {
+    this.usageState = usageState;
+  }
 
-    public String getVnfPackageUrl() {
-        return vnfPackageUrl;
-    }
+  public String getVnfPackageUrl() {
+    return vnfPackageUrl;
+  }
 
-    public void setVnfPackageUrl(String vnfPackageUrl) {
-        this.vnfPackageUrl = vnfPackageUrl;
-    }
+  public void setVnfPackageUrl(String vnfPackageUrl) {
+    this.vnfPackageUrl = vnfPackageUrl;
+  }
 
-    public String getDeletionPending() {
-        return deletionPending;
-    }
+  public String getDeletionPending() {
+    return deletionPending;
+  }
 
-    public void setDeletionPending(String deletionPending) {
-        this.deletionPending = deletionPending;
-    }
+  public void setDeletionPending(String deletionPending) {
+    this.deletionPending = deletionPending;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 }

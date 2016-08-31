@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.dao;
 
 import org.hibernate.SessionFactory;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateMappingData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * DAO class
- * 
- * *@author 10159474
+ * DAO class.
  * 
  */
 public class ServiceTemplateMappingDao extends BaseDao<ServiceTemplateMappingData> {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateMappingDao.class);
 
-    public ServiceTemplateMappingDao(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
+  public ServiceTemplateMappingDao(SessionFactory sessionFactory) {
+    super(sessionFactory);
+  }
 
 
 }

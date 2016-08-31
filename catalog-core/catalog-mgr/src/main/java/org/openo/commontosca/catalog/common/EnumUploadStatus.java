@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
 public enum EnumUploadStatus {
-    Create_Directory_Success, Create_Directory_Fail, File_Exist, Upload_From_Break_Success, Upload_From_Break_Failed, Upload_New_File_Success, Upload_New_File_Failed
+  Create_Directory_Success, Create_Directory_Fail, File_Exist, 
+  Upload_From_Break_Success, Upload_From_Break_Failed, Upload_New_File_Success,
+  Upload_New_File_Failed
 }

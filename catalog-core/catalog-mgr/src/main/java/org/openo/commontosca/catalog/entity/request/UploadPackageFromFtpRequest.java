@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.entity.request;
 
 import lombok.AllArgsConstructor;
@@ -21,21 +22,17 @@ import lombok.NoArgsConstructor;
 
 import org.openo.commontosca.catalog.entity.EnumType;
 
-/**
- * @author 00164331
- * 
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UploadPackageFromFtpRequest {
 
-    private String provider;
+  private String provider;
 
-    private EnumType type;
+  private EnumType type;
 
-    private String version;
+  private String version;
 
-    private String ftpUrl;
+  private String ftpUrl;
 
 }

@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.common;
 
-/**
- ** @author 10159474
- */
-public enum CatalogResuorceType {
-    SERVICETEMPLATE, PACKAGE, NODETEMPLATE, TEMPLATE, SERVICETEMPLATEMAPPING;
 
-    public static CatalogResuorceType getType(String type) {
-        return valueOf(type);
-    }
+public enum CatalogResuorceType {
+  SERVICETEMPLATE, PACKAGE, NODETEMPLATE, TEMPLATE, SERVICETEMPLATEMAPPING;
+
+  public static CatalogResuorceType getType(String type) {
+    return valueOf(type);
+  }
 }

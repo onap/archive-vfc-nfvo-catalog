@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.db.resource;
 
-import java.util.ArrayList;
+package org.openo.commontosca.catalog.db.resource;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -23,135 +22,152 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.dao.DaoManager;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateMappingData;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.util.H2DbServer;
 import org.openo.commontosca.catalog.db.util.HibernateSession;
 
+import java.util.ArrayList;
+
+
 public class TemplateMappingManagerTest {
-    private static TemplateManager manager;
+  private static TemplateManager manager;
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        H2DbServer.startUp();
-        DaoManager.getInstance().setSessionFactory(HibernateSession.init());
-        manager = TemplateManager.getInstance();
+  /**
+   * startup db session before class.
+   * @throws Exception e
+   */
+  @BeforeClass
+  public static void setUpBeforeClass() throws Exception {
+    H2DbServer.startUp();
+    DaoManager.getInstance().setSessionFactory(HibernateSession.init());
+    manager = TemplateManager.getInstance();
+  }
+
+  /**
+   * destory db session after class.
+   * @throws Exception e
+   */
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {
+    try {
+      HibernateSession.destory();
+      DaoManager.getInstance().setTemplateDao(null);
+      H2DbServer.shutDown();
+    } catch (Exception e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+  }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        try {
-            HibernateSession.destory();
-            DaoManager.getInstance().setTemplateDao(null);
-            H2DbServer.shutDown();
-        } catch (Exception e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
+  /**
+   * create data before test.
+   */
+  @Before
+  public void setUp() {
+    ServiceTemplateMappingData serviceMappingData = new ServiceTemplateMappingData();
+    serviceMappingData.setCapabilities("wsectdSDFSDFDSXCVFertregdDFGDFG");
+    serviceMappingData.setRequirements("REWREWRWE#$#");
+    serviceMappingData.setNodeType("NS");
+    serviceMappingData.setServiceTemplateId("10020");
+    serviceMappingData.setMappingId("10000");
+    try {
+      manager.addServiceTemplateMapping(serviceMappingData);
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+  }
 
-    @Before
-    public void setUp() {
-        ServiceTemplateMappingData serviceMappingData = new ServiceTemplateMappingData();
-        serviceMappingData.setCapabilities("wsectdSDFSDFDSXCVFertregdDFGDFG");
-        serviceMappingData.setRequirements("REWREWRWE#$#");
-        serviceMappingData.setNodeType("NS");
-        serviceMappingData.setServiceTemplateId("10020");
-        serviceMappingData.setMappingId("10000");
-        try {
-            manager.addServiceTemplateMapping(serviceMappingData);
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
+  /**
+   * delete data after test.
+   */
+  @After
+  public void tearDown() {
+    try {
+      manager.deleteServiceTemplateMappingById("10000");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+  }
 
-    @After
-    public void tearDown() {
-        try {
-            manager.deleteServiceTemplateMappingById("10000");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
+  @Test
+  public void testAddServiceTemplateRepeat() {
+    ServiceTemplateMappingData serviceMappingData = new ServiceTemplateMappingData();
+    serviceMappingData.setCapabilities("wsectdSDFSDFDSXCVFertregdDFGDFG");
+    serviceMappingData.setRequirements("REWREWRWE#$#");
+    serviceMappingData.setNodeType("NS");
+    serviceMappingData.setServiceTemplateId("10020");
+    serviceMappingData.setMappingId("10000");
+    try {
+      manager.addServiceTemplateMapping(serviceMappingData);
+      Assert.fail("no exception");
+    } catch (CatalogResourceException e1) {
+      Assert.assertTrue(true);
     }
+  }
 
-    @Test
-    public void testAddServiceTemplateRepeat() {
-        ServiceTemplateMappingData serviceMappingData = new ServiceTemplateMappingData();
-        serviceMappingData.setCapabilities("wsectdSDFSDFDSXCVFertregdDFGDFG");
-        serviceMappingData.setRequirements("REWREWRWE#$#");
-        serviceMappingData.setNodeType("NS");
-        serviceMappingData.setServiceTemplateId("10020");
-        serviceMappingData.setMappingId("10000");
-        try {
-            manager.addServiceTemplateMapping(serviceMappingData);
-            Assert.fail("no exception");
-        } catch (CatalogResourceException e) {
-            Assert.assertTrue(true);
-        }
+  @Test
+  public void testServiceTemplateMappingById() {
+    ArrayList<ServiceTemplateMappingData> list = new ArrayList<ServiceTemplateMappingData>();
+    try {
+      list = manager.queryServiceTemplateMappingById("10000");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+    Assert.assertTrue(list.size() > 0);
+  }
 
-    @Test
-    public void testServiceTemplateMappingById() {
-        ArrayList<ServiceTemplateMappingData> list = new ArrayList<ServiceTemplateMappingData>();
-        try {
-            list = manager.queryServiceTemplateMappingById("10000");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() > 0);
+  @Test
+  public void testQueryServiceTemplateMapping() {
+
+    ArrayList<ServiceTemplateMappingData> list = new ArrayList<ServiceTemplateMappingData>();
+    try {
+      list = manager.queryServiceTemplateMapping("NS", "10020");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
-
-    @Test
-    public void testQueryServiceTemplateMapping() {
-
-        ArrayList<ServiceTemplateMappingData> list = new ArrayList<ServiceTemplateMappingData>();
-        try {
-            list = manager.queryServiceTemplateMapping("NS", "10020");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() > 0);
-        try {
-            list = manager.queryServiceTemplateMapping("NS", "");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() > 0);
-        try {
-            list = manager.queryServiceTemplateMapping("", "10020");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() > 0);
+    Assert.assertTrue(list.size() > 0);
+    try {
+      list = manager.queryServiceTemplateMapping("NS", "");
+    } catch (CatalogResourceException e2) {
+      Assert.fail("Exception" + e2.getMessage());
     }
-
-    @Test
-    public void testDeleteServiceTemplateMapping() {
-
-        ArrayList<ServiceTemplateMappingData> list = new ArrayList<ServiceTemplateMappingData>();
-        try {
-            manager.deleteServiceTemplateMapping("NS", "10020");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        try {
-            list = manager.queryServiceTemplateMapping("NS", "10020");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() == 0);
+    Assert.assertTrue(list.size() > 0);
+    try {
+      list = manager.queryServiceTemplateMapping("", "10020");
+    } catch (CatalogResourceException e3) {
+      Assert.fail("Exception" + e3.getMessage());
     }
+    Assert.assertTrue(list.size() > 0);
+  }
 
-    @Test
-    public void testQueryAllServiceTemplateMapping() {
+  @Test
+  public void testDeleteServiceTemplateMapping() {
 
-        ArrayList<ServiceTemplateMappingData> list = new ArrayList<ServiceTemplateMappingData>();
-        try {
-            list = manager.queryServiceTemplateMapping("", "");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() > 0);
+    ArrayList<ServiceTemplateMappingData> list = new ArrayList<ServiceTemplateMappingData>();
+    try {
+      manager.deleteServiceTemplateMapping("NS", "10020");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+    try {
+      list = manager.queryServiceTemplateMapping("NS", "10020");
+    } catch (CatalogResourceException e2) {
+      Assert.fail("Exception" + e2.getMessage());
+    }
+    Assert.assertTrue(list.size() == 0);
+  }
+
+  @Test
+  public void testQueryAllServiceTemplateMapping() {
+
+    ArrayList<ServiceTemplateMappingData> list = new ArrayList<ServiceTemplateMappingData>();
+    try {
+      list = manager.queryServiceTemplateMapping("", "");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
+    }
+    Assert.assertTrue(list.size() > 0);
+  }
 
 }

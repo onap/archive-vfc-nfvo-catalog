@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
 import javax.ws.rs.core.Response;
 
-/**
- * @author 00164331
- * 
- */
+
 public class RestUtil {
-    /**
-     * @param e
-     * @return
-     */
-    public static Response getRestException(String errorMsg) {
-        String code = "001";
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new CommonErrorResponse(code, errorMsg)).build();
-    }
+
+  /**
+   * get rest exception.
+   * @param errorMsg error message
+   * @return Response
+   */
+  public static Response getRestException(String errorMsg) {
+    String code = "001";
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+        .entity(new CommonErrorResponse(code, errorMsg)).build();
+  }
 
 }

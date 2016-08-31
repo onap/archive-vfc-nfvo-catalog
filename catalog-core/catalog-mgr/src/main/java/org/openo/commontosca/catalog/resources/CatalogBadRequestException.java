@@ -13,63 +13,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.resources;
 
 import org.openo.commontosca.catalog.db.exception.ErrorCodeException;
 
-/**
- *
- */
 public class CatalogBadRequestException extends ErrorCodeException {
-    private static final long serialVersionUID = 5699508780537383310L;
+  private static final long serialVersionUID = 5699508780537383310L;
 
 
-    public CatalogBadRequestException(int errcode) {
-        super(errcode, "");
-    }
+  public CatalogBadRequestException(int errcode) {
+    super(errcode, "");
+  }
 
 
-    public CatalogBadRequestException(int errcode, Throwable cause) {
-        super(cause, errcode);
-    }
+  public CatalogBadRequestException(int errcode, Throwable cause) {
+    super(cause, errcode);
+  }
 
 
-    public CatalogBadRequestException(int errcode, String message, Throwable cause) {
-        super(cause, errcode, message);
-    }
+  public CatalogBadRequestException(int errcode, String message, Throwable cause) {
+    super(cause, errcode, message);
+  }
 
 
-    public CatalogBadRequestException() {
-        super(9999999, null);
-    }
+  public CatalogBadRequestException() {
+    super(9999999, null);
+  }
 
 
-    public CatalogBadRequestException(String message) {
-        super(9999999, message);
-    }
+  public CatalogBadRequestException(String message) {
+    super(9999999, message);
+  }
 
 
-    public CatalogBadRequestException(Throwable cause) {
-        super(cause, 9999999);
-    }
+  public CatalogBadRequestException(Throwable cause) {
+    super(cause, 9999999);
+  }
 
 
-    public CatalogBadRequestException(String message, Throwable cause) {
-        super(cause, 9999999, message);
-    }
+  public CatalogBadRequestException(String message, Throwable cause) {
+    super(cause, 9999999, message);
+  }
 
 
-    public CatalogBadRequestException(Throwable source, int errID, String debugMessage,
-            String[] arguments) {
-        super(source, errID, debugMessage, arguments);
-    }
+  public CatalogBadRequestException(Throwable source, int errId, String debugMessage,
+      String[] arguments) {
+    super(source, errId, debugMessage, arguments);
+  }
 
-    public CatalogBadRequestException(Throwable source, int category, int code,
-            String debugMessage, String[] arguments) {
-        super(source, category, code, debugMessage, arguments);
-    }
+  public CatalogBadRequestException(Throwable source, int category, int code, String debugMessage,
+      String[] arguments) {
+    super(source, category, code, debugMessage, arguments);
+  }
 
-    public int getErrcode() {
-        return super.getErrorCode();
-    }
+  public int getErrcode() {
+    return super.getErrorCode();
+  }
 }

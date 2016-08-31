@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser;
 
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 
 public abstract class AbstractModelParser {
-    /**
-     * @param packageId
-     * @param fileLocation
-     * @return service template id
-     * @throws CatalogResourceException
-     */
-    public abstract String parse(String packageId, String fileLocation)
-            throws CatalogResourceException;
-    
+  
+  public abstract String parse(String packageId, String fileLocation)
+      throws CatalogResourceException;
+
 }

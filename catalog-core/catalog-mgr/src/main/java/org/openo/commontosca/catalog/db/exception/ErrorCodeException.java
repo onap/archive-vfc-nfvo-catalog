@@ -13,120 +13,133 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.exception;
 
 
-/**
- * *@author 10159474
- * 
- */
 public class ErrorCodeException extends Exception {
 
-    private static final long serialVersionUID = 3220072444842529499L;
-    private int categoryCode = 0;
-    private int errorCode = 1;
-    private String[] arguments = null;
+  private static final long serialVersionUID = 3220072444842529499L;
+  private int categoryCode = 0;
+  private int errorCode = 1;
+  private String[] arguments = null;
 
-    private static String defaultText = null;
-
-
-    public static void setDefaultText(String text) {
-        defaultText = text;
-    }
+  private static String defaultText = null;
 
 
-    public static String getDefaultText() {
-        return defaultText;
-    }
+  public static void setDefaultText(String text) {
+    defaultText = text;
+  }
 
 
-    public ErrorCodeException(int code, String debugMessage) {
-        this(code, debugMessage, null);
-    }
+  public static String getDefaultText() {
+    return defaultText;
+  }
 
 
-    public ErrorCodeException(int code, String debugMessage, String[] arguments) {
-        super(debugMessage);
-        this.errorCode = code;
-        this.arguments = arguments;
-    }
+  public ErrorCodeException(int code, String debugMessage) {
+    this(code, debugMessage, null);
+  }
+
+  /**
+   * error code exception.
+   * @param code error code
+   * @param debugMessage debug message
+   * @param arguments arguments
+   */
+  public ErrorCodeException(int code, String debugMessage, String[] arguments) {
+    super(debugMessage);
+    this.errorCode = code;
+    this.arguments = arguments;
+  }
 
 
-    public ErrorCodeException(Throwable source, int code) {
-        this(source, code, (String[]) null);
-    }
+  public ErrorCodeException(Throwable source, int code) {
+    this(source, code, (String[]) null);
+  }
+
+  /**
+   * error code exception.
+   * @param source Throwable
+   * @param code error code
+   * @param arguments arguments
+   */
+  public ErrorCodeException(Throwable source, int code, String[] arguments) {
+    super(source);
+    this.errorCode = code;
+    this.arguments = arguments;
+  }
 
 
-    public ErrorCodeException(Throwable source, int code, String[] arguments) {
-        super(source);
-        this.errorCode = code;
-        this.arguments = arguments;
-    }
+  public ErrorCodeException(Throwable source, int code, String debugMessage) {
+    this(source, code, debugMessage, null);
+  }
+
+  /**
+   * error code exception.
+   * @param source Throwable
+   * @param code error code
+   * @param debugMessage debug message
+   * @param arguments arguments
+   */
+  public ErrorCodeException(Throwable source, int code, String debugMessage, String[] arguments) {
+    super(debugMessage, source);
+    this.errorCode = code;
+    this.arguments = arguments;
+  }
 
 
-    public ErrorCodeException(Throwable source, int code, String debugMessage) {
-        this(source, code, debugMessage, null);
-    }
+  public ErrorCodeException(int category, int code, String debugMessage) {
+    this(category, code, debugMessage, null);
+  }
 
 
-    public ErrorCodeException(Throwable source, int code, String debugMessage, String[] arguments) {
-        super(debugMessage, source);
-        this.errorCode = code;
-        this.arguments = arguments;
-    }
+  public ErrorCodeException(int category, int code, String debugMessage, String[] arguments) {
+    super(debugMessage);
+    this.categoryCode = category;
+    this.errorCode = code;
+    this.arguments = arguments;
+  }
 
 
-    public ErrorCodeException(int category, int code, String debugMessage) {
-        this(category, code, debugMessage, null);
-    }
+  public ErrorCodeException(Throwable source, int category, int code) {
+    this(source, category, code, (String[]) null);
+  }
 
 
-    public ErrorCodeException(int category, int code, String debugMessage, String[] arguments) {
-        super(debugMessage);
-        this.categoryCode = category;
-        this.errorCode = code;
-        this.arguments = arguments;
-    }
+  public ErrorCodeException(Throwable source, int category, int code, String[] arguments) {
+    super(source);
+    this.categoryCode = category;
+    this.errorCode = code;
+    this.arguments = arguments;
+  }
 
 
-    public ErrorCodeException(Throwable source, int category, int code) {
-        this(source, category, code, (String[]) null);
-    }
+  public ErrorCodeException(Throwable source, int category, int code, String debugMessage) {
+    this(source, category, code, debugMessage, null);
+  }
 
 
-    public ErrorCodeException(Throwable source, int category, int code, String[] arguments) {
-        super(source);
-        this.categoryCode = category;
-        this.errorCode = code;
-        this.arguments = arguments;
-    }
+  public ErrorCodeException(Throwable source, int category, int code, String debugMessage,
+      String[] arguments) {
+    super(debugMessage, source);
+    this.categoryCode = category;
+    this.errorCode = code;
+    this.arguments = arguments;
+  }
 
 
-    public ErrorCodeException(Throwable source, int category, int code, String debugMessage) {
-        this(source, category, code, debugMessage, null);
-    }
+  public int getCategory() {
+    return categoryCode;
+  }
+
+  public int getErrorCode() {
+    return errorCode;
+  }
 
 
-    public ErrorCodeException(Throwable source, int category, int code, String debugMessage,
-            String[] arguments) {
-        super(debugMessage, source);
-        this.categoryCode = category;
-        this.errorCode = code;
-        this.arguments = arguments;
-    }
-
-
-    public int getCategory() {
-        return categoryCode;
-    }
-
-    public int getErrorCode() {
-        return errorCode;
-    }
-
-
-    public String[] getArguments() {
-        return arguments;
-    }
+  public String[] getArguments() {
+    return arguments;
+  }
 
 }

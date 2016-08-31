@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
 
 import javax.ws.rs.GET;
@@ -20,28 +21,30 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import org.openo.commontosca.catalog.model.externalservice.entity.containerEntity.ContainerSelfService;
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerSelfService;
+
 
 /**
  * The opentosca container interface for self service.
+ * 
  * @author 10189609
- *
+ * 
  */
 @Path("/containerapi/CSARs/{csarid}/Content/SELFSERVICE-Metadata")
-public interface IContainerSelfServiceRest {	
-	@GET
-	@Path("/data.xml")
-	@Produces({ "application/octet-stream" })
-	ContainerSelfService getContainerSelfService(@PathParam("csarid") String csarId);
-	
-	@GET
-	@Path("/data.xml")
-	@Produces({ "application/octet-stream" })
-	String getContainerSelfServiceXML(@PathParam("csarid") String csarId);
-	
-	@GET
-	@Path("/{inputmessageurl}")
-	@Produces({ "application/octet-stream" })
-	String getContainerSelfServiceOptionInputMessage(@PathParam("csarid") String csarId, 
-			@PathParam("inputmessageurl") String inputmessageUrl);
+public interface IContainerSelfServiceRest {
+  @GET
+  @Path("/data.xml")
+  @Produces({"application/octet-stream"})
+  ContainerSelfService getContainerSelfService(@PathParam("csarid") String csarId);
+
+  @GET
+  @Path("/data.xml")
+  @Produces({"application/octet-stream"})
+  String getContainerSelfServiceXml(@PathParam("csarid") String csarId);
+
+  @GET
+  @Path("/{inputmessageurl}")
+  @Produces({"application/octet-stream"})
+  String getContainerSelfServiceOptionInputMessage(@PathParam("csarid") String csarId,
+      @PathParam("inputmessageurl") String inputmessageUrl);
 }

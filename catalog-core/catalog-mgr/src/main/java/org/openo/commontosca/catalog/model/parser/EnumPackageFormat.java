@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser;
 
 /**
  * enum data.
+ * 
  * @author 10189609
- *
+ * 
  */
 public enum EnumPackageFormat {
-    TOSCA_XML, TOSCA_YAML
+  TOSCA_XML, TOSCA_YAML
 }

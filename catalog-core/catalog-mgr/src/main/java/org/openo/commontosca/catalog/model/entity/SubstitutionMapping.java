@@ -13,54 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.entity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package org.openo.commontosca.catalog.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author 10090474
- *
- */
+import java.util.HashMap;
+import java.util.Map;
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubstitutionMapping {
-    private String serviceTemplateId;
-    private String node_type;
-    private List<Map<String, String[]>> requirements = new ArrayList<>();
-    private Map<String, String[]> capabilities = new HashMap<String, String[]>();
+  private String serviceTemplateId;
+  private String nodeType;
+  private Map<String, String[]> requirements = new HashMap<String, String[]>();
+  private Map<String, String[]> capabilities = new HashMap<String, String[]>();
 
-    /**
-     * @param key
-     * @param value
-     * @return
-     */
-    public boolean putRequirement(String key, String[] value) {
-        Map<String, String[]> requirement = new HashMap<>();
-        requirement.put(key, value);
-        return this.requirements.add(requirement);
-    }
+  /**
+   * put requirement.
+   * @param key  key
+   * @param value value
+   * @return string list
+   */
+  public String[] putRequirement(String key, String[] value) {
+    return this.requirements.put(key, value);
+  }
 
-    /**
-     * @param key
-     * @param value
-     * @return
-     */
-    public String[] putCapability(String key, String[] value) {
-        return this.capabilities.put(key, value);
-    }
+  /** 
+   * put capability.
+   * @param key key
+   * @param value value
+   * @return string list
+   */
+  public String[] putCapability(String key, String[] value) {
+    return this.capabilities.put(key, value);
+  }
 
-    public SubstitutionMapping(String serviceTemplateId, String node_type) {
-        super();
-        this.serviceTemplateId = serviceTemplateId;
-        this.node_type = node_type;
-    }
+  /**
+   * substitution mapping.
+   * @param serviceTemplateId service template id
+   * @param nodeType node type
+   */
+  public SubstitutionMapping(String serviceTemplateId, String nodeType) {
+    super();
+    this.serviceTemplateId = serviceTemplateId;
+    this.nodeType = nodeType;
+  }
 }

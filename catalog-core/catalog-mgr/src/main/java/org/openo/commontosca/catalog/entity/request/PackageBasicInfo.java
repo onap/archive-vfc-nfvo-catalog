@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.entity.request;
 
-import org.openo.commontosca.catalog.entity.EnumType;
+package org.openo.commontosca.catalog.entity.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import org.openo.commontosca.catalog.entity.EnumType;
 
 
 @Data
@@ -27,12 +28,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PackageBasicInfo {
 
-    private String provider;
+  private String provider;
 
-    private EnumType type;
+  private EnumType type;
 
-    private String version;
+  private String version;
 
-    private String format;
+  private String format;
 
 }

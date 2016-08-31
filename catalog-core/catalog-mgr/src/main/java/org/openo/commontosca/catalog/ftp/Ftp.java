@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.ftp;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-/**
- * @author 00164331
- * 
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ftp {
 
-    private String ipAddr;
+  private String ipAddr;
 
-    private Integer port;
+  private Integer port;
 
-    private String userName;
+  private String userName;
 
-    private String pwd;
+  private String pwd;
 
-    private String path;
+  private String path;
 
 }

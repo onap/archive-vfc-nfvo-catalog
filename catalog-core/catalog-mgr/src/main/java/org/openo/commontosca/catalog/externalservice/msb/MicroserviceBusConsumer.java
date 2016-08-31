@@ -13,33 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.externalservice.msb;
 
-
+import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
 import org.glassfish.jersey.client.ClientConfig;
 import org.openo.commontosca.catalog.common.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
 
-/**
- * @author 10159474
- *
- */
 public class MicroserviceBusConsumer {
-    private static final Logger LOG = LoggerFactory.getLogger(MicroserviceBusConsumer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MicroserviceBusConsumer.class);
 
-    public static boolean registerService(ServiceRegisterEntity entity) {
-        ClientConfig config = new ClientConfig();
-        try {
-            MicroserviceBusRest resourceserviceproxy = ConsumerFactory.createConsumer(
-                    Config.getConfigration().getMsbServerAddr(),config, MicroserviceBusRest.class);
-            resourceserviceproxy.registerServce("false", entity);
-        } catch (Exception e) {
-            LOG.error("microservice register failed!" + e.getMessage());
-            return false;
-        }
-        return true;
+  /**
+   * register service to MSB.
+   * @param entity ServiceRegisterEntity
+   * @return boolean
+   */
+  public static boolean registerService(ServiceRegisterEntity entity) {
+    ClientConfig config = new ClientConfig();
+    try {
+      MicroserviceBusRest resourceserviceproxy =
+          ConsumerFactory.createConsumer(Config.getConfigration().getMsbServerAddr(), config,
+              MicroserviceBusRest.class);
+      resourceserviceproxy.registerServce("false", entity);
+    } catch (Exception e1) {
+      LOG.error("microservice register failed!" + e1.getMessage());
+      return false;
     }
+    return true;
+  }
 }

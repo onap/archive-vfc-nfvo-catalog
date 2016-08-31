@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser.yaml.entity;
 
 
-
 public enum EnumYamlServiceTemplateInfo {
-    ID{
-        @Override
-        public String getName() {
-            return "id";
-        }
-    },
-    VERSION{
-        @Override
-        public String getName() {
-            return "version";
-        }
-    },
-    PROVIDER{
-        @Override
-        public String getName() {
-            return "vendor";
-        }
-    };
-    
-    public abstract String getName();
+  ID {
+    @Override
+    public String getName() {
+      return "id";
+    }
+  },
+  VERSION {
+    @Override
+    public String getName() {
+      return "version";
+    }
+  },
+  PROVIDER {
+    @Override
+    public String getName() {
+      return "vendor";
+    }
+  };
+
+  public abstract String getName();
 }

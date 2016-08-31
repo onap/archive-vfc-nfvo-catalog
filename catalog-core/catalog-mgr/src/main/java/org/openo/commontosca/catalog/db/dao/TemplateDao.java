@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.dao;
 
 import org.hibernate.HibernateException;
@@ -25,53 +26,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * DAO class
- * 
- * *@author 10159474
+ * DAO class.
  * 
  */
 public class TemplateDao extends BaseDao<TemplateData> {
-    private static final Logger logger = LoggerFactory.getLogger(TemplateDao.class);
+  private static final Logger logger = LoggerFactory.getLogger(TemplateDao.class);
 
-    public TemplateDao(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
+  public TemplateDao(SessionFactory sessionFactory) {
+    super(sessionFactory);
+  }
 
-    public TemplateData create(TemplateData data) throws CatalogResourceException {
-        logger.info("TemplateDao:start add template.info:" + CatalogDbUtil.objectToString(data));
-        beginTransaction();
-        try {
-            this.session.persist(data.getServiceTemplate());
-            for (NodeTemplateData nodeData : data.getNodeTemplates()) {
-                this.session.persist(nodeData);
-            }
-            closeTransaction();
-        } catch (HibernateException e) {
-            logger.error("TemplateDao:error while add template data.errorMsg:" + e.getMessage());
-            throw new CatalogResourceException("error while add template data" + e.getMessage(), e);
-        } finally {
-            closeSession();
-        }
-        logger.info("TemplateDao: add template end .");
-        return data;
+  /**
+   * create template data.
+   */
+  public TemplateData create(TemplateData data) throws CatalogResourceException {
+    logger.info("TemplateDao:start add template.info:" + CatalogDbUtil.objectToString(data));
+    beginTransaction();
+    try {
+      this.session.persist(data.getServiceTemplate());
+      for (NodeTemplateData nodeData : data.getNodeTemplates()) {
+        this.session.persist(nodeData);
+      }
+      closeTransaction();
+    } catch (HibernateException e1) {
+      logger.error("TemplateDao:error while add template data.errorMsg:" + e1.getMessage());
+      throw new CatalogResourceException("error while add template data" + e1.getMessage(), e1);
+    } finally {
+      closeSession();
     }
+    logger.info("TemplateDao: add template end .");
+    return data;
+  }
 
-    public void delete(TemplateData data) throws CatalogResourceException {
-        logger.info("TemplateDao:start delete template.info:" + CatalogDbUtil.objectToString(data));
-        beginTransaction();
-        try {
-            for (NodeTemplateData nodeData : data.getNodeTemplates()) {
-                this.session.delete(nodeData);
-            }
-            this.session.delete(data.getServiceTemplate());
-            closeTransaction();
-        } catch (HibernateException e) {
-            logger.error("TemplateDao:error while delete template data.errorMsg:" + e.getMessage());
-            throw new CatalogResourceException("error while delete template data" + e.getMessage(),
-                    e);
-        } finally {
-            closeSession();
-        }
-        logger.info("TemplateDao: delete template end .");
+  /**
+   * delete template data.
+   */
+  public void delete(TemplateData data) throws CatalogResourceException {
+    logger.info("TemplateDao:start delete template.info:" + CatalogDbUtil.objectToString(data));
+    beginTransaction();
+    try {
+      for (NodeTemplateData nodeData : data.getNodeTemplates()) {
+        this.session.delete(nodeData);
+      }
+      this.session.delete(data.getServiceTemplate());
+      closeTransaction();
+    } catch (HibernateException e1) {
+      logger.error("TemplateDao:error while delete template data.errorMsg:" + e1.getMessage());
+      throw new CatalogResourceException("error while delete template data" + e1.getMessage(), e1);
+    } finally {
+      closeSession();
     }
+    logger.info("TemplateDao: delete template end .");
+  }
 }

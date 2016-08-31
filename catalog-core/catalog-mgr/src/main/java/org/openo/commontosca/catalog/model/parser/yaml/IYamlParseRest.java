@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser.yaml;
+
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -21,23 +24,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
 
-/**
- * 
- * @author 10090474
- * 
- */
 @Path("/parse")
 public interface IYamlParseRest {
-    /**
-     * @param request
-     * @return
-     * @throws Exception
-     */
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-    String parse(ParseYamlRequestParemeter request)
-            throws Exception;
+
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  String parse(ParseYamlRequestParemeter request) throws Exception;
 }

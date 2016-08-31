@@ -13,7 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser;
+
+import org.openo.commontosca.catalog.common.ToolUtil;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.db.resource.TemplateManager;
+import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
+import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
+import org.openo.commontosca.catalog.model.entity.EnumDataType;
+import org.openo.commontosca.catalog.model.entity.InputParameter;
+import org.openo.commontosca.catalog.model.entity.NodeTemplate;
+import org.openo.commontosca.catalog.model.entity.OutputParameter;
+import org.openo.commontosca.catalog.model.entity.RelationShip;
+import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
+import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
+import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
+import org.openo.commontosca.catalog.model.parser.yaml.YamlParseServiceConsumer;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.EnumYamlServiceTemplateInfo;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.Plan;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.Plan.PlanValue.PlanInput;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.TopologyTemplate.Input;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.TopologyTemplate.NodeTemplate.Relationship;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.TopologyTemplate.Output;
+import org.openo.commontosca.catalog.model.plan.wso2.Wso2ServiceConsumer;
+import org.openo.commontosca.catalog.model.plan.wso2.entity.DeployPackageResponse;
+import org.openo.commontosca.catalog.wrapper.PackageWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -30,343 +59,320 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.db.resource.TemplateManager;
-import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
-import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
-import org.openo.commontosca.catalog.model.entity.InputParameter;
-import org.openo.commontosca.catalog.model.entity.RelationShip;
-import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
-import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
-import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult;
-import org.openo.commontosca.catalog.wrapper.PackageWrapper;
-import org.openo.commontosca.catalog.common.ToolUtil;
-import org.openo.commontosca.catalog.model.entity.EnumDataType;
-import org.openo.commontosca.catalog.model.entity.NodeTemplate;
-import org.openo.commontosca.catalog.model.parser.yaml.YamlParseServiceConsumer;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.EnumYamlServiceTemplateInfo;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
 
-public class ToscaYamlModelParser extends AbstractModelParser{
+public class ToscaYamlModelParser extends AbstractModelParser {
 
-    private static final Object TOSCA_META_FIELD_ENTRY_DEFINITIONS = "Entry-Definitions";
+  private static final Object TOSCA_META_FIELD_ENTRY_DEFINITIONS = "Entry-Definitions";
+  private static final Logger LOGGER = LoggerFactory.getLogger(ToscaYamlModelParser.class);
 
-    /**
-     * 
-     */
-    @Override
-    public String parse(String packageId, String fileLocation)
-            throws CatalogResourceException {
-        ParseYamlResult result = YamlParseServiceConsumer.getServiceTemplates(comboRequest(fileLocation));
+  @Override
+  public String parse(String packageId, String fileLocation) throws CatalogResourceException {
+    ParseYamlResult result =
+        YamlParseServiceConsumer.getServiceTemplates(comboRequest(fileLocation));
 
-        Map<String, String> toscaMeta = parseToscaMeta(fileLocation);
-        String stFileName = toscaMeta.get(TOSCA_META_FIELD_ENTRY_DEFINITIONS);
-        CsarFileUriResponse stDownloadUri = PackageWrapper.getInstance()
-                .getCsarFileDownloadUri(packageId, stFileName);
+    Map<String, String> toscaMeta = parseToscaMeta(fileLocation);
+    String stFileName = toscaMeta.get(TOSCA_META_FIELD_ENTRY_DEFINITIONS);
+    CsarFileUriResponse stDownloadUri =
+        PackageWrapper.getInstance().getCsarFileDownloadUri(packageId, stFileName);
 
-        ServiceTemplate st = parseServiceTemplate(packageId, result,
-                stDownloadUri.getDownloadUri());
-        List<NodeTemplate> ntList = parseNodeTemplates(packageId,
-                st.getServiceTemplateId(), result);
-        st.setType(getTemplateType(result, ntList).toString());
+    ServiceTemplate st = parseServiceTemplate(packageId, result, stDownloadUri.getDownloadUri());
+    ServiceTemplateOperation[] operations = parseOperations(result.getPlanList(), fileLocation);
+    st.setOperations(operations);
+    List<NodeTemplate> ntList = parseNodeTemplates(packageId, st.getServiceTemplateId(), result);
+    st.setType(getTemplateType(result, ntList).toString());
 
-        TemplateManager.getInstance().addServiceTemplate(
-                TemplateDataHelper.convert2TemplateData(st,
-                        ToolUtil.toJson(result), ntList));
+    TemplateManager.getInstance().addServiceTemplate(
+        TemplateDataHelper.convert2TemplateData(st, ToolUtil.toJson(result), ntList));
 
-        SubstitutionMapping stm = parseSubstitutionMapping(
-                st.getServiceTemplateId(), result);
-        if (stm != null) {
-            TemplateManager.getInstance().addServiceTemplateMapping(
-                    TemplateDataHelper.convert2TemplateMappingData(stm));
-        }
-
-        return st.getServiceTemplateId();
+    SubstitutionMapping stm = parseSubstitutionMapping(st.getServiceTemplateId(), result);
+    if (stm != null) {
+      TemplateManager.getInstance()
+          .addServiceTemplateMapping(TemplateDataHelper.convert2TemplateMappingData(stm));
     }
 
-    /**
-     * @param fileLocation
-     * @return
-     * @throws CatalogResourceException
-     */
-    @SuppressWarnings("resource")
-    private Map<String, String> parseToscaMeta(String fileLocation)
-            throws CatalogResourceException {
-        Map<String, String> toscaMeta = new HashMap<>();
+    return st.getServiceTemplateId();
+  }
 
-        ZipInputStream zin = null;
-        BufferedReader br = null;
-        try {
-            InputStream in = new BufferedInputStream(new FileInputStream(
-                    fileLocation));
-            zin = new ZipInputStream(in);
-            ZipEntry ze;
-            while ((ze = zin.getNextEntry()) != null) {
-                if (("TOSCA-Metadata" + File.separator + "TOSCA.meta")
-                        .equals(ze.getName())
-                        || "TOSCA-Metadata/TOSCA.meta".equals(ze.getName())) {
-                    ZipFile zf = new ZipFile(fileLocation);
-                    br = new BufferedReader(new InputStreamReader(
-                            zf.getInputStream(ze)));
-                    String line;
-                    String[] tmps;
-                    while ((line = br.readLine()) != null) {
-                        if (line.indexOf(":") > 0) {
-                            tmps = line.split(":");
-                            toscaMeta.put(tmps[0].trim(), tmps[1].trim());
-                        }
-                    }
+  @SuppressWarnings("resource")
+  private Map<String, String> parseToscaMeta(String fileLocation) throws CatalogResourceException {
+    Map<String, String> toscaMeta = new HashMap<>();
 
-                    return toscaMeta;
-                }
+    ZipInputStream zin = null;
+    BufferedReader br = null;
+    try {
+      InputStream in = new BufferedInputStream(new FileInputStream(fileLocation));
+      zin = new ZipInputStream(in);
+      ZipEntry ze;
+      while ((ze = zin.getNextEntry()) != null) {
+        if (("TOSCA-Metadata" + File.separator + "TOSCA.meta").equals(ze.getName())
+            || "TOSCA-Metadata/TOSCA.meta".equals(ze.getName())) {
+          ZipFile zf = new ZipFile(fileLocation);
+          br = new BufferedReader(new InputStreamReader(zf.getInputStream(ze)));
+          String line;
+          String[] tmps;
+          while ((line = br.readLine()) != null) {
+            if (line.indexOf(":") > 0) {
+              tmps = line.split(":");
+              toscaMeta.put(tmps[0].trim(), tmps[1].trim());
             }
+          }
 
-        } catch (IOException e) {
-            throw new CatalogResourceException("Parse Tosca Meta Fail.", e);
-        } finally {
-            closeStreamAndReader(zin, br);
+          return toscaMeta;
         }
+      }
 
-        return toscaMeta;
+    } catch (IOException e1) {
+      throw new CatalogResourceException("Parse Tosca Meta Fail.", e1);
+    } finally {
+      closeStreamAndReader(zin, br);
     }
 
-    private void closeStreamAndReader(ZipInputStream zin, BufferedReader br) {
-        if (br != null) {
-            try {
-                br.close();
-            } catch (IOException e) {
-            }
-        }
-        if (zin != null) {
-            try {
-                zin.closeEntry();
-            } catch (IOException e) {
-            }
-        }
+    return toscaMeta;
+  }
+
+  private void closeStreamAndReader(ZipInputStream zin, BufferedReader br) {
+    if (br != null) {
+      try {
+        br.close();
+      } catch (IOException e1) {
+        LOGGER.error("Buffered reader close failed !");
+      }
+    }
+    if (zin != null) {
+      try {
+        zin.closeEntry();
+      } catch (IOException e2) {
+        LOGGER.error("Zip inputStream close failed !");
+      }
+    }
+  }
+
+  private ParseYamlRequestParemeter comboRequest(String fileLocation) {
+    ParseYamlRequestParemeter request = new ParseYamlRequestParemeter();
+    request.setPath(fileLocation);
+    return request;
+  }
+
+  private SubstitutionMapping parseSubstitutionMapping(String serviceTemplateId,
+      ParseYamlResult result) {
+    String type = getSubstitutionMappingType(result);
+    if (ToolUtil.isTrimedEmptyString(type)) {
+      return null;
     }
 
-    private ParseYamlRequestParemeter comboRequest(String fileLocation) {
-        ParseYamlRequestParemeter request = new ParseYamlRequestParemeter();
-        request.setPath(fileLocation);
-        return request;
+    org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult
+        .TopologyTemplate.SubstitutionMapping stm =
+        result.getTopologyTemplate().getSubstitutionMappings();
+    return new SubstitutionMapping(serviceTemplateId, type, stm.getRequirementList(),
+        stm.getCapabilityList());
+  }
+
+  private ServiceTemplate parseServiceTemplate(String packageId, ParseYamlResult result,
+      String stDownloadUri) {
+    ServiceTemplate st = new ServiceTemplate();
+
+    st.setServiceTemplateId(ToolUtil.generateId());
+    st.setTemplateName(result.getMetadata().get(EnumYamlServiceTemplateInfo.ID.getName()));
+    st.setVendor(result.getMetadata().get(EnumYamlServiceTemplateInfo.PROVIDER.getName()));
+    st.setVersion(result.getMetadata().get(EnumYamlServiceTemplateInfo.VERSION.getName()));
+    st.setCsarid(packageId);
+    st.setDownloadUri(stDownloadUri);
+    st.setInputs(parseInputs(result));
+    st.setOutputs(parseOutputs(result));
+    return st;
+  }
+
+  private InputParameter[] parseInputs(ParseYamlResult result) {
+    List<Input> inputList = result.getTopologyTemplate().getInputs();
+    if (inputList == null) {
+      return new InputParameter[0];
+    }
+    List<InputParameter> retList = new ArrayList<InputParameter>();
+    for (Input input : inputList) {
+      retList.add(new InputParameter(input.getName(), getEnumDataType(input.getType()),
+          input.getDescription(), input.getDefault(), input.isRequired()));
+    }
+    return retList.toArray(new InputParameter[0]);
+  }
+
+  private OutputParameter[] parseOutputs(ParseYamlResult result) {
+    List<Output> outputList = result.getTopologyTemplate().getOutputs();
+    if (outputList == null || outputList.isEmpty()) {
+      return new OutputParameter[0];
+    }
+    List<OutputParameter> retList = new ArrayList<OutputParameter>();
+    for (Output output : outputList) {
+      retList
+          .add(new OutputParameter(output.getName(), output.getDescription(), output.getValue()));
+    }
+    return retList.toArray(new OutputParameter[0]);
+  }
+
+  private ServiceTemplateOperation[] parseOperations(List<Plan> planList, String zipFileLocation)
+      throws CatalogResourceException {
+    if (planList == null || planList.isEmpty()) {
+      return new ServiceTemplateOperation[0];
     }
 
-    /**
-     * @param serviceTemplateId
-     * @param result
-     * @return
-     */
-    private SubstitutionMapping parseSubstitutionMapping(
-            String serviceTemplateId, ParseYamlResult result) {
-        String type = getSubstitutionMappingType(result);
-        if (ToolUtil.isTrimedEmptyString(type)) {
-            return null;
-        }
+    List<ServiceTemplateOperation> opList = new ArrayList<>();
+    for (Plan plan : planList) {
+      ServiceTemplateOperation op = new ServiceTemplateOperation();
+      op.setName(plan.getName());
+      op.setDescription(plan.getDescription());
+      checkPlanLanguage(plan.getPlanLanguage());
+      DeployPackageResponse response =
+          Wso2ServiceConsumer.deployPackage(zipFileLocation, plan.getReference());
+      op.setPackageName(parsePackageName(response));
+      op.setProcessId(response.getProcessId());
+      op.setInputs(parsePlanInputs(plan.getInputList()));
 
-        ParseYamlResult.TopologyTemplate.SubstitutionMapping stm = result
-                .getTopologyTemplate().getSubstitutionMappings();
-        return new SubstitutionMapping(serviceTemplateId, type,
-                stm.getRequirementList(), stm.getCapabilityList());
+      opList.add(op);
+
+    }
+    return opList.toArray(new ServiceTemplateOperation[0]);
+  }
+
+  private String parsePackageName(DeployPackageResponse response) {
+    String packageName = response.getPackageName();
+    if (packageName != null && packageName.indexOf("-") > 0) {
+      packageName = packageName.substring(0, packageName.lastIndexOf("-"));
+    }
+    return packageName;
+  }
+
+  private void checkPlanLanguage(String planLanguage) throws CatalogResourceException {
+    if (planLanguage == null || planLanguage.isEmpty()) {
+      throw new CatalogResourceException("Plan Language is empty.");
+    }
+    if (planLanguage.equalsIgnoreCase("bpel")) {
+      return;
+    }
+    if (planLanguage.equalsIgnoreCase("bpmn")) {
+      return;
+    }
+    if (planLanguage.equalsIgnoreCase("bpmn4tosca")) {
+      return;
+    }
+    throw new CatalogResourceException(
+        "Plan Language is not supported. Language = " + planLanguage);
+  }
+
+  private InputParameter[] parsePlanInputs(List<PlanInput> inputList) {
+    if (inputList == null || inputList.isEmpty()) {
+      return new InputParameter[0];
     }
 
-    private ServiceTemplate parseServiceTemplate(String packageId,
-            ParseYamlResult result, String stDownloadUri) {
-        ServiceTemplate st = new ServiceTemplate();
+    List<InputParameter> retList = new ArrayList<>();
+    for (PlanInput input : inputList) {
+      retList.add(new InputParameter(input.getName(), getEnumDataType(input.getType()),
+          input.getDescription(), input.getDefault(), input.isRequired()));
+    }
+    return retList.toArray(new InputParameter[0]);
+  }
 
-        st.setServiceTemplateId(ToolUtil.generateId());
-        st.setTemplateName(result.getMetadata().get(
-                EnumYamlServiceTemplateInfo.ID.getName()));
-        st.setVendor(result.getMetadata().get(
-                EnumYamlServiceTemplateInfo.PROVIDER.getName()));
-        st.setVersion(result.getMetadata().get(
-                EnumYamlServiceTemplateInfo.VERSION.getName()));
-        st.setCsarid(packageId);
-        st.setDownloadUri(stDownloadUri);
-        st.setInputs(parseInputs(result));
-        ServiceTemplateOperation[] operations = parseOperations(result
-                .getPlanList());
-        st.setOperations(operations);
-        return st;
+  private EnumDataType getEnumDataType(String type) {
+    if (EnumDataType.INTEGER.toString().equalsIgnoreCase(type)) {
+      return EnumDataType.INTEGER;
     }
 
-    /**
-     * @param planList
-     * @return
-     */
-    private ServiceTemplateOperation[] parseOperations(List<ParseYamlResult.Plan> planList) {
-        if (planList == null || planList.isEmpty()) {
-            return new ServiceTemplateOperation[0];
-        }
-
-        List<ServiceTemplateOperation> opList = new ArrayList<>();
-        for (ParseYamlResult.Plan plan : planList) {
-            ServiceTemplateOperation op = new ServiceTemplateOperation();
-            op.setName(plan.getName());
-            op.setDescription(plan.getDescription());
-            String processId = null; // TODO
-            op.setProcessId(processId);
-            InputParameter[] inputs = parsePlanInputs(plan.getInputList());
-            op.setInputs(inputs);
-
-            opList.add(op);
-
-        }
-        return opList.toArray(new ServiceTemplateOperation[0]);
+    if (EnumDataType.FLOAT.toString().equalsIgnoreCase(type)) {
+      return EnumDataType.FLOAT;
     }
 
-    /**
-     * @param inputList
-     * @return
-     */
-    private InputParameter[] parsePlanInputs(List<ParseYamlResult.Plan.PlanValue.PlanInput> inputList) {
-        if (inputList == null || inputList.isEmpty()) {
-            return new InputParameter[0];
-        }
-
-        List<InputParameter> retList = new ArrayList<>();
-        for (ParseYamlResult.Plan.PlanValue.PlanInput input : inputList) {
-            retList.add(new InputParameter(input.getName(),
-                    getEnumDataType(input.getType()), input.getDescription(),
-                    input.getDefault(), input.isRequired()));
-        }
-        return retList.toArray(new InputParameter[0]);
+    if (EnumDataType.BOOLEAN.toString().equalsIgnoreCase(type)) {
+      return EnumDataType.BOOLEAN;
     }
 
-    private InputParameter[] parseInputs(ParseYamlResult result) {
-        List<ParseYamlResult.TopologyTemplate.Input> inputList = result.getTopologyTemplate().getInputs();
-        if(inputList == null){
-            return null;
-        }
-        ArrayList<InputParameter> retList = new ArrayList<InputParameter>();
-        for(ParseYamlResult.TopologyTemplate.Input input : inputList){
-            retList.add(new InputParameter(input.getName(),
-                    getEnumDataType(input.getType()), input.getDescription(),
-                    input.getDefault(), input.isRequired()));
-        }
-        return retList.toArray(new InputParameter[0]);
+    return EnumDataType.STRING;
+  }
+
+  private List<NodeTemplate> parseNodeTemplates(String csarId, String templateId,
+      ParseYamlResult result) {
+    List<ParseYamlResult.TopologyTemplate.NodeTemplate> nodetemplateList =
+        result.getTopologyTemplate().getNodeTemplates();
+    if (nodetemplateList == null) {
+      return null;
     }
 
-    /**
-     * @param type
-     * @return
-     */
-    private EnumDataType getEnumDataType(String type) {
-        if (EnumDataType.INTEGER.toString().equalsIgnoreCase(type)) {
-            return EnumDataType.INTEGER;
-        }
+    List<NodeTemplate> retList = new ArrayList<>();
+    for (ParseYamlResult.TopologyTemplate.NodeTemplate nodeTemplate : nodetemplateList) {
+      NodeTemplate ret = new NodeTemplate();
+      ret.setId(nodeTemplate.getName());
+      ret.setName(nodeTemplate.getName());
+      ret.setType(nodeTemplate.getNodeType());
+      ret.setProperties(nodeTemplate.getPropertyList());
+      List<RelationShip> relationShipList =
+          parseNodeTemplateRelationShip(nodeTemplate.getRelationships());
+      ret.setRelationShips(relationShipList);
 
-        if (EnumDataType.FLOAT.toString().equalsIgnoreCase(type)) {
-            return EnumDataType.FLOAT;
-        }
-
-        if (EnumDataType.BOOLEAN.toString().equalsIgnoreCase(type)) {
-            return EnumDataType.BOOLEAN;
-        }
-
-        return EnumDataType.STRING;
+      retList.add(ret);
     }
 
-    /**
-     * @param csarId
-     * @param templateId
-     * @param result
-     * @return
-     */
-    private List<NodeTemplate> parseNodeTemplates(String csarId,
-            String templateId, ParseYamlResult result) {
-        List<ParseYamlResult.TopologyTemplate.NodeTemplate> nodetemplateList = result.getTopologyTemplate().getNodeTemplates();
-        if(nodetemplateList == null){
-            return null;
-        }
-        
-        List<NodeTemplate> retList = new ArrayList<>();
-        for (ParseYamlResult.TopologyTemplate.NodeTemplate nodeTemplate : nodetemplateList) {
-            NodeTemplate ret = new NodeTemplate();
-            ret.setId(nodeTemplate.getName());
-            ret.setName(nodeTemplate.getName());
-            ret.setType(nodeTemplate.getNodeType());
-            ret.setProperties(nodeTemplate.getPropertyList());
-            List<RelationShip> relationShipList = parseNodeTemplateRelationShip(nodeTemplate
-                    .getRelationships());
-            ret.setRelationShips(relationShipList);
+    return retList;
+  }
 
-            retList.add(ret);
-        }
 
-        return retList;
-    }
-    
-    
-    private List<RelationShip> parseNodeTemplateRelationShip(
-            List<ParseYamlResult.TopologyTemplate.NodeTemplate.Relationship> relationshipList) {
-        List<RelationShip> retList = new ArrayList<>();
+  private List<RelationShip> parseNodeTemplateRelationShip(List<Relationship> relationshipList) {
+    List<RelationShip> retList = new ArrayList<>();
 
-        if (relationshipList == null) {
-            return retList;
-        }
-
-        for (ParseYamlResult.TopologyTemplate.NodeTemplate.Relationship relationship : relationshipList) {
-            RelationShip ret = new RelationShip();
-            ret.setSourceNodeId(relationship.getSourceNodeName());
-            ret.setSourceNodeName(relationship.getSourceNodeName());
-            ret.setTargetNodeId(relationship.getTargetNodeName());
-            ret.setTargetNodeName(relationship.getTargetNodeName());
-            ret.setType(relationship.getType());
-            retList.add(ret);
-        }
-
-        return retList;
-    }
-    
-    private EnumTemplateType getTemplateType(ParseYamlResult result,
-            List<NodeTemplate> ntList) {
-        String type = getSubstitutionMappingType(result);
-        if (isNSType(type)) {
-            return EnumTemplateType.NS;
-        }
-        
-        if (isVNFType(type)) {
-            return EnumTemplateType.VNF;
-        }
-
-        return getTemplateTypeFromNodeTemplates(ntList);
+    if (relationshipList == null) {
+      return retList;
     }
 
-    private String getSubstitutionMappingType(ParseYamlResult result) {
-        if (result.getTopologyTemplate().getSubstitutionMappings() == null) {
-            return null;
-        }
-        return result.getTopologyTemplate().getSubstitutionMappings()
-                .getNode_type();
+    for (Relationship relationship : relationshipList) {
+      RelationShip ret = new RelationShip();
+      ret.setSourceNodeId(relationship.getSourceNodeName());
+      ret.setSourceNodeName(relationship.getSourceNodeName());
+      ret.setTargetNodeId(relationship.getTargetNodeName());
+      ret.setTargetNodeName(relationship.getTargetNodeName());
+      ret.setType(relationship.getType());
+      retList.add(ret);
     }
 
-    /**
-     * @param ntList
-     * @return
-     */
-    private EnumTemplateType getTemplateTypeFromNodeTemplates(
-            List<NodeTemplate> ntList) {
-        for (NodeTemplate nt : ntList) {
-            if (isNSType(nt.getType()) || isVNFType(nt.getType())) {
-                return EnumTemplateType.NS;
-            }
-        }
+    return retList;
+  }
 
-        return EnumTemplateType.VNF;
+  private EnumTemplateType getTemplateType(ParseYamlResult result, List<NodeTemplate> ntList) {
+    String type = getSubstitutionMappingType(result);
+    if (isNsType(type)) {
+      return EnumTemplateType.NS;
     }
 
-    private boolean isVNFType(String type) {
-        if (ToolUtil.isTrimedEmptyString(type)) {
-            return false;
-        }
-        return type.toUpperCase().contains(".VNF");
+    if (isVnfType(type)) {
+      return EnumTemplateType.VNF;
     }
 
-    private boolean isNSType(String type) {
-        if (ToolUtil.isTrimedEmptyString(type)) {
-            return false;
-        }
-        return type.toUpperCase().contains(".NS");
+    return getTemplateTypeFromNodeTemplates(ntList);
+  }
+
+  private String getSubstitutionMappingType(ParseYamlResult result) {
+    if (result.getTopologyTemplate().getSubstitutionMappings() == null) {
+      return null;
     }
+    return result.getTopologyTemplate().getSubstitutionMappings().getNodeType();
+  }
+
+  private EnumTemplateType getTemplateTypeFromNodeTemplates(List<NodeTemplate> ntList) {
+    for (NodeTemplate nt : ntList) {
+      if (isNsType(nt.getType()) || isVnfType(nt.getType())) {
+        return EnumTemplateType.NS;
+      }
+    }
+
+    return EnumTemplateType.VNF;
+  }
+
+  private boolean isVnfType(String type) {
+    if (ToolUtil.isTrimedEmptyString(type)) {
+      return false;
+    }
+    return type.toUpperCase().contains(".VNF");
+  }
+
+  private boolean isNsType(String type) {
+    if (ToolUtil.isTrimedEmptyString(type)) {
+      return false;
+    }
+    return type.toUpperCase().contains(".NS");
+  }
 }

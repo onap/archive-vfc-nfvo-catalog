@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.entity;
 
 import lombok.AllArgsConstructor;
@@ -22,10 +23,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RelationShip {	
-	private String sourceNodeName;
-	private String targetNodeName;
-	private String sourceNodeId;
-    private String targetNodeId;
-	private String type;
+public class RelationShip {
+  
+  private String sourceNodeName;
+  
+  private String targetNodeName;
+  
+  private String sourceNodeId;
+  
+  private String targetNodeId;
+  
+  private String type;
+  
 }

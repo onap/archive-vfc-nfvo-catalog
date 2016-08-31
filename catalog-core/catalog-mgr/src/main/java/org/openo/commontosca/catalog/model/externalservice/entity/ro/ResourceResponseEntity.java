@@ -13,30 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.externalservice.entity.roEntity;
+
+package org.openo.commontosca.catalog.model.externalservice.entity.ro;
 
 import java.util.ArrayList;
 
-public class ResourceResponseEntity
-{
-    ArrayList <VimEntity> data=new ArrayList<VimEntity>();   
-    String operationResult;
+public class ResourceResponseEntity {
+  ArrayList<VimEntity> data = new ArrayList<VimEntity>();
+  String operationResult;
 
-    public String getOperationResult()
-    {
-        return operationResult;
-    }
+  public String getOperationResult() {
+    return operationResult;
+  }
 
-    public void setOperationResult(String operationResult)
-    {
-        this.operationResult = operationResult;
-    }
-    public ArrayList <VimEntity> getData()
-    {
-        return data;
-    }
-    public void setData(ArrayList <VimEntity> data)
-    {
-        this.data = data;
-    }   
+  public void setOperationResult(String operationResult) {
+    this.operationResult = operationResult;
+  }
+
+  public ArrayList<VimEntity> getData() {
+    return data;
+  }
+
+  public void setData(ArrayList<VimEntity> data) {
+    this.data = data;
+  }
 }

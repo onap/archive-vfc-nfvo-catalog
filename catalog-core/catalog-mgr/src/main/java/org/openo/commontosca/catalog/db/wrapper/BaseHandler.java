@@ -13,155 +13,201 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.wrapper;
+
+import com.google.gson.Gson;
+
+import org.openo.commontosca.catalog.db.dao.BaseDao;
+import org.openo.commontosca.catalog.db.dao.DaoManager;
+import org.openo.commontosca.catalog.db.entity.BaseData;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.db.util.CatalogDbUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
-import org.openo.commontosca.catalog.db.entity.BaseData;
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.db.util.CatalogDbUtil;
-import org.openo.commontosca.catalog.db.dao.BaseDao;
-import org.openo.commontosca.catalog.db.dao.DaoManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
 
 /**
- * an abstract class for NFV wrapper class
+ * an abstract class for NFV wrapper class.
+ * provide the common methods to process the CRUD rest request.
  * 
- * provide the common methods to process the CRUD rest request
- * 
- * *@author 10159474
- * 
- * @param <T>
  */
 public abstract class BaseHandler<T extends BaseData> {
-    private final static Logger logger = LoggerFactory.getLogger(BaseHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(BaseHandler.class);
 
-    public Gson gson = new Gson();
+  public Gson gson = new Gson();
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public T create(T data, String resouceType) throws CatalogResourceException {
-        T rtnData = null;
-        logger.info("BaseHandler:start create data.info:" + CatalogDbUtil.objectToString(data));
-        try {
-            check(data);
-            BaseDao dao = DaoManager.getInstance().getDao(resouceType);
-            rtnData = (T) dao.create(data);
-        } catch (CatalogResourceException e) {
-            logger.error("BaseHandler:error while creating " + resouceType, e);
-            throw e;
-        }
-        logger.info("BaseHandler:create data end.info:" + CatalogDbUtil.objectToString(data));
-        return rtnData;
+  /**
+   * create date. 
+   * @param data data to create
+   * @param resouceType resouce type
+   * @return T
+   * @throws CatalogResourceException e1
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public T create(T data, String resouceType) throws CatalogResourceException {
+    T rtnData = null;
+    logger.info("BaseHandler:start create data.info:" + CatalogDbUtil.objectToString(data));
+    try {
+      check(data);
+      BaseDao dao = DaoManager.getInstance().getDao(resouceType);
+      rtnData = (T) dao.create(data);
+    } catch (CatalogResourceException e1) {
+      logger.error("BaseHandler:error while creating " + resouceType, e1);
+      throw e1;
+    }
+    logger.info("BaseHandler:create data end.info:" + CatalogDbUtil.objectToString(data));
+    return rtnData;
+  }
+
+  /**
+   * delete data.
+   * @param data data to delete
+   * @param resouceType resource type
+   * @throws CatalogResourceException e1
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void delete(T data, String resouceType) throws CatalogResourceException {
+    logger.info("BaseHandler:start delete data.info:" + CatalogDbUtil.objectToString(data));
+    try {
+      BaseDao dao = DaoManager.getInstance().getDao(resouceType);
+      dao.delete(data);
+    } catch (CatalogResourceException e1) {
+      logger.error("BaseHandler:error while deleting " + resouceType, e1);
+      throw e1;
+    }
+    logger.info("BaseHandler:delete data end");
+  }
+
+  /**
+   * delete data.
+   * @param queryParam query param
+   * @param resouceType String
+   * @throws CatalogResourceException e1
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void delete(Map<String, String> queryParam, String resouceType)
+      throws CatalogResourceException {
+    logger.info("BaseHandler:start delete data by condition.info:"
+        + CatalogDbUtil.objectToString(queryParam));
+    List<T> datas;
+    try {
+      BaseDao dao = DaoManager.getInstance().getDao(resouceType);
+      datas = dao.query(queryParam);
+      for (T data : datas) {
+        delete(data, resouceType);
+      }
+    } catch (CatalogResourceException e1) {
+      logger.error("BaseHandler:error while deleting " + resouceType, e1);
+      throw e1;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void delete(T data, String resouceType) throws CatalogResourceException {
-        logger.info("BaseHandler:start delete data.info:" + CatalogDbUtil.objectToString(data));
-        try {
-            BaseDao dao = DaoManager.getInstance().getDao(resouceType);
-            dao.delete(data);
-        } catch (CatalogResourceException e) {
-            logger.error("BaseHandler:error while deleting " + resouceType, e);
-            throw e;
-        }
-        logger.info("BaseHandler:delete data end");
+  }
+
+  /**
+   * update data.
+   * @param data data to update
+   * @param filter filter
+   * @param resouceType resource type
+   * @throws CatalogResourceException e1
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void update(T data, String filter, String resouceType) throws CatalogResourceException {
+    logger.info("BaseHandler:start update data .info:" + CatalogDbUtil.objectToString(data)
+        + " filter:" + filter);
+    try {
+      check(data);
+      BaseDao dao = DaoManager.getInstance().getDao(resouceType);
+      dao.update(data, filter);
+
+    } catch (CatalogResourceException e1) {
+      logger.error("BaseHandler:error while updating " + resouceType, e1);
+      throw e1;
     }
+    logger.info("BaseHandler:update data end ");
+  }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void delete(Map<String, String> queryParam, String resouceType)
-            throws CatalogResourceException {
-        logger.info("BaseHandler:start delete data by condition.info:"
-                + CatalogDbUtil.objectToString(queryParam));
-        List<T> datas;
-        try {
-            BaseDao dao = DaoManager.getInstance().getDao(resouceType);
-            datas = dao.query(queryParam);
-            for (T data : datas) {
-                delete(data, resouceType);
-            }
-        } catch (CatalogResourceException e) {
-            logger.error("BaseHandler:error while deleting " + resouceType, e);
-            throw e;
-        }
+  /**
+   * query data.
+   * @param queryParam query parameter
+   * @param resouceType resource type
+   * @return T list
+   * @throws CatalogResourceException e1
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public List<T> query(Map<String, String> queryParam, String resouceType)
+      throws CatalogResourceException {
+    logger.info("BaseHandler:start query data .info:" + CatalogDbUtil.objectToString(queryParam));
+    List<T> datas = null;
+    try {
+      BaseDao dao = DaoManager.getInstance().getDao(resouceType);
+      datas = dao.query(queryParam);
 
+    } catch (CatalogResourceException e1) {
+      logger.error("BaseHandler:error while querying " + resouceType, e1);
+      throw e1;
     }
+    logger.info("BaseHandler: query data end .info:" + CatalogDbUtil.objectToString(datas));
+    return datas;
+  }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void update(T data, String filter, String resouceType) throws CatalogResourceException {
-        logger.info("BaseHandler:start update data .info:" + CatalogDbUtil.objectToString(data)
-                + " filter:" + filter);
-        try {
-            check(data);
-            BaseDao dao = DaoManager.getInstance().getDao(resouceType);
-            dao.update(data, filter);
+  /**
+   * union query.
+   * @param filter filter
+   * @param resouceType resource type
+   * @return T list
+   * @throws CatalogResourceException e1
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public List<T> unionQuery(String filter, String resouceType) throws CatalogResourceException {
+    logger.info("BaseHandler:start union query data.fliter:" + filter);
+    List<T> datas = null;
+    try {
+      BaseDao dao = DaoManager.getInstance().getDao(resouceType);
+      datas = dao.unionQuery(filter);
 
-        } catch (CatalogResourceException e) {
-            logger.error("BaseHandler:error while updating " + resouceType, e);
-            throw e;
-        }
-        logger.info("BaseHandler:update data end ");
+    } catch (CatalogResourceException e1) {
+      logger.error("BaseHandler:error while union querying " + resouceType, e1);
+      throw e1;
     }
+    logger.info("BaseHandler:union query data end .info:" + CatalogDbUtil.objectToString(datas));
+    return datas;
+  }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public List<T> query(Map<String, String> queryParam, String resouceType)
-            throws CatalogResourceException {
-        logger.info("BaseHandler:start query data .info:"
-                + CatalogDbUtil.objectToString(queryParam));
-        List<T> datas = null;
-        try {
-            BaseDao dao = DaoManager.getInstance().getDao(resouceType);
-            datas = dao.query(queryParam);
+  /**
+   * union delete.
+   * @param filter filter
+   * @param resouceType resource type
+   * @return int
+   * @throws CatalogResourceException e1
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public int unionDelete(String filter, String resouceType) throws CatalogResourceException {
+    logger.info("BaseHandler:start delete query data.fliter:" + filter);
+    int num;
+    try {
+      BaseDao dao = DaoManager.getInstance().getDao(resouceType);
+      num = dao.unionDelete(filter);
 
-        } catch (CatalogResourceException e) {
-            logger.error("BaseHandler:error while querying " + resouceType, e);
-            throw e;
-        }
-        logger.info("BaseHandler: query data end .info:" + CatalogDbUtil.objectToString(datas));
-        return datas;
+    } catch (CatalogResourceException e1) {
+      logger.error("BaseHandler:error while union delete " + resouceType, e1);
+      throw e1;
     }
+    logger.info("BaseHandler:union delete data end .num:" + num);
+    return num;
+  }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public List<T> unionQuery(String filter, String resouceType) throws CatalogResourceException {
-        logger.info("BaseHandler:start union query data.fliter:" + filter);
-        List<T> datas = null;
-        try {
-            BaseDao dao = DaoManager.getInstance().getDao(resouceType);
-            datas = dao.unionQuery(filter);
-
-        } catch (CatalogResourceException e) {
-            logger.error("BaseHandler:error while union querying " + resouceType, e);
-            throw e;
-        }
-        logger.info("BaseHandler:union query data end .info:" + CatalogDbUtil.objectToString(datas));
-        return datas;
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public int unionDelete(String filter, String resouceType) throws CatalogResourceException {
-        logger.info("BaseHandler:start delete query data.fliter:" + filter);
-        int num;
-        try {
-            BaseDao dao = DaoManager.getInstance().getDao(resouceType);
-            num = dao.unionDelete(filter);
-
-        } catch (CatalogResourceException e) {
-            logger.error("BaseHandler:error while union delete " + resouceType, e);
-            throw e;
-        }
-        logger.info("BaseHandler:union delete data end .num:" + num);
-        return num;
-    }
-
-    /**
-     * check if the related object id exists in the system
-     * 
-     * @param data
-     * @throws CatalogResourceException
-     */
-    public abstract void check(T data) throws CatalogResourceException;
+  /**
+   * check if the related object id exists in the system.
+   * 
+   * @param data data to check
+   * @throws CatalogResourceException e
+   */
+  public abstract void check(T data) throws CatalogResourceException;
 
 }

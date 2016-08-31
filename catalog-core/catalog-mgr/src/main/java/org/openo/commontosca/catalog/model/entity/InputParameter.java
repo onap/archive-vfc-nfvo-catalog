@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author 10090474
- *
- */
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class InputParameter {
-    private String name;
-    private EnumDataType type = EnumDataType.STRING;
-    private String description;
-    private String defaultValue;
-    private boolean required;
+  private String name;
+  private EnumDataType type = EnumDataType.STRING;
+  private String description;
+  private String defaultValue;
+  private boolean required;
 }

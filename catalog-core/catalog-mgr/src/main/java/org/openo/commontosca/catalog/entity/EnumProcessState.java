@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.entity;
 
-/**
- * @author 00164331
- * 
- */
 public enum EnumProcessState {
-    normal, onBoarding, onBoardFailed, deleting, deleteFailed
+  normal, onBoarding, onBoardFailed, deleting, deleteFailed
 }

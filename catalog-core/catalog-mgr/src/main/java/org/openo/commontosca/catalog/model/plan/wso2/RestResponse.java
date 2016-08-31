@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.externalservice.entity.containerEntity;
 
-/**
- * @author 10189609
- *
- */
-public class ContainerServiceOperationParameter {
+package org.openo.commontosca.catalog.model.plan.wso2;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class RestResponse {
+  
+  private Integer statusCode;
+  
+  private String result;
 }

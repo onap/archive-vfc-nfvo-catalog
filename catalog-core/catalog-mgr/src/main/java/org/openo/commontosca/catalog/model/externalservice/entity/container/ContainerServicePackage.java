@@ -13,28 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.externalservice.entity.containerEntity;
 
-import java.util.List;
+package org.openo.commontosca.catalog.model.externalservice.entity.container;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="servicetemplates")
-public class ContainerServiceTemplateList {
-	public static final String NAMESPACE_OF_SELFSERVICE="http://www.eclipse.org/winery/model/selfservice";
-	
-	@XmlElement(name="serviceTemplate")
-	private List<ContainerServiceTemplate> serviceTemplateList;
+@XmlRootElement
+public class ContainerServicePackage {
+  @XmlAttribute
+  private String name;
+  @XmlAttribute
+  private String createTime;
+  @XmlAttribute
+  private String size;
 
-	public List<ContainerServiceTemplate> getServiceTemplateList() {
-		return serviceTemplateList;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setServiceTemplateList(List<ContainerServiceTemplate> optionList) {
-		this.serviceTemplateList = optionList;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getCreateTime() {
+    return createTime;
+  }
+
+  public void setCreateTime(String createTime) {
+    this.createTime = createTime;
+  }
+
+  public String getSize() {
+    return size;
+  }
+
+  public void setSize(String size) {
+    this.size = size;
+  }
+
+
 }

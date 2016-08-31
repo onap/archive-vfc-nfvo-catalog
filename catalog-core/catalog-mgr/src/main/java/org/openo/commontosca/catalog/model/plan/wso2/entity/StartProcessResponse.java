@@ -13,31 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.plan.wso2.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-/**
- * @author 10090474
- *
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StartProcessResponse {
-    private static final int STATUS_SUCCESS = 1;
+  private static final int STATUS_SUCCESS = 1;
 
-    private int status;
-    private String message;
-    private String response;
-    private String exception;
+  private int status;
+  private String message;
+  private String response;
+  private String exception;
 
-    public boolean isSuccess() {
-        return this.status == STATUS_SUCCESS;
-    }
+  public boolean isSuccess() {
+    return this.status == STATUS_SUCCESS;
+  }
 }

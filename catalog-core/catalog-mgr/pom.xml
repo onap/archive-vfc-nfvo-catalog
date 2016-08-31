@@ -26,6 +26,9 @@
     <artifactId>catalog-mgr</artifactId>
     <name>openo/commontosca/catalog/catalog-mgr</name>
     <packaging>jar</packaging>
+	<properties>
+		<httpclient.version>4.4.1</httpclient.version>
+    </properties>
 
     <build>
         <plugins>
@@ -275,5 +278,28 @@
             <scope>test</scope>
         </dependency>
         <!-- UT end -->
+        <!-- httpclient-->
+	    <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+            <exclusions>
+                <!-- provided by jcl-over-slf4j to enable logging via logback -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+	    <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>${httpclient.version}</version>
+		</dependency>
     </dependencies>
 </project>

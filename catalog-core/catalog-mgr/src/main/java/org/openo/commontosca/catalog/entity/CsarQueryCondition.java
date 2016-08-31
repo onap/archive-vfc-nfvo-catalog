@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.entity;
 
 import lombok.AllArgsConstructor;
@@ -22,17 +23,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CSARQueryCondition {
+public class CsarQueryCondition {
 
-    private String csarId;
+  private String csarId;
 
-    private String name;
+  private String name;
 
-    private String provider;
+  private String provider;
 
-    private String version;
+  private String version;
 
-    private Boolean deletionPending;
+  private Boolean deletionPending;
 
-    private EnumType type;
+  private EnumType type;
 }

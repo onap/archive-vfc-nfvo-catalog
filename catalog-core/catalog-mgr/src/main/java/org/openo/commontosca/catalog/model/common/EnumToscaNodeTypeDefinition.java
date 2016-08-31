@@ -13,48 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.common;
 
 public enum EnumToscaNodeTypeDefinition {
-    VNF{
-        @Override
-        public String getName(){
-            return "tosca.nodes.nfv.VNF";
-        }
-    },
-    VDU{
-        @Override
-        public String getName(){
-            return "tosca.nodes.nfv.VDU";
-        }
-    },
-    VNFC{
-        @Override
-        public String getName(){
-            return "tosca.nodes.nfv.VNFC";
-        }
-    },
-    VL{
-        @Override
-        public String getName(){
-            return "tosca.nodes.nfv.VL";
-        }
-    },
-    CP{
-        @Override
-        public String getName(){
-            return "tosca.nodes.nfv.CP";
-        }
-    };
-    
-    public abstract String getName();
-    
-    public static boolean isToscaNodeTypeDef(String type){
-        for(EnumToscaNodeTypeDefinition enumDef : EnumToscaNodeTypeDefinition.values()){
-            if(type.indexOf(enumDef.getName()) != -1){
-                return true;
-            }
-        }
-        return false;
+  VNF {
+    @Override
+    public String getName() {
+      return "tosca.nodes.nfv.VNF";
     }
+  },
+  VDU {
+    @Override
+    public String getName() {
+      return "tosca.nodes.nfv.VDU";
+    }
+  },
+  VNFC {
+    @Override
+    public String getName() {
+      return "tosca.nodes.nfv.VNFC";
+    }
+  },
+  VL {
+    @Override
+    public String getName() {
+      return "tosca.nodes.nfv.VL";
+    }
+  },
+  CP {
+    @Override
+    public String getName() {
+      return "tosca.nodes.nfv.CP";
+    }
+  };
+
+  public abstract String getName();
+
+  /**
+   * judge wether is tosca node type definition or not.
+   * @param type node type
+   * @return boolean
+   */
+  public static boolean isToscaNodeTypeDef(String type) {
+    for (EnumToscaNodeTypeDefinition enumDef : EnumToscaNodeTypeDefinition.values()) {
+      if (type.indexOf(enumDef.getName()) != -1) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

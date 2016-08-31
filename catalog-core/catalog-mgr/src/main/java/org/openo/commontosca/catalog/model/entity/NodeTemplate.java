@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.entity;
 
-import java.util.List;
-import java.util.Map;
+package org.openo.commontosca.catalog.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeTemplate {
-    private String id;
-    private String name;
-    private String type;
-    private Map<String, Object> properties;
-    private List<RelationShip> relationShips;
+  private String id;
+  private String name;
+  private String type;
+  private Map<String, Object> properties;
+  private List<RelationShip> relationShips;
 }

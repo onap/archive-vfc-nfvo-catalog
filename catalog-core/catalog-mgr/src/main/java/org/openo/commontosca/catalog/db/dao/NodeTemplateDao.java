@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.dao;
 
 import org.hibernate.SessionFactory;
@@ -20,16 +21,14 @@ import org.openo.commontosca.catalog.db.entity.NodeTemplateData;
 
 
 /**
- * host DAO class
- * 
- * *@author 10159474
+ * host DAO class.
  * 
  */
 public class NodeTemplateDao extends BaseDao<NodeTemplateData> {
 
-    public NodeTemplateDao(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
+  public NodeTemplateDao(SessionFactory sessionFactory) {
+    super(sessionFactory);
+  }
 
 
 }

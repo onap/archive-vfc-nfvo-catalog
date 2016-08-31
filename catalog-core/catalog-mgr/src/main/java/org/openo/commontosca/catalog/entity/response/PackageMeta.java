@@ -13,49 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.entity.response;
 
-import org.openo.commontosca.catalog.entity.EnumProcessState;
-import org.openo.commontosca.catalog.entity.EnumOperationalState;
-import org.openo.commontosca.catalog.entity.EnumUsageState;
+package org.openo.commontosca.catalog.entity.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import org.openo.commontosca.catalog.entity.EnumOperationalState;
+import org.openo.commontosca.catalog.entity.EnumProcessState;
+import org.openo.commontosca.catalog.entity.EnumUsageState;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PackageMeta {
 
-    private String csarId;
+  private String csarId;
 
-    private String name;
+  private String name;
 
-    private String downloadUri;
+  private String downloadUri;
 
-    private String size;
+  private String size;
 
-    private String version;
+  private String version;
 
-    private String provider;
+  private String provider;
 
-    private String type;
+  private String type;
 
-    private String format;
+  private String format;
 
-    private boolean deletionPending;
+  private boolean deletionPending;
 
-    private String createTime;
+  private String createTime;
 
-    private String modifyTime;
+  private String modifyTime;
 
-    private EnumOperationalState operationalState;
+  private EnumOperationalState operationalState;
 
-    private EnumUsageState usageState;
+  private EnumUsageState usageState;
 
-    private String onBoardState;
+  private String onBoardState;
 
-    private EnumProcessState processState;
+  private EnumProcessState processState;
 
 }

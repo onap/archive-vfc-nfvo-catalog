@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.entity;
 
 import lombok.AllArgsConstructor;
@@ -23,5 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServiceTemplateRawData {
-    private String rawData;
+  
+  private String rawData;
+  
 }

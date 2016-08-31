@@ -13,39 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.db.util;
 
-import java.sql.SQLException;
+package org.openo.commontosca.catalog.db.util;
 
 import org.h2.tools.Server;
 
+import java.sql.SQLException;
+
+
 public class H2DbServer {
 
-    private static Server h2DbWebServer;
-    private static Server h2DbTcpServer;
+  private static Server h2DbWebServer;
+  private static Server h2DbTcpServer;
 
-    public static void startUp() {
-        try {
-            h2DbWebServer =
-                    Server.createWebServer(new String[] {"-web", "-webAllowOthers", "-webPort",
-                            "8206"});
-            h2DbWebServer.start();
+  /**
+   * start up db service.
+   */
+  public static void startUp() {
+    try {
+      h2DbWebServer =
+          Server.createWebServer(new String[] {"-web", "-webAllowOthers", "-webPort", "8206"});
+      h2DbWebServer.start();
 
-            h2DbTcpServer =
-                    Server.createTcpServer(new String[] {"-tcp", "-tcpAllowOthers", "-tcpPort",
-                            "8205"});
-            h2DbTcpServer.start();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+      h2DbTcpServer =
+          Server.createTcpServer(new String[] {"-tcp", "-tcpAllowOthers", "-tcpPort", "8205"});
+      h2DbTcpServer.start();
+    } catch (SQLException e1) {
+      e1.printStackTrace();
     }
+  }
 
-    public static void shutDown() {
-        if (h2DbWebServer.isRunning(true)) {
-            h2DbWebServer.shutdown();
-        }
-        if (h2DbTcpServer.isRunning(true)) {
-            h2DbTcpServer.shutdown();
-        }
+  /**
+   * shut down db service.
+   */
+  public static void shutDown() {
+    if (h2DbWebServer.isRunning(true)) {
+      h2DbWebServer.shutdown();
     }
+    if (h2DbTcpServer.isRunning(true)) {
+      h2DbTcpServer.shutdown();
+    }
+  }
 }

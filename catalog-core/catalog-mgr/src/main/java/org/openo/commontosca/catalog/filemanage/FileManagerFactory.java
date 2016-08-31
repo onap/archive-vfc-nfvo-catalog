@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.filemanage;
 
 import org.openo.commontosca.catalog.filemanage.http.HttpFileManagerImpl;
@@ -20,29 +21,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileManagerFactory {
-    private static final Logger logger = LoggerFactory.getLogger(FileManagerFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(FileManagerFactory.class);
 
-    private static FileManager getHttpFileManager() {
-        return new HttpFileManagerImpl();
-    }
+  private static FileManager getHttpFileManager() {
+    return new HttpFileManagerImpl();
+  }
 
-    public static FileManager createFileManager() {
-        switch (getType()) {
-            case http:
-                return getHttpFileManager();
-            case ftp:
-                return null;
-            default:
-                return getHttpFileManager();
-        }
+  /**
+   * create file manager.
+   * @return FileManager
+   */
+  public static FileManager createFileManager() {
+    switch (getType()) {
+      case http:
+        return getHttpFileManager();
+      case ftp:
+        return null;
+      default:
+        return getHttpFileManager();
     }
+  }
 
-    private static FileManagerType getType() {
-        String type = System.getenv("useFtp");
-        logger.info("read environment varibale uesFtp:" + type);
-        if (type != null && "true".equals(type))
-            return FileManagerType.ftp;
-        else
-            return FileManagerType.http;
+  private static FileManagerType getType() {
+    String type = System.getenv("useFtp");
+    logger.info("read environment varibale uesFtp:" + type);
+    if (type != null && "true".equals(type)) {
+      return FileManagerType.ftp;
+    } else {
+      return FileManagerType.http;
     }
+  }
 }

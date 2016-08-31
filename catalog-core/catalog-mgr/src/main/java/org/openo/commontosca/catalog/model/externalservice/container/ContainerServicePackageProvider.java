@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
 
 import java.io.IOException;
@@ -28,39 +29,39 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.openo.commontosca.catalog.model.externalservice.entity.containerEntity.ContainerServicePackageList;
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServicePackageList;
 
 /**
- * The opentosca container service returns data to the package entity
+ * The opentosca container service returns data to the package entity.
+ * 
  * @author 10189609
- *
+ * 
  */
-public class ContainerServicePackageProvider implements MessageBodyReader<ContainerServicePackageList> {
+public class ContainerServicePackageProvider implements
+    MessageBodyReader<ContainerServicePackageList> {
 
-	@Override
-	public boolean isReadable(Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType) {
-		return ContainerServicePackageList.class.isAssignableFrom(type);
-	}
+  @Override
+  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations,
+      MediaType mediaType) {
+    return ContainerServicePackageList.class.isAssignableFrom(type);
+  }
 
-	@Override
-	public ContainerServicePackageList readFrom(
-			Class<ContainerServicePackageList> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
-			throws IOException, WebApplicationException {
-		ContainerServicePackageList packageList = null;
-		
-		try 
-		{
-			JAXBContext jaxbContext = JAXBContext.newInstance(ContainerServicePackageList.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			packageList = (ContainerServicePackageList) unmarshaller.unmarshal(entityStream);
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
-		
-		return packageList;
-	}
+  @Override
+  public ContainerServicePackageList readFrom(Class<ContainerServicePackageList> type,
+      Type genericType, Annotation[] annotations, MediaType mediaType,
+      MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException,
+      WebApplicationException {
+    ContainerServicePackageList packageList = null;
+
+    try {
+      JAXBContext jaxbContext = JAXBContext.newInstance(ContainerServicePackageList.class);
+      Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+      packageList = (ContainerServicePackageList) unmarshaller.unmarshal(entityStream);
+    } catch (JAXBException e1) {
+      e1.printStackTrace();
+    }
+
+    return packageList;
+  }
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.entity.response;
 
 import lombok.AllArgsConstructor;
@@ -20,16 +21,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
-/**
- * @author 00164331
- * 
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CsarFileUriResponse {
 
-    private String downloadUri;
+  private String downloadUri;
 
-    private String localPath;
+  private String localPath;
 }

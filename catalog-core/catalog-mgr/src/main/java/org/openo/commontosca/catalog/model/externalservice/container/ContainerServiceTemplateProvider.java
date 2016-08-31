@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
 
 import java.io.IOException;
@@ -28,41 +29,40 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.openo.commontosca.catalog.model.externalservice.entity.containerEntity.ContainerServiceTemplateList;
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServiceTemplateList;
+
 
 /**
- * The opentosca container self service returns data to the service template entity
+ * The opentosca container self service returns data to the service template entity.
+ * 
  * @author 10189609
- *
+ * 
  */
 public class ContainerServiceTemplateProvider implements
-		MessageBodyReader<ContainerServiceTemplateList> {
+    MessageBodyReader<ContainerServiceTemplateList> {
 
-	@Override
-	public boolean isReadable(Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType) {
-		return ContainerServiceTemplateList.class.isAssignableFrom( type );
-	}
+  @Override
+  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations,
+      MediaType mediaType) {
+    return ContainerServiceTemplateList.class.isAssignableFrom(type);
+  }
 
-	@Override
-	public ContainerServiceTemplateList readFrom(Class<ContainerServiceTemplateList> type,
-			Type genericType, Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
-			throws IOException, WebApplicationException {
-		ContainerServiceTemplateList object = null;
-		
-		try
-		{
-			JAXBContext jaxbContext = JAXBContext.newInstance(ContainerServiceTemplateList.class);
-			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			object = (ContainerServiceTemplateList)jaxbUnmarshaller.unmarshal(entityStream);
-		}
-		catch(JAXBException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return object;
-	}
+  @Override
+  public ContainerServiceTemplateList readFrom(Class<ContainerServiceTemplateList> type,
+      Type genericType, Annotation[] annotations, MediaType mediaType,
+      MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException,
+      WebApplicationException {
+    ContainerServiceTemplateList object = null;
+
+    try {
+      JAXBContext jaxbContext = JAXBContext.newInstance(ContainerServiceTemplateList.class);
+      Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+      object = (ContainerServiceTemplateList) jaxbUnmarshaller.unmarshal(entityStream);
+    } catch (JAXBException e1) {
+      e1.printStackTrace();
+    }
+
+    return object;
+  }
 
 }

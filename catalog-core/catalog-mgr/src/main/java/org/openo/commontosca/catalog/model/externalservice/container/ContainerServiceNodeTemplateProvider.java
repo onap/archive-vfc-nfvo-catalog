@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
+
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServiceNodeTemplateList;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,48 +35,43 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
-import org.openo.commontosca.catalog.model.externalservice.entity.containerEntity.ContainerServiceNodeTemplateList;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
-
 /**
- * The opentosca container service returns data to the node template entity
+ * The opentosca container service returns data to the node template entity.
+ * 
  * @author 10189609
- *
+ * 
  */
-public class ContainerServiceNodeTemplateProvider implements 
-	MessageBodyReader<ContainerServiceNodeTemplateList> {
+public class ContainerServiceNodeTemplateProvider implements
+    MessageBodyReader<ContainerServiceNodeTemplateList> {
 
-	@Override
-	public boolean isReadable(Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType) {
-		return ContainerServiceNodeTemplateList.class.isAssignableFrom(type);
-	}
+  @Override
+  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations,
+      MediaType mediaType) {
+    return ContainerServiceNodeTemplateList.class.isAssignableFrom(type);
+  }
 
-	@Override
-	public ContainerServiceNodeTemplateList readFrom(
-			Class<ContainerServiceNodeTemplateList> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
-			throws IOException, WebApplicationException {
-		ContainerServiceNodeTemplateList nodetemplatelist = null;
-		
-		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(ContainerServiceNodeTemplateList.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			//ignore namespace
-			NamespaceFilter inFilter = new NamespaceFilter(null, false);
-	        XMLReader reader = XMLReaderFactory.createXMLReader();
-	        inFilter.setParent(reader);
-	        Source source = new SAXSource(inFilter, new InputSource(entityStream)); 
-	         
-			nodetemplatelist = (ContainerServiceNodeTemplateList) unmarshaller.unmarshal(source);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return nodetemplatelist;
-	}
+  @Override
+  public ContainerServiceNodeTemplateList readFrom(Class<ContainerServiceNodeTemplateList> type,
+      Type genericType, Annotation[] annotations, MediaType mediaType,
+      MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException,
+      WebApplicationException {
+    ContainerServiceNodeTemplateList nodetemplatelist = null;
+
+    try {
+      JAXBContext jaxbContext = JAXBContext.newInstance(ContainerServiceNodeTemplateList.class);
+      Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+      // ignore namespace
+      NamespaceFilter inFilter = new NamespaceFilter(null, false);
+      XMLReader reader = XMLReaderFactory.createXMLReader();
+      inFilter.setParent(reader);
+      Source source = new SAXSource(inFilter, new InputSource(entityStream));
+
+      nodetemplatelist = (ContainerServiceNodeTemplateList) unmarshaller.unmarshal(source);
+    } catch (Exception e1) {
+      e1.printStackTrace();
+    }
+
+    return nodetemplatelist;
+  }
 
 }

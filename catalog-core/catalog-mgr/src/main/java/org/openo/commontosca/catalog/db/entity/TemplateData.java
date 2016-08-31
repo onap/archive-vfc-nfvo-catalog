@@ -13,29 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.entity;
 
 import java.util.ArrayList;
 
 public class TemplateData extends BaseData {
-    private ServiceTemplateData serviceTemplate;
-    private ArrayList<NodeTemplateData> nodeTemplates = new ArrayList<NodeTemplateData>();
+  private ServiceTemplateData serviceTemplate;
+  private ArrayList<NodeTemplateData> nodeTemplates = new ArrayList<NodeTemplateData>();
 
-    public ServiceTemplateData getServiceTemplate() {
-        return serviceTemplate;
-    }
+  public ServiceTemplateData getServiceTemplate() {
+    return serviceTemplate;
+  }
 
-    public void setServiceTemplate(ServiceTemplateData serviceTemplate) {
-        this.serviceTemplate = serviceTemplate;
-    }
+  public void setServiceTemplate(ServiceTemplateData serviceTemplate) {
+    this.serviceTemplate = serviceTemplate;
+  }
 
-    public ArrayList<NodeTemplateData> getNodeTemplates() {
-        return nodeTemplates;
-    }
+  public ArrayList<NodeTemplateData> getNodeTemplates() {
+    return nodeTemplates;
+  }
 
-    public void setNodeTemplates(ArrayList<NodeTemplateData> nodeTemplates) {
-        this.nodeTemplates = nodeTemplates;
-    }
+  public void setNodeTemplates(ArrayList<NodeTemplateData> nodeTemplates) {
+    this.nodeTemplates = nodeTemplates;
+  }
 
 
 }

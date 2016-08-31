@@ -13,29 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.externalservice.entity.containerEntity;
 
-import java.util.List;
+package org.openo.commontosca.catalog.model.externalservice.entity.container;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="packages")
-public class ContainerServicePackageList {
-	public static final String NAMESPACE_OF_SELFSERVICE="http://www.eclipse.org/winery/model/selfservice";
-	
-	@XmlElement(name="package")
-	private List<ContainerServicePackage> packageList;
+public class ContainerServiceCommonParam {
+  @XmlElement
+  private String key;
 
-	public List<ContainerServicePackage> getPackageList() {
-		return packageList;
-	}
+  @XmlElement
+  private String value;
 
-	public void setPackageList(List<ContainerServicePackage> packageList) {
-		this.packageList = packageList;
-	}
-	
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

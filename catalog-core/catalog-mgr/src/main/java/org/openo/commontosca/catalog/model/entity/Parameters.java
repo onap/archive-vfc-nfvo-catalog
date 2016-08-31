@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.externalservice.entity.lifecycleEnity;
 
-public class InstanceEntity {
-	private String serviceTemplateId;
+package org.openo.commontosca.catalog.model.entity;
 
-	public String getServiceTemplateId() {
-		return serviceTemplateId;
-	}
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-	public void setServiceTemplateId(String serviceTemplateId) {
-		this.serviceTemplateId = serviceTemplateId;
-	}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Parameters {
+
+  private InputParameter[] inputs;
+
+  private OutputParameter[] outputs;
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
 
 import java.io.IOException;
@@ -28,39 +29,39 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.openo.commontosca.catalog.model.externalservice.entity.containerEntity.ContainerSelfService;
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerSelfService;
+
 
 
 /**
- * The opentosca container self service returns data to the entity
+ * The opentosca container self service returns data to the entity.
+ * 
  * @author 10189609
- *
+ * 
  */
-public class ContainerSelfServiceProvider implements
-		MessageBodyReader<ContainerSelfService> {
+public class ContainerSelfServiceProvider implements MessageBodyReader<ContainerSelfService> {
 
-	@Override
-	public boolean isReadable(Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType) {
-		return ContainerSelfService.class.isAssignableFrom(type);
-	}
+  @Override
+  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations,
+      MediaType mediaType) {
+    return ContainerSelfService.class.isAssignableFrom(type);
+  }
 
-	@Override
-	public ContainerSelfService readFrom(Class<ContainerSelfService> type,
-			Type genericType, Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
-			throws IOException, WebApplicationException {
-		ContainerSelfService object = null;
-		
-		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(ContainerSelfService.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			object = (ContainerSelfService) unmarshaller.unmarshal(entityStream);
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
-		
-		return object;
-	}
+  @Override
+  public ContainerSelfService readFrom(Class<ContainerSelfService> type, Type genericType,
+      Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders,
+      InputStream entityStream) throws IOException, WebApplicationException {
+    ContainerSelfService object = null;
+
+    try {
+      JAXBContext jaxbContext = JAXBContext.newInstance(ContainerSelfService.class);
+      Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+      object = (ContainerSelfService) unmarshaller.unmarshal(entityStream);
+    } catch (JAXBException e1) {
+      e1.printStackTrace();
+    }
+
+    return object;
+  }
 
 }

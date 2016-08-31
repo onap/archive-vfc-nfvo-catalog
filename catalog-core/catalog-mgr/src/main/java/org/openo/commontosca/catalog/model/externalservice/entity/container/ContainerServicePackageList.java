@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openo.commontosca.catalog.model.externalservice.entity.containerEntity;
+
+package org.openo.commontosca.catalog.model.externalservice.entity.container;
 
 import java.util.List;
 
@@ -23,18 +24,20 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="nodetemplates")
-public class ContainerServiceNodeTemplateList {
-	@XmlElement(name="nodetemplate")
-	private List<ContainerServiceNodeTemplate> nodeTemplate;
+@XmlRootElement(name = "packages")
+public class ContainerServicePackageList {
+  public static final String NAMESPACE_OF_SELFSERVICE =
+      "http://www.eclipse.org/winery/model/selfservice";
 
-	public List<ContainerServiceNodeTemplate> getNodeTemplate() {
-		return nodeTemplate;
-	}
+  @XmlElement(name = "package")
+  private List<ContainerServicePackage> packageList;
 
-	public void setNodeTemplate(List<ContainerServiceNodeTemplate> nodeTemplate) {
-		this.nodeTemplate = nodeTemplate;
-	}
-	
-	
+  public List<ContainerServicePackage> getPackageList() {
+    return packageList;
+  }
+
+  public void setPackageList(List<ContainerServicePackage> packageList) {
+    this.packageList = packageList;
+  }
+
 }

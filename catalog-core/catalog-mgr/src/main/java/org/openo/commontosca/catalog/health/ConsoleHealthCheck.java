@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.health;
 
 import com.codahale.metrics.health.HealthCheck;
 
 public class ConsoleHealthCheck extends HealthCheck {
-    private final String template;
+  private final String template;
 
-    public ConsoleHealthCheck(String template) {
-        this.template = template;
-    }
+  public ConsoleHealthCheck(String template) {
+    this.template = template;
+  }
 
-    @Override
-    protected Result check() throws Exception {
-        final String saying = String.format(template, "TEST");
-        if (!saying.contains("TEST")) {
-            return Result.unhealthy("template doesn't include a name");
-        }
-        return Result.healthy();
+  @Override
+  protected Result check() throws Exception {
+    final String saying = String.format(template, "TEST");
+    if (!saying.contains("TEST")) {
+      return Result.unhealthy("template doesn't include a name");
     }
+    return Result.healthy();
+  }
 }

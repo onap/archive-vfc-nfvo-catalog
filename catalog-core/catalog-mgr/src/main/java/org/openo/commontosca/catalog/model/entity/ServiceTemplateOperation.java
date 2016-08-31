@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.entity;
 
 import lombok.AllArgsConstructor;
@@ -23,8 +24,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServiceTemplateOperation {
-    private String name;
-    private String description;
-    private String processId;
-    private InputParameter[] inputs;
+  
+  private String name;
+  
+  private String description;
+  
+  private String packageName;
+  
+  private String processId;
+  
+  private InputParameter[] inputs;
+  
 }

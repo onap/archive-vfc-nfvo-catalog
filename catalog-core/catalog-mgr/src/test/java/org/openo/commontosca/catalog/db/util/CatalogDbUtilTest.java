@@ -13,46 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+//import static org.junit.Assert.*;
 
 import org.junit.Test;
 
 public class CatalogDbUtilTest {
 
-    @Test
-    public void when_generate_id_is_not_null() {
-        String actual_uuid = CatalogDbUtil.generateId();
-        assertNotNull(actual_uuid);
-    }
+  @Test
+  public void when_generate_id_is_not_null() {
+    String actualUuid = CatalogDbUtil.generateId();
+    assertNotNull(actualUuid);
+  }
 
-    @Test
-    public void when_input_empty_string_output_false() {
-        boolean expect = false;
-        boolean actual = CatalogDbUtil.isNotEmpty("");
-        assertEquals(expect, actual);
-    }
+  @Test
+  public void when_input_empty_string_output_false() {
+    boolean expect = false;
+    boolean actual = CatalogDbUtil.isNotEmpty("");
+    assertEquals(expect, actual);
+  }
 
-    @Test
-    public void when_input_blan_string_output_true() {
-        boolean expect = true;
-        boolean actual = CatalogDbUtil.isNotEmpty(" ");
-        assertEquals(expect, actual);
-    }
+  @Test
+  public void when_input_blan_string_output_true() {
+    boolean expect = true;
+    boolean actual = CatalogDbUtil.isNotEmpty(" ");
+    assertEquals(expect, actual);
+  }
 
-    @Test
-    public void when_input_null_string_output_false() {
-        boolean expect = false;
-        boolean actual = CatalogDbUtil.isNotEmpty(null);
-        assertEquals(expect, actual);
-    }
+  @Test
+  public void when_input_null_string_output_false() {
+    boolean expect = false;
+    boolean actual = CatalogDbUtil.isNotEmpty(null);
+    assertEquals(expect, actual);
+  }
 
-    @Test
-    public void when_input_str_string_output_true() {
-        boolean expect = true;
-        boolean actual = CatalogDbUtil.isNotEmpty("str");
-        assertEquals(expect, actual);
-    }
+  @Test
+  public void when_input_str_string_output_true() {
+    boolean expect = true;
+    boolean actual = CatalogDbUtil.isNotEmpty("str");
+    assertEquals(expect, actual);
+  }
 
 }

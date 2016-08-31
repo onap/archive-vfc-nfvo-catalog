@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
 
 import java.io.IOException;
@@ -27,23 +28,23 @@ import javax.ws.rs.ext.MessageBodyReader;
 
 /**
  * The opentosca container service returns data directly.
+ * 
  * @author 10189609
- *
+ * 
  */
 public class StringProvider implements MessageBodyReader<String> {
 
-	@Override
-	public boolean isReadable(Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType) {
-		return false;//false representation not convert query results , returned directly
-	}
+  @Override
+  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations,
+      MediaType mediaType) {
+    return false;// false representation not convert query results , returned directly
+  }
 
-	@Override
-	public String readFrom(Class<String> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
-			throws IOException, WebApplicationException {
-		return null;
-	}
+  @Override
+  public String readFrom(Class<String> type, Type genericType, Annotation[] annotations,
+      MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+      throws IOException, WebApplicationException {
+    return null;
+  }
 
 }

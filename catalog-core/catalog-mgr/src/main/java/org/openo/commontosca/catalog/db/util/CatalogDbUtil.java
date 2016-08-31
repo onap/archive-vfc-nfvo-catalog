@@ -13,32 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.util;
 
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
+import java.util.UUID;
+
+
 public class CatalogDbUtil {
-    private final static Logger logger = LoggerFactory.getLogger(CatalogDbUtil.class);
 
-    public static String generateId() {
-        return UUID.randomUUID().toString();
-    }
+  public static String generateId() {
+    return UUID.randomUUID().toString();
+  }
 
-    public static boolean isNotEmpty(String s) {
-        return s != null && !"".equals(s) && s.length() > 0;
-    }
+  public static boolean isNotEmpty(String str) {
+    return str != null && !"".equals(str) && str.length() > 0;
+  }
 
-    public static String objectToString(Object obj) {
-        Gson gson = new Gson();
-        if (obj != null)
-            return gson.toJson(obj);
-        else
-            return null;
+  /**
+   * exchange object to string.
+   * @param obj Object
+   * @return string
+   */
+  public static String objectToString(Object obj) {
+    Gson gson = new Gson();
+    if (obj != null) {
+      return gson.toJson(obj);
+    } else {
+      return null;
     }
+  }
 
 }

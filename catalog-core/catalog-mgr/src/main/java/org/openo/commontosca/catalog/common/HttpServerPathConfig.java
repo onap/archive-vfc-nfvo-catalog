@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
-/**
- * @author 00164331
- * 
- */
+
 public class HttpServerPathConfig {
-    protected static String httpServerPath;
+  protected static String httpServerPath;
 
-    public static String getHttpServerPath() {
-        return httpServerPath;
-    }
+  public static String getHttpServerPath() {
+    return httpServerPath;
+  }
 
-    public static void setHttpServerPath(String httpServerPath) {
-        HttpServerPathConfig.httpServerPath = httpServerPath;
-    }
+  public static void setHttpServerPath(String httpServerPath) {
+    HttpServerPathConfig.httpServerPath = httpServerPath;
+  }
 }

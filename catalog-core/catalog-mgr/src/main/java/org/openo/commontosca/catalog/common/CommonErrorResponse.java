@@ -13,37 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author 00164331
- * 
- */
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommonErrorResponse {
 
-    private String code;
+  private String code;
 
-    private String message;
+  private String message;
 
-    /**
-     * @param message2
-     * @return
-     */
-    public static Object failure(String message) {
-        return message;
-    }
 
-    public CommonErrorResponse(String message) {
-        super();
-        this.message = message;
-    }
+  public static Object failure(String message) {
+    return message;
+  }
+
+  public CommonErrorResponse(String message) {
+    super();
+    this.message = message;
+  }
 
 }

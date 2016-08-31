@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
-/**
- * @author 00164331
- * 
- */
+
 public class HttpServerAddrConfig {
 
-    protected static String httpServerAddress;
+  protected static String httpServerAddress;
 
-    public static String getHttpServerAddress() {
-        return httpServerAddress;
-    }
+  public static String getHttpServerAddress() {
+    return httpServerAddress;
+  }
 
-    public static void setHttpServerAddress(String httpServerAddress) {
-        HttpServerAddrConfig.httpServerAddress = httpServerAddress;
-    }
+  public static void setHttpServerAddress(String httpServerAddress) {
+    HttpServerAddrConfig.httpServerAddress = httpServerAddress;
+  }
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.ro;
 
 import javax.ws.rs.GET;
@@ -23,13 +24,14 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * The roc resource interface.
+ * 
  * @author 10189609
- *
+ * 
  */
 @Path("/resource")
 public interface IResourceServiceRest {
-	@Path("/vims/{vim_id}")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getResourceVim(@PathParam("vim_id") String vimId) throws Exception;
+  @Path("/vims/{vim_id}")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getResourceVim(@PathParam("vim_id") String vimId) throws Exception;
 }

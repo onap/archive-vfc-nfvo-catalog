@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
 
 import javax.ws.rs.GET;
@@ -22,22 +23,25 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.openo.commontosca.catalog.model.externalservice.entity.containerEntity.ContainerServiceNodeTemplateList;
-import org.openo.commontosca.catalog.model.externalservice.entity.containerEntity.ContainerServiceTemplateList;
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServiceNodeTemplateList;
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServiceTemplateList;
+
 
 /**
  * The opentosca container interface for service template.
+ * 
  * @author 10189609
- *
+ * 
  */
 @Path("/servicetemplates")
 public interface IContainerTemplateRest {
-	@GET
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	ContainerServiceTemplateList getToscaServiceTemplate(@QueryParam("templateid") String templateId);	
-	
-	@Path("/{templateid}/nodetemplates")
-	@GET
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	ContainerServiceNodeTemplateList getToscaServiceNodeTemplates(@PathParam("templateid") String templateId);
+  @GET
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  ContainerServiceTemplateList getToscaServiceTemplate(@QueryParam("templateid") String templateId);
+
+  @Path("/{templateid}/nodetemplates")
+  @GET
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  ContainerServiceNodeTemplateList getToscaServiceNodeTemplates(
+      @PathParam("templateid") String templateId);
 }

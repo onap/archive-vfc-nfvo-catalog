@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.resource;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,138 +26,157 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openo.commontosca.catalog.db.common.Parameters;
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.dao.DaoManager;
 import org.openo.commontosca.catalog.db.entity.PackageData;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.util.H2DbServer;
 import org.openo.commontosca.catalog.db.util.HibernateSession;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+
 public class PackageManagerTest {
-    private static PackageManager manager;
+  private static PackageManager manager;
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        H2DbServer.startUp();
-        DaoManager.getInstance().setSessionFactory(HibernateSession.init());
-        manager = PackageManager.getInstance();
+  /**
+   * startup db session before class.
+   * @throws Exception e
+   */
+  @BeforeClass
+  public static void setUpBeforeClass() throws Exception {
+    H2DbServer.startUp();
+    DaoManager.getInstance().setSessionFactory(HibernateSession.init());
+    manager = PackageManager.getInstance();
+  }
+
+  /**
+   * destory db session after class.
+   * @throws Exception e
+   */
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {
+    try {
+      HibernateSession.destory();
+      DaoManager.getInstance().setPackageDao(null);
+      H2DbServer.shutDown();
+    } catch (Exception e1) {
+      Assert.fail("Exception" + e1.getMessage());
+    }
+  }
+
+  /**
+   * create data before test.
+   */
+  @Before
+  public void setUp() {
+    PackageData data = new PackageData();
+    data.setCsarId("10001");
+    data.setName("AG");
+    data.setVersion("v1.0");
+    data.setProvider("ZTE");
+    try {
+      manager.addPackage(data);
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
+    }
+  }
+
+  /**
+   * delete data after test.
+   */
+  @After
+  public void tearDown() {
+    try {
+      manager.deletePackage("10001");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
+    }
+  }
+
+  @Test
+  public void testAddPackageRepeat() {
+    PackageData data = new PackageData();
+    data.setCsarId("10001");
+    data.setName("AG");
+    data.setVersion("v1.0");
+    data.setProvider("ZTE");
+    try {
+      manager.addPackage(data);
+      Assert.fail("no exception");
+    } catch (CatalogResourceException e1) {
+      Assert.assertTrue(true);
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        try {
-            HibernateSession.destory();
-            DaoManager.getInstance().setPackageDao(null);
-            H2DbServer.shutDown();
-        } catch (Exception e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
+  }
+
+  @Test
+  public void testQueryPackageByCsarId_exist() {
+    ArrayList<PackageData> list = new ArrayList<PackageData>();
+    try {
+      list = manager.queryPackageByCsarId("10001");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+    Assert.assertTrue(list.size() > 0);
+  }
 
-    @Before
-    public void setUp() {
-        PackageData data = new PackageData();
-        data.setCsarId("10001");
-        data.setName("AG");
-        data.setVersion("v1.0");
-        data.setProvider("ZTE");
-        try {
-            manager.addPackage(data);
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
+  @Test
+  public void testQueryPackageByCsarId_not_exist() {
+    ArrayList<PackageData> list = new ArrayList<PackageData>();
+    try {
+      list = manager.queryPackageByCsarId("10002");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+    Assert.assertTrue(list.size() == 0);
+  }
 
-    @After
-    public void tearDown() {
-        try {
-            manager.deletePackage("10001");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
+  @Test
+  public void testQueryPackage_exist() {
+
+    ArrayList<PackageData> list = new ArrayList<PackageData>();
+    try {
+      list = manager.queryPackage("AG", "ZTE", "v1.0", null, null);
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+    Assert.assertTrue(list.size() > 0);
 
-    @Test
-    public void testAddPackageRepeat() {
-        PackageData data = new PackageData();
-        data.setCsarId("10001");
-        data.setName("AG");
-        data.setVersion("v1.0");
-        data.setProvider("ZTE");
-        try {
-            manager.addPackage(data);
-            Assert.fail("no exception");
-        } catch (CatalogResourceException e) {
-            Assert.assertTrue(true);
-        }
+  }
 
+  @Test
+  public void testQueryPackage_not_exist() {
+
+    ArrayList<PackageData> list = new ArrayList<PackageData>();
+    try {
+      list = manager.queryPackage("AG", "ZTE", "v2.0", null, null);
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
+    Assert.assertTrue(list.size() == 0);
 
-    @Test
-    public void testQueryPackageByCsarId_exist() {
-        ArrayList<PackageData> list = new ArrayList<PackageData>();
-        try {
-            list = manager.queryPackageByCsarId("10001");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() > 0);
+  }
+
+  @Test
+  public void testUpdatePackage() {
+    PackageData data = new PackageData();
+    data.setSize("20M");
+    try {
+      manager.updatePackage(data, "10001");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
-
-    @Test
-    public void testQueryPackageByCsarId_not_exist() {
-        ArrayList<PackageData> list = new ArrayList<PackageData>();
-        try {
-            list = manager.queryPackageByCsarId("10002");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() == 0);
+    Map<String, String> queryParam = new HashMap<String, String>();
+    queryParam.put(Parameters.csarId.name(), "10001");
+    ArrayList<PackageData> list = new ArrayList<PackageData>();
+    try {
+      list = manager.queryPackageByCsarId("10001");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
     }
-
-    @Test
-    public void testQueryPackage_exist() {
-
-        ArrayList<PackageData> list = new ArrayList<PackageData>();
-        try {
-            list = manager.queryPackage("AG", "ZTE", "v1.0", null, null);
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() > 0);
-
-    }
-
-    @Test
-    public void testQueryPackage_not_exist() {
-
-        ArrayList<PackageData> list = new ArrayList<PackageData>();
-        try {
-            list = manager.queryPackage("AG", "ZTE", "v2.0", null, null);
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        Assert.assertTrue(list.size() == 0);
-
-    }
-
-    @Test
-    public void testUpdatePackage() {
-        PackageData data = new PackageData();
-        data.setSize("20M");
-        try {
-            manager.updatePackage(data, "10001");
-        } catch (CatalogResourceException e1) {
-            Assert.fail("Exception" + e1.getMessage());
-        }
-        Map<String, String> queryParam = new HashMap<String, String>();
-        queryParam.put(Parameters.csarId.name(), "10001");
-        ArrayList<PackageData> list = new ArrayList<PackageData>();
-        try {
-            list = manager.queryPackageByCsarId("10001");
-        } catch (CatalogResourceException e) {
-            Assert.fail("Exception" + e.getMessage());
-        }
-        assertTrue(list.size() > 0 && list.get(0).getSize().equals("20M"));
-    }
+    assertTrue(list.size() > 0 && list.get(0).getSize().equals("20M"));
+  }
 
 }

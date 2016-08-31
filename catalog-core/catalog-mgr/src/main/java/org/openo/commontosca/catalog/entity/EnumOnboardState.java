@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.entity;
 
-/**
- * @author 00164331
- *
- */
 public enum EnumOnboardState {
-    onBoarded("onBoarded"), nonOnBoarded("non-onBoarded");
-    
-    String value;
+  onBoarded("onBoarded"), nonOnBoarded("non-onBoarded");
 
-    EnumOnboardState(String value) {
-        this.value = value;
-    }
-    
-    public String getValue() {
-        return value;
-    }
+  String value;
+
+  EnumOnboardState(String value) {
+    this.value = value;
+  }
+
+  public String getValue() {
+    return value;
+  }
 }

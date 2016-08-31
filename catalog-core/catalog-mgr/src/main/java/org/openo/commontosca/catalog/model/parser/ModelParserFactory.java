@@ -13,43 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser;
+
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 
 public class ModelParserFactory {
-    private final static ModelParserFactory instance = new ModelParserFactory();
-    public static ModelParserFactory getInstance() {
-        return instance;
+  private static final ModelParserFactory instance = new ModelParserFactory();
+
+  public static ModelParserFactory getInstance() {
+    return instance;
+  }
+
+  private Map<EnumPackageFormat, AbstractModelParser> pkgType2ParseMap =
+      new HashMap<EnumPackageFormat, AbstractModelParser>();
+
+  private ModelParserFactory() {
+    // PackageParseMap.put(EnumPackageFormat.TOSCA_XML, new
+    // ToscaXmlModelParser());
+    pkgType2ParseMap.put(EnumPackageFormat.TOSCA_YAML, new ToscaYamlModelParser());
+  }
+
+  /**
+   * parse package.
+   * @param packageId package id
+   * @param fileLocation package location
+   * @param format package format
+   * @return service template id 
+   * @throws CatalogResourceException e
+   */
+  public String parse(String packageId, String fileLocation, EnumPackageFormat format)
+      throws CatalogResourceException {
+    if (pkgType2ParseMap.get(format) == null) {
+      throw new CatalogResourceException("Can't find its parser. package type = "
+          + format.toString());
     }
 
-    private Map<EnumPackageFormat, AbstractModelParser> pkgType2ParseMap = new HashMap<EnumPackageFormat, AbstractModelParser>();
-
-    private ModelParserFactory() {
-        // PackageParseMap.put(EnumPackageFormat.TOSCA_XML, new
-        // ToscaXmlModelParser());
-        pkgType2ParseMap.put(EnumPackageFormat.TOSCA_YAML, new ToscaYamlModelParser());
-    }
-
-    /**
-     * 
-     * @param packageId
-     * @param fileLocation
-     * @param format
-     * @return service template id
-     * @throws CatalogResourceException
-     */
-    public String parse(String packageId, String fileLocation,
-            EnumPackageFormat format) throws CatalogResourceException {
-        if (pkgType2ParseMap.get(format) == null) {
-            throw new CatalogResourceException(
-                    "Can't find its parser. package type = "
-                            + format.toString());
-        }
-
-        return pkgType2ParseMap.get(format).parse(packageId, fileLocation);
-    }
+    return pkgType2ParseMap.get(format).parse(packageId, fileLocation);
+  }
 }

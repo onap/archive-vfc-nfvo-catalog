@@ -13,38 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
 public class CommonConstant {
+  // Package Status
+  public static final String PACKAGE_STATUS_DELETING = "deleting";
+
+  public static final String PACKAGE_STATUS_DELETE_FAIL = "deletefail";
+
+  public static final String PACKAGE_XML_FORMAT = "xml";
 
 
-    public final static String HTTP_HEADER_CONTENT_RANGE = "Content-Range";
+  public static final String PACKAGE_YAML_FORMAT = "yaml";
 
-    // Package Status
-    public static final String PACKAGE_STATUS_DELETING = "deleting";
+  // host image progress
 
-    public static final String PACKAGE_STATUS_DELETE_FAIL = "deletefail";
+  public static final String TOSCA_METADATA = "TOSCA-Metadata";
 
-    public static final String PACKAGE_XML_FORMAT = "xml";
+  public static final String CSAR_VERSION_META = "version";
 
-    public final static String CATALOG_CSAR_DIR_NAME = "/csar";
+  public static final String CSAR_TYPE_META = "type";
 
-    public static final String PACKAGE_YAML_FORMAT = "yaml";
+  public static final String CSAR_PROVIDER_META = "provider";
 
-    // host image progress
+  public static final String DEFINITIONS = "Definitions";
 
-    public static final String TOSCA_METADATA = "TOSCA-Metadata";
+  public static final String CSAR_META = "csar.meta";
 
-    public static final String CSAR_VERSION_META = "version";
+  public static final String CSAR_SUFFIX = ".csar";
 
-    public static final String CSAR_TYPE_META = "type";
-
-    public static final String CSAR_PROVIDER_META = "provider";
-
-    public static final String DEFINITIONS = "Definitions";
-
-    public static final String CSAR_META = "csar.meta";
-
-    public static final String CSAR_SUFFIX = ".csar";
-
+  public static final String HTTP_HEADER_CONTENT_RANGE = "Content-Range";
+  
+  public static final  String CATALOG_CSAR_DIR_NAME = "/csar";
 }

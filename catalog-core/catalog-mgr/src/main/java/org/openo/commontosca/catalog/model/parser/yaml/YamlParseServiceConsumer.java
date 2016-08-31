@@ -13,43 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser.yaml;
 
-import org.glassfish.jersey.client.ClientConfig;
-import org.openo.commontosca.catalog.common.MSBUtil;
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
-
-import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
 import com.google.gson.Gson;
 
-/**
- * 
- * @author 10090474
- * 
- */
-public class YamlParseServiceConsumer {
-    /**
-     * get service template by template id from container service.
-     * 
-     * @param request
-     * @return
-     * @throws CatalogResourceException
-     */
-    public static ParseYamlResult getServiceTemplates(
-            final ParseYamlRequestParemeter request)
-            throws CatalogResourceException {
-        try {
-            ClientConfig config = new ClientConfig();
-            IYamlParseRest yamlParseProxy = ConsumerFactory
-                    .createConsumer(MSBUtil.getYamlParseBaseUrl(), config,
-                            IYamlParseRest.class);
-            String jsonStr = yamlParseProxy.parse(request);
-            return new Gson().fromJson(jsonStr, ParseYamlResult.class);
-        } catch (Exception e) {
-            throw new CatalogResourceException("Call parser api failed.", e);
-        }
+import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
 
+import org.glassfish.jersey.client.ClientConfig;
+import org.openo.commontosca.catalog.common.MsbUtil;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
+import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult;
+
+
+public class YamlParseServiceConsumer {
+  /**
+   * get service template by template id from container service.
+   * 
+   * @param request parse yaml request
+   * @return parase yaml result
+   * @throws CatalogResourceException e
+   */
+  public static ParseYamlResult getServiceTemplates(final ParseYamlRequestParemeter request)
+      throws CatalogResourceException {
+    try {
+      ClientConfig config = new ClientConfig();
+      IYamlParseRest yamlParseProxy =
+          ConsumerFactory.createConsumer(MsbUtil.getYamlParseBaseUrl(), config,
+              IYamlParseRest.class);
+      String jsonStr = yamlParseProxy.parse(request);
+      return new Gson().fromJson(jsonStr, ParseYamlResult.class);
+    } catch (Exception e1) {
+      throw new CatalogResourceException("Call parser api failed.", e1);
     }
+
+  }
 }

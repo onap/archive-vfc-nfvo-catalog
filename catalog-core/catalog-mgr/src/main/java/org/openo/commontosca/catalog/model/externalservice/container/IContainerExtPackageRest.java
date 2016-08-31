@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
 
 import javax.ws.rs.Consumes;
@@ -25,24 +26,27 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.openo.commontosca.catalog.model.externalservice.entity.containerEntity.ContainerServicePackageList;
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServicePackageList;
+
 
 /**
  * The opentosca container interface for csar.
+ * 
  * @author 10189609
- *
+ * 
  */
 @Path("/csars")
 public interface IContainerExtPackageRest {
-	@GET
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public ContainerServicePackageList getToscaServicePackage(@QueryParam("csarName") String csarName);
-	
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	public String uploadPackageByToscaService(@QueryParam("fileLocation") String fileLocation);
-	
-	@Path("/{csarId}")
-	@DELETE
-    public String deletePackageById(@PathParam("csarId") String csarId);
+  @GET
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  public ContainerServicePackageList getToscaServicePackage(
+      @QueryParam("csarName") String csarName);
+
+  @POST
+  @Consumes(MediaType.TEXT_PLAIN)
+  public String uploadPackageByToscaService(@QueryParam("fileLocation") String fileLocation);
+
+  @Path("/{csarId}")
+  @DELETE
+  public String deletePackageById(@PathParam("csarId") String csarId);
 }

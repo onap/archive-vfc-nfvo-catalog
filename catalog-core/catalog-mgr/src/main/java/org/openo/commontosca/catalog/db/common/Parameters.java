@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.common;
 
-/**
- * *@author 10159474
- * 
- */
 public enum Parameters {
-    oid, name, provider, version, deletionPending, type, status, csarId, vendor, serviceTemplateId, nodeTemplateId, mappingId, nodeType;
+  oid, name, provider, version, deletionPending, 
+  type, status, csarId, vendor, serviceTemplateId, 
+  nodeTemplateId, mappingId, nodeType;
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.lifecycle;
 
 import javax.ws.rs.GET;
@@ -22,12 +23,13 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * The lifecycle interface.
+ * 
  * @author 10189609
- *
+ * 
  */
 @Path("/appinstances")
 public interface ILifeCycleServiceRest {
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getVNFInstances();
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getVnfInstances();
 }

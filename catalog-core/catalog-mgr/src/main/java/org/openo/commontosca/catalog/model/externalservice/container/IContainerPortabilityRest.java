@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.externalservice.container;
 
 import javax.ws.rs.GET;
@@ -21,13 +22,14 @@ import javax.ws.rs.PathParam;
 
 /**
  * The opentosca container interface for policy.
+ * 
  * @author 10189609
- *
+ * 
  */
 @Path("/servicetemplates")
-public interface IContainerPortabilityRest {	
-    
-    @Path("/{templateid}/policys")
-	@GET
-    String getToscaPolicys(@PathParam("templateid") String serviceTemplateID);
+public interface IContainerPortabilityRest {
+
+  @Path("/{templateid}/policys")
+  @GET
+  String getToscaPolicys(@PathParam("templateid") String serviceTemplateId);
 }

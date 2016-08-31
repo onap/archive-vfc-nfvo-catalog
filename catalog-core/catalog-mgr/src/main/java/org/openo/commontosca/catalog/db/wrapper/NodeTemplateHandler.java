@@ -13,41 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.db.wrapper;
+
+import org.openo.commontosca.catalog.db.common.CatalogResuorceType;
+import org.openo.commontosca.catalog.db.entity.NodeTemplateData;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.openo.commontosca.catalog.db.common.CatalogResuorceType;
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.db.entity.NodeTemplateData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-/**
- * 
- ** @author 10159474
- */
 public class NodeTemplateHandler extends BaseHandler<NodeTemplateData> {
-    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(NodeTemplateHandler.class);
 
-    public ArrayList<NodeTemplateData> query(Map<String, String> queryParam)
-            throws CatalogResourceException {
-        logger.info("NodeTemplateHandler query nodeTemplate info.");
-        ArrayList<NodeTemplateData> data = new ArrayList<NodeTemplateData>();
-        Object result = query(queryParam, CatalogResuorceType.NODETEMPLATE.name());
-        if (result != null)
-            data = (ArrayList<NodeTemplateData>) result;
-        else
-            logger.warn("NodeTemplateHandler: query nodeTemplate info is null.");
-        logger.info("NodeTemplateHandler: query nodeTemplate info end.");
-        return data;
-
+  /**
+   * query node template.
+   * @param queryParam query parameter
+   * @return NodeTemplateData list
+   * @throws CatalogResourceException e
+   */
+  public ArrayList<NodeTemplateData> query(Map<String, String> queryParam)
+      throws CatalogResourceException {
+    logger.info("NodeTemplateHandler query nodeTemplate info.");
+    ArrayList<NodeTemplateData> data = new ArrayList<NodeTemplateData>();
+    Object result = query(queryParam, CatalogResuorceType.NODETEMPLATE.name());
+    if (result != null) {
+      data = (ArrayList<NodeTemplateData>) result;
+    } else {
+      logger.warn("NodeTemplateHandler: query nodeTemplate info is null.");
     }
+    logger.info("NodeTemplateHandler: query nodeTemplate info end.");
+    return data;
 
-    @Override
-    public void check(NodeTemplateData nodeTemplateData) throws CatalogResourceException {
+  }
 
-    }
+  @Override
+  public void check(NodeTemplateData nodeTemplateData) throws CatalogResourceException {
+
+  }
 
 }

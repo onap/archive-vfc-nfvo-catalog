@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DateTimeUtil {
-    public static String getCurrentTime() {
-        return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
-    }
+  public static String getCurrentTime() {
+    return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+  }
 
-    public static String getFormatTime(Date date) {
-        return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(date);
-    }
+  public static String getFormatTime(Date date) {
+    return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(date);
+  }
 
-    public static String getFormatTime(Date date, String format) {
-        return new SimpleDateFormat(format).format(date);
-    }
+  public static String getFormatTime(Date date, String format) {
+    return new SimpleDateFormat(format).format(date);
+  }
 }

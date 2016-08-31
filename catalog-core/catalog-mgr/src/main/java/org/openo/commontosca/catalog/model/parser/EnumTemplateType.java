@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.model.parser;
 
 public enum EnumTemplateType {
-    NS, VNF
+  NS, VNF
 }

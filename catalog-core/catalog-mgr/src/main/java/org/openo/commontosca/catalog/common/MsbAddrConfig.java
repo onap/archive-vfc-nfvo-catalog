@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.common;
 
-/**
- * @author 00164331
- * 
- */
 public class MsbAddrConfig {
 
-    protected static String msbAddress;
+  protected static String msbAddress;
 
-    public static String getMsbAddress() {
-        return msbAddress;
-    }
+  public static String getMsbAddress() {
+    return msbAddress;
+  }
 
-    public static void setMsbAddress(String msbAddress) {
-        MsbAddrConfig.msbAddress = msbAddress;
-    }
+  public static void setMsbAddress(String msbAddress) {
+    MsbAddrConfig.msbAddress = msbAddress;
+  }
 
 }

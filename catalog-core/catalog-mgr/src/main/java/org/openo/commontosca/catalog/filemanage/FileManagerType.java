@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.filemanage;
 
 public enum FileManagerType {
-    ftp, http;
-    public static FileManagerType getType(String type) {
-        return valueOf(type);
-    }
+  ftp, http;
+  public static FileManagerType getType(String type) {
+    return valueOf(type);
+  }
 }

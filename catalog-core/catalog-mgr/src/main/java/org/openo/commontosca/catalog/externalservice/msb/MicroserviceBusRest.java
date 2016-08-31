@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.externalservice.msb;
 
 import javax.ws.rs.Consumes;
@@ -22,17 +23,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-
-/**
- * @author 10159474
- *
- */
 @Path("/openoapi/microservices/v1/services")
-//@Path("/api/microservices/v1/services")
+// @Path("/api/microservices/v1/services")
 public interface MicroserviceBusRest {
-    @Path("")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public ServiceRegisterEntity registerServce(@QueryParam("createOrUpdate") String createOrUpdate,ServiceRegisterEntity entity)throws Exception;
+  @Path("")
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public ServiceRegisterEntity registerServce(@QueryParam("createOrUpdate") String createOrUpdate,
+      ServiceRegisterEntity entity) throws Exception;
 }
