@@ -27,7 +27,6 @@ import java.util.List;
 
 import javax.ws.rs.NotFoundException;
 
-import org.openo.commontosca.catalog.cometd.CometdException;
 import org.openo.commontosca.catalog.common.CommonConstant;
 import org.openo.commontosca.catalog.common.FileUtil;
 import org.openo.commontosca.catalog.common.MsbAddrConfig;
@@ -175,7 +174,7 @@ public class PackageWrapperUtil {
     return result;
   }
 
-  public static boolean isExistInstanceCSAR(String csarId) throws CometdException {
+  public static boolean isExistInstanceCSAR(String csarId) {
     // 查询各O（GSO、NFVO、SDNO）的资源实例数据库，查询指定csarId对应的服务模版
     ArrayList<ServiceTemplate> templateList = queryAvailableTemplatesByCsar(csarId);
     // 调生命周期的接口查询所有实例，查询实例中是否包含指定csarId对应的服务模析ID

@@ -115,7 +115,7 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
     environment.jersey().register(MultiPartFeature.class);
 
     initSwaggerConfig(environment, configuration);
-    initCometd(environment);
+//    initCometd(environment);
     Config.setConfigration(configuration);
     initService();
     LOGGER.info("Initialize catalogue finished.");
@@ -159,17 +159,17 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
    * 
    * @param environment environment information
    */
-  private void initCometd(Environment environment) {
-    // add filter
-    environment.getApplicationContext().addFilter(CrossOriginFilter.class,
-        "/api/nsoccataloguenotification/v1/*",
-        EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR));
-    // add servlet
-    environment.getApplicationContext()
-        .addServlet("org.cometd.server.CometDServlet", "/api/nsoccataloguenotification/v1/*")
-        .setInitOrder(1);
-    // add servlet
-    environment.getApplicationContext()
-        .addServlet("CometdServlet", "/api/nsoccataloguenotification/v1").setInitOrder(2);
-  }
+//  private void initCometd(Environment environment) {
+//    // add filter
+//    environment.getApplicationContext().addFilter(CrossOriginFilter.class,
+//        "/api/nsoccataloguenotification/v1/*",
+//        EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR));
+//    // add servlet
+//    environment.getApplicationContext()
+//        .addServlet("org.cometd.server.CometDServlet", "/api/nsoccataloguenotification/v1/*")
+//        .setInitOrder(1);
+//    // add servlet
+//    environment.getApplicationContext()
+//        .addServlet("CometdServlet", "/api/nsoccataloguenotification/v1").setInitOrder(2);
+//  }
 }
