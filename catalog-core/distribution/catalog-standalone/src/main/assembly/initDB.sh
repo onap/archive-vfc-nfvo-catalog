@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 #
 # Copyright 2016 [ZTE] and others.
 #
@@ -15,17 +17,18 @@
 #
 
 DIRNAME=`dirname $0`
-RUNHOME=`cd $DIRNAME/; pwd`
-echo @RUNHOME@ $RUNHOME
+HOME=`cd $DIRNAME/; pwd`
+user=$1
+password=$2
+port=$3
+host=$4
+echo "start init catalog db"
+mysql -u$user -p$password -P$port -h$host <dbscripts/mysql/openo-common_tosca-catalog-createobj.sql
+sql_result=$?
+if [ $sql_result != 0 ] ; then
+   echo "failed to init catalog database!"
+   exit 1
+fi
+echo "init catalog database success!"
+exit 0
 
-title catalog  Database setup
-
-echo ### Starting catalog Database setup
-echo @JAVA_HOME@ $JAVA_HOME
-JAVA="$JAVA_HOME/bin/java"
-echo @JAVA@ $JAVA
-
-class_path="$RUNHOME/:$RUNHOME/catalog-service.jar"
-echo @class_path@ $class_path
-
-"$JAVA" -classpath "$class_path" org.openo.commontosca.catalog.CatalogApp db migrate "$RUNHOME/conf/catalog.yml"

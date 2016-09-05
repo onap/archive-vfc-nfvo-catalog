@@ -14,6 +14,25 @@
 -- limitations under the License.
 --
 
+/******************drop old database and user***************************/
+use mysql;
+drop database IF  EXISTS catalog;
+delete from user where User='catalog';
+FLUSH PRIVILEGES;
+
+/******************create new database and user***************************/
+create database catalog CHARACTER SET utf8;
+
+GRANT ALL PRIVILEGES ON catalog.* TO 'catalog'@'%' IDENTIFIED BY 'catalog' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON mysql.* TO 'catalog'@'%' IDENTIFIED BY 'catalog' WITH GRANT OPTION;
+
+GRANT ALL PRIVILEGES ON catalog.* TO 'catalog'@'localhost' IDENTIFIED BY 'catalog' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON mysql.* TO 'catalog'@'localhost' IDENTIFIED BY 'catalog' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+use catalog;
+set Names 'utf8';
+/******************delete old table and create new***************************/
 use catalog;
 DROP TABLE IF EXISTS catalog_package_table;
 
@@ -73,3 +92,4 @@ CREATE TABLE catalog_model_substitution_mapping_table (
 	
     CONSTRAINT catalog_model_substitution_mapping_table PRIMARY KEY(MAPPINGID)
 );
+

@@ -1,4 +1,5 @@
 @REM
+@REM
 @REM Copyright 2016 [ZTE] and others.
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,28 +16,19 @@
 @REM
 
 @echo off
-title init catalog db
-
-set RUNHOME=%~dp0
-echo ### RUNHOME: %RUNHOME%
-
-echo ### init catalog db
-rem cd /d %RUNHOME%
-
-set JAVA="%JAVA_HOME%\bin\java.exe"
-set port=8777
-set jvm_opts=-Xms50m -Xmx128m
-rem set jvm_opts=%jvm_opts% -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=%port%,server=y,suspend=n
-set class_path=%RUNHOME%;%RUNHOME%catalog-service.jar
-echo ### jvm_opts: %jvm_opts%
-echo ### class_path: %class_path%
-
-%JAVA% -classpath %class_path% %jvm_opts% org.openo.commontosca.catalog.CatalogApp  db migrate %RUNHOME%conf\catalog.yml
-
-IF ERRORLEVEL 1 goto showerror
-exit
-:showerror
-echo WARNING: Error occurred during startup or Server abnormally stopped by way of killing the process,Please check!
-echo After checking, press any key to close 
-pause
-exit
+set HOME=%~dp0
+set user=%1
+set password=%2
+set port=%3
+set host=%4
+echo start init catalog db
+echo HOME=$HOME
+cd /d %HOME%
+mysql -u%user% -p%password% -P%port% -h%host% < dbscripts\mysql\openo-common_tosca-catalog-createobj.sql
+set "err=%errorlevel%"
+if "%err%"=="0" (
+   echo init catalog db success
+  ) else (
+    echo failed init catalog db
+    pause
+  )
