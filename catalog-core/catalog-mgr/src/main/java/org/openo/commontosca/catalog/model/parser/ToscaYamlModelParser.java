@@ -16,6 +16,7 @@
 
 package org.openo.commontosca.catalog.model.parser;
 
+import org.openo.commontosca.catalog.common.MsbAddrConfig;
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
@@ -67,9 +68,8 @@ public class ToscaYamlModelParser extends AbstractModelParser {
 
   @Override
   public String parse(String packageId, String fileLocation) throws CatalogResourceException {
-    ParseYamlResult result =
-        YamlParseServiceConsumer.getServiceTemplates(comboRequest(fileLocation));
-
+    ParseYamlResult result = getParseYamlResult(fileLocation);
+    
     Map<String, String> toscaMeta = parseToscaMeta(fileLocation);
     String stFileName = toscaMeta.get(TOSCA_META_FIELD_ENTRY_DEFINITIONS);
     CsarFileUriResponse stDownloadUri =
@@ -91,6 +91,43 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     }
 
     return st.getServiceTemplateId();
+  }
+
+  private ParseYamlResult getParseYamlResult(String fileLocation) throws CatalogResourceException {
+    String destPath = copyTemporaryFile2HttpServer(fileLocation);
+    try {
+      String url = getUrl(toTempFileLocalPath(fileLocation));
+      return YamlParseServiceConsumer.getServiceTemplates(comboRequest(url));
+    } finally {
+      if (destPath != null && !destPath.isEmpty() && (new File(destPath)).exists()) {
+        (new File(destPath)).deleteOnExit();
+      }
+    }
+  }
+
+  private String toTempFileLocalPath(String fileLocation) {
+    return File.separator + "temp" + File.separator + (new File(fileLocation)).getName();
+  }
+  
+  private String getUrl(String uri) {
+    String url = null;
+    if ((MsbAddrConfig.getMsbAddress().endsWith("/")) && uri.startsWith("/")) {
+      url = MsbAddrConfig.getMsbAddress() + uri.substring(1);
+    }
+    url = MsbAddrConfig.getMsbAddress() + uri;
+    String urlresult = url.replace("\\", "/");
+    return urlresult;
+  }
+
+  private String copyTemporaryFile2HttpServer(String fileLocation) throws CatalogResourceException {
+    String destPath = Class.class.getClass().getResource("/").getPath()
+        + org.openo.commontosca.catalog.filemanage.http.ToolUtil.getHttpServerPath()
+        + toTempFileLocalPath(fileLocation);
+    if (!org.openo.commontosca.catalog.filemanage.http.ToolUtil.copyFile(fileLocation, destPath,
+        true)) {
+      throw new CatalogResourceException("Copy Temporary To HttpServer Failed.");
+    }
+    return destPath;
   }
 
   @SuppressWarnings("resource")
