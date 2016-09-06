@@ -66,6 +66,11 @@ public class Wso2ServiceConsumer {
           Integer.parseInt(Config.getConfigration().getWso2HostPort()), WSO2_APP_URL,
           buildRequest(ins, planFilePath));
 
+      if (res.getStatusCode() == null || res.getResult() == null) {
+        throw new CatalogResourceException(
+            "Deploy Package return null. Response = " + res);
+      }
+      
       if (200 == res.getStatusCode() || 201 == res.getStatusCode()) {
         DeployPackageResponse response =
             new Gson().fromJson(res.getResult(), DeployPackageResponse.class);
@@ -182,4 +187,3 @@ public class Wso2ServiceConsumer {
   }
 
 }
-
