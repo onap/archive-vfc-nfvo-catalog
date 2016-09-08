@@ -153,7 +153,10 @@ public class ParseYamlResult {
   }
 
   private List<Plan> jsonObject2PlanList(JsonObject plans) {
-    List<Plan> retList = new ArrayList<Plan>();
+    if (plans == null) {
+      return new ArrayList<>();
+    }
+    List<Plan> retList = new ArrayList<>();
     Iterator<Entry<String, JsonElement>> iterator = plans.entrySet().iterator();
     while (iterator.hasNext()) {
       Plan ret = new Plan();
