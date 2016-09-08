@@ -100,7 +100,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
       return YamlParseServiceConsumer.getServiceTemplates(comboRequest(url));
     } finally {
       if (destPath != null && !destPath.isEmpty() && (new File(destPath)).exists()) {
-        (new File(destPath)).deleteOnExit();
+        (new File(destPath)).delete();
       }
     }
   }
