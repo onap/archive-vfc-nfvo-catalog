@@ -16,6 +16,8 @@
 
 package org.openo.commontosca.catalog.model.externalservice.container;
 
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServicePackageList;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -29,7 +31,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServicePackageList;
+
 
 /**
  * The opentosca container service returns data to the package entity.

@@ -141,10 +141,13 @@ public class PackageWrapper {
       if (isEnd) {
         boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
         if (uploadResult == true) {
-          // 调袁虎的接口，将fileLocation 和 packageId传给他，由他去解析包，并向数据库存储数据
-          // String parseResult =
-          // ModelParserFactory.getInstance().parse(packageMeta.getCsarId(),
-          // fileLocation , EnumPackageFormat.valueOf(packageMeta.getFormat()));
+          try {
+            String tempCsarPath = tempDirName + File.separator + fileName;
+            ModelParserFactory.getInstance().parse(packageMeta.getCsarId(),
+                tempCsarPath , PackageWrapperUtil.getPackageFormat(packageMeta.getFormat()));
+          } catch (CatalogResourceException e1) {
+            LOG.error("parse package error ! " + e1.getMessage());
+          }
           PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
           PackageManager.getInstance().addPackage(packageData);
         }
@@ -403,7 +406,7 @@ public class PackageWrapper {
    * @param csarId package id
    * @param relativePath package file relative path
    * @return CsarFileUriResponse
-   * @throws CatalogResourceException
+   * @throws CatalogResourceException e
    */
   public CsarFileUriResponse getCsarFileDownloadUri(String csarId, String relativePath)
       throws CatalogResourceException {
@@ -463,10 +466,8 @@ public class PackageWrapper {
         String metadataPath = tempDirName + File.separator + CommonConstant.TOSCA_METADATA;
         String definitions = tempDirName + File.separator + CommonConstant.DEFINITIONS;
         zc.compress(metadataPath, definitions);
-        // 调袁虎的接口，将fileLocation 和 packageId传给他，由他去解析包，并向数据库存储数据
-//        String parseResult =
-            ModelParserFactory.getInstance().parse(packageMeta.getCsarId(), newZipPath,
-                EnumPackageFormat.valueOf(packageMeta.getFormat()));
+        String parseResult = ModelParserFactory.getInstance().parse(packageMeta.getCsarId(),
+            newZipPath, EnumPackageFormat.valueOf(packageMeta.getFormat()));
         PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
         PackageManager.getInstance().addPackage(packageData);
       }

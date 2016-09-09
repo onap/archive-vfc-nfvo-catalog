@@ -29,7 +29,6 @@ import io.dropwizard.setup.Environment;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.openo.commontosca.catalog.common.Config;
 import org.openo.commontosca.catalog.common.HttpServerAddrConfig;
@@ -47,9 +46,6 @@ import org.openo.commontosca.catalog.resources.TemplateResource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.EnumSet;
-import javax.servlet.DispatcherType;
 
 
 public class CatalogApp extends Application<CatalogAppConfiguration> {
@@ -115,7 +111,7 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
     environment.jersey().register(MultiPartFeature.class);
 
     initSwaggerConfig(environment, configuration);
-//    initCometd(environment);
+    //    initCometd(environment);
     Config.setConfigration(configuration);
     initService();
     LOGGER.info("Initialize catalogue finished.");
@@ -154,11 +150,11 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
     registerCatalogService.start();
   }
 
-  /**
-   * initialize cometd server.
-   * 
-   * @param environment environment information
-   */
+//   /**
+//   * initialize cometd server.
+//   * 
+//   * @param environment environment information
+//   */
 //  private void initCometd(Environment environment) {
 //    // add filter
 //    environment.getApplicationContext().addFilter(CrossOriginFilter.class,

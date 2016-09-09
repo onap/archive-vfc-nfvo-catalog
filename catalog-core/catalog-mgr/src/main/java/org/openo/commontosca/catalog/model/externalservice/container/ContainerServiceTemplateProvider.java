@@ -16,6 +16,8 @@
 
 package org.openo.commontosca.catalog.model.externalservice.container;
 
+import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServiceTemplateList;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -28,8 +30,6 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-
-import org.openo.commontosca.catalog.model.externalservice.entity.container.ContainerServiceTemplateList;
 
 
 /**
