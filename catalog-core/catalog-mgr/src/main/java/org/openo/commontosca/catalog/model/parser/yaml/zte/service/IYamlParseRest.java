@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.model.parser.yaml;
+package org.openo.commontosca.catalog.model.parser.yaml.zte.service;
 
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlRequestParemeter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;

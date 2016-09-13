@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.model.parser;
+package org.openo.commontosca.catalog.model.parser.yaml.zte.service;
 
 import org.openo.commontosca.catalog.common.MsbAddrConfig;
 import org.openo.commontosca.catalog.common.ToolUtil;
@@ -30,15 +30,17 @@ import org.openo.commontosca.catalog.model.entity.RelationShip;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
-import org.openo.commontosca.catalog.model.parser.yaml.YamlParseServiceConsumer;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.EnumYamlServiceTemplateInfo;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.Plan;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.Plan.PlanValue.PlanInput;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.TopologyTemplate.Input;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.TopologyTemplate.NodeTemplate.Relationship;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult.TopologyTemplate.Output;
+import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
+import org.openo.commontosca.catalog.model.parser.EnumTemplateType;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.YamlParseServiceConsumer;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.EnumYamlServiceTemplateInfo;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlRequestParemeter;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.Plan;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.Plan.PlanValue.PlanInput;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.Input;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.Output;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.NodeTemplate.Relationship;
 import org.openo.commontosca.catalog.model.plan.wso2.Wso2ServiceConsumer;
 import org.openo.commontosca.catalog.model.plan.wso2.entity.DeployPackageResponse;
 import org.openo.commontosca.catalog.wrapper.PackageWrapper;
@@ -197,7 +199,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
       return null;
     }
 
-    org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult
+    org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult
         .TopologyTemplate.SubstitutionMapping stm =
         result.getTopologyTemplate().getSubstitutionMappings();
     return new SubstitutionMapping(serviceTemplateId, type, stm.getRequirementList(),

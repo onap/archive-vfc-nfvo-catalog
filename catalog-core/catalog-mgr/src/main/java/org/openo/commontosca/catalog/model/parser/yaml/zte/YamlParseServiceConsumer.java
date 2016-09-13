@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.model.parser.yaml;
+package org.openo.commontosca.catalog.model.parser.yaml.zte;
 
 import com.google.gson.Gson;
-
 import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.openo.commontosca.catalog.common.MsbUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlRequestParemeter;
-import org.openo.commontosca.catalog.model.parser.yaml.entity.ParseYamlResult;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlRequestParemeter;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.service.IYamlParseRest;
 
 
 public class YamlParseServiceConsumer {

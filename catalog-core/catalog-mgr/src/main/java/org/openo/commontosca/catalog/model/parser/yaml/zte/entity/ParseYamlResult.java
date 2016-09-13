@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.model.parser.yaml.entity;
+package org.openo.commontosca.catalog.model.parser.yaml.zte.entity;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
