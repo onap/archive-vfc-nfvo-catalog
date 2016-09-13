@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.model.parser.yaml.zte.service;
+package org.openo.commontosca.catalog.model.parser.yaml.zte;
 
 import org.openo.commontosca.catalog.common.MsbAddrConfig;
 import org.openo.commontosca.catalog.common.ToolUtil;
@@ -32,7 +32,6 @@ import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
 import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
 import org.openo.commontosca.catalog.model.parser.EnumTemplateType;
-import org.openo.commontosca.catalog.model.parser.yaml.zte.YamlParseServiceConsumer;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.EnumYamlServiceTemplateInfo;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlRequestParemeter;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult;
@@ -41,6 +40,7 @@ import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResul
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.Input;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.Output;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.NodeTemplate.Relationship;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.service.YamlParseServiceConsumer;
 import org.openo.commontosca.catalog.model.plan.wso2.Wso2ServiceConsumer;
 import org.openo.commontosca.catalog.model.plan.wso2.entity.DeployPackageResponse;
 import org.openo.commontosca.catalog.wrapper.PackageWrapper;

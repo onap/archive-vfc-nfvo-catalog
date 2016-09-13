@@ -35,7 +35,7 @@ import org.openo.commontosca.catalog.model.entity.QueryRawDataCondition;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateRawData;
-import org.openo.commontosca.catalog.model.parser.yaml.zte.service.ToscaYamlModelParser;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.ToscaYamlModelParser;
 import org.openo.commontosca.catalog.model.service.ModelService;
 import org.openo.commontosca.catalog.model.wrapper.ServiceTemplateWrapper;
 import org.slf4j.Logger;

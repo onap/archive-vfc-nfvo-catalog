@@ -17,7 +17,7 @@
 package org.openo.commontosca.catalog.model.parser;
 
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.model.parser.yaml.zte.service.ToscaYamlModelParser;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.ToscaYamlModelParser;
 
 import java.util.HashMap;
 import java.util.Map;
