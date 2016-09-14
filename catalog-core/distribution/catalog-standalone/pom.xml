@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
     Copyright 2016 [ZTE] and others.
@@ -96,7 +97,7 @@
                         <configuration>
                             <tasks name="${project.artifactId}">
                                 <zip destfile="target/${packagename}-${project.version}.zip" update="true">
-                                    <zipfileset dir="target/assembly" includes="**" />
+                                    <zipfileset dir="target/assembly" includes="**"/>
                                 </zip>
                             </tasks>
                         </configuration>
@@ -135,4 +136,3 @@
         </dependency>
     </dependencies>  
 </project>
-

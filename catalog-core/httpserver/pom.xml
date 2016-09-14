@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 
     Copyright 2016 [ZTE] and others.
@@ -96,7 +97,7 @@
                             <tasks name="${project.artifactId}">
                                 <copydir src="src/main/assembly/" dest="target/assembly"/>
                                 <zip destfile="target/${packagename}-${project.version}.zip" update="true">
-                                    <zipfileset dir="target/assembly" includes="**" />
+                                    <zipfileset dir="target/assembly" includes="**"/>
                                 </zip>
                             </tasks>
                         </configuration>
