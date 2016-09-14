@@ -45,6 +45,12 @@ public class CatalogAppConfiguration extends Configuration {
 
   @NotEmpty
   private String yamlParseAddr;
+  
+  @NotEmpty
+  private String parserType;
+  
+  @NotEmpty
+  private String ariaParserAddr;
 
   @NotEmpty
   private String wso2HostIp;
@@ -142,6 +148,22 @@ public class CatalogAppConfiguration extends Configuration {
   @JsonProperty
   public void setYamlParseAddr(String yamlParseAddr) {
     this.yamlParseAddr = yamlParseAddr;
+  }
+  
+  public String getParserType() {
+    return parserType;
+  }
+
+  public void setParserType(String parserType) {
+    this.parserType = parserType;
+  }
+
+  public String getAriaParserAddr() {
+    return ariaParserAddr;
+  }
+
+  public void setAriaParserAddr(String ariaParserAddr) {
+    this.ariaParserAddr = ariaParserAddr;
   }
 
   @JsonProperty

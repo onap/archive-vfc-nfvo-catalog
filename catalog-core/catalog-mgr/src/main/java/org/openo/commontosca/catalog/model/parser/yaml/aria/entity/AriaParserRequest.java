@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.model.entity;
+package org.openo.commontosca.catalog.model.parser.yaml.aria.entity;
+
+/**
+ * 
+ */
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InputParameter {
-  private String name;
-  private EnumDataType type = EnumDataType.STRING;
-  private String description;
-  private Object defaultValue;
-  private boolean required;
+public class AriaParserRequest {
+  private String uri;
+  private List<Parameter> inputs;
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public class Parameter {
+    private String name;
+    private String value;
+  }
 }

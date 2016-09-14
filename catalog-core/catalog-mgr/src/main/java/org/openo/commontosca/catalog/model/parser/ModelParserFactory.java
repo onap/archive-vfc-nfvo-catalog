@@ -16,7 +16,9 @@
 
 package org.openo.commontosca.catalog.model.parser;
 
+import org.openo.commontosca.catalog.common.Config;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.model.parser.yaml.aria.AriaModelParser;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.ToscaYamlModelParser;
 
 import java.util.HashMap;
@@ -36,7 +38,18 @@ public class ModelParserFactory {
   private ModelParserFactory() {
     // PackageParseMap.put(EnumPackageFormat.TOSCA_XML, new
     // ToscaXmlModelParser());
-    pkgType2ParseMap.put(EnumPackageFormat.TOSCA_YAML, new ToscaYamlModelParser());
+    if (isAriaParser()) {
+      pkgType2ParseMap.put(EnumPackageFormat.TOSCA_YAML, new AriaModelParser());
+    } else {
+      pkgType2ParseMap.put(EnumPackageFormat.TOSCA_YAML, new ToscaYamlModelParser());
+    }
+  }
+
+  /**
+   * @return
+   */
+  private boolean isAriaParser() {
+    return "aria".equalsIgnoreCase(Config.getConfigration().getParserType());
   }
 
   /**

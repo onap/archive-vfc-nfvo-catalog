@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.model.entity;
+package org.openo.commontosca.catalog.model.parser.yaml.aria.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserRequest;
 
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class InputParameter {
-  private String name;
-  private EnumDataType type = EnumDataType.STRING;
-  private String description;
-  private Object defaultValue;
-  private boolean required;
+@Path("/indirect/plan")
+public interface IAriaParserRest {
+
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  String parse(AriaParserRequest request) throws Exception;
 }

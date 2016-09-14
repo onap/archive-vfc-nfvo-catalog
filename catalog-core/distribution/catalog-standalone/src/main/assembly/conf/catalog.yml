@@ -26,6 +26,10 @@ opentoscaServerAddr: http://127.0.0.1:1337
 
 yamlParseAddr: http://127.0.0.1:8210
 
+parserType: zte
+
+ariaParserAddr: http://127.0.0.1:8204/openoapi/tosca/v1
+
 wso2HostIp: 127.0.0.1
 
 wso2HostPort: 9090
