@@ -80,7 +80,7 @@ public class ToolUtil {
       }
     }
     if (!flag) {
-      String message = "Copy catagory " + srcDirName + " to " + destDirName + " failed！";
+      String message = "Copy catagory " + srcDirName + " to " + destDirName + " failed!";
       LOGGER.error(message);
       return false;
     } else {
@@ -99,7 +99,7 @@ public class ToolUtil {
     File srcFile = new File(srcFileName);
 
     if (!srcFile.exists()) {
-      String message = "Source file ：" + srcFileName + " not exist !";
+      String message = "Source file : " + srcFileName + " not exist !";
       LOGGER.error(message);
       return false;
     } else if (!srcFile.isFile()) {

@@ -67,7 +67,7 @@ public class ZipCompressor {
   public void compress(String srcPathName) {
     File file = new File(srcPathName);
     if (!file.exists()) {
-      throw new RuntimeException(srcPathName + "not exist！");
+      throw new RuntimeException(srcPathName + "not exist!");
     }
     try {
       FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
@@ -83,10 +83,10 @@ public class ZipCompressor {
 
   private void compress(File file, ZipOutputStream out, String basedir) {
     if (file.isDirectory()) {
-      System.out.println("compress：" + basedir + file.getName());
+      System.out.println("compress: " + basedir + file.getName());
       this.compressDirectory(file, out, basedir);
     } else {
-      System.out.println("compress：" + basedir + file.getName());
+      System.out.println("compress: " + basedir + file.getName());
       this.compressFile(file, out, basedir);
     }
   }

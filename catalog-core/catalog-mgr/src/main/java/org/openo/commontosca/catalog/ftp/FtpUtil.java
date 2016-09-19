@@ -157,7 +157,6 @@ public class FtpUtil {
         OutputStream outputStream = null;
         try {
           File locaFile = new File(relativeLocalPath + ftpFile.getName());
-          // 判断文件是否存在，存在则返回
           if (locaFile.exists()) {
             return;
           } else {
@@ -174,7 +173,7 @@ public class FtpUtil {
               outputStream.close();
             }
           } catch (IOException e1) {
-            logger.error("输出文件流异常");
+            logger.error("OutputStream error !");
           }
         }
       }
