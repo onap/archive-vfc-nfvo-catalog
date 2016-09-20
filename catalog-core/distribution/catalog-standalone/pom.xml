@@ -22,15 +22,11 @@
         <artifactId>distribution</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    
+
     <modelVersion>4.0.0</modelVersion>
     <artifactId>catalog-standalone</artifactId>
     <name>openo/commontosca/catalog/distribution/catalog-standalone</name>
     <packaging>pom</packaging>
-
-    <properties>
-        <packagename>openo-catalog</packagename>
-    </properties>
 
     <build>
         <plugins>
@@ -38,13 +34,13 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>copy-resources-${linux64id}</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/assembly/</outputDirectory>
+                            <outputDirectory>${linux64outputdir}</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/assembly/</directory>
@@ -52,6 +48,32 @@
                                     <includes>
                                         <include>**/*</include>
                                     </includes>
+                                    <excludes>
+                                        <exclude>**/*.bat</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                            <overwrite>true</overwrite>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-${win64id}</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${win64outputdir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/assembly/</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>**/*.sh</exclude>
+                                    </excludes>
                                 </resource>
                             </resources>
                             <overwrite>true</overwrite>
@@ -64,7 +86,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-jar</id>
+                        <id>copy-jar-${linux64id}</id>
                         <goals>
                             <goal>copy</goal>
                         </goals>
@@ -76,7 +98,26 @@
                                     <artifactId>catalog-mgr</artifactId>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>target/assembly/</outputDirectory>
+                                    <outputDirectory>${linux64outputdir}</outputDirectory>
+                                    <destFileName>catalog-service.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-jar-${win64id}</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openo.common-tosca.catalog</groupId>
+                                    <artifactId>catalog-mgr</artifactId>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${win64outputdir}</outputDirectory>
                                     <destFileName>catalog-service.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
@@ -89,38 +130,27 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>zip</id>
+                        <id>distribution</id>
                         <phase>package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks name="${project.artifactId}">
-                                <zip destfile="target/${packagename}-${project.version}.zip" update="true">
-                                    <zipfileset dir="target/assembly" includes="**"/>
+                            <tasks name="distribution">
+                                <tar destfile="${version.output}/${packagename}-${project.version}.tar.gz" longfile="posix" compression="gzip">
+                                    <tarfileset dir="target/assembly/linux64" filemode="0644" dirmode="0755">
+                                        <exclude name="**/*.sh"/>
+                                    </tarfileset>
+                                    <tarfileset dir="target/assembly/linux64" filemode="0755" dirmode="0755">
+                                        <include name="**/*.sh"/>
+                                    </tarfileset>
+                                </tar>
+                                <attachartifact file="${version.output}/${packagename}-${project.version}.tar.gz" classifier="linux64" type="tar.gz"/>
+                                <zip destfile="${version.output}/${packagename}-${project.version}.zip" update="true">
+                                    <zipfileset dir="target/assembly/win64" includes="**"/>
                                 </zip>
+                                <attachartifact file="${version.output}/${packagename}-${project.version}.zip" classifier="win64" type="zip"/>
                             </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/${packagename}-${project.version}.zip</file>
-                                    <type>zip</type>
-                                </artifact>
-                            </artifacts>
                         </configuration>
                     </execution>
                 </executions>

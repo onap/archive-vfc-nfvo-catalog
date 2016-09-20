@@ -27,23 +27,20 @@
     <artifactId>catalog-all</artifactId>
     <name>openo/commontosca/catalog/distribution/catalog-all</name>
     <packaging>pom</packaging>
-    
-    <properties>
-        <packagename>openo-commontosca-catalog</packagename>
-    </properties>
+
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>copy-resources-${linux64id}</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>target/assembly/</outputDirectory>
+                            <outputDirectory>${linux64outputdir}</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/assembly/</directory>
@@ -51,6 +48,32 @@
                                     <includes>
                                         <include>**/*</include>
                                     </includes>
+                                    <excludes>
+                                        <exclude>**/*.bat</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                            <overwrite>true</overwrite>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-${win64id}</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${win64outputdir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/assembly/</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>**/*.sh</exclude>
+                                    </excludes>
                                 </resource>
                             </resources>
                             <overwrite>true</overwrite>
@@ -64,31 +87,89 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-catalog</id>
-                        <phase>package</phase>
+                        <id>unpack-catalog-${linux64id}</id>
                         <goals>
-                            <goal>unpack-dependencies</goal>
+                            <goal>unpack</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
-                            <includeGroupIds>org.openo.common-tosca.catalog</includeGroupIds>
-                            <includeArtifactIds>catalog-standalone</includeArtifactIds>
-                            <outputDirectory>
-                                target/assembly/catalog
-                            </outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openo.common-tosca.catalog</groupId>
+                                    <artifactId>catalog-standalone</artifactId>
+                                    <type>tar.gz</type>
+                                    <classifier>linux64</classifier>
+                                </artifactItem>
+                            </artifactItems>
+                            <excludes>**/*.bat,*.cmd</excludes>
+                            <outputDirectory>${linux64outputdir}/catalog</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unpack-httpserver</id>
-                        <phase>package</phase>
+                        <id>unpack-httpserver-${linux64id}</id>
                         <goals>
-                            <goal>unpack-dependencies</goal>
+                            <goal>unpack</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
-                            <includeGroupIds>org.openo.common-tosca.catalog</includeGroupIds>
-                            <includeArtifactIds>httpserver</includeArtifactIds>
-                            <outputDirectory>
-                                target/assembly/
-                            </outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openo.common-tosca.catalog</groupId>
+                                    <artifactId>httpserver</artifactId>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <excludes>**/*.bat,*.cmd</excludes>
+                            <outputDirectory>${linux64outputdir}</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-catalog-${win64id}</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openo.common-tosca.catalog</groupId>
+                                    <artifactId>catalog-standalone</artifactId>
+                                    <type>zip</type>
+                                    <classifier>win64</classifier>
+                                </artifactItem>
+                            </artifactItems>
+                            <excludes>*.sh,*/*.sh,*/*/*.sh</excludes>
+                            <outputDirectory>${win64outputdir}/catalog</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-httpserver-${win64id}</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openo.common-tosca.catalog</groupId>
+                                    <artifactId>httpserver</artifactId>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <excludes>*.sh,*/*.sh,*/*/*.sh</excludes>
+                            <outputDirectory>${win64outputdir}</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
                         </configuration>
                     </execution>
                 </executions>
@@ -98,38 +179,33 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>zip</id>
+                        <id>distribution</id>
                         <phase>package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks name="${project.artifactId}">
-                                <zip destfile="target/${packagename}-${project.version}.zip" update="true">
-                                    <zipfileset dir="target/assembly" includes="**"/>
+                            <target name="distribution">
+                                <tar destfile="${version.output}/${packagename}-${project.version}.tar.gz" longfile="posix" compression="gzip">
+                                    <tarfileset dir="target/assembly/linux64" filemode="0644" dirmode="0755">
+                                        <exclude name="**/*.sh"/>
+                                        <exclude name="openresty/nginx/sbin/nginx"/>
+                                        <exclude name="redis/redis-*"/>
+                                    </tarfileset>
+                                    <tarfileset dir="target/assembly/linux64" filemode="0755" dirmode="0755">
+                                        <include name="**/*.sh"/>
+                                        <include name="openresty/nginx/sbin/nginx"/>
+                                        <include name="redis/redis-*"/>
+                                    </tarfileset>
+                                </tar>
+                                <attachartifact file="${version.output}/${packagename}-${project.version}.tar.gz" classifier="linux64" type="tar.gz"/>
+
+
+                                <zip destfile="${version.output}/${packagename}-${project.version}.zip" update="true">
+                                    <zipfileset dir="target/assembly/win64" includes="**"/>
                                 </zip>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin> 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/${packagename}-${project.version}.zip</file>
-                                    <type>zip</type>
-                                </artifact>
-                            </artifacts>
+                                <attachartifact file="${version.output}/${packagename}-${project.version}.zip" classifier="win64" type="zip"/>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -142,6 +218,14 @@
             <artifactId>catalog-standalone</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
+            <classifier>win64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openo.common-tosca.catalog</groupId>
+            <artifactId>catalog-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>tar.gz</type>
+            <classifier>linux64</classifier>
         </dependency>
         <dependency>
             <groupId>org.openo.common-tosca.catalog</groupId>

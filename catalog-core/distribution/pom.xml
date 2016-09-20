@@ -28,6 +28,15 @@
     <name>openo/commontosca/catalog/distribution</name>
     <packaging>pom</packaging>
 
+    <properties>
+        <packagename>openo-commontosca-catalog</packagename>
+        <linux64id>linux64</linux64id>
+        <win64id>win64</win64id>
+        <linux64outputdir>target/assembly/${linux64id}</linux64outputdir>
+        <win64outputdir>target/assembly/${win64id}</win64outputdir>
+        <version.output>target/version</version.output>
+    </properties>
+
     <modules>
         <module>catalog-standalone</module>
         <module>catalog-all</module>
