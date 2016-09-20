@@ -25,7 +25,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openo.commontosca.catalog.CatalogAppConfiguration;
 import org.openo.commontosca.catalog.common.Config;
@@ -44,7 +43,6 @@ import org.openo.commontosca.catalog.entity.EnumProcessState;
 import org.openo.commontosca.catalog.entity.EnumUsageState;
 import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.entity.response.PackageMeta;
-import org.openo.commontosca.catalog.filemanage.entity.FileLink;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -100,9 +98,6 @@ public class PackageWrapperTest {
       }
     }
 
-    // PowerMockito.mockStatic(PackageManager.class);
-    // PowerMockito.when(manager.addPackage(packageData)).thenReturn(packageData);
-    // PowerMock.replayAll();
     PackageData packageData = new PackageData();
     packageData = getPackageData();
     manager.addPackage(packageData);
@@ -162,19 +157,10 @@ public class PackageWrapperTest {
   public void testQueryPackageById() throws Exception {
     ArrayList<PackageMeta> metas = new ArrayList<PackageMeta>();
     metas = getPackageMetaList();
-    // PackageManager packageManager = mock(PackageManager.class);
-    // when(packageManager.queryPackageByCsarId(anyString())).thenThrow(new Exception());
-    // PowerMockito.whenNew(PackageManager.class).withNoArguments().thenReturn(packageManager);
-    // PowerMockito.mockStatic(PackageManager.class);
-    // PowerMockito.when(PackageManager.getInstance()).thenReturn(manager);
-    // PowerMock.replayAll();
-    // when(manager.queryPackageByCsarId(anyString())).thenThrow(new Exception());
-    // PowerMockito.whenNew(PackageManager.class).withNoArguments().thenReturn(manager);
 
-    Response result = PackageWrapper.getInstance().queryPackageById("1");
+    Response result = PackageWrapper.getInstance().queryPackageById("123456");
     assertEquals(200, result.getStatus());
     assertEquals(metas, result.getEntity());
-
   }
 
   @Test
@@ -193,7 +179,7 @@ public class PackageWrapperTest {
   public void testUpdatePackageStatus() {
     System.out.println("Test update package status");
     Response result =
-        PackageWrapper.getInstance().updatePackageStatus("1", "Enabled", "NotInUse", "true",
+        PackageWrapper.getInstance().updatePackageStatus("123456", "Enabled", "NotInUse", "true",
             "onBoarding", "true");
     assertEquals(200, result.getStatus());
   }
@@ -212,27 +198,7 @@ public class PackageWrapperTest {
 
     expectResult.setDownloadUri(csarFileUri);
     expectResult.setLocalPath(localPath);
-    Response result = PackageWrapper.getInstance().getCsarFileUri("1", "/images/segw.img");
-    assertEquals(200, result.getStatus());
-    assertEquals(expectResult, result.getEntity());
-  }
-
-  @Ignore
-  @Test
-  public void testGetPlansUri() {
-    System.out.println("Test get csar plans uri ");
-    ArrayList<FileLink> expectResult = new ArrayList<FileLink>();
-    FileLink fileLink1 = new FileLink();
-    fileLink1.setFileName("init.zip");
-    fileLink1.setDownloadUri(MsbAddrConfig.getMsbAddress()
-        + "/NSAR/ZTE/NanocellGW/v1.0/Plans/init.zip");
-    expectResult.add(fileLink1);
-    FileLink fileLink2 = new FileLink();
-    fileLink2.setFileName("delete.zip");
-    fileLink2.setDownloadUri(MsbAddrConfig.getMsbAddress()
-        + "/NSAR/ZTE/NanocellGW/v1.0/Plans/delete.zip");
-    expectResult.add(fileLink2);
-    Response result = PackageWrapper.getInstance().getCsarPlansUri("1");
+    Response result = PackageWrapper.getInstance().getCsarFileUri("123456", "/images/segw.img");
     assertEquals(200, result.getStatus());
     assertEquals(expectResult, result.getEntity());
   }
@@ -240,7 +206,7 @@ public class PackageWrapperTest {
   @Test
   public void testDelPackage() {
     System.out.println("Test delete package ");
-    Response result = PackageWrapper.getInstance().delPackage("1");
+    Response result = PackageWrapper.getInstance().delPackage("123456");
     assertEquals(204, result.getStatus());
     try {
       Thread.sleep(5000);
@@ -254,9 +220,9 @@ public class PackageWrapperTest {
    */
   @After
   public void tearDown() throws Exception {
-    ArrayList<PackageData> packageList = manager.queryPackageByCsarId("1");
+    ArrayList<PackageData> packageList = manager.queryPackageByCsarId("123456");
     if (packageList != null && packageList.size() != 0) {
-      manager.deletePackage("1");
+      manager.deletePackage("123456");
     } else {
       return;
     }
@@ -280,7 +246,7 @@ public class PackageWrapperTest {
 
   private PackageData getPackageData() {
     PackageData packageData = new PackageData();
-    packageData.setCsarId("1");
+    packageData.setCsarId("123456");
     packageData.setCreateTime("2016-06-29 03:33:15");
     packageData.setDeletionPending("false");
     packageData.setDownloadUri("/NSAR/ZTE/NanocellGW/v1.0/");
@@ -298,18 +264,10 @@ public class PackageWrapperTest {
     return packageData;
   }
 
-  private ArrayList<PackageData> getPackageDataList() {
-    ArrayList<PackageData> packageDataList = new ArrayList<PackageData>();
-    PackageData packageData = new PackageData();
-    packageData = getPackageData();
-    packageDataList.add(packageData);
-    return packageDataList;
-  }
-
   private ArrayList<PackageMeta> getPackageMetaList() {
     PackageMeta meta = new PackageMeta();
     meta.setCreateTime("2016-06-29 03:33:15");
-    meta.setCsarId("1");
+    meta.setCsarId("123456");
     meta.setDeletionPending(false);
     meta.setDownloadUri(MsbAddrConfig.getMsbAddress() 
         + "/NSAR/ZTE/NanocellGW/v1.0/NanocellGW.csar");

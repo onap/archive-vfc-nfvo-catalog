@@ -16,10 +16,6 @@
 
 package org.openo.commontosca.catalog.filemanage;
 
-import org.openo.commontosca.catalog.filemanage.entity.FileLink;
-
-import java.util.ArrayList;
-
 
 public interface FileManager {
   
@@ -35,6 +31,6 @@ public interface FileManager {
 
   boolean delete(String srcPath);
 
-  ArrayList<FileLink> queryWorkFlow(String path);
+  //ArrayList<FileLink> queryWorkFlow(String path);
 
 }

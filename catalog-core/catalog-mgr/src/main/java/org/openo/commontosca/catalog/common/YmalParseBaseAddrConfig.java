@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.entity.request;
+package org.openo.commontosca.catalog.common;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public class YmalParseBaseAddrConfig {
 
-import org.openo.commontosca.catalog.entity.EnumType;
+  protected static String yamlParseAddr;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class UploadPackageFromFtpRequest {
+  public static String getYmalParseBaseAddr() {
+    return yamlParseAddr;
+  }
 
-  private String provider;
-
-  private EnumType type;
-
-  private String version;
-
-  private String ftpUrl;
-
+  public static void setYmalParseBaseAddr(String yamlParseAddr) {
+    YmalParseBaseAddrConfig.yamlParseAddr = yamlParseAddr;
+  }
 }

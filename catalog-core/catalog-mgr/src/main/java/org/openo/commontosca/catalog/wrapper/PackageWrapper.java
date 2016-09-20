@@ -21,20 +21,15 @@ import org.openo.commontosca.catalog.common.CommonConstant;
 import org.openo.commontosca.catalog.common.HttpServerPathConfig;
 import org.openo.commontosca.catalog.common.RestUtil;
 import org.openo.commontosca.catalog.common.ToolUtil;
-import org.openo.commontosca.catalog.common.ZipCompressor;
 import org.openo.commontosca.catalog.db.entity.PackageData;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.PackageManager;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
-import org.openo.commontosca.catalog.entity.EnumType;
 import org.openo.commontosca.catalog.entity.request.PackageBasicInfo;
-import org.openo.commontosca.catalog.entity.request.UploadPackageFromFtpRequest;
 import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.entity.response.PackageMeta;
 import org.openo.commontosca.catalog.entity.response.UploadPackageResponse;
 import org.openo.commontosca.catalog.filemanage.FileManagerFactory;
-import org.openo.commontosca.catalog.filemanage.entity.FileLink;
-import org.openo.commontosca.catalog.model.parser.EnumPackageFormat;
 import org.openo.commontosca.catalog.model.parser.ModelParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -428,90 +423,5 @@ public class PackageWrapper {
     return result;
   }
 
-  /**
-   * upload package from ftp.
-   * @param request package basic information
-   * @return Response
-   */
-  public Response uploadPackageFromFtp(UploadPackageFromFtpRequest request) {
-    PackageBasicInfo basicInfo = new PackageBasicInfo();
-    String tempDirName = null;
-    String fileName = "";
-    UploadPackageResponse result = new UploadPackageResponse();
-    basicInfo.setProvider("zte");
-    basicInfo.setType(EnumType.NSAR);
-    basicInfo.setVersion("v1.0");
-    PackageMeta packageMeta = new PackageMeta();
-
-    try {
-      String ftpUrl = request.getFtpUrl();
-      String packageName = PackageWrapperUtil.getPackageName(ftpUrl);
-      fileName = ToolUtil.processFileName(packageName);
-      tempDirName = ToolUtil.getTempDir(CommonConstant.CATALOG_CSAR_DIR_NAME, fileName);
-      PackageWrapperUtil.downPackageFromFtp(ftpUrl, tempDirName);
-      String path =
-          basicInfo.getType().toString() + File.separator + basicInfo.getProvider()
-              + File.separator + fileName.replace(".csar", "") + File.separator
-              + basicInfo.getVersion();
-      LOG.info("dest path is : " + path);
-      packageMeta = PackageWrapperUtil.getPackageMeta(fileName, tempDirName, basicInfo);
-      String dowloadUri = File.separator + path + File.separator + fileName;
-      packageMeta.setDownloadUri(dowloadUri);
-      LOG.info("packageMeta = " + ToolUtil.objectToString(packageMeta));
-      String destPath = File.separator + path;
-      boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
-      if (uploadResult == true) {
-        String newZipPath = tempDirName + fileName.replace(".csar", ".zip");
-        ZipCompressor zc = new ZipCompressor(newZipPath);
-        String metadataPath = tempDirName + File.separator + CommonConstant.TOSCA_METADATA;
-        String definitions = tempDirName + File.separator + CommonConstant.DEFINITIONS;
-        zc.compress(metadataPath, definitions);
-        String parseResult = ModelParserFactory.getInstance().parse(packageMeta.getCsarId(),
-            newZipPath, EnumPackageFormat.valueOf(packageMeta.getFormat()));
-        PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
-        PackageManager.getInstance().addPackage(packageData);
-      }
-      LOG.info("upload package file end, fileName:" + fileName);
-      result.setCsarId(packageMeta.getCsarId());
-      return Response.ok(result).build();
-    } catch (Exception e1) {
-      LOG.error("upload package fail.", e1);
-      String csarId = packageMeta.getCsarId();
-      if (csarId != null) {
-        try {
-          PackageManager.getInstance().deletePackage(csarId);
-        } catch (CatalogResourceException e2) {
-          LOG.error("delete package failed !");
-        }
-      }
-      return RestUtil.getRestException(e1.getMessage());
-    } finally {
-      if (tempDirName != null) {
-        ToolUtil.deleteDir(new File(tempDirName));
-      }
-    }
-  }
-
-  /**
-   * get csar plan uri.
-   * @param csarId package id
-   * @return Response
-   */
-  public Response getCsarPlansUri(String csarId) {
-    ArrayList<FileLink> fileLinks = new ArrayList<FileLink>();
-    LOG.info("start query plans of package.csarId:" + csarId);
-    ArrayList<PackageData> packageList = new ArrayList<PackageData>();
-    try {
-      packageList = PackageManager.getInstance().queryPackageByCsarId(csarId);
-      if (packageList != null && packageList.size() != 0) {
-        String downloadUri = packageList.get(0).getDownloadUri();
-        fileLinks = FileManagerFactory.createFileManager().queryWorkFlow(downloadUri);
-      }
-      return Response.ok(fileLinks).build();
-    } catch (CatalogResourceException e1) {
-      LOG.error("Query plans of  package by ID failed ! csarId = " + csarId);
-      return RestUtil.getRestException(e1.getMessage());
-    }
-    // return Response.serverError().build();
-  }
+  
 }

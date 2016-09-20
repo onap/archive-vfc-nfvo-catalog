@@ -17,13 +17,11 @@
 package org.openo.commontosca.catalog.filemanage.http;
 
 import org.openo.commontosca.catalog.filemanage.FileManager;
-import org.openo.commontosca.catalog.filemanage.entity.FileLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 
 public class HttpFileManagerImpl implements FileManager {
@@ -67,23 +65,5 @@ public class HttpFileManagerImpl implements FileManager {
     return flag;
   }
 
-  @Override
-  public ArrayList<FileLink> queryWorkFlow(String path) {
-    LOGGER.info("start query workFlow from http server.path:" + path);
-    File workFlowRoot = new File(ToolUtil.getHttpServerPath() + path);
-    ArrayList<FileLink> fileLinks = new ArrayList<FileLink>();
-    File[] files = workFlowRoot.listFiles();
-    if (files != null && files.length != 0) {
-      for (File file : files) {
-        if (file.isFile() && file.getName().endsWith(".zip")) {
-          FileLink fileLink = new FileLink();
-          fileLink.setFileName(file.getName());
-          fileLink.setDownloadUri(path + "/" + file.getName());
-        }
-      }
-    }
-    LOGGER.info("start query workFlow from http server.size:" + fileLinks.size());
-    return fileLinks;
-  }
 
 }

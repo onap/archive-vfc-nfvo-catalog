@@ -51,6 +51,7 @@ public class MsbUtil {
   }
 
   public static String getYamlParseBaseUrl() {
-    return Config.getConfigration().getYamlParseAddr() + "/api/yamlparser/v1";
+    return YmalParseBaseAddrConfig.getYmalParseBaseAddr() + "/api/yamlparser/v1";
+//    return Config.getConfigration().getYamlParseAddr() + "/api/yamlparser/v1";
   }
 }

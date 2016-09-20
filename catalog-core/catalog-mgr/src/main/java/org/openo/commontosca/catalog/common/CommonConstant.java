@@ -20,7 +20,7 @@ public class CommonConstant {
   // Package Status
   public static final String PACKAGE_STATUS_DELETING = "deleting";
 
-  public static final String PACKAGE_STATUS_DELETE_FAIL = "deletefail";
+  public static final String PACKAGE_STATUS_DELETE_FAIL = "deleteFailed";
 
   public static final String PACKAGE_XML_FORMAT = "xml";
 
