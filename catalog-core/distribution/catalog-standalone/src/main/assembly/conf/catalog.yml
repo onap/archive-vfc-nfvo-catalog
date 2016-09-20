@@ -93,8 +93,8 @@ logging:
     - type: file
       threshold: INFO
       logFormat: "%d{yyyy-MM-dd HH:mm:ss SSS} %-5p [%c][%t] - %m%n"
-      currentLogFilename: ./logs/catalog.log
-      archivedLogFilenamePattern: ./logs/zip/catalog-%d{yyyy-MM-dd}.log.gz
+      currentLogFilename: ./works/logs/catalog.log
+      archivedLogFilenamePattern: ./works/logs/zip/catalog-%d{yyyy-MM-dd}.log.gz
       archivedFileCount: 7
       timeZone: UTC
 
