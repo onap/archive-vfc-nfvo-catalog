@@ -35,7 +35,6 @@ import org.openo.commontosca.catalog.common.HttpServerAddrConfig;
 import org.openo.commontosca.catalog.common.HttpServerPathConfig;
 import org.openo.commontosca.catalog.common.MsbAddrConfig;
 import org.openo.commontosca.catalog.common.ServiceRegistrer;
-import org.openo.commontosca.catalog.common.YmalParseBaseAddrConfig;
 import org.openo.commontosca.catalog.db.dao.DaoManager;
 import org.openo.commontosca.catalog.db.entity.NodeTemplateData;
 import org.openo.commontosca.catalog.db.entity.PackageData;
@@ -97,7 +96,6 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
     MsbAddrConfig.setMsbAddress(configuration.getMsbServerAddr());
     HttpServerAddrConfig.setHttpServerAddress(configuration.getHttpServerAddr());
     HttpServerPathConfig.setHttpServerPath(configuration.getHttpServerPath());
-    YmalParseBaseAddrConfig.setYmalParseBaseAddr(configuration.getYamlParseAddr());
     initDao();
     final ConsoleHealthCheck healthCheck = new ConsoleHealthCheck(configuration.getTemplate());
     environment.healthChecks().register("template", healthCheck);

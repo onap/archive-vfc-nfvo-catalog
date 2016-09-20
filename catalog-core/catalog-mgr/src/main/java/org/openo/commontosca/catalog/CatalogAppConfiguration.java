@@ -39,43 +39,15 @@ public class CatalogAppConfiguration extends Configuration {
 
   @NotEmpty
   private String httpServerAddr;
-
-  @NotEmpty
-  private String opentoscaServerAddr;
-
-  @NotEmpty
-  private String yamlParseAddr;
   
   @NotEmpty
   private String parserType;
-  
-  @NotEmpty
-  private String ariaParserAddr;
-
-  @NotEmpty
-  private String wso2HostIp;
-
-  @NotEmpty
-  private String wso2HostPort;
 
   @NotEmpty
   private String cataloguePath;
   @NotEmpty
   private String httpServerPath;
-  @NotEmpty
-  private String ldapServerIp;
 
-  @NotEmpty
-  private String ldapServerPort;
-
-  @NotEmpty
-  private String ldapLogindn;
-
-  @NotEmpty
-  private String ldapPassword;
-
-  @NotEmpty
-  private String ldapVersion;
   @Valid
   @NotNull
   private DataSourceFactory database = new DataSourceFactory();
@@ -129,26 +101,6 @@ public class CatalogAppConfiguration extends Configuration {
   public void setHttpServerAddr(String httpServerAddr) {
     this.httpServerAddr = httpServerAddr;
   }
-
-  @JsonProperty
-  public String getOpentoscaServerAddr() {
-    return opentoscaServerAddr;
-  }
-
-  @JsonProperty
-  public void setOpentoscaServerAddr(String opentoscaServerAddr) {
-    this.opentoscaServerAddr = opentoscaServerAddr;
-  }
-
-  @JsonProperty
-  public String getYamlParseAddr() {
-    return yamlParseAddr;
-  }
-
-  @JsonProperty
-  public void setYamlParseAddr(String yamlParseAddr) {
-    this.yamlParseAddr = yamlParseAddr;
-  }
   
   public String getParserType() {
     return parserType;
@@ -156,38 +108,6 @@ public class CatalogAppConfiguration extends Configuration {
 
   public void setParserType(String parserType) {
     this.parserType = parserType;
-  }
-
-  public String getAriaParserAddr() {
-    return ariaParserAddr;
-  }
-
-  public void setAriaParserAddr(String ariaParserAddr) {
-    this.ariaParserAddr = ariaParserAddr;
-  }
-
-  @JsonProperty
-  public String getWso2HostIp() {
-    return wso2HostIp;
-  }
-
-  @JsonProperty
-  public void setWso2HostIp(String wso2HostIp) {
-    this.wso2HostIp = wso2HostIp;
-  }
-
-  @JsonProperty
-  public String getWso2HostPort() {
-    return wso2HostPort;
-  }
-
-  @JsonProperty
-  public void setWso2HostPort(String wso2HostPort) {
-    this.wso2HostPort = wso2HostPort;
-  }
-
-  public String getWso2BaseUrl() {
-    return "http://" + this.wso2HostIp + ":" + this.wso2HostPort;
   }
 
   @JsonProperty
@@ -198,56 +118,6 @@ public class CatalogAppConfiguration extends Configuration {
   @JsonProperty
   public void setCataloguePath(String cataloguePath) {
     this.cataloguePath = cataloguePath;
-  }
-
-  @JsonProperty
-  public String getLdapServerIp() {
-    return ldapServerIp;
-  }
-
-  @JsonProperty
-  public void setLdapServerIp(String ldapServerIp) {
-    this.ldapServerIp = ldapServerIp;
-  }
-
-  @JsonProperty
-  public String getLdapServerPort() {
-    return ldapServerPort;
-  }
-
-  @JsonProperty
-  public void setLdapServerPort(String ldapServerPort) {
-    this.ldapServerPort = ldapServerPort;
-  }
-
-  @JsonProperty
-  public String getLdapLogindn() {
-    return ldapLogindn;
-  }
-
-  @JsonProperty
-  public void setLdapLogindn(String ldapLogindn) {
-    this.ldapLogindn = ldapLogindn;
-  }
-
-  @JsonProperty
-  public String getLdapPassword() {
-    return ldapPassword;
-  }
-
-  @JsonProperty
-  public void setLdapPassword(String ldapPassword) {
-    this.ldapPassword = ldapPassword;
-  }
-
-  @JsonProperty
-  public String getLdapVersion() {
-    return ldapVersion;
-  }
-
-  @JsonProperty
-  public void setLdapVersion(String ldapVersion) {
-    this.ldapVersion = ldapVersion;
   }
 
   @JsonProperty

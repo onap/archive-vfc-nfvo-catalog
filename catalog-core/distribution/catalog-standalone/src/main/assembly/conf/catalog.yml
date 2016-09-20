@@ -22,17 +22,7 @@ msbServerAddr: http://127.0.0.1:80
 
 httpServerAddr: http://127.0.0.1:8080
 
-opentoscaServerAddr: http://127.0.0.1:1337
-
-yamlParseAddr: http://127.0.0.1:8210
-
 parserType: zte
-
-ariaParserAddr: http://127.0.0.1:8204/openoapi/tosca/v1
-
-wso2HostIp: 127.0.0.1
-
-wso2HostPort: 9090
 
 #catalogue path to store csar temperarily
 cataloguePath: ./catalog
@@ -51,12 +41,6 @@ database:
 
   # the JDBC URL
   url: jdbc:mysql://127.0.0.1:3306/catalog
-#LDAP
-ldapServerIp: 127.0.0.1
-ldapServerPort: 20096
-ldapLogindn: uid=admin,ou=system
-ldapPassword: nsoc
-ldapVersion: 3
 
 # use the simple server factory if you only want to run on a single port
 #server:

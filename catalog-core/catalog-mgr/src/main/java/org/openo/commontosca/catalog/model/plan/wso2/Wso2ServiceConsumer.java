@@ -16,9 +16,22 @@
 
 package org.openo.commontosca.catalog.model.plan.wso2;
 
-import com.google.gson.Gson;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
-import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -33,16 +46,8 @@ import org.openo.commontosca.catalog.model.plan.wso2.entity.StartProcessResponse
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
+import com.google.gson.Gson;
 
 
 
@@ -59,11 +64,15 @@ public class Wso2ServiceConsumer {
    */
   public static DeployPackageResponse deployPackage(String zipFileLocation, String planFilePath)
       throws CatalogResourceException {
+    IpPort ipPort = getIpPort(Config.getConfigration().getMsbServerAddr());
+    if (ipPort == null) {
+      throw new CatalogResourceException("getMsbServerAddr failed.");
+    }
     InputStream ins = null;
     try {
       ins = getInputStream(zipFileLocation, planFilePath);
-      RestResponse res = RestfulClient.post(Config.getConfigration().getWso2HostIp(),
-          Integer.parseInt(Config.getConfigration().getWso2HostPort()), WSO2_APP_URL,
+      RestResponse res = RestfulClient.post(
+          ipPort.getIp(), ipPort.getPort(), WSO2_APP_URL,
           buildRequest(ins, planFilePath));
 
       if (res.getStatusCode() == null || res.getResult() == null) {
@@ -92,6 +101,23 @@ public class Wso2ServiceConsumer {
         }
       }
     }
+  }
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class IpPort {
+    private String ip;
+    private int port;
+  }
+  
+  private static IpPort getIpPort(String addr) {
+    Pattern p = Pattern.compile("//(.*?):(.*)");
+    Matcher m = p.matcher(addr);
+    while(m.find()){
+      return new IpPort(m.group(1), Integer.valueOf(m.group(2)));
+    }
+    return null;
   }
 
   private static HttpEntity buildRequest(InputStream inputStream, String filePath)
@@ -149,7 +175,7 @@ public class Wso2ServiceConsumer {
     try {
       ClientConfig config = new ClientConfig();
       Iwso2RestService wso2Proxy = ConsumerFactory.createConsumer(
-          Config.getConfigration().getWso2BaseUrl(), config, Iwso2RestService.class);
+          Config.getConfigration().getMsbServerAddr(), config, Iwso2RestService.class);
       DeletePackageResponse response = wso2Proxy.deletePackage(packageName);
       if (response.isSuccess()) {
         return response;
@@ -174,7 +200,7 @@ public class Wso2ServiceConsumer {
     try {
       ClientConfig config = new ClientConfig();
       Iwso2RestService wso2Proxy = ConsumerFactory.createConsumer(
-          Config.getConfigration().getWso2BaseUrl(), config, Iwso2RestService.class);
+          Config.getConfigration().getMsbServerAddr(), config, Iwso2RestService.class);
       StartProcessResponse response =
           wso2Proxy.startProcess(new StartProcessRequest(processId, params));
       if (response.isSuccess()) {

@@ -212,7 +212,7 @@ public class ContainerServiceConsumer {
    */
   private static String getBaseUrl() {
     StringBuffer buffer = new StringBuffer();
-    buffer.append(Config.getConfigration().getOpentoscaServerAddr() + "/containerapi/extension");
+    buffer.append(Config.getConfigration().getMsbServerAddr() + "/containerapi/extension");
     return buffer.toString();
   }
 
@@ -223,7 +223,7 @@ public class ContainerServiceConsumer {
    */
   private static String getPackageUrl() {
     StringBuffer buffer = new StringBuffer();
-    buffer.append(Config.getConfigration().getOpentoscaServerAddr());
+    buffer.append(Config.getConfigration().getMsbServerAddr());
     return buffer.toString();
   }
 }

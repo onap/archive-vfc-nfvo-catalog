@@ -25,10 +25,11 @@ import javax.ws.rs.core.MediaType;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserRequest;
 
 
-@Path("/indirect/plan")
+@Path("/openoapi/tosca/v1")
 public interface IAriaParserRest {
 
   @POST
+  @Path("/indirect/plan")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   String parse(AriaParserRequest request) throws Exception;

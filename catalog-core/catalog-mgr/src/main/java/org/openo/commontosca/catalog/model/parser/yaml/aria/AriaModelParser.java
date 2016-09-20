@@ -58,7 +58,7 @@ public class AriaModelParser extends AbstractModelParser {
     
     // service template
     CsarFileUriResponse stDownloadUri = buildServiceTemplateDownloadUri(packageId, fileLocation);
-    ServiceTemplate st = parseServiceTemplate(packageId, result, stDownloadUri.getDownloadUri());
+    ServiceTemplate st = parseServiceTemplate(result, packageId, stDownloadUri.getDownloadUri());
     // node templates
     List<NodeTemplate> ntList = parseNodeTemplates(packageId, st.getServiceTemplateId(), result);
     st.setType(getTemplateType(getSubstitutionType(result), ntList).toString());
@@ -197,12 +197,12 @@ public class AriaModelParser extends AbstractModelParser {
 
 
   /**
-   * @param packageId
    * @param result
+   * @param packageId
    * @param downloadUri
    * @return
    */
-  private ServiceTemplate parseServiceTemplate(String packageId, AriaParserResult result,
+  private ServiceTemplate parseServiceTemplate(AriaParserResult result, String packageId,
       String downloadUri) {
     ServiceTemplate st = new ServiceTemplate();
 
