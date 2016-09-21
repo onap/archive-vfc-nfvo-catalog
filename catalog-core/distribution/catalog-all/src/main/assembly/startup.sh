@@ -21,12 +21,15 @@ echo @RUNHOME@ $RUNHOME
 
 echo "### Starting catalog";
 cd catalog
-./run.sh &
+$RUNHOME/catalog/run.sh &
 cd $RUNHOME
 
 
 echo "\n\n### Starting catalog-http server"
 cd ./tomcat
-./bin/startup.sh &
+if [ ! -d "$RUNHOME/tomcat/logs" ]; then
+  mkdir $RUNHOME/tomcat/logs
+fi
+$RUNHOME/tomcat/bin/startup.sh &
 echo "### Starting catalog end...";
 

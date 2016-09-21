@@ -20,11 +20,11 @@ echo @RUNHOME@ $RUNHOME
 
 echo "### Starting catalog";
 cd catalog
-./stop.sh &
+$RUNHOME/catalog/stop.sh &
 cd $RUNHOME
 
 
 echo "\n\n### Starting catalog-http server"
 cd ./tomcat
-./bin/shutdown.sh &
+$RUNHOME/tomcat/bin/shutdown.sh &
 echo "### Starting catalog end...";

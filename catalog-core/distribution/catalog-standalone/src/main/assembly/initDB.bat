@@ -22,9 +22,9 @@ set password=%2
 set port=%3
 set host=%4
 echo start init catalog db
-echo HOME=$HOME
+echo HOME=%HOME%
 cd /d %HOME%
-mysql -u%user% -p%password% -P%port% -h%host% < dbscripts\mysql\openo-common_tosca-catalog-createobj.sql
+mysql -u%user% -p%password% -P%port% -h%host% < %HOME%\dbscripts\mysql\openo-common_tosca-catalog-createobj.sql
 set "err=%errorlevel%"
 if "%err%"=="0" (
    echo init catalog db success

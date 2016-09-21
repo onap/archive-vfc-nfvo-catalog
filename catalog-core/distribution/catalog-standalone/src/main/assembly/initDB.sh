@@ -23,7 +23,7 @@ password=$2
 port=$3
 host=$4
 echo "start init catalog db"
-mysql -u$user -p$password -P$port -h$host <dbscripts/mysql/openo-common_tosca-catalog-createobj.sql
+mysql -u$user -p$password -P$port -h$host <$HOME/dbscripts/mysql/openo-common_tosca-catalog-createobj.sql
 sql_result=$?
 if [ $sql_result != 0 ] ; then
    echo "failed to init catalog database!"
