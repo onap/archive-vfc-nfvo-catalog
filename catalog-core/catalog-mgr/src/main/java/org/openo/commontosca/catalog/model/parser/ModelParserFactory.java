@@ -35,6 +35,16 @@ public class ModelParserFactory {
   private Map<EnumPackageFormat, AbstractModelParser> pkgType2ParseMap =
       new HashMap<EnumPackageFormat, AbstractModelParser>();
 
+  /**
+   * @param format
+   * @param parse
+   */
+  public void put(EnumPackageFormat format, AbstractModelParser parse) {
+    if (parse != null) {
+      pkgType2ParseMap.put(format, parse);
+    }
+  }
+  
   private ModelParserFactory() {
     // PackageParseMap.put(EnumPackageFormat.TOSCA_XML, new
     // ToscaXmlModelParser());
