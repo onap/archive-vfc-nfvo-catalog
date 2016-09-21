@@ -20,7 +20,7 @@ defaultName: ${DW_DEFAULT_NAME:-Stranger}
 
 msbServerAddr: http://127.0.0.1:80
 
-httpServerAddr: http://127.0.0.1:8080
+httpServerAddr: http://127.0.0.1:8201
 
 parserType: zte
 

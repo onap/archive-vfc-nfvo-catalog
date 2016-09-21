@@ -95,7 +95,9 @@
                         </goals>
                         <configuration>
                             <tasks name="${project.artifactId}">
-                                <copydir src="src/main/assembly/" dest="target/assembly"/>
+                                <delete file="target/assembly/tomcat/conf/server.xml"/>
+                                <delete file="target/assembly/tomcat/conf/web.xml"/>
+                                <copydir src="src/main/assembly/" dest="target/assembly" />
                                 <zip destfile="target/${packagename}-${project.version}.zip" update="true">
                                     <zipfileset dir="target/assembly" includes="**"/>
                                 </zip>
