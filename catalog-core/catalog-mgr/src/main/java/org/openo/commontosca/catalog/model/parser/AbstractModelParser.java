@@ -50,8 +50,8 @@ public abstract class AbstractModelParser {
     String destPath = Class.class.getClass().getResource("/").getPath()
         + org.openo.commontosca.catalog.filemanage.http.ToolUtil.getHttpServerPath()
         + toTempFileLocalPath(fileLocation);
-    if (!org.openo.commontosca.catalog.filemanage.http.ToolUtil.copyFile(fileLocation, destPath,
-        true)) {
+    if (!org.openo.commontosca.catalog.filemanage.http.ToolUtil.copyFile(
+        fileLocation, destPath, true)) {
       throw new CatalogResourceException("Copy Temporary To HttpServer Failed.");
     }
     return destPath;

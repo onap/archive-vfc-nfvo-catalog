@@ -42,7 +42,7 @@ public class AriaParserServiceConsumer {
     try {
       IAriaParserRest parseProxy =
           ConsumerFactory.createConsumer(
-              Config.getConfigration().getAriaParserAddr(),
+              Config.getConfigration().getMsbServerAddr(),
               new ClientConfig(),
               IAriaParserRest.class);
       String jsonStr = parseProxy.parse(request);
