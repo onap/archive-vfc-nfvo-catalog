@@ -186,25 +186,19 @@
                         </goals>
                         <configuration>
                             <target name="distribution">
-                                <tar destfile="${version.output}/${packagename}-${project.version}.tar.gz" longfile="posix" compression="gzip">
+                                <tar destfile="${version.output}/${packagename}-${project.version}-linux64.tar.gz" longfile="posix" compression="gzip">
                                     <tarfileset dir="target/assembly/linux64" filemode="0644" dirmode="0755">
                                         <exclude name="**/*.sh"/>
-                                        <exclude name="openresty/nginx/sbin/nginx"/>
-                                        <exclude name="redis/redis-*"/>
                                     </tarfileset>
                                     <tarfileset dir="target/assembly/linux64" filemode="0755" dirmode="0755">
                                         <include name="**/*.sh"/>
-                                        <include name="openresty/nginx/sbin/nginx"/>
-                                        <include name="redis/redis-*"/>
                                     </tarfileset>
                                 </tar>
-                                <attachartifact file="${version.output}/${packagename}-${project.version}.tar.gz" classifier="linux64" type="tar.gz"/>
-
-
-                                <zip destfile="${version.output}/${packagename}-${project.version}.zip" update="true">
+                                <attachartifact file="${version.output}/${packagename}-${project.version}-linux64.tar.gz" classifier="linux64" type="tar.gz"/>
+                                <zip destfile="${version.output}/${packagename}-${project.version}-win64.zip" update="true">
                                     <zipfileset dir="target/assembly/win64" includes="**"/>
                                 </zip>
-                                <attachartifact file="${version.output}/${packagename}-${project.version}.zip" classifier="win64" type="zip"/>
+                                <attachartifact file="${version.output}/${packagename}-${project.version}-win64.zip" classifier="win64" type="zip"/>
                             </target>
                         </configuration>
                     </execution>
