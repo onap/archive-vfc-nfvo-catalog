@@ -19,6 +19,7 @@ package org.openo.commontosca.catalog.model.parser.yaml.aria.service;
 import org.glassfish.jersey.client.ClientConfig;
 import org.openo.commontosca.catalog.common.Config;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserExceptionResult;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserRequest;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult;
 
@@ -45,11 +46,18 @@ public class AriaParserServiceConsumer {
               Config.getConfigration().getMsbServerAddr(),
               new ClientConfig(),
               IAriaParserRest.class);
-      String jsonStr = parseProxy.parse(request);
-      return new Gson().fromJson(jsonStr, AriaParserResult.class);
+      String strResult = parseProxy.parse(request);
+      validateResult(strResult);
+      return new Gson().fromJson(strResult, AriaParserResult.class);
     } catch (Exception e) {
       throw new CatalogResourceException("Call aria parser api failed.", e);
     }
 
+  }
+  private static void validateResult(String strResult) throws CatalogResourceException {
+    AriaParserExceptionResult except = new Gson().fromJson(strResult, AriaParserExceptionResult.class);
+    if (except.getIssues() != null && except.getIssues().length > 0) {
+      throw new CatalogResourceException("Aria parser return failure message: " + except.getIssues()[0].getMessage());
+    }
   }
 }

@@ -21,7 +21,6 @@ import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
 import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
-import org.openo.commontosca.catalog.model.entity.EnumDataType;
 import org.openo.commontosca.catalog.model.entity.InputParameter;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
 import org.openo.commontosca.catalog.model.entity.OutputParameter;
@@ -133,7 +132,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     }
     List<InputParameter> retList = new ArrayList<InputParameter>();
     for (Input input : inputList) {
-      retList.add(new InputParameter(input.getName(), getEnumDataType(input.getType()),
+      retList.add(new InputParameter(input.getName(), input.getType(),
           input.getDescription(), input.getDefault(), input.isRequired()));
     }
     return retList.toArray(new InputParameter[0]);
@@ -208,26 +207,10 @@ public class ToscaYamlModelParser extends AbstractModelParser {
 
     List<InputParameter> retList = new ArrayList<>();
     for (PlanInput input : inputList) {
-      retList.add(new InputParameter(input.getName(), getEnumDataType(input.getType()),
+      retList.add(new InputParameter(input.getName(), input.getType(),
           input.getDescription(), input.getDefault(), input.isRequired()));
     }
     return retList.toArray(new InputParameter[0]);
-  }
-
-  private EnumDataType getEnumDataType(String type) {
-    if (EnumDataType.INTEGER.toString().equalsIgnoreCase(type)) {
-      return EnumDataType.INTEGER;
-    }
-
-    if (EnumDataType.FLOAT.toString().equalsIgnoreCase(type)) {
-      return EnumDataType.FLOAT;
-    }
-
-    if (EnumDataType.BOOLEAN.toString().equalsIgnoreCase(type)) {
-      return EnumDataType.BOOLEAN;
-    }
-
-    return EnumDataType.STRING;
   }
 
   private List<NodeTemplate> parseNodeTemplates(String csarId, String templateId,

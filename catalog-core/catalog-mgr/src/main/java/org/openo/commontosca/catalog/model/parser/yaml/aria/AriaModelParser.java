@@ -15,19 +15,11 @@
  */
 package org.openo.commontosca.catalog.model.parser.yaml.aria;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
 import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
-import org.openo.commontosca.catalog.model.entity.EnumDataType;
 import org.openo.commontosca.catalog.model.entity.InputParameter;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
 import org.openo.commontosca.catalog.model.entity.OutputParameter;
@@ -42,6 +34,13 @@ import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserRes
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Output;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Substitution.Mapping;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.service.AriaParserServiceConsumer;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author 10090474
@@ -144,9 +143,10 @@ public class AriaModelParser extends AbstractModelParser {
    * @param serviceTemplateId
    * @param result
    * @return
+   * @throws CatalogResourceException 
    */
   private List<NodeTemplate> parseNodeTemplates(String packageId, String serviceTemplateId,
-      AriaParserResult result) {
+      AriaParserResult result) throws CatalogResourceException {
     Node[] nodes = result.getNodes();
     if (nodes == null || nodes.length == 0) {
       return null;
@@ -155,12 +155,12 @@ public class AriaModelParser extends AbstractModelParser {
     List<NodeTemplate> retList = new ArrayList<>();
     for (Node node : nodes) {
       NodeTemplate ret = new NodeTemplate();
-      ret.setId(node.getName());
-      ret.setName(node.getName());
+      ret.setId(node.getTemplate_name());
+      ret.setName(node.getTemplate_name());
       ret.setType(node.getType_name());
       ret.setProperties(node.getPropertyAssignments());
       List<RelationShip> relationShipList =
-          parseNodeTemplateRelationShip(node.getRelationships(), node);
+          parseNodeTemplateRelationShip(node.getRelationships(), node, nodes);
       ret.setRelationShips(relationShipList);
 
       retList.add(ret);
@@ -173,9 +173,11 @@ public class AriaModelParser extends AbstractModelParser {
   /**
    * @param relationships
    * @param sourceNode 
+   * @param nodes 
    * @return
+   * @throws CatalogResourceException 
    */
-  private List<RelationShip> parseNodeTemplateRelationShip(Relationship[] relationships, Node sourceNode) {
+  private List<RelationShip> parseNodeTemplateRelationShip(Relationship[] relationships, Node sourceNode, Node[] nodes) throws CatalogResourceException {
     List<RelationShip> retList = new ArrayList<>();
 
     if (relationships == null || relationships.length == 0) {
@@ -184,15 +186,40 @@ public class AriaModelParser extends AbstractModelParser {
 
     for (Relationship relationship : relationships) {
       RelationShip ret = new RelationShip();
-      ret.setSourceNodeId(sourceNode.getName());
-      ret.setSourceNodeName(sourceNode.getName());
-      ret.setTargetNodeId(relationship.getTemplate_name());
-      ret.setTargetNodeName(relationship.getTemplate_name());
+      ret.setSourceNodeId(sourceNode.getTemplate_name());
+      ret.setSourceNodeName(sourceNode.getTemplate_name());
+      Node targetNode = getNodeById(nodes, relationship.getTarget_node_id());
+      ret.setTargetNodeId(targetNode.getTemplate_name());
+      ret.setTargetNodeName(targetNode.getTemplate_name());
       ret.setType(relationship.getType_name());
       retList.add(ret);
     }
 
     return retList;
+  }
+
+
+  /**
+   * @param nodes
+   * @param nodeId
+   * @return
+   * @throws CatalogResourceException 
+   */
+  private Node getNodeById(Node[] nodes, String nodeId) throws CatalogResourceException {
+    if (nodeId == null) {
+      throw new CatalogResourceException("Target node id is null.");
+    }
+    if (nodes == null || nodes.length == 0) {
+      throw new CatalogResourceException("Can't find target node. nodeId = " + nodeId);
+    }
+    
+    for (Node node : nodes) {
+      if (nodeId.equals(node.getId())) {
+        return node;
+      }
+    }
+    
+    throw new CatalogResourceException("Can't find target node. nodeId = " + nodeId);
   }
 
 
@@ -232,34 +259,13 @@ public class AriaModelParser extends AbstractModelParser {
       retList.add(
           new InputParameter(
               e.getKey(),
-              getEnumDataType(e.getValue().getType_name()),
+              e.getValue().getType_name(),
               e.getValue().getDescription(),
               e.getValue().getValue(),
               false));
     }
     return retList.toArray(new InputParameter[0]);
   }
-  
-  /**
-   * @param type
-   * @return
-   */
-  private EnumDataType getEnumDataType(String type) {
-    if (EnumDataType.INTEGER.toString().equalsIgnoreCase(type)) {
-      return EnumDataType.INTEGER;
-    }
-
-    if (EnumDataType.FLOAT.toString().equalsIgnoreCase(type)) {
-      return EnumDataType.FLOAT;
-    }
-
-    if (EnumDataType.BOOLEAN.toString().equalsIgnoreCase(type)) {
-      return EnumDataType.BOOLEAN;
-    }
-
-    return EnumDataType.STRING;
-  }
-
 
   /**
    * @param result

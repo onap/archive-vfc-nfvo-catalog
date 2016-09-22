@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package org.openo.commontosca.catalog.model.entity;
+package org.openo.commontosca.catalog.model.parser.yaml.aria.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
-public enum EnumDataType {
-  STRING("String"), INTEGER("Integer"), FLOAT("Float"), BOOLEAN("Boolean");
+public class AriaParserExceptionResult {
+  private Issue[] issues;
 
-  private String value;
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  @Override
-  public String toString() {
-    return value;
+  @Data
+  public class Issue {
+    private int level;
+    private String message;
+//    private String location;
+//    private String line;
+//    private String column;
+//    private String snippet;
+    private String exception;
   }
 }
+

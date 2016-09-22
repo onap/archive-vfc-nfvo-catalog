@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InputParameter {
   private String name;
-  private EnumDataType type = EnumDataType.STRING;
+  private String type = "string";
   private String description;
   private Object defaultValue;
   private boolean required;

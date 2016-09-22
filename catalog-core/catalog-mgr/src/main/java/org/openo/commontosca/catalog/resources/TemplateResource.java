@@ -16,15 +16,6 @@
 
 package org.openo.commontosca.catalog.resources;
 
-import com.codahale.metrics.annotation.Timed;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
-import org.eclipse.jetty.http.HttpStatus;
 import org.openo.commontosca.catalog.common.CommonErrorResponse;
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
@@ -35,11 +26,11 @@ import org.openo.commontosca.catalog.model.entity.QueryRawDataCondition;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateRawData;
+import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
+import org.openo.commontosca.catalog.model.parser.yaml.aria.AriaModelParser;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.ToscaYamlModelParser;
 import org.openo.commontosca.catalog.model.service.ModelService;
 import org.openo.commontosca.catalog.model.wrapper.ServiceTemplateWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -50,6 +41,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.eclipse.jetty.http.HttpStatus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+import com.codahale.metrics.annotation.Timed;
 
 /**
  * model template service.
@@ -432,13 +436,16 @@ public class TemplateResource {
   @Timed
   public Response test() {
     try {
-      ToscaYamlModelParser parser = new ToscaYamlModelParser();
-      parser.parse("pk11111", "C:\\Users\\10090474\\Desktop\\1\\bm\\bm.zip");
-      String[] strs = {"111", "222", null, null, "555"};
-      Response.status(Response.Status.OK).entity(strs).build();
+      AbstractModelParser parser1 = new ToscaYamlModelParser();
+//      parser1.parse("pk11111", "C:\\Users\\10090474\\Desktop\\1\\bm\\bm.zip");
+      
+      AbstractModelParser parser = new AriaModelParser();
+      parser.parse("pk11111", "/home/b/common-tosca-aria/blueprints/tosca/node-cellar.yaml");
 
       ModelService.getInstance().delete("pk11111");
-      throw new CatalogResourceException("test failed.");
+
+      String[] strs = {"111", "222", null, null, "555"};
+      return Response.status(Response.Status.OK).entity(strs).build();
     } catch (CatalogResourceException e1) {
       logger.error("test failed.", e1);
       throw RestUtils.newInternalServerErrorException(e1);

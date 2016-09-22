@@ -24,8 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.google.gson.JsonObject;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,11 +31,114 @@ public class AriaParserResult {
   private String description;
   private Map<String, String> metadata;
   private Node[] nodes;
-  private JsonObject groups;
-  private JsonObject policies;
+  private Group[] groups;
+  private Policy[] policies;
   private Substitution substitution;
   private Map<String, Input> inputs;
   private Map<String, Output> outpus;
+  
+  
+  @Data
+  public class Node {
+    private String id;
+    private String type_name;
+    private String template_name;
+    private Map<String, Property> properties;
+    private Interface[] interfaces;
+    private Artifact[] artifacts;
+    private Capability[] capabilities;
+    private Relationship[] relationships;
+    
+    @Data
+    public class Artifact {
+      private String name;
+      private String type_name;
+      private String source_path;
+      private String target_path;
+      private String repository_url;
+      private Credential repository_credential;
+      private Map<String, Property> properties;
+      
+      @Data
+      public class Credential {
+        private String protocol;
+        private String token_type;
+        private Map<String, String> keys;
+        private String user;
+      }
+    }
+    
+    @Data
+    public class Capability {
+      private String name;
+      private String type_name;
+      private Map<String, Property> properties;
+    }
+
+    @Data
+    public class Relationship {
+      private String target_node_id;
+      private String target_capability_name;
+      private String type_name;
+      private String template_name;
+      private Map<String, Property> properties;
+      private Interface[] source_interfaces;
+      private Interface[] target_interfaces;
+    }
+
+    /**
+     * @return
+     */
+    public Map<String, Object> getPropertyAssignments() {
+      if (this.properties == null || this.properties.isEmpty()) {
+        return new HashMap<String, Object>();
+      }
+      
+      Map<String, Object> ret = new HashMap<String, Object>();
+      for (Entry<String, Property> e : this.properties.entrySet()) {
+        ret.put(e.getKey(), e.getValue().getValue());
+      }
+
+      return ret;
+    }
+  }
+  
+  @Data
+  public class Group {
+    private String id;
+    private String type_name;
+    private String template_name;
+    private Map<String, Property> properties;
+    private Interface[] interfaces;
+    private GroupPolicy[] policies;
+    private String[] member_node_ids;
+    
+    @Data
+    public class GroupPolicy {
+      private String id;
+      private String type_name;
+      private Map<String, Property> properties;
+      private Trigger[] triggers;
+      
+      @Data
+      public class Trigger {
+        private String name;
+        private String implementation;
+        private Map<String, Property> properties;
+      }
+    }
+    
+  }
+
+  
+  @Data
+  public class Policy {
+    private String name;
+    private String type_name;
+    private Map<String, Property> properties;
+    private String[] target_node_ids;
+    private String[] target_group_ids;
+  }
   
   @Data
   public class Substitution {
@@ -67,57 +168,32 @@ public class AriaParserResult {
     private Object value;
     private String description;
   }
+}
 
+
+@Data
+class Property {
+  private String type_name;
+  private Object value;
+  private String description;
+}
+
+@Data
+class Interface {
+  private String name;
+  private String type_name;
+  private Map<String, Property> inputs;
+  private Operation[] operation;
+  
   @Data
-  public class Node {
-    private String id;
+  class Operation {
     private String name;
-    private String type_name;
-    private Map<String, Property> properties;
-    private JsonObject[] interfaces;
-    private JsonObject[] artifacts;
-    private JsonObject[] capabilities;
-    private Relationship[] relationships;
-    
-    @Data
-    public class Property {
-      private String type_name;
-      private Object value;
-      private String description;
-    }
-
-    @Data
-    public class Relationship {
-      private String target_node_id;
-      private String target_capability_name;
-      private String type_name;
-      private String template_name;
-      private Map<String, Property> properties;
-      private JsonObject[] source_interfaces;
-      private JsonObject[] target_interfaces;
-      
-      @Data
-      public class Property {
-        private String type_name;
-        private Object value;
-        private String description;
-      }
-    }
-
-    /**
-     * @return
-     */
-    public Map<String, Object> getPropertyAssignments() {
-      if (this.properties == null || this.properties.isEmpty()) {
-        return new HashMap<String, Object>();
-      }
-      
-      Map<String, Object> ret = new HashMap<String, Object>();
-      for (Entry<String, Property> e : this.properties.entrySet()) {
-        ret.put(e.getKey(), e.getValue().getValue());
-      }
-
-      return ret;
-    }
+    private String implementation;
+    private String[] dependencies;
+    private String executor;
+    private int max_retries;
+    private int retry_interval;
+    private Map<String, Property> inputs;
   }
 }
+
