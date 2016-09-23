@@ -38,8 +38,7 @@ public class HttpFileManagerImpl implements FileManager {
     }
     // File dstFile = new File(ToolUtil.getHttpServerPath() + dstPath);
     // LOGGER.info("dstFile AbsolutePath:" + dstFile.getAbsolutePath());
-    String targetDir =
-        Class.class.getClass().getResource("/").getPath() + ToolUtil.getHttpServerPath() + dstPath;
+    String targetDir = ToolUtil.getHttpServerAbsolutePath() + dstPath;
     try {
       ToolUtil.copyDirectory(srcPath, targetDir, true);
     } catch (IOException e1) {
@@ -60,7 +59,7 @@ public class HttpFileManagerImpl implements FileManager {
   public boolean delete(String srcPath) {
     boolean flag = true;
     LOGGER.info("start delete file from http server.srcPath:" + srcPath);
-    flag = ToolUtil.deleteDir(new File(ToolUtil.getHttpServerPath() + srcPath));
+    flag = ToolUtil.deleteDir(new File(ToolUtil.getHttpServerAbsolutePath() + srcPath));
     LOGGER.info("delete file from http server end.flag:" + flag);
     return flag;
   }

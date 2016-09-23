@@ -16,7 +16,7 @@
 
 package org.openo.commontosca.catalog.model.parser;
 
-import org.openo.commontosca.catalog.common.MsbAddrConfig;
+import org.openo.commontosca.catalog.common.Config;
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
@@ -47,9 +47,8 @@ public abstract class AbstractModelParser {
       throws CatalogResourceException;
   
   public String copyTemporaryFile2HttpServer(String fileLocation) throws CatalogResourceException {
-    String destPath = Class.class.getClass().getResource("/").getPath()
-        + org.openo.commontosca.catalog.filemanage.http.ToolUtil.getHttpServerPath()
-        + toTempFileLocalPath(fileLocation);
+    String destPath = org.openo.commontosca.catalog.filemanage.http.ToolUtil.getHttpServerAbsolutePath()
+        + toTempFilePath(fileLocation);
     if (!org.openo.commontosca.catalog.filemanage.http.ToolUtil.copyFile(
         fileLocation, destPath, true)) {
       throw new CatalogResourceException("Copy Temporary To HttpServer Failed.");
@@ -57,17 +56,11 @@ public abstract class AbstractModelParser {
     return destPath;
   }
   
-  public String getUrl(String uri) {
-    String url = null;
-    if ((MsbAddrConfig.getMsbAddress().endsWith("/")) && uri.startsWith("/")) {
-      url = MsbAddrConfig.getMsbAddress() + uri.substring(1);
-    }
-    url = MsbAddrConfig.getMsbAddress() + uri;
-    String urlresult = url.replace("\\", "/");
-    return urlresult;
+  public String getUrlOnHttpServer(String path) {
+    return Config.getConfigration().getHttpServerAddr() + "/" + path;
   }
   
-  protected String toTempFileLocalPath(String fileLocation) {
+  protected String toTempFilePath(String fileLocation) {
     return File.separator + "temp" + File.separator + (new File(fileLocation)).getName();
   }
   

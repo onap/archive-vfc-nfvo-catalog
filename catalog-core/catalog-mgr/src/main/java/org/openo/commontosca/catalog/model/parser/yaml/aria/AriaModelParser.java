@@ -290,7 +290,7 @@ public class AriaModelParser extends AbstractModelParser {
   private AriaParserResult getAriaParserResult(String fileLocation) throws CatalogResourceException {
     String destPath = copyTemporaryFile2HttpServer(fileLocation);
     try {
-      String url = getUrl(toTempFileLocalPath(fileLocation));
+      String url = getUrlOnHttpServer(toTempFilePath(fileLocation));
       return AriaParserServiceConsumer.parseCsarPackage(url);
     } finally {
       if (destPath != null && !destPath.isEmpty() && (new File(destPath)).exists()) {

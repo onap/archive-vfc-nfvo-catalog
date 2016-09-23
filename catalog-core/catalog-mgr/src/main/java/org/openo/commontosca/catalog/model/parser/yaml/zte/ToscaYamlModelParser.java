@@ -81,7 +81,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
   private ParseYamlResult getParseYamlResult(String fileLocation) throws CatalogResourceException {
     String destPath = copyTemporaryFile2HttpServer(fileLocation);
     try {
-      String url = getUrl(toTempFileLocalPath(fileLocation));
+      String url = getUrlOnHttpServer(toTempFilePath(fileLocation));
       return YamlParseServiceConsumer.getServiceTemplates(comboRequest(url));
     } finally {
       if (destPath != null && !destPath.isEmpty() && (new File(destPath)).exists()) {
