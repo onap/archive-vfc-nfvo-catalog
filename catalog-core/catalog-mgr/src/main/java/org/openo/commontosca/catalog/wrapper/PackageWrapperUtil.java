@@ -21,6 +21,7 @@ import com.google.gson.reflect.TypeToken;
 
 import org.openo.commontosca.catalog.common.CommonConstant;
 import org.openo.commontosca.catalog.common.FileUtil;
+import org.openo.commontosca.catalog.common.HttpServerAddrConfig;
 import org.openo.commontosca.catalog.common.MsbAddrConfig;
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.entity.PackageData;
@@ -277,10 +278,12 @@ public class PackageWrapperUtil {
       ArrayList<PackageData> dbResult) {
     ArrayList<PackageMeta> metas = new ArrayList<PackageMeta>();
     PackageMeta meta = new PackageMeta();
-    for (int i = 0; i < dbResult.size(); i++) {
-      PackageData data = dbResult.get(i);
-      meta = packageData2PackageMeta(data);
-      metas.add(meta);
+    if (dbResult.size() > 0) {
+      for (int i = 0; i < dbResult.size(); i++) {
+        PackageData data = dbResult.get(i);
+        meta = packageData2PackageMeta(data);
+        metas.add(meta);
+      }
     }
     return metas;
   }
@@ -317,7 +320,11 @@ public class PackageWrapperUtil {
     meta.setUsageState(EnumUsageState.valueOf(packageData.getUsageState()));
     meta.setVersion(packageData.getVersion());
     meta.setOnBoardState(packageData.getOnBoardState());
-    meta.setProcessState(EnumProcessState.valueOf(packageData.getProcessState()));
+    String processState = packageData.getProcessState();
+    if (processState.equals("deletefail")) {
+      processState = "deleteFailed";
+    }
+    meta.setProcessState(EnumProcessState.valueOf(processState));
     return meta;
   }
 
@@ -328,8 +335,12 @@ public class PackageWrapperUtil {
    */
   public static String getUrl(String uri) {
     String url = null;
-    if ((MsbAddrConfig.getMsbAddress().endsWith("/")) && uri.startsWith("/")) {
-      url = MsbAddrConfig.getMsbAddress() + uri.substring(1);
+//    if ((MsbAddrConfig.getMsbAddress().endsWith("/")) && uri.startsWith("/")) {
+//      url = MsbAddrConfig.getMsbAddress() + uri.substring(1);
+//    }
+//    url = MsbAddrConfig.getMsbAddress() + uri;
+    if ((HttpServerAddrConfig.getHttpServerAddress().endsWith("/")) && uri.startsWith("/")) {
+      url = HttpServerAddrConfig.getHttpServerAddress() + uri.substring(1);
     }
     url = MsbAddrConfig.getMsbAddress() + uri;
     String urlresult = url.replace("\\", "/");

@@ -43,6 +43,9 @@ import org.openo.commontosca.catalog.entity.EnumProcessState;
 import org.openo.commontosca.catalog.entity.EnumUsageState;
 import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.entity.response.PackageMeta;
+import org.openo.commontosca.catalog.model.parser.EnumPackageFormat;
+import org.openo.commontosca.catalog.model.parser.ModelParserFactory;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.ToscaYamlModelParser;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,19 +58,18 @@ import javax.ws.rs.core.Response;
 
 public class PackageWrapperTest {
   private static String resourcePath;
-
-  static {
-    MsbAddrConfig.setMsbAddress("http://127.0.0.1:80");
-  }
   
   static {
+    MsbAddrConfig.setMsbAddress("http://10.74.44.28:80");
     HttpServerAddrConfig.setHttpServerAddress("http://127.0.0.1:8080");
+    HttpServerPathConfig.setHttpServerPath("../tomcat/webapps/ROOT/");
+    
+    CatalogAppConfiguration configuration = new CatalogAppConfiguration();
+    Config.setConfigration(configuration);
+    Config.getConfigration().setParserType("zte");
+    ModelParserFactory.getInstance().put(EnumPackageFormat.TOSCA_YAML, new TestYamlModelParser());
   }
   
-  static {
-    HttpServerPathConfig.setHttpServerPath("../tomcat/webapps/ROOT/");
-  }
-
   private static PackageManager manager;
 
 
@@ -135,6 +137,7 @@ public class PackageWrapperTest {
         e3.printStackTrace();
       }
     }
+    assertNotNull(result);
     assertEquals(200, result.getStatus());
     assertNotNull(result.getEntity());
 

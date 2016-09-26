@@ -70,13 +70,8 @@ public class PackageWrapper {
     ArrayList<PackageData> dbResult = new ArrayList<PackageData>();
     ArrayList<PackageMeta> result = new ArrayList<PackageMeta>();
     dbResult = PackageWrapperUtil.getPackageInfoById(csarId);
-    if (dbResult.size() != 0) {
       result = PackageWrapperUtil.packageDataList2PackageMetaList(dbResult);
       return Response.ok(result).build();
-    } else {
-      String errorMsg = "get package info by Id error !";
-      return RestUtil.getRestException(errorMsg);
-    }
   }
 
   /**
@@ -89,12 +84,7 @@ public class PackageWrapper {
    */
   public Response uploadPackage(InputStream uploadedInputStream,
       FormDataContentDisposition fileDetail, HttpHeaders head) throws Exception {
-    PackageBasicInfo basicInfo = new PackageBasicInfo();
-    String tempDirName = null;
     int fileSize = 0;
-    String fileName = "";
-    UploadPackageResponse result = new UploadPackageResponse();
-    PackageMeta packageMeta = new PackageMeta();
     if (uploadedInputStream == null) {
       LOG.info("the uploadStream is null");
       return Response.serverError().build();
@@ -103,65 +93,68 @@ public class PackageWrapper {
       LOG.info("the fileDetail is null");
       return Response.serverError().build();
     }
-
-    try {
-      String contentRange = null;
-      fileName = ToolUtil.processFileName(fileDetail.getFileName());
-      tempDirName = ToolUtil.getTempDir(CommonConstant.CATALOG_CSAR_DIR_NAME, fileName);
-      if (head != null) {
-        contentRange = head.getHeaderString(CommonConstant.HTTP_HEADER_CONTENT_RANGE);
-      }
-      LOG.debug("store package chunk file, fileName:" + fileName + ",contentRange:" + contentRange);
-      if (ToolUtil.isEmptyString(contentRange)) {
-        fileSize = uploadedInputStream.available();
-        contentRange = "0-" + fileSize + "/" + fileSize;
-      }
-      String fileLocation =
-          ToolUtil.storeChunkFileInLocal(tempDirName, fileName, uploadedInputStream);
-      LOG.info("the fileLocation when upload package is :" + fileLocation);
-      uploadedInputStream.close();
-
-      basicInfo = PackageWrapperUtil.getPacageBasicInfo(fileLocation);
-      String path =
-          basicInfo.getType().toString() + File.separator + basicInfo.getProvider()
-              + File.separator + fileName.replace(".csar", "") + File.separator
-              + basicInfo.getVersion();
-      LOG.info("dest path is : " + path);
-      packageMeta = PackageWrapperUtil.getPackageMeta(fileName, fileLocation, basicInfo);
-      String dowloadUri = File.separator + path + File.separator;
-      String destPath = File.separator + path;
-      packageMeta.setDownloadUri(dowloadUri);
-      LOG.info("packageMeta = " + ToolUtil.objectToString(packageMeta));
-      Boolean isEnd = PackageWrapperUtil.isUploadEnd(contentRange, fileName);
-      if (isEnd) {
-        boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
-        if (uploadResult == true) {
-          try {
-            String tempCsarPath = tempDirName + File.separator + fileName;
-            ModelParserFactory.getInstance().parse(packageMeta.getCsarId(),
-                tempCsarPath , PackageWrapperUtil.getPackageFormat(packageMeta.getFormat()));
-          } catch (CatalogResourceException e1) {
-            LOG.error("parse package error ! " + e1.getMessage());
-          }
-          PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
-          PackageManager.getInstance().addPackage(packageData);
-        }
-        LOG.info("upload package file end, fileName:" + fileName);
-      }
-      result.setCsarId(packageMeta.getCsarId());
-      return Response.ok(result).build();
-    } catch (Exception e1) {
-      LOG.error("upload package fail.", e1);
-      String csarId = packageMeta.getCsarId();
-      if (csarId != null) {
-        PackageManager.getInstance().deletePackage(csarId);
-      }
-      return RestUtil.getRestException(e1.getMessage());
-    } finally {
-      if (tempDirName != null) {
-        ToolUtil.deleteDir(new File(tempDirName));
-      }
+    LOG.info("the fileDetail = " + ToolUtil.objectToString(fileDetail));
+    String contentRange = null;
+    String fileName = "";
+    fileName = ToolUtil.processFileName(fileDetail.getFileName());
+    String tempDirName = null;
+    tempDirName = ToolUtil.getTempDir(CommonConstant.CATALOG_CSAR_DIR_NAME, fileName);
+    if (head != null) {
+      contentRange = head.getHeaderString(CommonConstant.HTTP_HEADER_CONTENT_RANGE);
     }
+    LOG.info("store package chunk file, fileName:" + fileName + ",contentRange:" + contentRange);
+    if (ToolUtil.isEmptyString(contentRange)) {
+      fileSize = uploadedInputStream.available();
+      contentRange = "0-" + fileSize + "/" + fileSize;
+    }
+    String fileLocation =
+        ToolUtil.storeChunkFileInLocal(tempDirName, fileName, uploadedInputStream);
+    LOG.info("the fileLocation when upload package is :" + fileLocation);
+    uploadedInputStream.close();
+
+    PackageBasicInfo basicInfo = new PackageBasicInfo();
+    basicInfo = PackageWrapperUtil.getPacageBasicInfo(fileLocation);
+    String path = basicInfo.getType().toString() + File.separator + basicInfo.getProvider()
+        + File.separator + fileName.replace(".csar", "") + File.separator + basicInfo.getVersion();
+    LOG.info("dest path is : " + path);
+    PackageMeta packageMeta = new PackageMeta();
+    packageMeta = PackageWrapperUtil.getPackageMeta(fileName, fileLocation, basicInfo);
+    String dowloadUri = File.separator + path + File.separator;
+    String destPath = File.separator + path;
+    packageMeta.setDownloadUri(dowloadUri);
+    LOG.info("packageMeta = " + ToolUtil.objectToString(packageMeta));
+    Boolean isEnd = PackageWrapperUtil.isUploadEnd(contentRange, fileName);
+    if (isEnd) {
+      String serviceTemplateId = null;
+      boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
+      if (uploadResult == true) {
+        PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
+        PackageData packateDbData = PackageManager.getInstance().addPackage(packageData);
+        LOG.info("Store package data to database succed ! packateDbData = "
+            + ToolUtil.objectToString(packateDbData));
+        try {
+          String tempCsarPath = tempDirName + File.separator + fileName;
+          serviceTemplateId = ModelParserFactory.getInstance().parse(packageMeta.getCsarId(),
+              tempCsarPath, PackageWrapperUtil.getPackageFormat(packageMeta.getFormat()));
+          LOG.info("Package parse success ! serviceTemplateId = " + serviceTemplateId);
+        } catch (Exception e1) {
+          LOG.error("Parse package error ! ");
+          PackageManager.getInstance().deletePackage(packateDbData.getCsarId());
+          throw new Exception(e1);
+        }
+
+        if (null != packateDbData || null == serviceTemplateId) {
+          PackageManager.getInstance().deletePackage(packateDbData.getCsarId());
+        }
+      }
+      LOG.info("upload package file end, fileName:" + fileName);
+    }
+    UploadPackageResponse result = new UploadPackageResponse();
+    result.setCsarId(packageMeta.getCsarId());
+    if (tempDirName != null) {
+      ToolUtil.deleteDir(new File(tempDirName));
+    }
+    return Response.ok(result).build();
   }
 
   /**
