@@ -192,10 +192,9 @@ public class PackageWrapperTest {
     System.out.println("Test get csar file uri ");
     CsarFileUriResponse expectResult = new CsarFileUriResponse();
     String csarFileUri =
-        MsbAddrConfig.getMsbAddress() + "/NSAR/ZTE/NanocellGW/v1.0/NanocellGW/images/segw.img";
-    String localUri =
-        HttpServerPathConfig.getHttpServerPath()
-            + "NSAR/ZTE/NanocellGW/v1.0/NanocellGW/images/segw.img";
+        getDownloadUriHead() + "/NSAR/ZTE/NanocellGW/v1.0/NanocellGW/images/segw.img";
+    String localUri = HttpServerPathConfig.getHttpServerPath()
+        + "NSAR/ZTE/NanocellGW/v1.0/NanocellGW/images/segw.img";
     File srcDir = new File(localUri);
     String localPath = srcDir.getAbsolutePath().replace("\\", "/");
 
@@ -272,7 +271,7 @@ public class PackageWrapperTest {
     meta.setCreateTime("2016-06-29 03:33:15");
     meta.setCsarId("123456");
     meta.setDeletionPending(false);
-    meta.setDownloadUri(MsbAddrConfig.getMsbAddress() 
+    meta.setDownloadUri(getDownloadUriHead() 
         + "/NSAR/ZTE/NanocellGW/v1.0/NanocellGW.csar");
     meta.setFormat("yml");
     meta.setModifyTime("2016-06-29 03:33:15");
@@ -288,5 +287,9 @@ public class PackageWrapperTest {
     ArrayList<PackageMeta> metas = new ArrayList<PackageMeta>();
     metas.add(meta);
     return metas;
+  }
+  
+  private String getDownloadUriHead() {
+    return MsbAddrConfig.getMsbAddress() + "/files/catalog-http";
   }
 }

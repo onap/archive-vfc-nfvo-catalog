@@ -70,8 +70,8 @@ public class PackageWrapper {
     ArrayList<PackageData> dbResult = new ArrayList<PackageData>();
     ArrayList<PackageMeta> result = new ArrayList<PackageMeta>();
     dbResult = PackageWrapperUtil.getPackageInfoById(csarId);
-      result = PackageWrapperUtil.packageDataList2PackageMetaList(dbResult);
-      return Response.ok(result).build();
+    result = PackageWrapperUtil.packageDataList2PackageMetaList(dbResult);
+    return Response.ok(result).build();
   }
 
   /**
@@ -124,18 +124,19 @@ public class PackageWrapper {
     packageMeta.setDownloadUri(dowloadUri);
     LOG.info("packageMeta = " + ToolUtil.objectToString(packageMeta));
     Boolean isEnd = PackageWrapperUtil.isUploadEnd(contentRange, fileName);
+    PackageData packateDbData = new PackageData();
     if (isEnd) {
       String serviceTemplateId = null;
       boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
       if (uploadResult == true) {
         PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
-        PackageData packateDbData = PackageManager.getInstance().addPackage(packageData);
+        packateDbData = PackageManager.getInstance().addPackage(packageData);
         LOG.info("Store package data to database succed ! packateDbData = "
             + ToolUtil.objectToString(packateDbData));
         try {
           String tempCsarPath = tempDirName + File.separator + fileName;
-          serviceTemplateId = ModelParserFactory.getInstance().parse(packageMeta.getCsarId(),
-              tempCsarPath, PackageWrapperUtil.getPackageFormat(packageMeta.getFormat()));
+          serviceTemplateId = ModelParserFactory.getInstance().parse(packateDbData.getCsarId(),
+              tempCsarPath, PackageWrapperUtil.getPackageFormat(packateDbData.getFormat()));
           LOG.info("Package parse success ! serviceTemplateId = " + serviceTemplateId);
         } catch (Exception e1) {
           LOG.error("Parse package error ! ");
@@ -143,14 +144,15 @@ public class PackageWrapper {
           throw new Exception(e1);
         }
 
-        if (null != packateDbData || null == serviceTemplateId) {
+        if (null != packateDbData && null == serviceTemplateId) {
+          LOG.info("Service template Id is null !");
           PackageManager.getInstance().deletePackage(packateDbData.getCsarId());
         }
       }
       LOG.info("upload package file end, fileName:" + fileName);
     }
     UploadPackageResponse result = new UploadPackageResponse();
-    result.setCsarId(packageMeta.getCsarId());
+    result.setCsarId(packateDbData.getCsarId());
     if (tempDirName != null) {
       ToolUtil.deleteDir(new File(tempDirName));
     }

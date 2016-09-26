@@ -339,12 +339,16 @@ public class PackageWrapperUtil {
 //      url = MsbAddrConfig.getMsbAddress() + uri.substring(1);
 //    }
 //    url = MsbAddrConfig.getMsbAddress() + uri;
-    if ((HttpServerAddrConfig.getHttpServerAddress().endsWith("/")) && uri.startsWith("/")) {
-      url = HttpServerAddrConfig.getHttpServerAddress() + uri.substring(1);
+    if ((getDownloadUriHead().endsWith("/")) && uri.startsWith("/")) {
+      url = getDownloadUriHead() + uri.substring(1);
     }
-    url = MsbAddrConfig.getMsbAddress() + uri;
+    url = getDownloadUriHead() + uri;
     String urlresult = url.replace("\\", "/");
     return urlresult;
+  }
+  
+  public static String getDownloadUriHead() {
+    return MsbAddrConfig.getMsbAddress() + "/files/catalog-http";
   }
 
   /**
