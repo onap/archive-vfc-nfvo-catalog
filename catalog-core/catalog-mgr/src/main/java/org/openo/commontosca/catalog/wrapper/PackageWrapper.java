@@ -180,32 +180,6 @@ public class PackageWrapper {
     }
   }
 
-  // public Response delPackageByServiceTemplateId(String serviceTemplateId) {
-  // LOG.info("delete package  info.serviceTemplateId:" + serviceTemplateId);
-  // if (ToolUtil.isEmptyString(serviceTemplateId)) {
-  // LOG.error("delete package  fail, serviceTemplateId is null");
-  // return Response.serverError().build();
-  // }
-  // ArrayList<PackageData> result = new ArrayList<PackageData>();
-  // try {
-  // result = PackageManager.getInstance().queryPackageByServiceTemplateId(serviceTemplateId);
-  //
-  // } catch (CatalogResourceException e) {
-  // LOG.error("query package by csarId from db error ! " + e.getMessage());
-  // return RestUtil.getRestException(e.getMessage());
-  // }
-  // if (result.size() <= 0) {
-  // LOG.warn("not exist package by serviceTemplateId");
-  // return Response.status(Status.NOT_FOUND).build();
-  // }
-  // if ("true".equals(result.get(0).getDeletionPending())) {
-  // LOG.info("start delete package.csarId:" + result.get(0).getCsarId());
-  // delCsarThread thread = new delCsarThread(result.get(0).getCsarId(), true);
-  // new Thread(thread).start();
-  // }
-  // return Response.noContent().build();
-  // }
-
   class DelCsarThread implements Runnable {
     private String csarid;
     private boolean isInstanceTemplate = false;
@@ -237,11 +211,6 @@ public class PackageWrapper {
         return;
       }
       FileManagerFactory.createFileManager().delete(packagePath);
-      try {
-        PackageManager.getInstance().deletePackage(csarId);
-      } catch (CatalogResourceException e1) {
-        LOG.error("delete package  by csarId from db error ! " + e1.getMessage());
-      }
       // delete template data from db
       PackageData packageData = new PackageData();
       packageData.setCsarId(csarId);
@@ -250,7 +219,12 @@ public class PackageWrapper {
       } catch (CatalogResourceException e2) {
         LOG.error("delete template data from db error! csarId = " + csarId);
       }
-      // publishDelFinishCometdMessage(csarid, "true");
+      //delete package data from database
+      try {
+        PackageManager.getInstance().deletePackage(csarId);
+      } catch (CatalogResourceException e1) {
+        LOG.error("delete package  by csarId from db error ! " + e1.getMessage());
+      }
     }
 
     // private void publishDelFinishCometdMessage(String csarid, String csarDelStatus) {
