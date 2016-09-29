@@ -85,6 +85,7 @@ public class ServiceTemplateWrapperTest {
   @BeforeClass
   public static void setUpBeforeClass() {
     H2DbServer.startUp();
+    DaoManager.getInstance().setDaoNull();
     DaoManager.getInstance().setSessionFactory(HibernateSession.init());
     serviceTemplateWrapper = ServiceTemplateWrapper.getInstance();
     templateManager = TemplateManager.getInstance();

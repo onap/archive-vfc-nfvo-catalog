@@ -47,9 +47,11 @@ public class H2DbServer {
    */
   public static void shutDown() {
     if (h2DbWebServer.isRunning(true)) {
+      h2DbWebServer.stop();
       h2DbWebServer.shutdown();
     }
     if (h2DbTcpServer.isRunning(true)) {
+      h2DbTcpServer.stop();
       h2DbTcpServer.shutdown();
     }
   }

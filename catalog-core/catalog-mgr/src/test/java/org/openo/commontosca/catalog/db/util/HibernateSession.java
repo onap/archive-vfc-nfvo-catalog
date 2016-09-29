@@ -59,7 +59,9 @@ public class HibernateSession {
    * Destory a hibernate sessionFactory.
    */
   public static void destory() {
-    sessionFactory.close();
+    if (sessionFactory != null && !sessionFactory.isClosed()) {
+      sessionFactory.close();
+    }
   }
 
   /* Maybe you don't need it. */
