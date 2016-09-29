@@ -18,30 +18,19 @@ package org.openo.commontosca.catalog.model.parser;
 import org.openo.commontosca.catalog.common.Config;
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
+import org.openo.commontosca.catalog.model.common.TemplateUtils;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
-import org.openo.commontosca.catalog.wrapper.PackageWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 public abstract class AbstractModelParser {
   private static final Logger logger = LoggerFactory.getLogger(AbstractModelParser.class);
 
-  
   public abstract String parse(String packageId, String fileLocation)
       throws CatalogResourceException;
   
@@ -52,6 +41,8 @@ public abstract class AbstractModelParser {
         fileLocation, destPath, true)) {
       throw new CatalogResourceException("Copy Temporary To HttpServer Failed.");
     }
+    
+    logger.info("destPath = " + destPath);
     return destPath;
   }
   
@@ -79,14 +70,14 @@ public abstract class AbstractModelParser {
     if (ToolUtil.isTrimedEmptyString(type)) {
       return false;
     }
-    return type.toUpperCase().contains(".VNF");
+    return type.toUpperCase().endsWith(".VNF") || type.toUpperCase().contains(".VNF.");
   }
 
   private boolean isNsType(String type) {
     if (ToolUtil.isTrimedEmptyString(type)) {
       return false;
     }
-    return type.toUpperCase().contains(".NS");
+    return type.toUpperCase().endsWith(".NS") || type.toUpperCase().contains(".NS.");
   }
   
   private EnumTemplateType getTemplateTypeFromNodeTemplates(List<NodeTemplate> ntList) {
@@ -101,67 +92,27 @@ public abstract class AbstractModelParser {
   
   private static final String TOSCA_META_FIELD_ENTRY_DEFINITIONS = "Entry-Definitions";
   
-  protected CsarFileUriResponse buildServiceTemplateDownloadUri(String packageId, String fileLocation)
+  protected String parseServiceTemplateFileName(String packageId, String fileLocation)
       throws CatalogResourceException {
-    Map<String, String> toscaMeta = parseToscaMeta(fileLocation);
-    String stFileName = toscaMeta.get(TOSCA_META_FIELD_ENTRY_DEFINITIONS);
-    CsarFileUriResponse stDownloadUri =
-        PackageWrapper.getInstance().getCsarFileDownloadUri(packageId, stFileName);
-    return stDownloadUri;
+    return File.separator + parseToscaMeta(fileLocation).get(TOSCA_META_FIELD_ENTRY_DEFINITIONS);
   }
   
-  @SuppressWarnings("resource")
-  protected Map<String, String> parseToscaMeta(String fileLocation) throws CatalogResourceException {
+  private static final String TOSCA_META_FILE_NAME = "TOSCA-Metadata/TOSCA.meta";
+  protected Map<String, String> parseToscaMeta(String zipLocation) throws CatalogResourceException {
     Map<String, String> toscaMeta = new HashMap<>();
+    String[] lines = TemplateUtils.readFromZipFile(zipLocation, TOSCA_META_FILE_NAME);
 
-    ZipInputStream zin = null;
-    BufferedReader br = null;
-    try {
-      InputStream in = new BufferedInputStream(new FileInputStream(fileLocation));
-      zin = new ZipInputStream(in);
-      ZipEntry ze;
-      while ((ze = zin.getNextEntry()) != null) {
-        if (("TOSCA-Metadata" + File.separator + "TOSCA.meta").equals(ze.getName())
-            || "TOSCA-Metadata/TOSCA.meta".equals(ze.getName())) {
-          ZipFile zf = new ZipFile(fileLocation);
-          br = new BufferedReader(new InputStreamReader(zf.getInputStream(ze)));
-          String line;
-          String[] tmps;
-          while ((line = br.readLine()) != null) {
-            if (line.indexOf(":") > 0) {
-              tmps = line.split(":");
-              toscaMeta.put(tmps[0].trim(), tmps[1].trim());
-            }
-          }
-
-          return toscaMeta;
-        }
+    for (String line : lines) {
+      String[] tmps;
+      if (line.indexOf(":") > 0) {
+        tmps = line.split(":");
+        toscaMeta.put(tmps[0].trim(), tmps[1].trim());
       }
-
-    } catch (IOException e1) {
-      throw new CatalogResourceException("Parse Tosca Meta Fail.", e1);
-    } finally {
-      closeStreamAndReader(zin, br);
     }
 
     return toscaMeta;
   }
+
   
-  private void closeStreamAndReader(ZipInputStream zin, BufferedReader br) {
-    if (br != null) {
-      try {
-        br.close();
-      } catch (IOException e1) {
-        logger.error("Buffered reader close failed !");
-      }
-    }
-    if (zin != null) {
-      try {
-        zin.closeEntry();
-      } catch (IOException e2) {
-        logger.error("Zip inputStream close failed !");
-      }
-    }
-  }
 
 }

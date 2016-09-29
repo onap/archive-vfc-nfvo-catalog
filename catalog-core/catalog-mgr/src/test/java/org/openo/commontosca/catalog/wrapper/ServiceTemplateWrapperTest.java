@@ -319,8 +319,7 @@ public class ServiceTemplateWrapperTest {
   private ServiceTemplateData setServiceTemplate() {
     ServiceTemplateData serviceTemplate = new ServiceTemplateData();
     serviceTemplate.setCsarId("123456");
-    serviceTemplate.setDownloadUri(MsbAddrConfig.getMsbAddress() 
-        + "/files/catalog/NSAR/ZTE/NanocellGW/v1.0/Definitions/segw.yml");
+    serviceTemplate.setDownloadUri("/Definitions/segw.yml");
     String inputs = "{\"inputs\":[{\"name\": \"SubscribersPerNfc\","
         + "\"type\": \"STRING\",\"description\": \"\",\"required\": false}],"
         + "\"outputs\":[]}";
@@ -362,7 +361,7 @@ public class ServiceTemplateWrapperTest {
     ServiceTemplate serviceTemplate = new ServiceTemplate();
     serviceTemplate.setCsarid("123456");
     serviceTemplate.setDownloadUri(MsbAddrConfig.getMsbAddress() 
-        + "/files/catalog/NSAR/ZTE/NanocellGW/v1.0/Definitions/segw.yml");
+        + "/files/catalog-http/NSAR/ZTE/NanocellGW/v1.0/NanocellGW/Definitions/segw.yml");
     InputParameter[] inputs = getServiceTemplateInputs();
     serviceTemplate.setInputs(inputs);
     ServiceTemplateOperation[] operations = getServiceTemplateOperation();

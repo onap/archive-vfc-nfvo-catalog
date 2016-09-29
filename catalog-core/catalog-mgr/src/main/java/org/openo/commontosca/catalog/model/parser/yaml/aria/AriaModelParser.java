@@ -18,7 +18,6 @@ package org.openo.commontosca.catalog.model.parser.yaml.aria;
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
-import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
 import org.openo.commontosca.catalog.model.entity.InputParameter;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
@@ -56,8 +55,8 @@ public class AriaModelParser extends AbstractModelParser {
     AriaParserResult result = getAriaParserResult(fileLocation);
     
     // service template
-    CsarFileUriResponse stDownloadUri = buildServiceTemplateDownloadUri(packageId, fileLocation);
-    ServiceTemplate st = parseServiceTemplate(result, packageId, stDownloadUri.getDownloadUri());
+    ServiceTemplate st = parseServiceTemplate(
+        result, packageId, parseServiceTemplateFileName(packageId, fileLocation));
     // node templates
     List<NodeTemplate> ntList = parseNodeTemplates(packageId, st.getServiceTemplateId(), result);
     st.setType(getTemplateType(getSubstitutionType(result), ntList).toString());

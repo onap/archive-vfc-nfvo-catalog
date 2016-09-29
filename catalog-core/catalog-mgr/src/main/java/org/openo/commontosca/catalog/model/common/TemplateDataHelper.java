@@ -15,22 +15,25 @@
  */
 package org.openo.commontosca.catalog.model.common;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.entity.NodeTemplateData;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateData;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateMappingData;
 import org.openo.commontosca.catalog.db.entity.TemplateData;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
 import org.openo.commontosca.catalog.model.entity.Parameters;
 import org.openo.commontosca.catalog.model.entity.RelationShip;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
+import org.openo.commontosca.catalog.wrapper.PackageWrapper;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-
 
 public class TemplateDataHelper {
 
@@ -122,8 +123,9 @@ public class TemplateDataHelper {
    * convert to service templates.
    * @param stdList ServiceTemplateData list
    * @return ServiceTemplate list
+   * @throws CatalogResourceException 
    */
-  public static ServiceTemplate[] convert2ServiceTemplates(List<ServiceTemplateData> stdList) {
+  public static ServiceTemplate[] convert2ServiceTemplates(List<ServiceTemplateData> stdList) throws CatalogResourceException {
     List<ServiceTemplate> stList = new ArrayList<>();
     for (ServiceTemplateData std : stdList) {
       stList.add(convert2ServiceTemplate(std));
@@ -136,15 +138,24 @@ public class TemplateDataHelper {
    * covert to service template.
    * @param std ServiceTemplateData
    * @return ServiceTemplate
+   * @throws CatalogResourceException 
    */
-  public static ServiceTemplate convert2ServiceTemplate(ServiceTemplateData std) {
+  public static ServiceTemplate convert2ServiceTemplate(ServiceTemplateData std) throws CatalogResourceException {
     Parameters parameters = ToolUtil.fromJson(std.getInputs(), Parameters.class);
     ServiceTemplateOperation[] operations =
         ToolUtil.fromJson(std.getOperations(), ServiceTemplateOperation[].class);
-
+    String downloadUri = buildSTDownloadUri(std.getCsarId(), std.getDownloadUri());
+    
     return new ServiceTemplate(std.getServiceTemplateId(), std.getTemplateName(), std.getVendor(),
-        std.getVersion(), std.getCsarId(), std.getType(), std.getDownloadUri(),
+        std.getVersion(), std.getCsarId(), std.getType(), downloadUri,
         parameters.getInputs(), parameters.getOutputs(), operations);
+  }
+
+  private static String buildSTDownloadUri(String packageId, String stFileName)
+      throws CatalogResourceException {
+    CsarFileUriResponse stDownloadUri =
+        PackageWrapper.getInstance().getCsarFileDownloadUri(packageId, stFileName);
+    return stDownloadUri.getDownloadUri();
   }
 
   /**
