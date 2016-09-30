@@ -30,14 +30,10 @@ import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.EnumYamlServiceTemplateInfo;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlRequestParemeter;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult;
-import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.Plan;
-import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.Plan.PlanValue.PlanInput;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.Input;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.NodeTemplate.Relationship;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.Output;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.service.YamlParseServiceConsumer;
-import org.openo.commontosca.catalog.model.plan.wso2.Wso2ServiceConsumer;
-import org.openo.commontosca.catalog.model.plan.wso2.entity.DeployPackageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +53,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     ServiceTemplate st = parseServiceTemplate(
         packageId, result, parseServiceTemplateFileName(packageId, fileLocation));
     // workflow
-    ServiceTemplateOperation[] operations = parseOperations(result.getPlanList(), fileLocation);
+    ServiceTemplateOperation[] operations = parseOperations(fileLocation);
     st.setOperations(operations);
     // node templates
     List<NodeTemplate> ntList = parseNodeTemplates(packageId, st.getServiceTemplateId(), result);
@@ -147,68 +143,6 @@ public class ToscaYamlModelParser extends AbstractModelParser {
           .add(new OutputParameter(output.getName(), output.getDescription(), output.getValue()));
     }
     return retList.toArray(new OutputParameter[0]);
-  }
-
-  private ServiceTemplateOperation[] parseOperations(List<Plan> planList, String zipFileLocation)
-      throws CatalogResourceException {
-    if (planList == null || planList.isEmpty()) {
-      return new ServiceTemplateOperation[0];
-    }
-
-    List<ServiceTemplateOperation> opList = new ArrayList<>();
-    for (Plan plan : planList) {
-      ServiceTemplateOperation op = new ServiceTemplateOperation();
-      op.setName(plan.getName());
-      op.setDescription(plan.getDescription());
-      checkPlanLanguage(plan.getPlanLanguage());
-      DeployPackageResponse response =
-          Wso2ServiceConsumer.deployPackage(zipFileLocation, plan.getReference());
-      op.setPackageName(parsePackageName(response));
-      op.setProcessId(response.getProcessId());
-      op.setInputs(parsePlanInputs(plan.getInputList()));
-
-      opList.add(op);
-
-    }
-    return opList.toArray(new ServiceTemplateOperation[0]);
-  }
-
-  private String parsePackageName(DeployPackageResponse response) {
-    String packageName = response.getPackageName();
-    if (packageName != null && packageName.indexOf("-") > 0) {
-      packageName = packageName.substring(0, packageName.lastIndexOf("-"));
-    }
-    return packageName;
-  }
-
-  private void checkPlanLanguage(String planLanguage) throws CatalogResourceException {
-    if (planLanguage == null || planLanguage.isEmpty()) {
-      throw new CatalogResourceException("Plan Language is empty.");
-    }
-    if (planLanguage.equalsIgnoreCase("bpel")) {
-      return;
-    }
-    if (planLanguage.equalsIgnoreCase("bpmn")) {
-      return;
-    }
-    if (planLanguage.equalsIgnoreCase("bpmn4tosca")) {
-      return;
-    }
-    throw new CatalogResourceException(
-        "Plan Language is not supported. Language = " + planLanguage);
-  }
-
-  private InputParameter[] parsePlanInputs(List<PlanInput> inputList) {
-    if (inputList == null || inputList.isEmpty()) {
-      return new InputParameter[0];
-    }
-
-    List<InputParameter> retList = new ArrayList<>();
-    for (PlanInput input : inputList) {
-      retList.add(new InputParameter(input.getName(), input.getType(),
-          input.getDescription(), input.getDefault(), input.isRequired()));
-    }
-    return retList.toArray(new InputParameter[0]);
   }
 
   private List<NodeTemplate> parseNodeTemplates(String csarId, String templateId,

@@ -24,6 +24,7 @@ import org.openo.commontosca.catalog.model.entity.NodeTemplate;
 import org.openo.commontosca.catalog.model.entity.OutputParameter;
 import org.openo.commontosca.catalog.model.entity.RelationShip;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
+import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
 import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult;
@@ -57,6 +58,9 @@ public class AriaModelParser extends AbstractModelParser {
     // service template
     ServiceTemplate st = parseServiceTemplate(
         result, packageId, parseServiceTemplateFileName(packageId, fileLocation));
+    // workflow
+    ServiceTemplateOperation[] operations = parseOperations(fileLocation);
+    st.setOperations(operations);
     // node templates
     List<NodeTemplate> ntList = parseNodeTemplates(packageId, st.getServiceTemplateId(), result);
     st.setType(getTemplateType(getSubstitutionType(result), ntList).toString());

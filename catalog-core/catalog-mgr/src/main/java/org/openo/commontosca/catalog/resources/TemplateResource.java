@@ -436,10 +436,10 @@ public class TemplateResource {
   public Response test() {
     try {
       AbstractModelParser parser1 = new ToscaYamlModelParser();
-//      parser1.parse("pk11111", "C:\\Users\\10090474\\Desktop\\1\\bm\\bm.zip");
+      parser1.parse("pk11111", "C:\\Users\\10090474\\Downloads\\OpenO.csar");
       
-      AbstractModelParser parser = new AriaModelParser();
-      parser.parse("pk11111", "/home/b/common-tosca-aria/blueprints/tosca/node-cellar.yaml");
+//      AbstractModelParser parser = new AriaModelParser();
+//      parser.parse("pk11111", "/home/b/common-tosca-aria/blueprints/tosca/node-cellar.yaml");
 
       ModelService.getInstance().delete("pk11111");
 

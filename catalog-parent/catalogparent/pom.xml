@@ -37,6 +37,7 @@
         <jaxrs.consumer.version>5.0</jaxrs.consumer.version>
         <jackson-version>2.5.1</jackson-version>
         <gson.version>2.2.4</gson.version>
+        <yamlbeans.version>1.08</yamlbeans.version>
         <dom4j.version>1.6</dom4j.version>
         <cometd.version>3.0.7</cometd.version>
         <commons-net.version>3.3</commons-net.version>

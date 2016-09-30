@@ -15,10 +15,6 @@
  */
 package org.openo.commontosca.catalog.model.common;
 
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,13 +23,63 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.model.parser.yaml.yamlmodel.Plan;
+import org.openo.commontosca.catalog.model.parser.yaml.yamlmodel.ServiceTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.esotericsoftware.yamlbeans.YamlConfig;
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
+
 public class TemplateUtils {
   private static final Logger logger = LoggerFactory.getLogger(TemplateUtils.class);
   
+  public static Map<String, Plan> loadPlan(String yamlString) throws CatalogResourceException {
+    ServiceTemplate st = loadServiceTemplate(yamlString);
+    return st.getPlans();
+  }
+  
+  /**
+   * @param yamlString
+   * @return
+   * @throws CatalogResourceException
+   */
+  public static ServiceTemplate loadServiceTemplate(String yamlString) throws CatalogResourceException {
+    if (yamlString == null || yamlString.isEmpty()) {
+      return new ServiceTemplate();
+    }
+    final YamlReader reader = new YamlReader(yamlString);
+    adjustConfig(reader.getConfig());
+    try {
+        return reader.read(ServiceTemplate.class);
+    } catch (final YamlException e) {
+        throw new CatalogResourceException("Load plan information failed.", e);
+    } finally {
+      if (reader != null) {
+        try {
+            reader.close();
+        } catch (IOException e) {
+        }
+      }
+    }
+}
+  
+  
+  /**
+   * @param config
+   */
+  private static void adjustConfig(YamlConfig config) {
+    config.setPropertyElementType(ServiceTemplate.class, "plans", Plan.class);
+  }
+
+
   /**
    * @param zipFileName
    * @param zipEntryName
@@ -67,7 +113,7 @@ public class TemplateUtils {
       ZipEntry zipEntry;
       while ((zipEntry = zipIns.getNextEntry()) != null) {
         if (zipEntryName.equals(zipEntry.getName())
-            || (zipEntryName.replaceAll("/", File.separator)).equals(zipEntry.getName())) {
+            || (zipEntryName.replaceAll("/", "\\\\")).equals(zipEntry.getName())) {
           zipEntryBr = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry)));
           List<String> lineList = new ArrayList<>();
           String line;

@@ -302,5 +302,10 @@
 			<artifactId>httpmime</artifactId>
 			<version>${httpclient.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>com.esotericsoftware.yamlbeans</groupId>
+            <artifactId>yamlbeans</artifactId>
+            <version>${yamlbeans.version}</version>
+        </dependency>
     </dependencies>
 </project>
