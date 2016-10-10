@@ -20,7 +20,7 @@ import java.util.List;
 public class ParseYamlRequestParemeter {
   private String path = "E:\\NFVO\\130. yaml2xml\\0. tosca-parser\\sample\\ag-vnfd-floatingIp.zip";
 
-  private List<Extension> extensionList;
+  private List<Extension> extension;
 
   public String getPath() {
     return path;
@@ -30,12 +30,12 @@ public class ParseYamlRequestParemeter {
     this.path = path;
   }
 
-  public List<Extension> getExtensionList() {
-    return extensionList;
+  public List<Extension> getExtension() {
+    return extension;
   }
 
-  public void setExtensionList(List<Extension> extensionList) {
-    this.extensionList = extensionList;
+  public void setExtension(List<Extension> extension) {
+    this.extension = extension;
   }
 
   public Extension createExtension() {
