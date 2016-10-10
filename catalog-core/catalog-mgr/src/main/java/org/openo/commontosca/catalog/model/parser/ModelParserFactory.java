@@ -45,8 +45,7 @@ public class ModelParserFactory {
   }
   
   private ModelParserFactory() {
-    // PackageParseMap.put(EnumPackageFormat.TOSCA_XML, new
-    // ToscaXmlModelParser());
+    // PackageParseMap.put(EnumPackageFormat.TOSCA_XML, new ToscaXmlModelParser());
     if (isAriaParser()) {
       pkgType2ParseMap.put(EnumPackageFormat.TOSCA_YAML, new AriaModelParser());
     } else {
