@@ -15,6 +15,8 @@
  */
 package org.openo.commontosca.catalog.model.parser.yaml.zte.entity;
 
+import org.openo.commontosca.catalog.common.ToolUtil;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 
 public class ParseYamlResult {
   private String toscaDefinitionsVersion;
@@ -132,6 +133,9 @@ public class ParseYamlResult {
   }
 
   public Map<String, String> getMetadata() {
+    if (this.metadata == null) {
+      return new HashMap<>();
+    }
     return metadata;
   }
 
@@ -333,7 +337,7 @@ public class ParseYamlResult {
         Iterator<Entry<String, JsonElement>> iterator = properties.entrySet().iterator();
         while (iterator.hasNext()) {
           Entry<String, JsonElement> next = iterator.next();
-          ret.put(next.getKey(), next.getValue().getAsString());
+          ret.put(next.getKey(), ToolUtil.getAsString(next.getValue()));
         }
         return ret;
       }
@@ -380,12 +384,12 @@ public class ParseYamlResult {
         }
 
         NodeTemplateScalable scalable = new NodeTemplateScalable();
-        scalable
-            .setMin_instances(propertyJson.getAsJsonObject().get("min_instances").getAsString());
-        scalable
-            .setMax_instances(propertyJson.getAsJsonObject().get("max_instances").getAsString());
+        scalable.setMin_instances(
+            ToolUtil.getAsString(propertyJson.getAsJsonObject().get("min_instances")));
+        scalable.setMax_instances(
+            ToolUtil.getAsString(propertyJson.getAsJsonObject().get("max_instances")));
         scalable.setDefault_instances(
-            propertyJson.getAsJsonObject().get("default_instances").getAsString());
+            ToolUtil.getAsString(propertyJson.getAsJsonObject().get("default_instances")));
         return scalable;
       }
 
@@ -483,7 +487,7 @@ public class ParseYamlResult {
         while (iterator.hasNext()) {
           Entry<String, JsonElement> next = iterator.next();
           if (next.getValue().isJsonPrimitive() || next.getValue().isJsonObject()) {
-            ret.put(next.getKey(), new String[] {next.getValue().getAsString()});
+            ret.put(next.getKey(), new String[] {ToolUtil.getAsString(next.getValue())});
             continue;
           }
 
@@ -499,7 +503,7 @@ public class ParseYamlResult {
       private String[] parseListValue(JsonArray jsonArray) {
         String[] value = new String[jsonArray.size()];
         for (int i = 0, size = jsonArray.size(); i < size; i++) {
-          value[i] = jsonArray.get(i).getAsString();
+          value[i] = ToolUtil.getAsString(jsonArray.get(i));
         }
         return value;
       }
@@ -522,9 +526,8 @@ public class ParseYamlResult {
         Iterator<Entry<String, JsonElement>> iterator = capabilities.entrySet().iterator();
         while (iterator.hasNext()) {
           Entry<String, JsonElement> next = iterator.next();
-
           if (next.getValue().isJsonPrimitive() || next.getValue().isJsonObject()) {
-            ret.put(next.getKey(), new String[] {next.getValue().getAsString()});
+            ret.put(next.getKey(), new String[] {ToolUtil.getAsString(next.getValue())});
             continue;
           }
 
@@ -554,7 +557,7 @@ public class ParseYamlResult {
         Iterator<Entry<String, JsonElement>> iterator = properties.entrySet().iterator();
         while (iterator.hasNext()) {
           Entry<String, JsonElement> next = iterator.next();
-          ret.put(next.getKey(), next.getValue().getAsString());
+          ret.put(next.getKey(), ToolUtil.getAsString(next.getValue()));
         }
         return ret;
       }
@@ -686,7 +689,7 @@ public class ParseYamlResult {
             return "";
           }
 
-          return defaultValue.getAsString();
+          return ToolUtil.getAsString(defaultValue);
         }
 
         public JsonObject getValue() {
