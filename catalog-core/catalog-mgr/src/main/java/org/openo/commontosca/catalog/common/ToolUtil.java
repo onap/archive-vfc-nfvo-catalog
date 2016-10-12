@@ -16,6 +16,7 @@
 package org.openo.commontosca.catalog.common;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 import org.openo.commontosca.catalog.model.common.EnumToscaNodeTypeDefinition;
 import org.slf4j.Logger;
@@ -386,5 +387,17 @@ public class ToolUtil {
   public static <T> String toJson(T template) {
     Gson gson = new Gson();
     return gson.toJson(template);
+  }
+  
+  /**
+   * @param value
+   * @return
+   */
+  public static String getAsString(JsonElement value) {
+    if (value.isJsonPrimitive()) {
+      return value.getAsString();
+    }
+
+    return value.toString();
   }
 }
