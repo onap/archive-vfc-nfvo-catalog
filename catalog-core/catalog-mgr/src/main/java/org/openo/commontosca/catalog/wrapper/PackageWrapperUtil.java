@@ -403,17 +403,19 @@ public class PackageWrapperUtil {
       reader = new BufferedReader(new FileReader(file));
       String tempString = null;
       while ((tempString = reader.readLine()) != null) {
-        if (tempString.startsWith(CommonConstant.CSAR_TYPE_META)) {
+        int count1 = tempString.indexOf(":");
+        String meta = tempString.substring(0, count1).trim();
+        if (meta.equalsIgnoreCase(CommonConstant.CSAR_TYPE_META)) {
           int count = tempString.indexOf(":") + 1;
-          basicInfo.setType(EnumType.valueOf(tempString.substring(count)));
+          basicInfo.setType(EnumType.valueOf(tempString.substring(count).trim()));
         }
-        if (tempString.startsWith(CommonConstant.CSAR_PROVIDER_META)) {
+        if (meta.equalsIgnoreCase(CommonConstant.CSAR_PROVIDER_META)) {
           int count = tempString.indexOf(":") + 1;
-          basicInfo.setProvider(tempString.substring(count));
+          basicInfo.setProvider(tempString.substring(count).trim());
         }
-        if (tempString.startsWith(CommonConstant.CSAR_VERSION_META)) {
+        if (meta.equalsIgnoreCase(CommonConstant.CSAR_VERSION_META)) {
           int count = tempString.indexOf(":") + 1;
-          basicInfo.setVersion(tempString.substring(count));
+          basicInfo.setVersion(tempString.substring(count).trim());
         }
       }
       reader.close();
