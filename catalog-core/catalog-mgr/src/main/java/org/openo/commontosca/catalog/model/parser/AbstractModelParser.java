@@ -15,7 +15,7 @@
  */
 package org.openo.commontosca.catalog.model.parser;
 
-import org.openo.commontosca.catalog.common.Config;
+import org.openo.commontosca.catalog.common.MsbAddrConfig;
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.model.common.TemplateUtils;
@@ -55,7 +55,7 @@ public abstract class AbstractModelParser {
   }
   
   public String getUrlOnHttpServer(String path) {
-    return Config.getConfigration().getHttpServerAddr() + "/" + path;
+    return MsbAddrConfig.getMsbAddress() + "/" + path;
   }
   
   protected String toTempFilePath(String fileLocation) {
