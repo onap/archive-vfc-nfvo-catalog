@@ -55,7 +55,11 @@ public abstract class AbstractModelParser {
   }
   
   public String getUrlOnHttpServer(String path) {
-    return MsbAddrConfig.getMsbAddress() + "/" + path;
+    if (MsbAddrConfig.getMsbAddress().endsWith("/")) {
+      return MsbAddrConfig.getMsbAddress() + "files/catalog-http" + path;
+    } else {
+      return MsbAddrConfig.getMsbAddress() + "/files/catalog-http" + path;
+    }
   }
   
   protected String toTempFilePath(String fileLocation) {
