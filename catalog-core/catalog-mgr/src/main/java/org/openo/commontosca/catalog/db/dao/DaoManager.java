@@ -74,9 +74,9 @@ public class DaoManager {
    * @return ServiceTemplateDao
    */
   public ServiceTemplateDao getServiceTemplateDao() {
-    if (serviceTemplateDao == null) {
+    //if (serviceTemplateDao == null) {
       serviceTemplateDao = new ServiceTemplateDao(sessionFactory);
-    }
+   // }
     return serviceTemplateDao;
   }
 
@@ -89,9 +89,9 @@ public class DaoManager {
    * @return PackageDao
    */
   public PackageDao getPackageDao() {
-    if (packageDao == null) {
+   // if (packageDao == null) {
       packageDao = new PackageDao(sessionFactory);
-    }
+   // }
     return packageDao;
   }
 
@@ -104,9 +104,9 @@ public class DaoManager {
    * @return NodeTemplateDao
    */
   public NodeTemplateDao getNodeTemplateDao() {
-    if (nodeTemplateDao == null) {
+   // if (nodeTemplateDao == null) {
       nodeTemplateDao = new NodeTemplateDao(sessionFactory);
-    }
+   // }
     return nodeTemplateDao;
   }
 
@@ -119,9 +119,9 @@ public class DaoManager {
    * @return TemplateDao
    */
   public TemplateDao getTemplateDao() {
-    if (templateDao == null) {
+   // if (templateDao == null) {
       templateDao = new TemplateDao(sessionFactory);
-    }
+   // }
     return templateDao;
   }
 
@@ -134,9 +134,9 @@ public class DaoManager {
    * @return ServiceTemplateMappingDao
    */
   public ServiceTemplateMappingDao getTemplateMappingDao() {
-    if (templateMappingDao == null) {
+    //if (templateMappingDao == null) {
       templateMappingDao = new ServiceTemplateMappingDao(sessionFactory);
-    }
+   // }
     return templateMappingDao;
   }
 
