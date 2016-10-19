@@ -15,13 +15,13 @@
  */
 package org.openo.commontosca.catalog.model.parser.yaml.aria.entity;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Data
 @NoArgsConstructor
@@ -36,7 +36,14 @@ public class AriaParserResult {
   private Map<String, Input> inputs;
   private Map<String, Output> outpus;
   
-  
+  public Map<String, String> getMetadata() {
+    if (this.metadata == null) {
+      return new HashMap<>();
+    }
+    
+    return metadata;
+  }
+
   @Data
   public class Node {
     private String id;

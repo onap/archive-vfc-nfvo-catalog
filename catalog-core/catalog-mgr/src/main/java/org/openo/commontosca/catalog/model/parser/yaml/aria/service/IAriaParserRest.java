@@ -28,7 +28,7 @@ import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserReq
 public interface IAriaParserRest {
 
   @POST
-  @Path("/indirect/plan")
+  @Path("/indirect/instance")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   String parse(AriaParserRequest request) throws Exception;
