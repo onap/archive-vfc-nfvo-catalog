@@ -18,6 +18,7 @@ package org.openo.commontosca.catalog.model.parser.yaml.aria;
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
+import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
 import org.openo.commontosca.catalog.model.entity.InputParameter;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
@@ -34,8 +35,8 @@ import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserRes
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Output;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Substitution.Mapping;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.service.AriaParserServiceConsumer;
+import org.openo.commontosca.catalog.wrapper.PackageWrapper;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,11 +54,11 @@ public class AriaModelParser extends AbstractModelParser {
    */
   @Override
   public String parse(String packageId, String fileLocation) throws CatalogResourceException {
-    AriaParserResult result = getAriaParserResult(fileLocation);
+    String stFileLocation = parseServiceTemplateFileName(packageId, fileLocation);
+    AriaParserResult result = getAriaParserResult(packageId, fileLocation, stFileLocation);
     
     // service template
-    ServiceTemplate st = parseServiceTemplate(
-        result, packageId, parseServiceTemplateFileName(packageId, fileLocation));
+    ServiceTemplate st = parseServiceTemplate(result, packageId, stFileLocation);
     // workflow
     ServiceTemplateOperation[] operations = parseOperations(fileLocation);
     st.setOperations(operations);
@@ -290,16 +291,10 @@ public class AriaModelParser extends AbstractModelParser {
     return retList.toArray(new OutputParameter[0]);
   }
 
-  private AriaParserResult getAriaParserResult(String fileLocation) throws CatalogResourceException {
-    String destPath = copyTemporaryFile2HttpServer(fileLocation);
-    try {
-      String url = getUrlOnHttpServer(toTempFilePath(fileLocation));
-      return AriaParserServiceConsumer.parseCsarPackage(url);
-    } finally {
-      if (destPath != null && !destPath.isEmpty() && (new File(destPath)).exists()) {
-        (new File(destPath)).delete();
-      }
-    }
+  private AriaParserResult getAriaParserResult(String packageId, String fileLocation, String stFileLocation) throws CatalogResourceException {
+    CsarFileUriResponse stDownloadUri =
+        PackageWrapper.getInstance().getCsarFileDownloadUri(packageId, stFileLocation);
+    return AriaParserServiceConsumer.parseCsarPackage(stDownloadUri.getDownloadUri());
   }
 
 }
