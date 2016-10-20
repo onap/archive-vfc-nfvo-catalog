@@ -129,6 +129,15 @@ public class PackageWrapper {
       boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
       if (uploadResult == true) {
         PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
+        ArrayList<PackageData> existPackageDatas =
+            PackageManager.getInstance().queryPackage(packageData.getName(),
+                packageData.getProvider(), packageData.getVersion(), null, packageData.getType());
+        if (null != existPackageDatas && existPackageDatas.size() > 0) {
+          LOG.warn("The package already exist ! Begin to delete the orgin data and reupload !");
+          for (int i = 0; i < existPackageDatas.size(); i++) {
+            this.delPackage(existPackageDatas.get(i).getCsarId());
+          }
+        } 
         packateDbData = PackageManager.getInstance().addPackage(packageData);
         LOG.info("Store package data to database succed ! packateDbData = "
             + ToolUtil.objectToString(packateDbData));
