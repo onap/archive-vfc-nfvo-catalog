@@ -63,7 +63,7 @@ public abstract class AbstractModelParser {
   }
   
   protected String toTempFilePath(String fileLocation) {
-    return File.separator + "temp" + File.separator + (new File(fileLocation)).getName();
+    return "/temp/" + (new File(fileLocation)).getName();
   }
   
   protected EnumTemplateType getTemplateType(String substitutionType, List<NodeTemplate> ntList) {
@@ -106,7 +106,7 @@ public abstract class AbstractModelParser {
   
   protected String parseServiceTemplateFileName(String packageId, String fileLocation)
       throws CatalogResourceException {
-    return File.separator + parseToscaMeta(fileLocation).get(TOSCA_META_FIELD_ENTRY_DEFINITIONS);
+    return "/" + parseToscaMeta(fileLocation).get(TOSCA_META_FIELD_ENTRY_DEFINITIONS);
   }
   
   private static final String TOSCA_META_FILE_NAME = "TOSCA-Metadata/TOSCA.meta";

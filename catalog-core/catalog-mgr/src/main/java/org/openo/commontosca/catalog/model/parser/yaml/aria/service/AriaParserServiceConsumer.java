@@ -21,13 +21,18 @@ import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserExceptionResult;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserRequest;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
 import com.google.gson.Gson;
 
 
 public class AriaParserServiceConsumer {
+  private static final Logger logger = LoggerFactory.getLogger(AriaParserServiceConsumer.class);
+  
   public static AriaParserResult parseCsarPackage(String uri) throws CatalogResourceException {
+    logger.info("parseCsarPackage uri = " + uri);
     return parseCsarPackage(new AriaParserRequest(uri, null));
   }
   /**

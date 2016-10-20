@@ -36,6 +36,8 @@ import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserRes
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Substitution.Mapping;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.service.AriaParserServiceConsumer;
 import org.openo.commontosca.catalog.wrapper.PackageWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,12 +50,15 @@ import java.util.Map.Entry;
  *
  */
 public class AriaModelParser extends AbstractModelParser {
+  private static final Logger logger = LoggerFactory.getLogger(AriaModelParser.class);
 
   /* (non-Javadoc)
    * @see org.openo.commontosca.catalog.model.parser.AbstractModelParser#parse(java.lang.String, java.lang.String)
    */
   @Override
   public String parse(String packageId, String fileLocation) throws CatalogResourceException {
+    logger.info("Parse begin.");
+    
     String stFileLocation = parseServiceTemplateFileName(packageId, fileLocation);
     AriaParserResult result = getAriaParserResult(packageId, fileLocation, stFileLocation);
     
