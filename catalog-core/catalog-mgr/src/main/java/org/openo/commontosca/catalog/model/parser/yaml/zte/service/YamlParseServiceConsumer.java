@@ -23,9 +23,12 @@ import org.openo.commontosca.catalog.common.MsbUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlRequestParemeter;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class YamlParseServiceConsumer {
+  private static final Logger logger = LoggerFactory.getLogger(YamlParseServiceConsumer.class);
   /**
    * get service template by template id from container service.
    * 
@@ -33,8 +36,10 @@ public class YamlParseServiceConsumer {
    * @return parase yaml result
    * @throws CatalogResourceException e
    */
-  public static ParseYamlResult getServiceTemplates(final ParseYamlRequestParemeter request)
+  public static ParseYamlResult getServiceTemplates(ParseYamlRequestParemeter request)
       throws CatalogResourceException {
+    logger.info("parseCsarPackage uri = " + request.getPath());
+
     try {
       ClientConfig config = new ClientConfig();
       IYamlParseRest yamlParseProxy =
