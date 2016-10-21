@@ -359,7 +359,7 @@ public class ServiceTemplateWrapperTest {
   
   private ServiceTemplate getExpectServiceTemplate() {
     ServiceTemplate serviceTemplate = new ServiceTemplate();
-    serviceTemplate.setCsarid("123456");
+    serviceTemplate.setCsarId("123456");
     serviceTemplate.setDownloadUri(MsbAddrConfig.getMsbAddress() 
         + "/files/catalog-http/NSAR/ZTE/NanocellGW/v1.0/NanocellGW/Definitions/segw.yml");
     InputParameter[] inputs = getServiceTemplateInputs();

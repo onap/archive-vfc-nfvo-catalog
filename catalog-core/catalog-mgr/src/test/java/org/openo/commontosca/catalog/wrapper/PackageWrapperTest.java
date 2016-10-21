@@ -157,8 +157,8 @@ public class PackageWrapperTest {
 
   @Test
   public void testQueryPackageById() throws Exception {
-    ArrayList<PackageMeta> metas = new ArrayList<PackageMeta>();
-    metas = getPackageMetaList();
+    PackageMeta metas = new PackageMeta();
+    metas = getPackageMeta();
 
     Response result = PackageWrapper.getInstance().queryPackageById("123456");
     assertEquals(200, result.getStatus());
@@ -267,6 +267,14 @@ public class PackageWrapperTest {
 
   private ArrayList<PackageMeta> getPackageMetaList() {
     PackageMeta meta = new PackageMeta();
+    meta = getPackageMeta();
+    ArrayList<PackageMeta> metas = new ArrayList<PackageMeta>();
+    metas.add(meta);
+    return metas;
+  }
+  
+  private PackageMeta getPackageMeta() {
+    PackageMeta meta = new PackageMeta();
     meta.setCreateTime("2016-06-29 03:33:15");
     meta.setCsarId("123456");
     meta.setDeletionPending(false);
@@ -283,9 +291,7 @@ public class PackageWrapperTest {
     meta.setVersion("V1.0");
     meta.setOnBoardState(EnumOnboardState.nonOnBoarded.getValue());
     meta.setProcessState(EnumProcessState.valueOf("normal"));
-    ArrayList<PackageMeta> metas = new ArrayList<PackageMeta>();
-    metas.add(meta);
-    return metas;
+    return meta;
   }
   
   private String getDownloadUriHead() {
