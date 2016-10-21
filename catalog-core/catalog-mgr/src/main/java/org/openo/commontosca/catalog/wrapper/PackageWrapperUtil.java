@@ -137,10 +137,14 @@ public class PackageWrapperUtil {
    * @param csarId package id
    * @return package detail
    */
-  public static ArrayList<PackageData> getPackageInfoById(String csarId) {
-    ArrayList<PackageData> result = new ArrayList<PackageData>();
+  public static PackageData getPackageInfoById(String csarId) {
+    PackageData result = new PackageData();
+    ArrayList<PackageData> packageDataList = new ArrayList<PackageData>();
     try {
-      result = PackageManager.getInstance().queryPackageByCsarId(csarId);
+      packageDataList = PackageManager.getInstance().queryPackageByCsarId(csarId);
+      if (packageDataList != null && packageDataList.size() > 0) {
+        result = PackageManager.getInstance().queryPackageByCsarId(csarId).get(0);
+      }
     } catch (CatalogResourceException e1) {
       LOG.error("query package by csarId from db error ! " + e1.getMessage());
     }
@@ -300,7 +304,7 @@ public class PackageWrapperUtil {
     }
   }
 
-  private static PackageMeta packageData2PackageMeta(PackageData packageData) {
+  public static PackageMeta packageData2PackageMeta(PackageData packageData) {
     PackageMeta meta = new PackageMeta();
     meta.setCsarId(packageData.getCsarId());
     meta.setCreateTime(packageData.getCreateTime());

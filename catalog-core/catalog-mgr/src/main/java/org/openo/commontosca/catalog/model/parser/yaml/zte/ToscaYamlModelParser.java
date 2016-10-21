@@ -112,7 +112,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     st.setTemplateName(result.getMetadata().get(EnumYamlServiceTemplateInfo.ID.getName()));
     st.setVendor(result.getMetadata().get(EnumYamlServiceTemplateInfo.PROVIDER.getName()));
     st.setVersion(result.getMetadata().get(EnumYamlServiceTemplateInfo.VERSION.getName()));
-    st.setCsarid(packageId);
+    st.setCsarId(packageId);
     st.setDownloadUri(stDownloadUri);
     st.setInputs(parseInputs(result));
     st.setOutputs(parseOutputs(result));

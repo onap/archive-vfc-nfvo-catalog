@@ -246,7 +246,7 @@ public class AriaModelParser extends AbstractModelParser {
     st.setTemplateName(result.getMetadata().get("template_name"));
     st.setVendor(result.getMetadata().get("template_author"));
     st.setVersion(result.getMetadata().get("template_version"));
-    st.setCsarid(packageId);
+    st.setCsarId(packageId);
     st.setDownloadUri(downloadUri);
     st.setInputs(parseInputs(result));
     st.setOutputs(parseOutputs(result));

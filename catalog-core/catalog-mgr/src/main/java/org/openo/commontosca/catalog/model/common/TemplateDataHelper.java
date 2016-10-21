@@ -71,7 +71,7 @@ public class TemplateDataHelper {
     std.setTemplateName(st.getTemplateName());
     std.setVendor(st.getVendor());
     std.setVersion(st.getVersion());
-    std.setCsarId(st.getCsarid());
+    std.setCsarId(st.getCsarId());
     std.setType(st.getType());
     std.setDownloadUri(st.getDownloadUri());
     Parameters parameters = new Parameters(st.getInputs(), st.getOutputs());

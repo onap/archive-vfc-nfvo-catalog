@@ -32,7 +32,7 @@ public class ServiceTemplate {
   
   private String version;
   
-  private String csarid;
+  private String csarId;
   
   private String type;
   

@@ -66,10 +66,10 @@ public class PackageWrapper {
    * @return Response
    */
   public Response queryPackageById(String csarId) {
-    ArrayList<PackageData> dbResult = new ArrayList<PackageData>();
-    ArrayList<PackageMeta> result = new ArrayList<PackageMeta>();
+    PackageData dbResult = new PackageData();
+    PackageMeta result = new PackageMeta();
     dbResult = PackageWrapperUtil.getPackageInfoById(csarId);
-    result = PackageWrapperUtil.packageDataList2PackageMetaList(dbResult);
+    result = PackageWrapperUtil.packageData2PackageMeta(dbResult);
     return Response.ok(result).build();
   }
 
@@ -183,7 +183,7 @@ public class PackageWrapper {
       new Thread(thread).start();
       return Response.noContent().build();
     } catch (Exception e1) {
-      LOG.error("delete fail.", e1);
+      LOG.error("delete fail." + e1.getMessage());
       return RestUtil.getRestException(e1.getMessage());
     }
   }
@@ -204,7 +204,7 @@ public class PackageWrapper {
           delCsarData(csarid);
         }
       } catch (Exception e1) {
-        LOG.error("del instance csar fail.", e1);
+        LOG.error("del instance csar fail."+ e1.getMessage());
         updatePackageStatus(csarid, null, null, null, CommonConstant.PACKAGE_STATUS_DELETE_FAIL,
             null);
         // publishDelFinishCometdMessage(csarid, "false");
@@ -308,11 +308,9 @@ public class PackageWrapper {
    * @return Response
    */
   public Response downloadCsarPackagesById(String csarId) {
-    ArrayList<PackageData> packageList = PackageWrapperUtil.getPackageInfoById(csarId);
+    PackageData packageData = PackageWrapperUtil.getPackageInfoById(csarId);
     String packageName = null;
-    if (null != packageList && packageList.size() > 0) {
-      packageName = packageList.get(0).getName();
-    }
+    packageName = packageData.getName();
     String path = ToolUtil.getCatalogueCsarPath() + File.separator + packageName;
     File csarFile = new File(path);
     if (!csarFile.exists()) {
