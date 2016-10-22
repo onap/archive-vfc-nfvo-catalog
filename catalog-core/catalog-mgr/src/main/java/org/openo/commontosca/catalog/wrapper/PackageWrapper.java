@@ -151,6 +151,11 @@ public class PackageWrapper {
           LOG.info("Package parse success ! serviceTemplateId = " + serviceTemplateId);
         } catch (Exception e1) {
           LOG.error("Parse package error ! ");
+          String packagePath = PackageWrapperUtil.getPackagePath(packageData.getCsarId());
+          FileManagerFactory.createFileManager().delete(packagePath);
+          if (tempDirName != null) {
+            ToolUtil.deleteDir(new File(tempDirName));
+          }
           PackageManager.getInstance().deletePackage(packateDbData.getCsarId());
           throw new Exception(e1);
         }
