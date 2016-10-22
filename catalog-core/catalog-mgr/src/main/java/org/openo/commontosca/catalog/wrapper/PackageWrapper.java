@@ -111,20 +111,23 @@ public class PackageWrapper {
     LOG.info("the fileLocation when upload package is :" + fileLocation);
     uploadedInputStream.close();
 
-    PackageBasicInfo basicInfo = new PackageBasicInfo();
-    basicInfo = PackageWrapperUtil.getPacageBasicInfo(fileLocation);
-    String path = basicInfo.getType().toString() + File.separator + basicInfo.getProvider()
-        + File.separator + fileName.replace(".csar", "") + File.separator + basicInfo.getVersion();
-    LOG.info("dest path is : " + path);
-    PackageMeta packageMeta = new PackageMeta();
-    packageMeta = PackageWrapperUtil.getPackageMeta(fileName, fileLocation, basicInfo);
-    String dowloadUri = File.separator + path + File.separator;
-    String destPath = File.separator + path;
-    packageMeta.setDownloadUri(dowloadUri);
-    LOG.info("packageMeta = " + ToolUtil.objectToString(packageMeta));
     Boolean isEnd = PackageWrapperUtil.isUploadEnd(contentRange, fileName);
     PackageData packateDbData = new PackageData();
+    UploadPackageResponse result = new UploadPackageResponse();
     if (isEnd) {
+      PackageBasicInfo basicInfo = new PackageBasicInfo();
+      basicInfo = PackageWrapperUtil.getPacageBasicInfo(fileLocation);
+      String path =
+          basicInfo.getType().toString() + File.separator + basicInfo.getProvider() + File.separator
+              + fileName.replace(".csar", "") + File.separator + basicInfo.getVersion();
+      LOG.info("dest path is : " + path);
+      PackageMeta packageMeta = new PackageMeta();
+      packageMeta = PackageWrapperUtil.getPackageMeta(fileName, fileLocation, basicInfo);
+      String dowloadUri = File.separator + path + File.separator;
+      String destPath = File.separator + path;
+      packageMeta.setDownloadUri(dowloadUri);
+      LOG.info("packageMeta = " + ToolUtil.objectToString(packageMeta));
+      
       String serviceTemplateId = null;
       boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
       if (uploadResult == true) {
@@ -158,11 +161,10 @@ public class PackageWrapper {
         }
       }
       LOG.info("upload package file end, fileName:" + fileName);
-    }
-    UploadPackageResponse result = new UploadPackageResponse();
-    result.setCsarId(packateDbData.getCsarId());
-    if (tempDirName != null) {
-      ToolUtil.deleteDir(new File(tempDirName));
+      result.setCsarId(packateDbData.getCsarId());
+      if (tempDirName != null) {
+        ToolUtil.deleteDir(new File(tempDirName));
+      }
     }
     return Response.ok(result).build();
   }
