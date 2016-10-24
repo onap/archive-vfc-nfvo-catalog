@@ -98,10 +98,22 @@ public class PackageWrapperTest {
         manager.deletePackage(packageOid);
       }
     }
-
-    PackageData packageData = new PackageData();
-    packageData = getPackageData();
-    manager.addPackage(packageData);
+    ArrayList<PackageData> packageList2 = manager.queryPackage(null, null, null, null, null);
+    if (packageList2 != null && packageList2.size() > 0) {
+      for (int j = 0; j < packageList2.size(); j++) {
+        if (packageList2.get(j).getCsarId().equals("123456")) {
+          manager.updatePackage(getPackageData(), "123456");
+        } else {
+          PackageData packageData = new PackageData();
+          packageData = getPackageData();
+          manager.addPackage(packageData);
+        }
+      }
+    } else {
+      PackageData packageData = new PackageData();
+      packageData = getPackageData();
+      manager.addPackage(packageData);
+    }
   }
 
   // @Ignore
