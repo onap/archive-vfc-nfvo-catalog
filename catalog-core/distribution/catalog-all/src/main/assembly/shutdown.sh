@@ -26,5 +26,7 @@ cd $RUNHOME
 
 echo "\n\n### Starting catalog-http server"
 cd ./tomcat
+export CATALINA_HOME=$RUNHOME/tomcat
+export CATALINA_BASE=$RUNHOME/tomcat
 $RUNHOME/tomcat/bin/shutdown.sh &
 echo "### Starting catalog end...";
