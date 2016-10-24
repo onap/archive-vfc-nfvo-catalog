@@ -15,21 +15,11 @@
  */
 package org.openo.commontosca.catalog.resources;
 
-import org.openo.commontosca.catalog.common.CommonErrorResponse;
-import org.openo.commontosca.catalog.common.ToolUtil;
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.model.entity.InputParameter;
-import org.openo.commontosca.catalog.model.entity.NodeTemplate;
-import org.openo.commontosca.catalog.model.entity.Parameters;
-import org.openo.commontosca.catalog.model.entity.QueryRawDataCondition;
-import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
-import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
-import org.openo.commontosca.catalog.model.entity.ServiceTemplateRawData;
-import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
-import org.openo.commontosca.catalog.model.parser.yaml.aria.AriaModelParser;
-import org.openo.commontosca.catalog.model.parser.yaml.zte.ToscaYamlModelParser;
-import org.openo.commontosca.catalog.model.service.ModelService;
-import org.openo.commontosca.catalog.model.wrapper.ServiceTemplateWrapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -42,15 +32,23 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.jetty.http.HttpStatus;
-
+import org.openo.commontosca.catalog.common.CommonErrorResponse;
+import org.openo.commontosca.catalog.common.ToolUtil;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.entity.EnumOperationalState;
+import org.openo.commontosca.catalog.model.entity.InputParameter;
+import org.openo.commontosca.catalog.model.entity.NodeTemplate;
+import org.openo.commontosca.catalog.model.entity.Parameters;
+import org.openo.commontosca.catalog.model.entity.QueryRawDataCondition;
+import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
+import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
+import org.openo.commontosca.catalog.model.entity.ServiceTemplateRawData;
+import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
+import org.openo.commontosca.catalog.model.parser.yaml.zte.ToscaYamlModelParser;
+import org.openo.commontosca.catalog.model.service.ModelService;
+import org.openo.commontosca.catalog.model.wrapper.ServiceTemplateWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 import com.codahale.metrics.annotation.Timed;
 
@@ -116,7 +114,7 @@ public class TemplateResource {
           response = CommonErrorResponse.class)})
   @Timed
   public Response getServiceTemplates(
-      @ApiParam(value = "template status") @QueryParam("status") String status,
+      @ApiParam(value = "template status") @QueryParam("status") EnumOperationalState status,
       @ApiParam(value = "delay to delete") @QueryParam("deletionPending") boolean deletionPending) {
     try {
       ServiceTemplate[] sts =
