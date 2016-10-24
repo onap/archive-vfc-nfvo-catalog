@@ -30,6 +30,8 @@ cd ./tomcat
 if [ ! -d "$RUNHOME/tomcat/logs" ]; then
   mkdir $RUNHOME/tomcat/logs
 fi
+export CATALINA_HOME=$RUNHOME/tomcat
+export CATALINA_BASE=$RUNHOME/tomcat
 $RUNHOME/tomcat/bin/startup.sh &
 echo "### Starting catalog end...";
 
