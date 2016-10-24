@@ -15,6 +15,10 @@
  */
 package org.openo.commontosca.catalog.model.wrapper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.entity.NodeTemplateData;
 import org.openo.commontosca.catalog.db.entity.PackageData;
@@ -22,6 +26,7 @@ import org.openo.commontosca.catalog.db.entity.ServiceTemplateData;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateMappingData;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
+import org.openo.commontosca.catalog.entity.EnumOperationalState;
 import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
 import org.openo.commontosca.catalog.model.entity.InputParameter;
 import org.openo.commontosca.catalog.model.entity.NfvTemplate;
@@ -35,10 +40,6 @@ import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
 import org.openo.commontosca.catalog.resources.CatalogBadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 public class ServiceTemplateWrapper {
@@ -83,10 +84,12 @@ public class ServiceTemplateWrapper {
    * @return service template list
    * @throws CatalogResourceException e
    */
-  public ServiceTemplate[] getServiceTemplates(String status, boolean deletionPending)
+  public ServiceTemplate[] getServiceTemplates(EnumOperationalState status, boolean deletionPending)
       throws CatalogResourceException {
     PackageData pd = new PackageData();
-    pd.setUsageState(status);
+    if (status != null) {
+      pd.setOperationalState(status.toString());
+    }
     pd.setDeletionPending(String.valueOf(deletionPending));
 
     List<ServiceTemplateData> stdList =

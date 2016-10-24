@@ -45,6 +45,7 @@ import org.openo.commontosca.catalog.db.resource.PackageManager;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
 import org.openo.commontosca.catalog.db.util.H2DbServer;
 import org.openo.commontosca.catalog.db.util.HibernateSession;
+import org.openo.commontosca.catalog.entity.EnumOperationalState;
 import org.openo.commontosca.catalog.model.entity.InputParameter;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
 import org.openo.commontosca.catalog.model.entity.OutputParameter;
@@ -151,8 +152,8 @@ public class ServiceTemplateWrapperTest {
     ServiceTemplate[] result1 = serviceTemplateWrapper.getServiceTemplates(null, false);
     assertEquals(expectResult, result1);
     
-    ServiceTemplate[] result2 = serviceTemplateWrapper.getServiceTemplates("InUse", false);
-    assertEquals(expectResult, result2);
+    ServiceTemplate[] result2 = serviceTemplateWrapper.getServiceTemplates(EnumOperationalState.Enabled, false);
+    assertEquals(new ServiceTemplate[0], result2);
   }
   
   @Test

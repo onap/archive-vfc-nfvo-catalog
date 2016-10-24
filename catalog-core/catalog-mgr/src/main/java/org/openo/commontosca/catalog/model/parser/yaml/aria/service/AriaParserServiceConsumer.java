@@ -61,7 +61,8 @@ public class AriaParserServiceConsumer {
   private static void validateResult(String strResult) throws CatalogResourceException {
     AriaParserExceptionResult except = new Gson().fromJson(strResult, AriaParserExceptionResult.class);
     if (except.getIssues() != null && except.getIssues().length > 0) {
-      throw new CatalogResourceException("Aria parser return failure message: " + except.getIssues()[0].getMessage());
+      logger.error("Aria parser return failure message: " + strResult);
+      throw new CatalogResourceException("Aria parser return failure message: " + strResult);
     }
   }
 }
