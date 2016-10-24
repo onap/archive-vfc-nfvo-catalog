@@ -15,6 +15,12 @@
  */
 package org.openo.commontosca.catalog.model.parser.yaml.aria;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
@@ -29,21 +35,15 @@ import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
 import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult;
-import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Input;
-import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Node;
-import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Node.Relationship;
-import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Output;
-import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Substitution.Mapping;
+import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Instance.Input;
+import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Instance.Node;
+import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Instance.Node.Relationship;
+import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Instance.Output;
+import org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Instance.Substitution.Mapping;
 import org.openo.commontosca.catalog.model.parser.yaml.aria.service.AriaParserServiceConsumer;
 import org.openo.commontosca.catalog.wrapper.PackageWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * @author 10090474
@@ -97,8 +97,8 @@ public class AriaModelParser extends AbstractModelParser {
       return null;
     }
     
-    org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Substitution stm =
-        result.getSubstitution();
+    org.openo.commontosca.catalog.model.parser.yaml.aria.entity.AriaParserResult.Instance.Substitution stm =
+        result.getInstance().getSubstitution();
     return new SubstitutionMapping(
         serviceTemplateId,
         type,
@@ -140,10 +140,10 @@ public class AriaModelParser extends AbstractModelParser {
    * @return
    */
   private String getSubstitutionType(AriaParserResult result) {
-    if (result.getSubstitution() == null) {
+    if (result.getInstance().getSubstitution() == null) {
       return null;
     }
-    return result.getSubstitution().getNode_type_name();
+    return result.getInstance().getSubstitution().getNode_type_name();
   }
 
 
@@ -156,7 +156,7 @@ public class AriaModelParser extends AbstractModelParser {
    */
   private List<NodeTemplate> parseNodeTemplates(String packageId, String serviceTemplateId,
       AriaParserResult result) throws CatalogResourceException {
-    Node[] nodes = result.getNodes();
+    Node[] nodes = result.getInstance().getNodes();
     if (nodes == null || nodes.length == 0) {
       return null;
     }
@@ -243,9 +243,9 @@ public class AriaModelParser extends AbstractModelParser {
     ServiceTemplate st = new ServiceTemplate();
 
     st.setServiceTemplateId(ToolUtil.generateId());
-    st.setTemplateName(result.getMetadata().get("template_name"));
-    st.setVendor(result.getMetadata().get("template_author"));
-    st.setVersion(result.getMetadata().get("template_version"));
+    st.setTemplateName(result.getInstance().getMetadata().get("template_name"));
+    st.setVendor(result.getInstance().getMetadata().get("template_author"));
+    st.setVersion(result.getInstance().getMetadata().get("template_version"));
     st.setCsarId(packageId);
     st.setDownloadUri(downloadUri);
     st.setInputs(parseInputs(result));
@@ -259,7 +259,7 @@ public class AriaModelParser extends AbstractModelParser {
    * @return
    */
   private InputParameter[] parseInputs(AriaParserResult result) {
-    Map<String, Input> inputs = result.getInputs();
+    Map<String, Input> inputs = result.getInstance().getInputs();
     if (inputs == null || inputs.isEmpty()) {
       return new InputParameter[0];
     }
@@ -281,7 +281,7 @@ public class AriaModelParser extends AbstractModelParser {
    * @return
    */
   private OutputParameter[] parseOutputs(AriaParserResult result) {
-    Map<String, Output> outputs = result.getOutpus();
+    Map<String, Output> outputs = result.getInstance().getOutpus();
     if (outputs == null || outputs.isEmpty()) {
       return new OutputParameter[0];
     }
