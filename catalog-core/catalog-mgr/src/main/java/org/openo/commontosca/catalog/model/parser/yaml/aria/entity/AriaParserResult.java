@@ -15,165 +15,191 @@
  */
 package org.openo.commontosca.catalog.model.parser.yaml.aria.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AriaParserResult {
-  private String description;
-  private Map<String, String> metadata;
-  private Node[] nodes;
-  private Group[] groups;
-  private Policy[] policies;
-  private Substitution substitution;
-  private Map<String, Input> inputs;
-  private Map<String, Output> outpus;
-  
-  public Map<String, String> getMetadata() {
-    if (this.metadata == null) {
-      return new HashMap<>();
-    }
-    
-    return metadata;
-  }
+  private Issue[] issues;
+  private Instance instance = new Instance();
+//  private Type[] types;
+//  private Model model;
 
+//  @Data
+//  public class Type {
+//  }
+//  @Data
+//  public class Model {
+//  }
   @Data
-  public class Node {
-    private String id;
-    private String type_name;
-    private String template_name;
-    private Map<String, Property> properties;
-    private Interface[] interfaces;
-    private Artifact[] artifacts;
-    private Capability[] capabilities;
-    private Relationship[] relationships;
+  public class Issue {
+    private int level;
+    private String message;
+    private String location;
+    private String line;
+    private String column;
+    private String snippet;
+    private String exception;
+  }
+  
+  @Data
+  public class Instance {
+    private String description;
+    private Map<String, String> metadata;
+    private Node[] nodes;
+    private Group[] groups;
+    private Policy[] policies;
+    private Substitution substitution;
+    private Map<String, Input> inputs;
+    private Map<String, Output> outpus;
     
-    @Data
-    public class Artifact {
-      private String name;
-      private String type_name;
-      private String source_path;
-      private String target_path;
-      private String repository_url;
-      private Credential repository_credential;
-      private Map<String, Property> properties;
-      
-      @Data
-      public class Credential {
-        private String protocol;
-        private String token_type;
-        private Map<String, String> keys;
-        private String user;
+    public Map<String, String> getMetadata() {
+      if (this.metadata == null) {
+        return new HashMap<>();
       }
-    }
-    
-    @Data
-    public class Capability {
-      private String name;
-      private String type_name;
-      private Map<String, Property> properties;
+      
+      return metadata;
     }
 
     @Data
-    public class Relationship {
-      private String target_node_id;
-      private String target_capability_name;
+    public class Node {
+      private String id;
       private String type_name;
       private String template_name;
       private Map<String, Property> properties;
-      private Interface[] source_interfaces;
-      private Interface[] target_interfaces;
-    }
-
-    /**
-     * @return
-     */
-    public Map<String, Object> getPropertyAssignments() {
-      if (this.properties == null || this.properties.isEmpty()) {
-        return new HashMap<String, Object>();
-      }
-      
-      Map<String, Object> ret = new HashMap<String, Object>();
-      for (Entry<String, Property> e : this.properties.entrySet()) {
-        ret.put(e.getKey(), e.getValue().getValue());
-      }
-
-      return ret;
-    }
-  }
-  
-  @Data
-  public class Group {
-    private String id;
-    private String type_name;
-    private String template_name;
-    private Map<String, Property> properties;
-    private Interface[] interfaces;
-    private GroupPolicy[] policies;
-    private String[] member_node_ids;
-    
-    @Data
-    public class GroupPolicy {
-      private String id;
-      private String type_name;
-      private Map<String, Property> properties;
-      private Trigger[] triggers;
+      private Interface[] interfaces;
+      private Artifact[] artifacts;
+      private Capability[] capabilities;
+      private Relationship[] relationships;
       
       @Data
-      public class Trigger {
+      public class Artifact {
         private String name;
-        private String implementation;
+        private String type_name;
+        private String source_path;
+        private String target_path;
+        private String repository_url;
+        private Credential repository_credential;
         private Map<String, Property> properties;
+        
+        @Data
+        public class Credential {
+          private String protocol;
+          private String token_type;
+          private Map<String, String> keys;
+          private String user;
+        }
+      }
+      
+      @Data
+      public class Capability {
+        private String name;
+        private String type_name;
+        private Map<String, Property> properties;
+      }
+
+      @Data
+      public class Relationship {
+        private String target_node_id;
+        private String target_capability_name;
+        private String type_name;
+        private String template_name;
+        private Map<String, Property> properties;
+        private Interface[] source_interfaces;
+        private Interface[] target_interfaces;
+      }
+
+      /**
+       * @return
+       */
+      public Map<String, Object> getPropertyAssignments() {
+        if (this.properties == null || this.properties.isEmpty()) {
+          return new HashMap<String, Object>();
+        }
+        
+        Map<String, Object> ret = new HashMap<String, Object>();
+        for (Entry<String, Property> e : this.properties.entrySet()) {
+          ret.put(e.getKey(), e.getValue().getValue());
+        }
+
+        return ret;
       }
     }
     
-  }
-
-  
-  @Data
-  public class Policy {
-    private String name;
-    private String type_name;
-    private Map<String, Property> properties;
-    private String[] target_node_ids;
-    private String[] target_group_ids;
-  }
-  
-  @Data
-  public class Substitution {
-    private String node_type_name;
-    private Mapping[] requirement;
-    private Mapping[] capabilities;
-    
     @Data
-    public class Mapping {
-      private String mapped_name;
-      private String node_id;
-      private String name;
+    public class Group {
+      private String id;
+      private String type_name;
+      private String template_name;
+      private Map<String, Property> properties;
+      private Interface[] interfaces;
+      private GroupPolicy[] policies;
+      private String[] member_node_ids;
+      
+      @Data
+      public class GroupPolicy {
+        private String id;
+        private String type_name;
+        private Map<String, Property> properties;
+        private Trigger[] triggers;
+        
+        @Data
+        public class Trigger {
+          private String name;
+          private String implementation;
+          private Map<String, Property> properties;
+        }
+      }
       
     }
-  }
 
-  @Data
-  public class Input {
-    private String type_name;
-    private Object value;
-    private String description;
+    
+    @Data
+    public class Policy {
+      private String name;
+      private String type_name;
+      private Map<String, Property> properties;
+      private String[] target_node_ids;
+      private String[] target_group_ids;
+    }
+    
+    @Data
+    public class Substitution {
+      private String node_type_name;
+      private Mapping[] requirement;
+      private Mapping[] capabilities;
+      
+      @Data
+      public class Mapping {
+        private String mapped_name;
+        private String node_id;
+        private String name;
+        
+      }
+    }
+
+    @Data
+    public class Input {
+      private String type_name;
+      private Object value;
+      private String description;
+    }
+    
+    @Data
+    public class Output {
+      private String type_name;
+      private Object value;
+      private String description;
+    }
   }
   
-  @Data
-  public class Output {
-    private String type_name;
-    private Object value;
-    private String description;
-  }
 }
 
 

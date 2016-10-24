@@ -15,25 +15,25 @@
  */
 package org.openo.commontosca.catalog.model.parser.yaml.aria.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class AriaParserExceptionResult {
-  private Issue[] issues;
-
-  @Data
-  public class Issue {
-    private int level;
-    private String message;
+//import lombok.AllArgsConstructor;
+//import lombok.Data;
+//import lombok.NoArgsConstructor;
+//
+//@Data
+//@NoArgsConstructor
+//@AllArgsConstructor
+//public class AriaParserExceptionResult {
+//  private Issue[] issues;
+//
+//  @Data
+//  public class Issue {
+//    private int level;
+//    private String message;
 //    private String location;
 //    private String line;
 //    private String column;
 //    private String snippet;
-    private String exception;
-  }
-}
+//    private String exception;
+//  }
+//}
 
