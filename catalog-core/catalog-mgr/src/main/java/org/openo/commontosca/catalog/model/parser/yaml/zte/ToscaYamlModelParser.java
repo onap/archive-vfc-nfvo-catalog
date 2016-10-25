@@ -15,6 +15,10 @@
  */
 package org.openo.commontosca.catalog.model.parser.yaml.zte;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
@@ -27,7 +31,6 @@ import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
 import org.openo.commontosca.catalog.model.parser.AbstractModelParser;
-import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.EnumYamlServiceTemplateInfo;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlRequestParemeter;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult;
 import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult.TopologyTemplate.Input;
@@ -36,10 +39,6 @@ import org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResul
 import org.openo.commontosca.catalog.model.parser.yaml.zte.service.YamlParseServiceConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ToscaYamlModelParser extends AbstractModelParser {
   private static final Logger logger = LoggerFactory.getLogger(ToscaYamlModelParser.class);
@@ -109,9 +108,9 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     ServiceTemplate st = new ServiceTemplate();
 
     st.setServiceTemplateId(ToolUtil.generateId());
-    st.setTemplateName(result.getMetadata().get(EnumYamlServiceTemplateInfo.ID.getName()));
-    st.setVendor(result.getMetadata().get(EnumYamlServiceTemplateInfo.PROVIDER.getName()));
-    st.setVersion(result.getMetadata().get(EnumYamlServiceTemplateInfo.VERSION.getName()));
+    st.setTemplateName(parserServiceTemplateName(result.getMetadata()));
+    st.setVendor(parserServiceTemplateVendor(result.getMetadata()));
+    st.setVersion(parserServiceTemplateVersion(result.getMetadata()));
     st.setCsarId(packageId);
     st.setDownloadUri(stDownloadUri);
     st.setInputs(parseInputs(result));
