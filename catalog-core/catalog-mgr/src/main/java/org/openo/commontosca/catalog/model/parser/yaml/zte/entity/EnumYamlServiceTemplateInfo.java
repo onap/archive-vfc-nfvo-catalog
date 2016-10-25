@@ -16,25 +16,25 @@
 package org.openo.commontosca.catalog.model.parser.yaml.zte.entity;
 
 
-public enum EnumYamlServiceTemplateInfo {
-  ID {
-    @Override
-    public String getName() {
-      return "id";
-    }
-  },
-  VERSION {
-    @Override
-    public String getName() {
-      return "version";
-    }
-  },
-  PROVIDER {
-    @Override
-    public String getName() {
-      return "vendor";
-    }
-  };
-
-  public abstract String getName();
-}
+//public enum EnumYamlServiceTemplateInfo {
+//  ID {
+//    @Override
+//    public String getName() {
+//      return "id";
+//    }
+//  },
+//  VERSION {
+//    @Override
+//    public String getName() {
+//      return "version";
+//    }
+//  },
+//  PROVIDER {
+//    @Override
+//    public String getName() {
+//      return "vendor";
+//    }
+//  };
+//
+//  public abstract String getName();
+//}
