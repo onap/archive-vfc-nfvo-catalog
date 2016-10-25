@@ -213,4 +213,38 @@ public abstract class AbstractModelParser {
     return retList.toArray(new InputParameter[0]);
   }
   
+
+  /**
+   * @param metadata
+   * @return
+   */
+  public String parserServiceTemplateName(Map<String, String> metadata) {
+    if (metadata.containsKey("name")) {
+      return metadata.get("name");
+    }
+    return metadata.get("template_name");
+  }
+  
+  /**
+   * @param metadata
+   * @return
+   */
+  public String parserServiceTemplateVendor(Map<String, String> metadata) {
+    if (metadata.containsKey("vendor")) {
+      return metadata.get("vendor");
+    }
+    return metadata.get("template_author");
+  }
+  
+  /**
+   * @param metadata
+   * @return
+   */
+  public String parserServiceTemplateVersion(Map<String, String> metadata) {
+    if (metadata.containsKey("version")) {
+      return metadata.get("version");
+    }
+    return metadata.get("template_version");
+  }
+  
 }
