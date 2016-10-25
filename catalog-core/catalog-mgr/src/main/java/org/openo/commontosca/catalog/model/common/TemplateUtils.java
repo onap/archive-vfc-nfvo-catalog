@@ -15,16 +15,6 @@
  */
 package org.openo.commontosca.catalog.model.common;
 
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.model.parser.yaml.yamlmodel.Plan;
-import org.openo.commontosca.catalog.model.parser.yaml.yamlmodel.ServiceTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.yamlbeans.YamlConfig;
-import com.esotericsoftware.yamlbeans.YamlException;
-import com.esotericsoftware.yamlbeans.YamlReader;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -36,6 +26,17 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.model.parser.yaml.yamlmodel.Input;
+import org.openo.commontosca.catalog.model.parser.yaml.yamlmodel.Plan;
+import org.openo.commontosca.catalog.model.parser.yaml.yamlmodel.ServiceTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.esotericsoftware.yamlbeans.YamlConfig;
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
 
 public class TemplateUtils {
   private static final Logger logger = LoggerFactory.getLogger(TemplateUtils.class);
@@ -76,6 +77,7 @@ public class TemplateUtils {
    */
   private static void adjustConfig(YamlConfig config) {
     config.setPropertyElementType(ServiceTemplate.class, "plans", Plan.class);
+    config.setPropertyElementType(Plan.class, "inputs", Input.class);
   }
 
 
