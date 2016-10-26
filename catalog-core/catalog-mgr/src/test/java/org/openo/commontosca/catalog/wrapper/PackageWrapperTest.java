@@ -216,17 +216,17 @@ public class PackageWrapperTest {
     //assertEquals(expectResult, result.getEntity());
   }
 
-  @Test
-  public void testDelPackage() {
-    System.out.println("Test delete package ");
-    Response result = PackageWrapper.getInstance().delPackage("123456");
-    assertEquals(204, result.getStatus());
-    try {
-      Thread.sleep(5000);
-    } catch (InterruptedException e1) {
-      e1.printStackTrace();
-    }
-  }
+  // @Test
+  // public void testDelPackage() {
+  // System.out.println("Test delete package ");
+  // Response result = PackageWrapper.getInstance().delPackage("123456");
+  // assertEquals(204, result.getStatus());
+  // try {
+  // Thread.sleep(5000);
+  // } catch (InterruptedException e1) {
+  // e1.printStackTrace();
+  // }
+  // }
 
   /**
    * delete data after test.
