@@ -51,6 +51,7 @@ public class AriaParserServiceConsumer {
               IAriaParserRest.class);
       String strResult = parseProxy.parse(request);
       AriaParserResult result = new Gson().fromJson(strResult, AriaParserResult.class);
+      result.setRawData(strResult);
       validateResult(result, strResult);
       return result;
     } catch (Exception e) {

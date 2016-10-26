@@ -59,7 +59,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     st.setType(getTemplateType(getSubstitutionType(result), ntList).toString());
     // save to db
     TemplateManager.getInstance().addServiceTemplate(
-        TemplateDataHelper.convert2TemplateData(st, ToolUtil.toJson(result), ntList));
+        TemplateDataHelper.convert2TemplateData(st, result.getRawData(), ntList));
 
     // substitution
     SubstitutionMapping stm = parseSubstitutionMapping(st.getServiceTemplateId(), result);
