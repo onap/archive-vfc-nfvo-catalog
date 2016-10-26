@@ -29,6 +29,8 @@ import lombok.NoArgsConstructor;
 public class AriaParserResult {
   private Issue[] issues;
   private Instance instance = new Instance();
+  
+  private String rawData;
 //  private Type[] types;
 //  private Model model;
 

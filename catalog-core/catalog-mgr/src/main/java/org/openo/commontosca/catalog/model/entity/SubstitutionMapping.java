@@ -15,18 +15,21 @@
  */
 package org.openo.commontosca.catalog.model.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubstitutionMapping {
+  @JsonIgnore
   private String serviceTemplateId;
   private String nodeType;
   private Map<String, String[]> requirements = new HashMap<String, String[]>();

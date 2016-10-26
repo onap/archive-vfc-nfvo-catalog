@@ -15,6 +15,17 @@
  */
 package org.openo.commontosca.catalog.model.parser.yaml.zte.entity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.openo.commontosca.catalog.common.ToolUtil;
 
 import com.google.gson.Gson;
@@ -23,13 +34,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ParseYamlResult {
   private String toscaDefinitionsVersion;
   private String description;
@@ -40,7 +47,8 @@ public class ParseYamlResult {
   private TopologyTemplate topologyTemplate;
   private Map<String, String> metadata;
   private JsonObject plans;
-
+  
+  private String rawData;
 
   public String getToscaDefinitionsVersion() {
     return toscaDefinitionsVersion;

@@ -46,7 +46,9 @@ public class YamlParseServiceConsumer {
           ConsumerFactory.createConsumer(MsbUtil.getYamlParseBaseUrl(), config,
               IYamlParseRest.class);
       String jsonStr = yamlParseProxy.parse(request);
-      return new Gson().fromJson(jsonStr, ParseYamlResult.class);
+      ParseYamlResult result = new Gson().fromJson(jsonStr, ParseYamlResult.class);
+      result.setRawData(jsonStr);
+      return result;
     } catch (Exception e1) {
       throw new CatalogResourceException("Call parser api failed.", e1);
     }
