@@ -30,6 +30,8 @@ import org.openo.commontosca.catalog.entity.response.PackageMeta;
 import org.openo.commontosca.catalog.entity.response.UploadPackageResponse;
 import org.openo.commontosca.catalog.filemanage.FileManagerFactory;
 import org.openo.commontosca.catalog.model.parser.ModelParserFactory;
+import org.openo.commontosca.catalog.model.service.ModelService;
+import org.openo.commontosca.catalog.resources.CatalogBadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -227,18 +229,25 @@ public class PackageWrapper {
       }
       FileManagerFactory.createFileManager().delete(packagePath);
       // delete template data from db
-      PackageData packageData = new PackageData();
-      packageData.setCsarId(csarId);
       try {
-        TemplateManager.getInstance().deleteServiceTemplateByCsarPackageInfo(packageData);
-      } catch (CatalogResourceException e2) {
-        LOG.error("delete template data from db error! csarId = " + csarId);
+        ModelService.getInstance().delete(csarId);
+      } catch (CatalogBadRequestException e) {
+        LOG.error("delete template data from db error! csarId = " + csarId, e);
+      } catch (CatalogResourceException e) {
+        LOG.error("delete template data from db error! csarId = " + csarId, e);
       }
+//      PackageData packageData = new PackageData();
+//      packageData.setCsarId(csarId);
+//      try {
+//        TemplateManager.getInstance().deleteServiceTemplateByCsarPackageInfo(packageData);
+//      } catch (CatalogResourceException e2) {
+//        LOG.error("delete template data from db error! csarId = " + csarId);
+//      }
       //delete package data from database
       try {
         PackageManager.getInstance().deletePackage(csarId);
       } catch (CatalogResourceException e1) {
-        LOG.error("delete package  by csarId from db error ! " + e1.getMessage());
+        LOG.error("delete package  by csarId from db error ! " + e1.getMessage(), e1);
       }
     }
 
