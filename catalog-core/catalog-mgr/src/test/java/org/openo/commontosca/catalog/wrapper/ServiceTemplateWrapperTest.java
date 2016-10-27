@@ -55,6 +55,7 @@ import org.openo.commontosca.catalog.model.entity.RelationShip;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplate;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.entity.ServiceTemplateRawData;
+import org.openo.commontosca.catalog.model.entity.SubstitutionMapping;
 import org.openo.commontosca.catalog.model.wrapper.ServiceTemplateWrapper;
 
 import java.util.ArrayList;
@@ -370,11 +371,12 @@ public class ServiceTemplateWrapperTest {
     OutputParameter[] outputs = getOutputs();
     serviceTemplate.setOutputs(outputs);
     serviceTemplate.setServiceTemplateId("serviceTemplateId");
-    serviceTemplate.setId("templateName");
     serviceTemplate.setTemplateName("templateName");
     serviceTemplate.setType("NS");
     serviceTemplate.setVendor("ZTE");
     serviceTemplate.setVersion("0.0.1");
+    serviceTemplate.setSubstitution(
+        new SubstitutionMapping("serviceTemplateId", "tosca.nodes.nfv.VL"));
     return serviceTemplate;
   }
 

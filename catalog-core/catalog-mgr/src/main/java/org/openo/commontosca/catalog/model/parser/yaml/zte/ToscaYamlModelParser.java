@@ -18,11 +18,14 @@ package org.openo.commontosca.catalog.model.parser.yaml.zte;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openo.commontosca.catalog.common.ToolUtil;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
 import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
+import org.openo.commontosca.catalog.model.entity.CapReqMapping;
 import org.openo.commontosca.catalog.model.entity.InputParameter;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
 import org.openo.commontosca.catalog.model.entity.OutputParameter;
@@ -99,8 +102,39 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     org.openo.commontosca.catalog.model.parser.yaml.zte.entity.ParseYamlResult
         .TopologyTemplate.SubstitutionMapping stm =
         result.getTopologyTemplate().getSubstitutionMappings();
-    return new SubstitutionMapping(serviceTemplateId, type, stm.getRequirementList(),
-        stm.getCapabilityList());
+    return new SubstitutionMapping(
+        serviceTemplateId, type,
+        parseSubstitutionRequirements(stm.getRequirementList()),
+        parseSubstitutionCapabilities(stm.getCapabilityList()));
+  }
+  
+  /**
+   * @param requirementList
+   * @return
+   */
+  private CapReqMapping[] parseSubstitutionRequirements(Map<String, String[]> requirementList) {
+    return parseMappings(requirementList);
+  }
+
+  /**
+   * @param capabilityList
+   * @return
+   */
+  private CapReqMapping[] parseSubstitutionCapabilities(Map<String, String[]> capabilityList) {
+    return parseMappings(capabilityList);
+  }
+
+  private CapReqMapping[] parseMappings(Map<String, String[]> mappings) {
+    List<CapReqMapping> ret = new ArrayList<>();
+    if (mappings != null) {
+      for (Entry<String, String[]> mapping : mappings.entrySet()) {
+        if (mapping.getValue().length >= 2) {
+          ret.add(new CapReqMapping(
+              mapping.getKey(), mapping.getValue()[0], mapping.getValue()[1]));
+        }
+      }
+    }
+    return ret.toArray(new CapReqMapping[0]);
   }
 
   private ServiceTemplate parseServiceTemplate(ParseYamlResult result, String packageId,
@@ -108,7 +142,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     ServiceTemplate st = new ServiceTemplate();
 
     st.setServiceTemplateId(ToolUtil.generateId());
-    st.setId(parserServiceTemplateName(result.getMetadata()));  // TODO
+    st.setId(parserId(result.getMetadata()));
     st.setTemplateName(parserServiceTemplateName(result.getMetadata()));
     st.setVendor(parserServiceTemplateVendor(result.getMetadata()));
     st.setVersion(parserServiceTemplateVersion(result.getMetadata()));
