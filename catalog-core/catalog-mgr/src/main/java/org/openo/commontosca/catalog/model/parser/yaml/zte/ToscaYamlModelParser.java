@@ -50,7 +50,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     
     // service template
     ServiceTemplate st = parseServiceTemplate(
-        packageId, result, parseServiceTemplateFileName(packageId, fileLocation));
+        result, packageId, parseServiceTemplateFileName(packageId, fileLocation));
     // workflow
     ServiceTemplateOperation[] operations = parseOperations(fileLocation);
     st.setOperations(operations);
@@ -103,11 +103,12 @@ public class ToscaYamlModelParser extends AbstractModelParser {
         stm.getCapabilityList());
   }
 
-  private ServiceTemplate parseServiceTemplate(String packageId, ParseYamlResult result,
+  private ServiceTemplate parseServiceTemplate(ParseYamlResult result, String packageId,
       String stDownloadUri) {
     ServiceTemplate st = new ServiceTemplate();
 
     st.setServiceTemplateId(ToolUtil.generateId());
+    st.setId(parserServiceTemplateName(result.getMetadata()));  // TODO
     st.setTemplateName(parserServiceTemplateName(result.getMetadata()));
     st.setVendor(parserServiceTemplateVendor(result.getMetadata()));
     st.setVersion(parserServiceTemplateVersion(result.getMetadata()));

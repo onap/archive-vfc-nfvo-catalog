@@ -219,8 +219,8 @@ public abstract class AbstractModelParser {
    * @return
    */
   public String parserServiceTemplateName(Map<String, String> metadata) {
-    if (metadata.containsKey("name")) {
-      return metadata.get("name");
+    if (metadata.containsKey("id")) {
+      return metadata.get("id");
     }
     return metadata.get("template_name");
   }

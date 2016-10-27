@@ -26,6 +26,8 @@ public class ServiceTemplate {
   
   private String serviceTemplateId;
   
+  private String id;
+  
   private String templateName;
   
   private String vendor;
