@@ -45,4 +45,6 @@ public class CommonConstant {
   public static final String HTTP_HEADER_CONTENT_RANGE = "Content-Range";
   
   public static final  String CATALOG_CSAR_DIR_NAME = "/csar";
+  
+  public static final String COMETD_CHANNEL_PACKAGE_DELETE = "/package/delete";
 }
