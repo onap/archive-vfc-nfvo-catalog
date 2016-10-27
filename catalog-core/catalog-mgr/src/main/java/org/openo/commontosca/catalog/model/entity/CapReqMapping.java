@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2016 [ZTE] and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
+/**
+ * @author 10090474
+ *
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubstitutionMapping {
-  @JsonIgnore
-  private String serviceTemplateId;
-  private String nodeType;
-  private CapReqMapping[] requirements;
-  private CapReqMapping[] capabilities;
-
-  /**
-   * substitution mapping.
-   * @param serviceTemplateId service template id
-   * @param nodeType node type
-   */
-  public SubstitutionMapping(String serviceTemplateId, String nodeType) {
-    super();
-    this.serviceTemplateId = serviceTemplateId;
-    this.nodeType = nodeType;
-  }
+public class CapReqMapping {
+  private String mapped_name;
+  private String node_id;
+  private String name;
 }

@@ -16,7 +16,6 @@
 package org.openo.commontosca.catalog.model.parser.yaml.aria;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +25,7 @@ import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.db.resource.TemplateManager;
 import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.model.common.TemplateDataHelper;
+import org.openo.commontosca.catalog.model.entity.CapReqMapping;
 import org.openo.commontosca.catalog.model.entity.InputParameter;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
 import org.openo.commontosca.catalog.model.entity.OutputParameter;
@@ -111,28 +111,28 @@ public class AriaModelParser extends AbstractModelParser {
    * @param capabilities
    * @return
    */
-  private Map<String, String[]> parseSubstitutionCapabilities(Mapping[] capabilities) {
+  private CapReqMapping[] parseSubstitutionCapabilities(Mapping[] capabilities) {
     return parseMappings(capabilities);
   }
-
-
-  private Map<String, String[]> parseMappings(Mapping[] mappings) {
-    Map<String, String[]> ret = new HashMap<>();
-    if (mappings != null) {
-      for (Mapping mapping : mappings) {
-        ret.put(mapping.getMapped_name(), new String[]{mapping.getNode_id(), mapping.getName()});
-      }
-    }
-
-    return ret;
-  }
-
+  
   /**
    * @param requirement
    * @return
    */
-  private Map<String, String[]> parseSubstitutionRequirements(Mapping[] requirement) {
+  private CapReqMapping[] parseSubstitutionRequirements(Mapping[] requirement) {
     return parseMappings(requirement);
+  }
+
+  private CapReqMapping[] parseMappings(Mapping[] mappings) {
+    List<CapReqMapping> ret = new ArrayList<>();
+    if (mappings != null) {
+      for (Mapping mapping : mappings) {
+        ret.add(new CapReqMapping(
+            mapping.getMapped_name(), mapping.getNode_id(), mapping.getName()));
+      }
+    }
+    
+    return ret.toArray(new CapReqMapping[0]);
   }
 
   /**
@@ -243,7 +243,7 @@ public class AriaModelParser extends AbstractModelParser {
     ServiceTemplate st = new ServiceTemplate();
 
     st.setServiceTemplateId(ToolUtil.generateId());
-    st.setId(parserServiceTemplateName(result.getInstance().getMetadata()));  // TODO
+    st.setId(parserId(result.getInstance().getMetadata()));
     st.setTemplateName(parserServiceTemplateName(result.getInstance().getMetadata()));
     st.setVendor(parserServiceTemplateVendor(result.getInstance().getMetadata()));
     st.setVersion(parserServiceTemplateVersion(result.getInstance().getMetadata()));

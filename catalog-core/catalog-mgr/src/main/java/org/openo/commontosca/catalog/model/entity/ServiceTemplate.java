@@ -46,4 +46,6 @@ public class ServiceTemplate {
   
   private ServiceTemplateOperation[] operations;
   
+  private SubstitutionMapping substitution;
+  
 }

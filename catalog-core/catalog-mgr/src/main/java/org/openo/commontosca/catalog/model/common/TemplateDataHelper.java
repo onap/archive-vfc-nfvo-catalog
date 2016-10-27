@@ -21,6 +21,7 @@ import org.openo.commontosca.catalog.db.entity.ServiceTemplateData;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateMappingData;
 import org.openo.commontosca.catalog.db.entity.TemplateData;
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.db.resource.TemplateManager;
 import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
 import org.openo.commontosca.catalog.model.entity.NodeTemplate;
 import org.openo.commontosca.catalog.model.entity.Parameters;
@@ -68,6 +69,7 @@ public class TemplateDataHelper {
       String rawData) {
     ServiceTemplateData std = new ServiceTemplateData();
     std.setServiceTemplateId(st.getServiceTemplateId());
+    std.setServiceTemplateOriginalId(st.getId());
     std.setTemplateName(st.getTemplateName());
     std.setVendor(st.getVendor());
     std.setVersion(st.getVersion());
@@ -146,9 +148,22 @@ public class TemplateDataHelper {
         ToolUtil.fromJson(std.getOperations(), ServiceTemplateOperation[].class);
     String downloadUri = buildSTDownloadUri(std.getCsarId(), std.getDownloadUri());
     
-    return new ServiceTemplate(std.getServiceTemplateId(), std.getTemplateName(), std.getTemplateName(), std.getVendor(),
+    return new ServiceTemplate(std.getServiceTemplateId(), std.getServiceTemplateOriginalId(),
+        std.getTemplateName(), std.getVendor(),
         std.getVersion(), std.getCsarId(), std.getType(), downloadUri,
-        parameters.getInputs(), parameters.getOutputs(), operations);
+        parameters.getInputs(), parameters.getOutputs(), operations,
+        getSubstitutionMappingsByServiceTemplateId(std.getServiceTemplateId()));
+  }
+  
+  private static SubstitutionMapping getSubstitutionMappingsByServiceTemplateId(String serviceTemplateId)
+      throws CatalogResourceException {
+    List<ServiceTemplateMappingData> stmDataList =
+        TemplateManager.getInstance().queryServiceTemplateMapping(null, serviceTemplateId);
+    if (stmDataList == null || stmDataList.isEmpty()) {
+      return null;
+    }
+
+    return convert2SubstitutionMapping(stmDataList.get(0));
   }
 
   private static String buildSTDownloadUri(String packageId, String stFileName)
