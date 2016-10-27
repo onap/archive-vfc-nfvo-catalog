@@ -46,7 +46,9 @@ CREATE TABLE catalog_service_template_table (
 	INPUTS                  LONGTEXT           NULL,
 	ROWDATA                 LONGTEXT           NULL,
 	OPERATIONS              LONGTEXT           NULL,
-    DOWNLOADURI             VARCHAR(200)       NULL,	
+    DOWNLOADURI             VARCHAR(200)       NULL,
+	SERVICETEMPLATEORIGINALID  VARCHAR(100)    NULL,
+    METADATA                LONGTEXT           NULL,	
 
     CONSTRAINT CATALOG_SERVICE_TEMPLATE_TABLE_OID PRIMARY KEY(SERVICETEMPLATEID)
 );

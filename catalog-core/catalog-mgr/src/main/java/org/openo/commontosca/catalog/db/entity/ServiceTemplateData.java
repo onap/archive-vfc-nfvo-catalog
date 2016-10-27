@@ -56,6 +56,12 @@ public class ServiceTemplateData extends BaseData {
   @Column(name = "OPERATIONS")
   private String operations;
 
+  @Column(name = "METADATA")
+  private String metadata;
+
+  @Column(name = "SERVICETEMPLATEORIGINALID")
+  private String serviceTemplateOriginalId;
+
   public String getRowData() {
     return rowData;
   }
@@ -136,4 +142,19 @@ public class ServiceTemplateData extends BaseData {
     return serviceTemplateId;
   }
 
+  public String getMetadata() {
+    return metadata;
+  }
+
+  public void setMetadata(String metadata) {
+    this.metadata = metadata;
+  }
+
+  public String getServiceTemplateOriginalId() {
+    return serviceTemplateOriginalId;
+  }
+
+  public void setServiceTemplateOriginalId(String serviceTemplateOriginalId) {
+    this.serviceTemplateOriginalId = serviceTemplateOriginalId;
+  }
 }

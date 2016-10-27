@@ -75,6 +75,8 @@ public class TemplateManagerTest {
     serviceData.setOperations("SDFSDFDSERWERWE");
     serviceData.setVendor("ZTE");
     serviceData.setVersion("v1.0");
+    serviceData.setMetadata("metadata");
+    serviceData.setServiceTemplateOriginalId("NS_01");
     NodeTemplateData nodeData = new NodeTemplateData();
     nodeData.setName("node");
     nodeData.setNodeTemplateId("30001");
@@ -112,6 +114,8 @@ public class TemplateManagerTest {
     serviceData.setServiceTemplateId("20001");
     serviceData.setVendor("ZTE");
     serviceData.setVersion("v1.0");
+    serviceData.setMetadata("metadata");
+    serviceData.setServiceTemplateOriginalId("NS_01");
     NodeTemplateData nodeData = new NodeTemplateData();
     nodeData.setName("node");
     nodeData.setServiceTemplateId("20001");
@@ -136,7 +140,17 @@ public class TemplateManagerTest {
     }
     Assert.assertTrue(list.size() > 0);
   }
-
+  @Test
+  public void testQueryServiceTemplateByIdAndMetadataIsNotNull() {
+    ArrayList<ServiceTemplateData> list = new ArrayList<ServiceTemplateData>();
+    try {
+      list = manager.queryServiceTemplateById("20001");
+    } catch (CatalogResourceException e1) {
+      Assert.fail("Exception" + e1.getMessage());
+    }
+    Assert
+        .assertTrue(list.size() > 0 && "NS_01".equals(list.get(0).getServiceTemplateOriginalId()));
+  }
   @Test
   public void testQueryServiceTemplate() {
 
