@@ -243,6 +243,7 @@ public class AriaModelParser extends AbstractModelParser {
     ServiceTemplate st = new ServiceTemplate();
 
     st.setServiceTemplateId(ToolUtil.generateId());
+    st.setId(parserServiceTemplateName(result.getInstance().getMetadata()));  // TODO
     st.setTemplateName(parserServiceTemplateName(result.getInstance().getMetadata()));
     st.setVendor(parserServiceTemplateVendor(result.getInstance().getMetadata()));
     st.setVersion(parserServiceTemplateVersion(result.getInstance().getMetadata()));

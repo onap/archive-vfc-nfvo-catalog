@@ -112,12 +112,21 @@ public class ServiceTemplateWrapper {
       SubstitutionMapping stm = getSubstitutionMappingsByNodeTypeId(nodeTypeIds[i]);
       if (stm == null) {
         sts[i] = null;
-      } else {
-        sts[i] = getServiceTemplateById(stm.getServiceTemplateId());
+        continue;
       }
+      sts[i] = getServiceTemplate(stm, nodeTypeIds[i]);
     }
 
     return sts;
+  }
+
+  private ServiceTemplate getServiceTemplate(SubstitutionMapping stm, String nodeTypeId) {
+    try {
+       return getServiceTemplateById(stm.getServiceTemplateId());
+    } catch (CatalogResourceException e) {
+      logger.warn("Get Nesting ServiceTemplate Failed. NodeTypeIds = " + nodeTypeId, e);
+      return null;
+    }
   }
 
   /**

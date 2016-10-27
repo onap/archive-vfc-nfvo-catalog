@@ -370,6 +370,7 @@ public class ServiceTemplateWrapperTest {
     OutputParameter[] outputs = getOutputs();
     serviceTemplate.setOutputs(outputs);
     serviceTemplate.setServiceTemplateId("serviceTemplateId");
+    serviceTemplate.setId("templateName");
     serviceTemplate.setTemplateName("templateName");
     serviceTemplate.setType("NS");
     serviceTemplate.setVendor("ZTE");
