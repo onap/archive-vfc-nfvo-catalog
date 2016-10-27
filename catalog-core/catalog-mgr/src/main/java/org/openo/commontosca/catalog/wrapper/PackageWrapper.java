@@ -16,6 +16,9 @@
 package org.openo.commontosca.catalog.wrapper;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.openo.commontosca.catalog.cometd.CometdException;
+import org.openo.commontosca.catalog.cometd.CometdService;
+import org.openo.commontosca.catalog.cometd.CometdUtil;
 import org.openo.commontosca.catalog.common.CommonConstant;
 import org.openo.commontosca.catalog.common.HttpServerPathConfig;
 import org.openo.commontosca.catalog.common.RestUtil;
@@ -42,6 +45,8 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -197,6 +202,18 @@ public class PackageWrapper {
     }
   }
 
+  private void publishDeletionPendingStatusCometdMessage(String csarid) {
+    try {
+      Map<String, Object> cometdMessage = new HashMap<String, Object>();
+      cometdMessage.put("csarid", csarid);
+      cometdMessage.put("status", "deletionPending");
+      CometdService.getInstance().publish(CommonConstant.COMETD_CHANNEL_PACKAGE_DELETE,
+          cometdMessage);
+    } catch (CometdException e1) {
+      LOG.error("publish delfinish cometdmsg fail.", e1);
+    }
+  }
+  
   class DelCsarThread implements Runnable {
     private String csarid;
     private boolean isInstanceTemplate = false;
@@ -216,12 +233,12 @@ public class PackageWrapper {
         LOG.error("del instance csar fail."+ e1.getMessage());
         updatePackageStatus(csarid, null, null, null, CommonConstant.PACKAGE_STATUS_DELETE_FAIL,
             null);
-        // publishDelFinishCometdMessage(csarid, "false");
+        publishDelFinishCometdMessage(csarid, "false");
       }
     }
 
     private void delCsarData(String csarId) {
-      updatePackageStatus(csarid, null, null, null, CommonConstant.PACKAGE_STATUS_DELETING, null);
+      updatePackageStatus(csarId, null, null, null, CommonConstant.PACKAGE_STATUS_DELETING, null);
       String packagePath = PackageWrapperUtil.getPackagePath(csarId);
       if (packagePath == null) {
         LOG.error("package path is null! ");
@@ -236,36 +253,30 @@ public class PackageWrapper {
       } catch (CatalogResourceException e) {
         LOG.error("delete template data from db error! csarId = " + csarId, e);
       }
-//      PackageData packageData = new PackageData();
-//      packageData.setCsarId(csarId);
-//      try {
-//        TemplateManager.getInstance().deleteServiceTemplateByCsarPackageInfo(packageData);
-//      } catch (CatalogResourceException e2) {
-//        LOG.error("delete template data from db error! csarId = " + csarId);
-//      }
       //delete package data from database
       try {
         PackageManager.getInstance().deletePackage(csarId);
       } catch (CatalogResourceException e1) {
         LOG.error("delete package  by csarId from db error ! " + e1.getMessage(), e1);
       }
+      publishDelFinishCometdMessage(csarId, "true");
     }
 
-    // private void publishDelFinishCometdMessage(String csarid, String csarDelStatus) {
-    // if (isInstanceTemplate) {
-    // LOG.info("delete instance Template finish. csarid:{}", csarid);
-    // return;
-    // }
-    // try {
-    // Map<String, Object> cometdMessage = new HashMap<String, Object>();
-    // cometdMessage.put("csarid", csarid);
-    // cometdMessage.put("status", csarDelStatus);
-    // CometdService.getInstance().publish(CommonConstant.COMETD_CHANNEL_PACKAGE_DELETE,
-    // cometdMessage);
-    // } catch (CometdException e) {
-    // LOG.error("publish delfinish cometdmsg fail.", e);
-    // }
-    // }
+    private void publishDelFinishCometdMessage(String csarId, String csarDelStatus) {
+      if (isInstanceTemplate) {
+        LOG.info("delete instance Template finish. csarid:{}", csarId);
+        return;
+      }
+      try {
+        Map<String, Object> cometdMessage = new HashMap<String, Object>();
+        cometdMessage.put("csarid", csarId);
+        cometdMessage.put("status", csarDelStatus);
+        CometdService.getInstance().publish(CommonConstant.COMETD_CHANNEL_PACKAGE_DELETE,
+            cometdMessage);
+      } catch (CometdException e1) {
+        LOG.error("publish delfinish cometdmsg fail." + e1.getMessage(), e1);
+      }
+    }
   }
 
   /**

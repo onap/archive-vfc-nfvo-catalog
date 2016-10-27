@@ -28,6 +28,11 @@ import io.dropwizard.setup.Environment;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.openo.commontosca.catalog.common.Config;
 import org.openo.commontosca.catalog.common.HttpServerAddrConfig;
@@ -110,7 +115,7 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
     environment.jersey().register(MultiPartFeature.class);
 
     initSwaggerConfig(environment, configuration);
-    //    initCometd(environment);
+    initCometd(environment);
     Config.setConfigration(configuration);
     initService();
     LOGGER.info("Initialize catalogue finished.");
@@ -149,22 +154,22 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
     registerCatalogService.start();
   }
 
-//   /**
-//   * initialize cometd server.
-//   * 
-//   * @param environment environment information
-//   */
-//  private void initCometd(Environment environment) {
-//    // add filter
-//    environment.getApplicationContext().addFilter(CrossOriginFilter.class,
-//        "/api/nsoccataloguenotification/v1/*",
-//        EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR));
-//    // add servlet
-//    environment.getApplicationContext()
-//        .addServlet("org.cometd.server.CometDServlet", "/api/nsoccataloguenotification/v1/*")
-//        .setInitOrder(1);
-//    // add servlet
-//    environment.getApplicationContext()
-//        .addServlet("CometdServlet", "/api/nsoccataloguenotification/v1").setInitOrder(2);
-//  }
+  /**
+   * initialize cometd server.
+   * 
+   * @param environment environment information
+   */
+  private void initCometd(Environment environment) {
+    // add filter
+    environment.getApplicationContext().addFilter(CrossOriginFilter.class,
+        "/openoapi/catalog/v1/catalognotification/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR));
+    // add servlet
+    environment.getApplicationContext()
+        .addServlet("org.cometd.server.CometDServlet", "/openoapi/catalog/v1/catalognotification/*")
+        .setInitOrder(1);
+    // add servlet
+    environment.getApplicationContext()
+        .addServlet("org.openo.commontosca.catalog.cometd.CometdServlet", "/openoapi/catalog/v1/catalognotification")
+        .setInitOrder(2);
+  }
 }
