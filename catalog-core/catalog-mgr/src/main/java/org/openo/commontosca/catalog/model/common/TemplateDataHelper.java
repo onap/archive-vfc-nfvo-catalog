@@ -146,7 +146,7 @@ public class TemplateDataHelper {
         ToolUtil.fromJson(std.getOperations(), ServiceTemplateOperation[].class);
     String downloadUri = buildSTDownloadUri(std.getCsarId(), std.getDownloadUri());
     
-    return new ServiceTemplate(std.getServiceTemplateId(), std.getTemplateName(), std.getVendor(),
+    return new ServiceTemplate(std.getServiceTemplateId(), std.getTemplateName(), std.getTemplateName(), std.getVendor(),
         std.getVersion(), std.getCsarId(), std.getType(), downloadUri,
         parameters.getInputs(), parameters.getOutputs(), operations);
   }
