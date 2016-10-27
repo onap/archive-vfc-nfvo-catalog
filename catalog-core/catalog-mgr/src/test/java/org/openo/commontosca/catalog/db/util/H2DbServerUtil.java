@@ -56,7 +56,7 @@ public class H2DbServerUtil {
   /**
    * test.
    */
-  public static void main() {
+  public static void main(String args[]) {
     H2DbServer.startUp();
     H2DbServerUtil.initTable();
     H2DbServer.shutDown();
