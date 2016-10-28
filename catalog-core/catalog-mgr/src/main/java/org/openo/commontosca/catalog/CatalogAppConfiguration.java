@@ -48,6 +48,9 @@ public class CatalogAppConfiguration extends Configuration {
   private String httpServerPath;
 
   @Valid
+  private String serviceIp;
+  
+  @Valid
   @NotNull
   private DataSourceFactory database = new DataSourceFactory();
 
@@ -127,6 +130,16 @@ public class CatalogAppConfiguration extends Configuration {
   @JsonProperty
   public void setHttpServerPath(String httpServerPath) {
     this.httpServerPath = httpServerPath;
+  }
+  
+  @JsonProperty
+  public String getServiceIp() {
+    return serviceIp;
+  }
+
+  @JsonProperty
+  public void setServiceIp(String serviceIp) {
+    this.serviceIp = serviceIp;
   }
 
 }

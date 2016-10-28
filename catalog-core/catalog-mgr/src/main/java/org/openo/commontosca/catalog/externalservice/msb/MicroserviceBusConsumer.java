@@ -17,6 +17,7 @@ package org.openo.commontosca.catalog.externalservice.msb;
 
 import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
 import org.glassfish.jersey.client.ClientConfig;
+import org.openo.commontosca.catalog.db.util.CatalogDbUtil;
 import org.openo.commontosca.catalog.common.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class MicroserviceBusConsumer {
    */
   public static boolean registerService(ServiceRegisterEntity entity) {
     ClientConfig config = new ClientConfig();
+    LOG.info("microservice register body:" + CatalogDbUtil.objectToString(entity));
     try {
       MicroserviceBusRest resourceserviceproxy =
           ConsumerFactory.createConsumer(Config.getConfigration().getMsbServerAddr(), config,
