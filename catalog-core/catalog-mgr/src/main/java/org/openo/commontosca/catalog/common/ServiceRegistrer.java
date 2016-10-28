@@ -15,6 +15,7 @@
  */
 package org.openo.commontosca.catalog.common;
 
+import org.openo.commontosca.catalog.common.Config;
 import org.openo.commontosca.catalog.externalservice.msb.MicroserviceBusConsumer;
 import org.openo.commontosca.catalog.externalservice.msb.ServiceRegisterEntity;
 import org.slf4j.Logger;
@@ -81,7 +82,7 @@ public class ServiceRegistrer implements Runnable {
     catalogEntity.setProtocol("REST");
     catalogEntity.setVersion("v1");
     catalogEntity.setUrl("/openoapi/catalog/v1");
-    catalogEntity.setSingleNode(null, "8200", 0);
+    catalogEntity.setSingleNode(Config.getConfigration().getServiceIp(), "8200", 0);
     catalogEntity.setVisualRange("1");
     serviceEntityList.add(catalogEntity);
     ServiceRegisterEntity httpServiceEntity = new ServiceRegisterEntity();
@@ -89,7 +90,7 @@ public class ServiceRegistrer implements Runnable {
     httpServiceEntity.setProtocol("REST");
     httpServiceEntity.setVersion("v1");
     httpServiceEntity.setUrl("/");
-    httpServiceEntity.setSingleNode(null, "8201", 0);
+    httpServiceEntity.setSingleNode(Config.getConfigration().getServiceIp(), "8201", 0);
     httpServiceEntity.setVisualRange("1");
     serviceEntityList.add(httpServiceEntity);
   }

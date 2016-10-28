@@ -17,7 +17,8 @@
 template: Hello, %s!
 
 defaultName: ${DW_DEFAULT_NAME:-Stranger}
-
+# the micro service ip
+serviceIp: 
 msbServerAddr: http://127.0.0.1:80
 
 httpServerAddr: http://127.0.0.1:8201
