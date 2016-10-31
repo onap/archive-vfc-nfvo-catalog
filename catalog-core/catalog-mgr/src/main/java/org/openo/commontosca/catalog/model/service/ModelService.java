@@ -22,8 +22,11 @@ import org.openo.commontosca.catalog.model.entity.ServiceTemplateOperation;
 import org.openo.commontosca.catalog.model.plan.wso2.Wso2ServiceConsumer;
 import org.openo.commontosca.catalog.model.wrapper.ServiceTemplateWrapper;
 import org.openo.commontosca.catalog.resources.CatalogBadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ModelService {
+  private static final Logger logger = LoggerFactory.getLogger(ModelService.class);
   
   private static final ModelService instance = new ModelService();
 
@@ -38,7 +41,12 @@ public class ModelService {
    * @throws CatalogResourceException e2
    */
   public void delete(String packageId) throws CatalogBadRequestException, CatalogResourceException {
-    ServiceTemplate st = ServiceTemplateWrapper.getInstance().getServiceTemplateByCsarId(packageId);
+    logger.info("delete package model data begin.");
+    
+    ServiceTemplate st = getServiceTemplateByCsarIdIgnoreError(packageId);
+    if (st == null) {
+      return;
+    }
 
     TemplateManager.getInstance().deleteServiceTemplateById(st.getServiceTemplateId());
     TemplateManager.getInstance().deleteServiceTemplateMapping(null, st.getServiceTemplateId());
@@ -49,6 +57,20 @@ public class ModelService {
         Wso2ServiceConsumer.deletePackage(op.getPackageName());
       }
     }
+    
+    logger.info("delete package model data end.");
+  }
+
+  private ServiceTemplate getServiceTemplateByCsarIdIgnoreError(String packageId) {
+    try{
+      return ServiceTemplateWrapper.getInstance().getServiceTemplateByCsarId(packageId);
+    } catch (CatalogBadRequestException ignore) {
+      logger.info("delete package model data ignore.", ignore);
+    } catch (CatalogResourceException ignore) {
+      logger.info("delete package model data ignore.", ignore);
+    }
+    
+    return null;
   }
 
 }
