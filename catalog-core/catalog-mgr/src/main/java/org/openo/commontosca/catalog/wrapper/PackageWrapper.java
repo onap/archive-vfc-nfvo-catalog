@@ -131,23 +131,14 @@ public class PackageWrapper {
       PackageMeta packageMeta = new PackageMeta();
       packageMeta = PackageWrapperUtil.getPackageMeta(fileName, fileLocation, basicInfo);
       String dowloadUri = File.separator + path + File.separator;
-      String destPath = File.separator + path;
       packageMeta.setDownloadUri(dowloadUri);
       LOG.info("packageMeta = " + ToolUtil.objectToString(packageMeta));
       
       String serviceTemplateId = null;
+      PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
+      String destPath = File.separator + path;
       boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
       if (uploadResult == true) {
-        PackageData packageData = PackageWrapperUtil.getPackageData(packageMeta);
-        ArrayList<PackageData> existPackageDatas =
-            PackageManager.getInstance().queryPackage(packageData.getName(),
-                packageData.getProvider(), packageData.getVersion(), null, packageData.getType());
-        if (null != existPackageDatas && existPackageDatas.size() > 0) {
-          LOG.warn("The package already exist ! Begin to delete the orgin data and reupload !");
-          for (int i = 0; i < existPackageDatas.size(); i++) {
-            this.delPackage(existPackageDatas.get(i).getCsarId());
-          }
-        } 
         packateDbData = PackageManager.getInstance().addPackage(packageData);
         LOG.info("Store package data to database succed ! packateDbData = "
             + ToolUtil.objectToString(packateDbData));
@@ -171,16 +162,54 @@ public class PackageWrapper {
           LOG.info("Service template Id is null !");
           PackageManager.getInstance().deletePackage(packateDbData.getCsarId());
         }
-      }
-      LOG.info("upload package file end, fileName:" + fileName);
-      result.setCsarId(packateDbData.getCsarId());
-      if (tempDirName != null) {
-        ToolUtil.deleteDir(new File(tempDirName));
+        //delete the redundant package data and template data while reupload the same package success.
+        ArrayList<PackageData> existPackageDatas =
+            PackageManager.getInstance().queryPackage(packageData.getName(),
+                packageData.getProvider(), packageData.getVersion(), null, packageData.getType());
+        if (null != existPackageDatas && existPackageDatas.size() > 0) {
+          LOG.warn("The package already exist ! Begin to delete the orgin data and reupload !");
+          for (int i = 0; i < existPackageDatas.size(); i++) {
+            if (!existPackageDatas.get(i).getCsarId().equals(packateDbData.getCsarId())) {
+              this.delPackageTemplateData(existPackageDatas.get(i).getCsarId());
+            }
+          }
+        }
+        LOG.info("upload package file end, fileName:" + fileName);
+        result.setCsarId(packateDbData.getCsarId());
+        if (tempDirName != null) {
+          ToolUtil.deleteDir(new File(tempDirName));
+        }
       }
     }
     return Response.ok(result).build();
   }
 
+  
+  private void delPackageTemplateData(String csarId) {
+    String packagePath = PackageWrapperUtil.getPackagePath(csarId);
+    if (packagePath == null) {
+      LOG.error("package path is null! ");
+      return;
+    }
+    // delete template data from db
+    try {
+      ModelService.getInstance().delete(csarId);
+    } catch (CatalogBadRequestException e1) {
+      LOG.error("delete template data from db error! csarId = " + csarId, e1);
+      return;
+    } catch (CatalogResourceException e2) {
+      LOG.error("delete template data from db error! csarId = " + csarId, e2);
+      return;
+    }
+    //delete package data from database
+    try {
+      PackageManager.getInstance().deletePackage(csarId);
+    } catch (CatalogResourceException e1) {
+      LOG.error("delete package  by csarId from db error ! " + e1.getMessage(), e1);
+      return;
+    }
+  }
+  
   /**
    * delete package by package id.
    * @param csarId package id
@@ -194,10 +223,20 @@ public class PackageWrapper {
     }
     try {
       DelCsarThread thread = new DelCsarThread(csarId, false);
+      PackageData packageData = new PackageData();
+      packageData.setProcessState(CommonConstant.PACKAGE_STATUS_DELETING);
+      PackageManager.getInstance().updatePackage(packageData, csarId);
       new Thread(thread).start();
       return Response.noContent().build();
     } catch (Exception e1) {
       LOG.error("delete fail." + e1.getMessage());
+      PackageData packageData = new PackageData();
+      packageData.setProcessState(CommonConstant.PACKAGE_STATUS_DELETE_FAIL);
+      try {
+        PackageManager.getInstance().updatePackage(packageData, csarId);
+      } catch (CatalogResourceException e2) {
+        LOG.error("Update package data failed." + e2.getMessage(), e2);
+      }
       return RestUtil.getRestException(e1.getMessage());
     }
   }
@@ -230,7 +269,7 @@ public class PackageWrapper {
           delCsarData(csarid);
         }
       } catch (Exception e1) {
-        LOG.error("del instance csar fail."+ e1.getMessage());
+        LOG.error("del instance csar fail. " + e1.getMessage(), e1);
         updatePackageStatus(csarid, null, null, null, CommonConstant.PACKAGE_STATUS_DELETE_FAIL,
             null);
         publishDelFinishCometdMessage(csarid, "false");
@@ -244,20 +283,26 @@ public class PackageWrapper {
         LOG.error("package path is null! ");
         return;
       }
-      FileManagerFactory.createFileManager().delete(packagePath);
+      boolean delFileFromHttp = FileManagerFactory.createFileManager().delete(packagePath);
       // delete template data from db
       try {
         ModelService.getInstance().delete(csarId);
-      } catch (CatalogBadRequestException e) {
-        LOG.error("delete template data from db error! csarId = " + csarId, e);
-      } catch (CatalogResourceException e) {
-        LOG.error("delete template data from db error! csarId = " + csarId, e);
+      } catch (CatalogBadRequestException e1) {
+        LOG.error("delete template data from db error! csarId = " + csarId, e1);
+        publishDelFinishCometdMessage(csarId, "Delete template data failed! " + e1.getMessage());
+        return;
+      } catch (CatalogResourceException e2) {
+        LOG.error("delete template data from db error! csarId = " + csarId, e2);
+        publishDelFinishCometdMessage(csarId, "Delete template data failed! " + e2.getMessage());
+        return;
       }
       //delete package data from database
       try {
         PackageManager.getInstance().deletePackage(csarId);
       } catch (CatalogResourceException e1) {
         LOG.error("delete package  by csarId from db error ! " + e1.getMessage(), e1);
+        publishDelFinishCometdMessage(csarId, "Delete package data failed! " + e1.getMessage());
+        return;
       }
       publishDelFinishCometdMessage(csarId, "true");
     }
