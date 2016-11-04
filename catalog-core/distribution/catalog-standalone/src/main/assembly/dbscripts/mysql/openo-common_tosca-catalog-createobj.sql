@@ -77,12 +77,12 @@ DROP TABLE IF EXISTS catalog_node_template_table;
 CREATE TABLE catalog_node_template_table (
 	NODETEMPLATEID          VARCHAR(200)       NOT NULL,
 	NAME                    VARCHAR(100)       NULL,
-	SERVICETEMPLATEID       VARCHAR(200)       NULL,
+	SERVICETEMPLATEID       VARCHAR(200)       NOT NULL,
 	TYPE                    VARCHAR(50)        NULL,
 	PROPERTIES              LONGTEXT           NULL,
 	RELATIONSHIPS           LONGTEXT           NULL,
 	
-    CONSTRAINT catalog_node_template_table PRIMARY KEY(NODETEMPLATEID)
+    CONSTRAINT catalog_node_template_table PRIMARY KEY(NODETEMPLATEID,SERVICETEMPLATEID)
 );
 DROP TABLE IF EXISTS catalog_model_substitution_mapping_table;
 CREATE TABLE catalog_model_substitution_mapping_table (

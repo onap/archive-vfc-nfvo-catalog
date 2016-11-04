@@ -17,6 +17,8 @@ package org.openo.commontosca.catalog.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -25,14 +27,15 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "catalog_node_template_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NodeTemplateData extends BaseData {
+public class NodeTemplateData extends BaseData implements Serializable{
 
+  private static final long serialVersionUID = -2512216362645538471L;
   @Id
   @Column(name = "NODETEMPLATEID")
   private String nodeTemplateId;
   @Column(name = "NAME")
   private String name;
-
+  @Id
   @Column(name = "SERVICETEMPLATEID")
   private String serviceTemplateId;
 

@@ -46,7 +46,11 @@ public class TemplateHandler extends BaseHandler<TemplateData> {
       templateData.getServiceTemplate().setServiceTemplateId(serviceTemplateOid);
     }
     for (NodeTemplateData nodeData : templateData.getNodeTemplates()) {
-      nodeData.setNodeTemplateId(CatalogDbUtil.generateId());
+      String nodeTemplateOid = nodeData.getNodeTemplateId();
+      if (!CatalogDbUtil.isNotEmpty(nodeTemplateOid)) {
+        logger.info("TemplateHandler:nodeTemplate info does not have id,generate UUID.");
+        nodeData.setNodeTemplateId(CatalogDbUtil.generateId());
+      }
       nodeData.setServiceTemplateId(serviceTemplateOid);
     }
     Object result = create(templateData, CatalogResuorceType.TEMPLATE.name());
