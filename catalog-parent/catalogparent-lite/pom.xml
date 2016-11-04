@@ -20,14 +20,14 @@
     <parent>
         <groupId>org.openo.oparent</groupId>
         <artifactId>oparent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>../../../oparent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openo.common-tosca.catalog</groupId>
     <artifactId>catalogparent-lite</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>openo/commontosca/catalog/catalogparent-lite</name>
     <packaging>pom</packaging>
 
