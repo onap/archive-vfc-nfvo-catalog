@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.externalservice.msb;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -31,4 +34,11 @@ public interface MicroserviceBusRest {
   @Produces(MediaType.APPLICATION_JSON)
   public ServiceRegisterEntity registerServce(@QueryParam("createOrUpdate") String createOrUpdate,
       ServiceRegisterEntity entity) throws Exception;
+
+  @Path("")
+  @GET
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public ApiRouteInfo queryApiRouteInfo(@PathParam("serviceName") String serviceName,
+      @PathParam("version") String version ) throws Exception;
 }

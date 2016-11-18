@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -28,10 +29,6 @@ import io.dropwizard.setup.Environment;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 
-import java.util.EnumSet;
-
-import javax.servlet.DispatcherType;
-
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.openo.commontosca.catalog.common.Config;
@@ -44,12 +41,18 @@ import org.openo.commontosca.catalog.db.entity.NodeTemplateData;
 import org.openo.commontosca.catalog.db.entity.PackageData;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateData;
 import org.openo.commontosca.catalog.db.entity.ServiceTemplateMappingData;
+import org.openo.commontosca.catalog.db.hibernate.HibernateBundleAgent;
 import org.openo.commontosca.catalog.health.ConsoleHealthCheck;
 import org.openo.commontosca.catalog.resources.PackageResource;
 import org.openo.commontosca.catalog.resources.TemplateResource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.EnumSet;
+import javax.servlet.DispatcherType;
+
+
 
 
 public class CatalogApp extends Application<CatalogAppConfiguration> {
@@ -64,25 +67,16 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
   public String getName() {
     return "OPENO-Catalog";
   }
-
-  private final HibernateBundle<CatalogAppConfiguration> bundle =
-      new HibernateBundle<CatalogAppConfiguration>(ServiceTemplateData.class, PackageData.class,
-          NodeTemplateData.class, ServiceTemplateMappingData.class) {
-        @Override
-        public DataSourceFactory getDataSourceFactory(CatalogAppConfiguration configuration) {
-          return configuration.getDataSourceFactory();
-        }
-      };
-
+  private final HibernateBundleAgent bundle = new HibernateBundleAgent();
   @Override
   public void initialize(Bootstrap<CatalogAppConfiguration> bootstrap) {
     bootstrap.addBundle(new AssetsBundle("/api-doc", "/api-doc", "index.html", "api-doc"));
     initDb(bootstrap);
   }
 
-  private void initDao() {
-    DaoManager.getInstance().setSessionFactory(bundle.getSessionFactory());
-  }
+  //  private void initDao() {
+  //    DaoManager.getInstance().setSessionFactory(bundle.getSessionFactory());
+  //  }
 
   private void initDb(Bootstrap<CatalogAppConfiguration> bootstrap) {
     bootstrap.addBundle(bundle);
@@ -100,7 +94,7 @@ public class CatalogApp extends Application<CatalogAppConfiguration> {
     MsbAddrConfig.setMsbAddress(configuration.getMsbServerAddr());
     HttpServerAddrConfig.setHttpServerAddress(configuration.getHttpServerAddr());
     HttpServerPathConfig.setHttpServerPath(configuration.getHttpServerPath());
-    initDao();
+    //initDao();
     final ConsoleHealthCheck healthCheck = new ConsoleHealthCheck(configuration.getTemplate());
     environment.healthChecks().register("template", healthCheck);
 

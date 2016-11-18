@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.openo.commontosca.catalog.externalservice.msb;
 
 import com.eclipsesource.jaxrs.consumer.ConsumerFactory;
 import org.glassfish.jersey.client.ClientConfig;
-import org.openo.commontosca.catalog.db.util.CatalogDbUtil;
+
 import org.openo.commontosca.catalog.common.Config;
+import org.openo.commontosca.catalog.db.util.CatalogDbUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +31,7 @@ public class MicroserviceBusConsumer {
 
   /**
    * register service to MSB.
+   * 
    * @param entity ServiceRegisterEntity
    * @return boolean
    */
@@ -35,14 +39,28 @@ public class MicroserviceBusConsumer {
     ClientConfig config = new ClientConfig();
     LOG.info("microservice register body:" + CatalogDbUtil.objectToString(entity));
     try {
-      MicroserviceBusRest resourceserviceproxy =
-          ConsumerFactory.createConsumer(Config.getConfigration().getMsbServerAddr(), config,
-              MicroserviceBusRest.class);
+      MicroserviceBusRest resourceserviceproxy = ConsumerFactory.createConsumer(
+          Config.getConfigration().getMsbServerAddr(), config, MicroserviceBusRest.class);
       resourceserviceproxy.registerServce("false", entity);
     } catch (Exception e1) {
       LOG.error("microservice register failed!" + e1.getMessage());
       return false;
     }
     return true;
+  }
+
+  public static ApiRouteInfo queryApiRouteInfo(String serviceName, String version) {
+    ClientConfig config = new ClientConfig();
+    LOG.info("microservice register body:" + "serviceName:" + serviceName + " version:" + version);
+    ApiRouteInfo apiRouteInfo = null;
+    try {
+      MicroserviceBusRest resourceserviceproxy = ConsumerFactory.createConsumer(
+          Config.getConfigration().getMsbServerAddr(), config, MicroserviceBusRest.class);
+      apiRouteInfo = resourceserviceproxy.queryApiRouteInfo(serviceName, version);
+    } catch (Exception e1) {
+      LOG.error("query api route failed!" + e1.getMessage());
+
+    }
+    return apiRouteInfo;
   }
 }

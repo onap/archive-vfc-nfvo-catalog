@@ -16,7 +16,9 @@
 package org.openo.commontosca.catalog.db.dao;
 
 import org.hibernate.SessionFactory;
+
 import org.openo.commontosca.catalog.db.common.CatalogResuorceType;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 
 /**
  * DAO manager class.
@@ -44,7 +46,10 @@ public class DaoManager {
    * @param type data type
    * @return BaseDao<?>
    */
-  public BaseDao<?> getDao(String type) {
+  public BaseDao<?> getDao(String type) throws CatalogResourceException{
+    if (sessionFactory == null) {
+      throw new CatalogResourceException("errorMsg:database connect init faild!");
+    }
     switch (CatalogResuorceType.getType(type)) {
       case SERVICETEMPLATE:
         return getServiceTemplateDao();
