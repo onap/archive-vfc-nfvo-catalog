@@ -21,7 +21,7 @@ echo @RUNHOME@ $RUNHOME
 
 echo "### Starting catalog";
 cd catalog
-$RUNHOME/catalog/run.sh &
+$RUNHOME/catalog/bin/run.sh &
 cd $RUNHOME
 
 

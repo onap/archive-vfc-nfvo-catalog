@@ -20,7 +20,7 @@ echo @RUNHOME@ $RUNHOME
 
 echo "### Starting catalog";
 cd catalog
-$RUNHOME/catalog/stop.sh &
+$RUNHOME/catalog/bin/stop.sh &
 cd $RUNHOME
 
 

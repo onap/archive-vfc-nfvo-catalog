@@ -22,7 +22,7 @@ echo ##RUNHOME %RUNHOME%
 
 
 echo ### Starting catalog
-start /D %RUNHOME%catalog stop.bat
+start /D %RUNHOME%catalog bin\stop.bat
 
 echo ### Starting tomcat
 start /D %RUNHOME%tomcat bin\shutdown.bat 

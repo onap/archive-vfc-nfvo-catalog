@@ -22,8 +22,9 @@ echo ##RUNHOME %RUNHOME%
 
 
 echo ### Starting catalog
-start /D %RUNHOME%catalog run.bat
-
+start /D %RUNHOME%catalog bin\run.bat
+set CATALINA_HOME=%RUNHOME%tomcat
+set CATALINA_BASE=%RUNHOME%tomcat
 echo ### Starting tomcat
 start /D %RUNHOME%tomcat bin\startup.bat 
 
