@@ -186,7 +186,8 @@ public class AriaModelParser extends AbstractModelParser {
    * @return
    * @throws CatalogResourceException 
    */
-  private List<RelationShip> parseNodeTemplateRelationShip(Relationship[] relationships, Node sourceNode, Node[] nodes) throws CatalogResourceException {
+  private List<RelationShip> parseNodeTemplateRelationShip(Relationship[] relationships,
+      Node sourceNode, Node[] nodes) throws CatalogResourceException {
     List<RelationShip> retList = new ArrayList<>();
 
     if (relationships == null || relationships.length == 0) {
@@ -194,6 +195,10 @@ public class AriaModelParser extends AbstractModelParser {
     }
 
     for (Relationship relationship : relationships) {
+      if (relationship.getTarget_node_id().equals(sourceNode.getId())) {
+        continue;  // target == source, ignore.
+      }
+      
       RelationShip ret = new RelationShip();
       ret.setSourceNodeId(sourceNode.getTemplate_name());
       ret.setSourceNodeName(sourceNode.getTemplate_name());
