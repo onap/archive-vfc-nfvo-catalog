@@ -27,22 +27,71 @@ import org.slf4j.LoggerFactory;
 
 public class ModelService {
   private static final Logger logger = LoggerFactory.getLogger(ModelService.class);
-  
-  private static final ModelService instance = new ModelService();
+
+  private static ModelService instance;
 
   public static ModelService getInstance() {
+    if (instance == null) {
+      instance = new ModelService();
+    }
     return instance;
   }
 
+
   /**
    * delete service template according package id.
+   * 
    * @param packageId package id
    * @throws CatalogBadRequestException e1
    * @throws CatalogResourceException e2
    */
-  public void delete(String packageId) throws CatalogBadRequestException, CatalogResourceException {
+  public void delete(String packageId) throws CatalogResourceException {
     logger.info("delete package model data begin.");
-    
+
+    ServiceTemplate st = getServiceTemplateByCsarIdIgnoreError(packageId);
+    if (st == null) {
+      return;
+    }
+
+    undeployOperationPackage(st.getOperations());
+
+    TemplateManager.getInstance().deleteServiceTemplateById(st.getServiceTemplateId());
+    TemplateManager.getInstance().deleteServiceTemplateMapping(null, st.getServiceTemplateId());
+
+    logger.info("delete package model data end.");
+  }
+
+  private void undeployOperationPackage(ServiceTemplateOperation[] operations)
+      throws CatalogResourceException {
+    if (operations != null && operations.length > 0) {
+      for (ServiceTemplateOperation op : operations) {
+        Wso2ServiceConsumer.deletePackage(op.getPackageName());
+      }
+    }
+  }
+
+  private ServiceTemplate getServiceTemplateByCsarIdIgnoreError(String packageId) {
+    try {
+      return ServiceTemplateWrapper.getInstance().getServiceTemplateByCsarId(packageId);
+    } catch (CatalogBadRequestException ignore) {
+      logger.info("delete package model data ignore.", ignore);
+    } catch (CatalogResourceException ignore) {
+      logger.info("delete package model data ignore.", ignore);
+    }
+
+    return null;
+  }
+
+  /**
+   * delete service template data only, not undeploy operation package.
+   * 
+   * @param packageId package id
+   * @throws CatalogBadRequestException e1
+   * @throws CatalogResourceException e2
+   */
+  public void deleteServiceTemplateData(String packageId) throws CatalogResourceException {
+    logger.info("delete service template data begin.");
+
     ServiceTemplate st = getServiceTemplateByCsarIdIgnoreError(packageId);
     if (st == null) {
       return;
@@ -51,26 +100,27 @@ public class ModelService {
     TemplateManager.getInstance().deleteServiceTemplateById(st.getServiceTemplateId());
     TemplateManager.getInstance().deleteServiceTemplateMapping(null, st.getServiceTemplateId());
 
-    ServiceTemplateOperation[] operations = st.getOperations();
-    if (operations != null && operations.length > 0) {
-      for (ServiceTemplateOperation op : operations) {
-        Wso2ServiceConsumer.deletePackage(op.getPackageName());
-      }
-    }
-    
-    logger.info("delete package model data end.");
+    logger.info("delete service template data end.");
   }
 
-  private ServiceTemplate getServiceTemplateByCsarIdIgnoreError(String packageId) {
-    try{
-      return ServiceTemplateWrapper.getInstance().getServiceTemplateByCsarId(packageId);
-    } catch (CatalogBadRequestException ignore) {
-      logger.info("delete package model data ignore.", ignore);
-    } catch (CatalogResourceException ignore) {
-      logger.info("delete package model data ignore.", ignore);
+  /**
+   * undeploy operation package of the service template.
+   * 
+   * @param packageId package id
+   * @throws CatalogBadRequestException e1
+   * @throws CatalogResourceException e2
+   */
+  public void undeployOperationPackage(String packageId) throws CatalogResourceException {
+    logger.info("undeploy operation package begin.");
+
+    ServiceTemplate st = getServiceTemplateByCsarIdIgnoreError(packageId);
+    if (st == null) {
+      return;
     }
-    
-    return null;
+
+    undeployOperationPackage(st.getOperations());
+
+    logger.info("undeploy operation package end.");
   }
 
 }

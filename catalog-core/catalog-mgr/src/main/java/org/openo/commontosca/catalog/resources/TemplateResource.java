@@ -446,9 +446,6 @@ public class TemplateResource {
     } catch (CatalogResourceException e1) {
       logger.error("test failed.", e1);
       throw RestUtils.newInternalServerErrorException(e1);
-    } catch (CatalogBadRequestException e2) {
-      logger.error("test failed.", e2);
-      throw RestUtils.newBadRequestException(e2);
     }
   }
 

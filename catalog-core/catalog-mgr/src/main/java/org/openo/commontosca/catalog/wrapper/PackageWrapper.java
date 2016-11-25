@@ -15,29 +15,6 @@
  */
 package org.openo.commontosca.catalog.wrapper;
 
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.openo.commontosca.catalog.cometd.CometdException;
-import org.openo.commontosca.catalog.cometd.CometdService;
-import org.openo.commontosca.catalog.cometd.CometdUtil;
-import org.openo.commontosca.catalog.common.CommonConstant;
-import org.openo.commontosca.catalog.common.HttpServerPathConfig;
-import org.openo.commontosca.catalog.common.RestUtil;
-import org.openo.commontosca.catalog.common.ToolUtil;
-import org.openo.commontosca.catalog.db.entity.PackageData;
-import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
-import org.openo.commontosca.catalog.db.resource.PackageManager;
-import org.openo.commontosca.catalog.db.resource.TemplateManager;
-import org.openo.commontosca.catalog.entity.request.PackageBasicInfo;
-import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
-import org.openo.commontosca.catalog.entity.response.PackageMeta;
-import org.openo.commontosca.catalog.entity.response.UploadPackageResponse;
-import org.openo.commontosca.catalog.filemanage.FileManagerFactory;
-import org.openo.commontosca.catalog.model.parser.ModelParserFactory;
-import org.openo.commontosca.catalog.model.service.ModelService;
-import org.openo.commontosca.catalog.resources.CatalogBadRequestException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,11 +23,32 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.openo.commontosca.catalog.cometd.CometdException;
+import org.openo.commontosca.catalog.cometd.CometdService;
+import org.openo.commontosca.catalog.common.CommonConstant;
+import org.openo.commontosca.catalog.common.HttpServerPathConfig;
+import org.openo.commontosca.catalog.common.RestUtil;
+import org.openo.commontosca.catalog.common.ToolUtil;
+import org.openo.commontosca.catalog.db.entity.PackageData;
+import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
+import org.openo.commontosca.catalog.db.resource.PackageManager;
+import org.openo.commontosca.catalog.entity.request.PackageBasicInfo;
+import org.openo.commontosca.catalog.entity.response.CsarFileUriResponse;
+import org.openo.commontosca.catalog.entity.response.PackageMeta;
+import org.openo.commontosca.catalog.entity.response.UploadPackageResponse;
+import org.openo.commontosca.catalog.filemanage.FileManagerFactory;
+import org.openo.commontosca.catalog.model.parser.ModelParserFactory;
+import org.openo.commontosca.catalog.model.service.ModelService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PackageWrapper {
   private static PackageWrapper packageWrapper;
@@ -145,10 +143,22 @@ public class PackageWrapper {
       String destPath = File.separator + path;
       boolean uploadResult = FileManagerFactory.createFileManager().upload(tempDirName, destPath);
       if (uploadResult == true) {
+        List<PackageData> existPackageDatas =
+            PackageManager.getInstance().queryPackage(packageData.getName(),
+                packageData.getProvider(), packageData.getVersion(), null, packageData.getType());
+        
         packateDbData = PackageManager.getInstance().addPackage(packageData);
         LOG.info("Store package data to database succed ! packateDbData = "
             + ToolUtil.objectToString(packateDbData));
         try {
+          //undeploy operation package of the old csar.
+          if (null != existPackageDatas && existPackageDatas.size() > 0) {
+            LOG.info("undeploy operation package of the old csar package.");
+            for (int i = 0; i < existPackageDatas.size(); i++) {
+              ModelService.getInstance().undeployOperationPackage(existPackageDatas.get(i).getCsarId());
+            }
+          }
+          
           String tempCsarPath = tempDirName + File.separator + fileName;
           serviceTemplateId = ModelParserFactory.getInstance().parse(packateDbData.getCsarId(),
               tempCsarPath, PackageWrapperUtil.getPackageFormat(packateDbData.getFormat()));
@@ -169,15 +179,10 @@ public class PackageWrapper {
           PackageManager.getInstance().deletePackage(packateDbData.getCsarId());
         }
         //delete the redundant package data and template data while reupload the same package success.
-        ArrayList<PackageData> existPackageDatas =
-            PackageManager.getInstance().queryPackage(packageData.getName(),
-                packageData.getProvider(), packageData.getVersion(), null, packageData.getType());
         if (null != existPackageDatas && existPackageDatas.size() > 0) {
           LOG.warn("The package already exist ! Begin to delete the orgin data and reupload !");
           for (int i = 0; i < existPackageDatas.size(); i++) {
-            if (!existPackageDatas.get(i).getCsarId().equals(packateDbData.getCsarId())) {
-              this.delPackageTemplateData(existPackageDatas.get(i).getCsarId());
-            }
+            this.delPackageTemplateData(existPackageDatas.get(i).getCsarId());
           }
         }
         LOG.info("upload package file end, fileName:" + fileName);
@@ -199,10 +204,7 @@ public class PackageWrapper {
     }
     // delete template data from db
     try {
-      ModelService.getInstance().delete(csarId);
-    } catch (CatalogBadRequestException e1) {
-      LOG.error("delete template data from db error! csarId = " + csarId, e1);
-      return;
+      ModelService.getInstance().deleteServiceTemplateData(csarId);
     } catch (CatalogResourceException e2) {
       LOG.error("delete template data from db error! csarId = " + csarId, e2);
       return;
@@ -293,10 +295,6 @@ public class PackageWrapper {
       // delete template data from db
       try {
         ModelService.getInstance().delete(csarId);
-      } catch (CatalogBadRequestException e1) {
-        LOG.error("delete template data from db error! csarId = " + csarId, e1);
-        publishDelFinishCometdMessage(csarId, "Delete template data failed! " + e1.getMessage());
-        return;
       } catch (CatalogResourceException e2) {
         LOG.error("delete template data from db error! csarId = " + csarId, e2);
         publishDelFinishCometdMessage(csarId, "Delete template data failed! " + e2.getMessage());

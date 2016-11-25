@@ -97,6 +97,11 @@ public class ServiceTemplateWrapper {
 
     return TemplateDataHelper.convert2ServiceTemplates(stdList);
   }
+  
+  public ServiceTemplate[] getServiceTemplates() throws CatalogResourceException {
+    return TemplateDataHelper.convert2ServiceTemplates(
+        TemplateManager.getInstance().queryServiceTemplate(null, null, null));
+  }
 
 
   /**
