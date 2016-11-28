@@ -124,6 +124,12 @@ public class PackageWrapper {
     if (isEnd) {
       PackageBasicInfo basicInfo = new PackageBasicInfo();
       basicInfo = PackageWrapperUtil.getPacageBasicInfo(fileLocation);
+      if (null == basicInfo.getType() || null == basicInfo.getProvider()
+          || null == basicInfo.getVersion()) {
+        LOG.error(
+            "Package basicInfo is incorrect ! basicIonfo = " + ToolUtil.objectToString(basicInfo));
+        return Response.serverError().build();
+      }
       String path =
           basicInfo.getType().toString() + File.separator + basicInfo.getProvider() + File.separator
               + fileName.replace(".csar", "") + File.separator + basicInfo.getVersion();

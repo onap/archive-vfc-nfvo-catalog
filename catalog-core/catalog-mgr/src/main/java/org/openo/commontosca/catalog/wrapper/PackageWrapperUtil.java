@@ -389,7 +389,7 @@ public class PackageWrapperUtil {
         }
       }
     } catch (IOException e1) {
-      LOG.error("judge package type error !");
+      LOG.error("judge package type error ! " + e1.getMessage());
     }
     if (isXmlCsar) {
       basicInfo.setFormat(CommonConstant.PACKAGE_XML_FORMAT);
