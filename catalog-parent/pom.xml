@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openo.common-tosca.catalog</groupId>
     <artifactId>catalogparent-aggregator</artifactId>
-    <name>openo/commontosca/catalog/catalogparent-aggregator</name>
+    <name>common-tosca-catalog/catalog-parent</name>
     <packaging>pom</packaging>
 
     <modules>

@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openo.common-tosca.catalog</groupId>
     <artifactId>catalogparent-lite</artifactId>
-    <name>openo/commontosca/catalog/catalogparent-lite</name>
+    <name>common-tosca-catalog/catalog-parent/catalogparent-lite</name>
     <packaging>pom</packaging>
 
     <build>

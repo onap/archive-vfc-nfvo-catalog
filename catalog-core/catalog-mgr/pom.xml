@@ -25,7 +25,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>catalog-mgr</artifactId>
-    <name>openo/commontosca/catalog/catalog-mgr</name>
+    <name>common-tosca-catalog/catalog-core/catalog-mgr</name>
     <packaging>jar</packaging>
 	<properties>
 		<httpclient.version>4.4.1</httpclient.version>
