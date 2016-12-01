@@ -179,10 +179,10 @@ public class Wso2ServiceConsumer {
       if (response.isSuccess()) {
         return response;
       }
-      throw new CatalogResourceException(response.getException());
-    } catch (Exception e1) {
+      throw new CatalogResourceException(response.toString());
+    } catch (Exception e) {
       throw new CatalogResourceException(
-          "Call Delete Package api failed. packageName = " + packageName, e1);
+          "Call Delete Package api failed. packageName = " + packageName, e);
     }
   }
 
@@ -205,9 +205,9 @@ public class Wso2ServiceConsumer {
       if (response.isSuccess()) {
         return response;
       }
-      throw new CatalogResourceException(response.getException());
-    } catch (Exception e1) {
-      throw new CatalogResourceException("Call Start Process api failed.", e1);
+      throw new CatalogResourceException(response.toString());
+    } catch (Exception e) {
+      throw new CatalogResourceException("Call Start Process api failed.", e);
     }
   }
 

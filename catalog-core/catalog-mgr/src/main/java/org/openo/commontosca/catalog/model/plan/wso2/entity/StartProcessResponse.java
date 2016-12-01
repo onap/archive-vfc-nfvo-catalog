@@ -37,4 +37,10 @@ public class StartProcessResponse {
   public boolean isSuccess() {
     return this.status == STATUS_SUCCESS;
   }
+
+  @Override
+  public String toString() {
+    return "StartProcessResponse [status=" + status + ", message=" + message + ", response="
+        + response + ", exception=" + exception + "]";
+  }
 }

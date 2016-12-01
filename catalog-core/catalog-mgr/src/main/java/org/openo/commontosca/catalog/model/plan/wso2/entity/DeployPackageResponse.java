@@ -38,4 +38,11 @@ public class DeployPackageResponse {
   public boolean isSuccess() {
     return this.status == STATUS_SUCCESS;
   }
+
+  @Override
+  public String toString() {
+    return "DeployPackageResponse [status=" + status + ", message=" + message + ", packageName="
+        + packageName + ", processId=" + processId + ", exception=" + exception + "]";
+  }
+  
 }

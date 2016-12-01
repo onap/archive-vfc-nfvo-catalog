@@ -36,4 +36,10 @@ public class DeletePackageResponse {
   public boolean isSuccess() {
     return this.status == STATUS_SUCCESS;
   }
+
+  @Override
+  public String toString() {
+    return "DeletePackageResponse [status=" + status + ", message=" + message + ", exception="
+        + exception + "]";
+  }
 }
