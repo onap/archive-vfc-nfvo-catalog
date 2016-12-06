@@ -146,7 +146,7 @@ public class TemplateResource {
       @ApiResponse(code = HttpStatus.INTERNAL_SERVER_ERROR_500, message = "server internal error",
           response = CommonErrorResponse.class)})
   @Timed
-  public Response getNestingServiceTemplate(@ApiParam(value = "Node Type Id",
+  public Response getNestingServiceTemplate(@ApiParam(value = "Node type ids splited by ','. Such as 'tosca.nodes.nfv.VDU,tosca.nodes.nfv.VL'.",
       required = true) @QueryParam("nodeTypeIds") String nodeTypeIds) {
     try {
       if (ToolUtil.isTrimedEmptyString(nodeTypeIds)) {
