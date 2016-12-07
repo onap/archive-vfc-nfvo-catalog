@@ -25,7 +25,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>catalog-core-parent</artifactId>
-    <name>openo/commontosca/catalog/catalog-core-parent</name>
+    <name>common-tosca-catalog/catalog-core</name>
     <packaging>pom</packaging>
 
     <modules>
