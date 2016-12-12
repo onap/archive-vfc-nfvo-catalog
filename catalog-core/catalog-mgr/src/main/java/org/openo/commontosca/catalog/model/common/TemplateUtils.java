@@ -15,17 +15,17 @@
  */
 package org.openo.commontosca.catalog.model.common;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 import org.openo.commontosca.catalog.db.exception.CatalogResourceException;
 import org.openo.commontosca.catalog.model.parser.yaml.yamlmodel.Input;
@@ -69,7 +69,7 @@ public class TemplateUtils {
         }
       }
     }
-}
+  }
   
   
   /**
@@ -102,50 +102,95 @@ public class TemplateUtils {
    * @return
    * @throws CatalogResourceException
    */
-  @SuppressWarnings("resource")
   public static String[] readFromZipFile(String zipFileName, String zipEntryName)
       throws CatalogResourceException {
-    ZipInputStream zipIns = null;
-    BufferedReader zipEntryBr = null;
+    ZipFile zf = null;
+    InputStream ins = null;
     try {
-      ZipFile zipFile = new ZipFile(zipFileName);
+      zf = new ZipFile(zipFileName);
+      ZipEntry ze = getZipEntryZipFile(zf, zipEntryName);
       
-      zipIns = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFileName)));
-      ZipEntry zipEntry;
-      while ((zipEntry = zipIns.getNextEntry()) != null) {
-        if (zipEntryName.equals(zipEntry.getName())
-            || (zipEntryName.replaceAll("/", "\\\\")).equals(zipEntry.getName())) {
-          zipEntryBr = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry)));
-          List<String> lineList = new ArrayList<>();
-          String line;
-          while ((line = zipEntryBr.readLine()) != null) {
-            lineList.add(line);
-          }
-          
-          return lineList.toArray(new String[0]);
-        }
+      if (ze != null) {
+        ins = zf.getInputStream(ze);
+        return readFromInputStream(ins);
       }
     } catch (IOException e) {
-      throw new CatalogResourceException("Parse Tosca Meta Fail.", e);
+      throw new CatalogResourceException("readFromZipFile failed.", e);
     } finally {
-      closeStreamAndReader(zipIns, zipEntryBr);
+      closeInputStream(ins);
+      closeZipFile(zf);
     }
     return new String[0];
   }
-  
-  private static void closeStreamAndReader(ZipInputStream zin, BufferedReader br) {
-    if (br != null) {
-      try {
-        br.close();
-      } catch (IOException e1) {
-        logger.error("Buffered reader close failed !");
+
+  public static ZipEntry getZipEntryZipFile(ZipFile zf, String zipEntryName) {
+    Enumeration<?> zes = zf.entries();
+    while (zes.hasMoreElements()) {
+      ZipEntry ze = (ZipEntry) zes.nextElement();
+      if (zipEntryName.equals(ze.getName())
+          || (zipEntryName.replaceAll("\\\\", "/")).equals(ze.getName())) {
+        return ze;
       }
     }
-    if (zin != null) {
+    
+    return null;
+  }
+
+  /**
+   * @param ins
+   */
+  public static void closeInputStream(InputStream ins) {
+    if (ins != null) {
       try {
-        zin.closeEntry();
-      } catch (IOException e2) {
-        logger.error("Zip inputStream close failed !");
+        ins.close();
+      } catch (IOException e) {
+        logger.warn("closeInputStream failed.", e);
+      }
+    }
+  }
+  
+  /**
+   * @param zf
+   */
+  public static void closeZipFile(ZipFile zf) {
+    if (zf != null) {
+      try {
+        zf.close();
+      } catch (IOException e) {
+        logger.warn("closeZipFile failed.", e);
+      }
+    }
+  }
+
+  private static String[] readFromInputStream(InputStream ins) throws CatalogResourceException {
+    InputStreamReader insReader = new InputStreamReader(ins);
+    BufferedReader reader = new BufferedReader(insReader);
+    
+    List<String> lineList = new ArrayList<>();
+    String line;
+    try {
+      while ((line = reader.readLine()) != null) {
+        lineList.add(line);
+      }
+    } catch (IOException e) {
+      throw new CatalogResourceException("readFromInputStream failed.", e);
+    } finally {
+      closeReader(reader);
+      closeReader(insReader);
+    }
+    
+    return lineList.toArray(new String[0]);
+  }
+  
+  /**
+   * @param reader
+   */
+  private static void closeReader(Reader reader) {
+    if (reader != null) {
+      try {
+        reader.close();
+      } catch (IOException e) {
+        logger.warn("closeReader failed.", e);
       }
     }
   }

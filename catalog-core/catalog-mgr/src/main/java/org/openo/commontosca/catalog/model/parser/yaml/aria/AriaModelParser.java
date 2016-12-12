@@ -60,7 +60,7 @@ public class AriaModelParser extends AbstractModelParser {
     logger.info("Parse begin.");
     
     String stFileLocation = parseServiceTemplateFileName(packageId, fileLocation);
-    AriaParserResult result = getAriaParserResult(packageId, fileLocation, stFileLocation);
+    AriaParserResult result = getAriaParserResult(packageId, stFileLocation);
     
     // service template
     ServiceTemplate st = parseServiceTemplate(result, packageId, stFileLocation);
@@ -302,7 +302,7 @@ public class AriaModelParser extends AbstractModelParser {
     return retList.toArray(new OutputParameter[0]);
   }
 
-  private AriaParserResult getAriaParserResult(String packageId, String fileLocation, String stFileLocation) throws CatalogResourceException {
+  private AriaParserResult getAriaParserResult(String packageId, String stFileLocation) throws CatalogResourceException {
     CsarFileUriResponse stDownloadUri =
         PackageWrapper.getInstance().getCsarFileDownloadUri(packageId, stFileLocation);
     return AriaParserServiceConsumer.parseCsarPackage(stDownloadUri.getDownloadUri());
