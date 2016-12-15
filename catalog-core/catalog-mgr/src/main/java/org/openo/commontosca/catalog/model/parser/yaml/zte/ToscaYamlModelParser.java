@@ -229,7 +229,7 @@ public class ToscaYamlModelParser extends AbstractModelParser {
     if (result.getTopologyTemplate().getSubstitutionMappings() == null) {
       return null;
     }
-    return result.getTopologyTemplate().getSubstitutionMappings().getNodeType();
+    return result.getTopologyTemplate().getSubstitutionMappings().getNode_type();
   }
 
 }

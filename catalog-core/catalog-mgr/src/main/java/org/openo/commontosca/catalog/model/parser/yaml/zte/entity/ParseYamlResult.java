@@ -463,17 +463,16 @@ public class ParseYamlResult {
     }
 
     public class SubstitutionMapping {
-      private String nodeType;
+      private String node_type;
       private JsonObject requirements;
       private JsonObject capabilities;
-      private JsonObject properties;
-
-      public String getNodeType() {
-        return nodeType;
+      
+      public String getNode_type() {
+        return node_type;
       }
 
-      public void setNodeType(String nodeType) {
-        this.nodeType = nodeType;
+      public void setNode_type(String node_type) {
+        this.node_type = node_type;
       }
 
       public JsonObject getRequirements() {
@@ -489,8 +488,11 @@ public class ParseYamlResult {
       }
 
       private Map<String, String[]> jsonObjects2Requirements(JsonObject requirements) {
+        if (requirements == null) {
+          return new HashMap<String, String[]>();
+        }
+        
         Map<String, String[]> ret = new HashMap<String, String[]>();
-
         Iterator<Entry<String, JsonElement>> iterator = requirements.entrySet().iterator();
         while (iterator.hasNext()) {
           Entry<String, JsonElement> next = iterator.next();
@@ -529,8 +531,11 @@ public class ParseYamlResult {
       }
 
       private Map<String, String[]> jsonObject2Capabilities(JsonObject capabilities) {
+        if (capabilities == null) {
+          return new HashMap<String, String[]>();
+        }
+        
         Map<String, String[]> ret = new HashMap<String, String[]>();
-
         Iterator<Entry<String, JsonElement>> iterator = capabilities.entrySet().iterator();
         while (iterator.hasNext()) {
           Entry<String, JsonElement> next = iterator.next();
@@ -545,28 +550,6 @@ public class ParseYamlResult {
           }
         }
 
-        return ret;
-      }
-
-      public JsonObject getProperties() {
-        return properties;
-      }
-
-      public void setProperties(JsonObject properties) {
-        this.properties = properties;
-      }
-
-      public Map<String, Object> getPropertyList() {
-        return jsonObject2Properties(properties);
-      }
-
-      private Map<String, Object> jsonObject2Properties(JsonObject properties) {
-        Map<String, Object> ret = new HashMap<>();
-        Iterator<Entry<String, JsonElement>> iterator = properties.entrySet().iterator();
-        while (iterator.hasNext()) {
-          Entry<String, JsonElement> next = iterator.next();
-          ret.put(next.getKey(), ToolUtil.getAsString(next.getValue()));
-        }
         return ret;
       }
     }
