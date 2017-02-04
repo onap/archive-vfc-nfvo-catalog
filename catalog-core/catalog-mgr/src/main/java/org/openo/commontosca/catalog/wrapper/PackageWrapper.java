@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2016-2017 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +146,12 @@ public class PackageWrapper {
         List<PackageData> existPackageDatas =
             PackageManager.getInstance().queryPackage(packageData.getName(),
                 packageData.getProvider(), packageData.getVersion(), null, packageData.getType());
-        
+        if (null != existPackageDatas && existPackageDatas.size() > 0
+            && existPackageDatas.get(0).getOnBoardState().equals("onBoarded")) {
+          LOG.error("Package onboarded. Can not be reupload! onBoardState = "
+              + existPackageDatas.get(0).getOnBoardState());
+          return Response.serverError().build();
+        }
         packateDbData = PackageManager.getInstance().addPackage(packageData);
         LOG.info("Store package data to database succed ! packateDbData = "
             + ToolUtil.objectToString(packateDbData));
@@ -340,8 +345,9 @@ public class PackageWrapper {
    */
   public Response updatePackageStatus(String csarId, String operationalState, String usageState,
       String onBoardState, String processState, String deletionPending) {
-    LOG.info("update package status info.csarId:" + csarId + " operationalState:"
-        + operationalState);
+    LOG.info("update package status info.csarId:" + csarId + " operationalState:" + operationalState
+        + "usageState:" + usageState + "onBoardState:" + onBoardState + "processState:"
+        + processState + "deletionPending" + deletionPending);
     if (ToolUtil.isEmptyString(csarId)) {
       LOG.error("update csar status fail, csarid is null");
       return Response.serverError().build();
