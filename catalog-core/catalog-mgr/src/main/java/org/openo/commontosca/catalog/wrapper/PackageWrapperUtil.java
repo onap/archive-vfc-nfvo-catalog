@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2016-2017 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,7 +308,7 @@ public class PackageWrapperUtil {
     PackageMeta meta = new PackageMeta();
     meta.setCsarId(packageData.getCsarId());
     meta.setCreateTime(packageData.getCreateTime());
-    meta.setDeletionPending(Boolean.getBoolean(packageData.getDeletionPending()));
+    meta.setDeletionPending(Boolean.valueOf(packageData.getDeletionPending()));
     String packageUri =
         packageData.getDownloadUri() + packageData.getName() + CommonConstant.CSAR_SUFFIX;
     String packageUrl = getUrl(packageUri);
