@@ -169,12 +169,12 @@ public class PackageWrapper {
               tempCsarPath, PackageWrapperUtil.getPackageFormat(packateDbData.getFormat()));
           LOG.info("Package parse success ! serviceTemplateId = " + serviceTemplateId);
         } catch (Exception e1) {
-          LOG.error("Parse package error ! ");
-          String packagePath = PackageWrapperUtil.getPackagePath(packageData.getCsarId());
-          FileManagerFactory.createFileManager().delete(packagePath);
-          if (tempDirName != null) {
-            ToolUtil.deleteDir(new File(tempDirName));
-          }
+          LOG.error("Parse package error ! Delete the package data from database");
+          //String packagePath = PackageWrapperUtil.getPackagePath(packageData.getCsarId());
+          //FileManagerFactory.createFileManager().delete(packagePath);
+          //if (tempDirName != null) {
+            //ToolUtil.deleteDir(new File(tempDirName));
+          //}
           PackageManager.getInstance().deletePackage(packateDbData.getCsarId());
           throw new Exception(e1);
         }
