@@ -13,15 +13,10 @@
 # limitations under the License.
 
 from django.conf.urls import include, url
-from catalog.pub.config.config import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL, REG_TO_MSB_REG_PARAM
+from catalog.packages import views
 
 urlpatterns = [
-    url(r'^', include('catalog.samples.urls')),
-    url(r'^', include('catalog.packages.urls')),
+    url(r'^api/nfvocatalog/v1/packages/(?P<csarId>[a-zA-Z\-]+)$', views.package_get()),
 ]
 
-# regist to MSB when startup
-if REG_TO_MSB_WHEN_START:
-    import json
-    from catalog.pub.utils.restcall import req_by_msb
-    req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(REG_TO_MSB_REG_PARAM))
+
