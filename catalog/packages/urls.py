@@ -16,10 +16,10 @@ from django.conf.urls import include, url
 from catalog.packages import views
 
 urlpatterns = [
-    url(r'^api/nfvocatalog/v1/nspackages$', views.nspackage_get, name='nspackages_get'),
-    url(r'^api/nfvocatalog/v1/nspackage/(?P<csarId>[0-9a-zA-Z\-\_]+)$', views.nspackage_get, name='nspackage_get'),
-    url(r'^api/nfvocatalog/v1/nfpackages$', views.nspackage_get, name='nfpackages_get'),
-    url(r'^api/nfvocatalog/v1/nfpackage/(?P<csarId>[0-9a-zA-Z\-\_]+)$', views.nfpackage_get, name='nfpackage_get'),
+    url(r'^api/catalog/v1/nspackages$', views.nspackage_get, name='nspackages_get'),
+    url(r'^api/catalog/v1/nspackage/(?P<csarId>[0-9a-zA-Z\-\_]+)$', views.nspackage_get, name='nspackage_get'),
+    url(r'^api/catalog/v1/nfpackages$', views.nspackage_get, name='nfpackages_get'),
+    url(r'^api/catalog/v1/nfpackage/(?P<csarId>[0-9a-zA-Z\-\_]+)$', views.nfpackage_get, name='nfpackage_get'),
 ]
 
 
