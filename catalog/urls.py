@@ -18,6 +18,7 @@ from catalog.pub.config.config import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL,
 urlpatterns = [
     url(r'^', include('catalog.samples.urls')),
     url(r'^', include('catalog.packages.urls')),
+    url(r'^', include('catalog.swagger.urls')),
 ]
 
 # regist to MSB when startup
