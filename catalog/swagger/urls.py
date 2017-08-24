@@ -1,4 +1,4 @@
-# Copyright 2017 ZTE Corporation.
+# Copyright 2016-2017 ZTE Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,17 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from django.conf.urls import patterns, url
+from rest_framework.urlpatterns import format_suffix_patterns
 
-from django.conf.urls import include, url
-from catalog.pub.config.config import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL, REG_TO_MSB_REG_PARAM
+from catalog.swagger.views import SwaggerJsonView
 
-urlpatterns = [
-    url(r'^', include('catalog.samples.urls')),
-    url(r'^', include('catalog.swagger.urls')),    
-]
+urlpatterns = patterns('',
+                       url(r'^api/catalog/v1/swagger.json$', SwaggerJsonView.as_view())
+                       )
 
-# regist to MSB when startup
-if REG_TO_MSB_WHEN_START:
-    import json
-    from catalog.pub.utils.restcall import req_by_msb
-    req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(REG_TO_MSB_REG_PARAM))
+urlpatterns = format_suffix_patterns(urlpatterns)
