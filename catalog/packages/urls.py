@@ -16,7 +16,7 @@ from django.conf.urls import include, url
 from catalog.packages import views
 
 urlpatterns = [
-    url(r'^api/nfvocatalog/v1/packages/(?P<csarId>[a-zA-Z\-]+)$', views.package_get()),
+    url(r'^api/nfvocatalog/v1/packages$', views.package_get),
 ]
 
 

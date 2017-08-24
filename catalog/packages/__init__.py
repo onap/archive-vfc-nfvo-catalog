@@ -11,21 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import logging
-from catalog.pub.utils.syscomm import fun_name
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view
-
-logger = logging.getLogger(__name__)
-
-@api_view(http_method_names=['GET'])
-def package_get(request, *args, **kwargs):
-    logger.info("Enter method is %s", fun_name())
-    ret, normal_status = None, None
-
-    return Response(data=ret, status=status.HTTP_200_OK)
-
-
-
