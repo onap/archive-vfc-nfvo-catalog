@@ -21,7 +21,14 @@ from rest_framework.decorators import api_view
 logger = logging.getLogger(__name__)
 
 @api_view(http_method_names=['GET'])
-def package_get(request, *args, **kwargs):
+def nspackage_get(request, *args, **kwargs):
+    logger.info("Enter method is %s", fun_name())
+    ret, normal_status = None, None
+
+    return Response(data=ret, status=status.HTTP_200_OK)
+
+@api_view(http_method_names=['GET'])
+def nfpackage_get(request, *args, **kwargs):
     logger.info("Enter method is %s", fun_name())
     ret, normal_status = None, None
 
