@@ -15,3 +15,6 @@
 
 class CatalogException(Exception):
     pass
+
+class NSLCMException(Exception):
+    pass
