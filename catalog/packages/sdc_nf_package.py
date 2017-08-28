@@ -21,7 +21,7 @@ import threading
 import traceback
 import sys
 
-from catalog.pub.database.models import NfPackageModel, NfInstModel
+from catalog.pub.database.models import NfPackageModel
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.utils import fileutil
 from catalog.pub.exceptions import NSLCMException
@@ -30,6 +30,7 @@ from catalog.pub.msapi.extsys import get_vims
 from catalog.pub.utils.jobutil import JobUtil
 from catalog.pub.utils import toscaparser
 from catalog.pub.msapi import sdc
+from catalog.pub.msapi import nfvolcm
 
 logger = logging.getLogger(__name__)
 
@@ -167,12 +168,14 @@ class SdcNfPkgDeleteThread(threading.Thread):
             job_id=self.job_id)
         JobUtil.add_job_status(self.job_id, 5, "Start to delete CSAR(%s)." % self.csar_id)
 
+        '''
         if self.force_delete:
             NfInstModel.objects.filter(package_id=self.csar_id).delete()
         else:
             if NfInstModel.objects.filter(package_id=self.csar_id):
                 raise NSLCMException("NfInst by csar(%s) exists, cannot delete." % self.csar_id)
-
+        '''
+        nfvolcm.delete_ns_mock()
         JobUtil.add_job_status(self.job_id, 50, "Delete CSAR(%s) from Database." % self.csar_id)
 
         NfPackageModel.objects.filter(nfpackageid=self.csar_id).delete()
@@ -215,7 +218,8 @@ class SdcNfPackage(object):
             pkg_info["vnfVersion"] = nf_pkg[0].vnfversion
 
 
-        vnf_insts = NfInstModel.objects.filter(package_id=csar_id)
+        #vnf_insts = NfInstModel.objects.filter(package_id=csar_id)
+        vnf_insts = nfvolcm.getNfInsts()
         vnf_inst_info = [{"vnfInstanceId": vnf_inst.nfinstid,
                           "vnfInstanceName": vnf_inst.nf_name} for vnf_inst in vnf_insts]
 

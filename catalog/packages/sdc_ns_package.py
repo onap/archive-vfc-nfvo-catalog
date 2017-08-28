@@ -19,13 +19,14 @@ import traceback
 import sys
 import os
 
-from catalog.pub.database.models import NSDModel, NSInstModel, NfPackageModel
+from catalog.pub.database.models import NSDModel, NfPackageModel
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.exceptions import NSLCMException
 from catalog.pub.msapi import sdc
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import toscaparser
 from catalog.pub.utils import fileutil
+from catalog.pub.msapi import nfvolcm
 
 logger = logging.getLogger(__name__)
 
@@ -129,11 +130,14 @@ class SdcNsPackage(object):
 
 
     def delete_csar(self, csar_id, force_delete):
+        '''
         if force_delete:
             NSInstModel.objects.filter(nspackage_id=csar_id).delete()
         else:
             if NSInstModel.objects.filter(nspackage_id=csar_id):
                 raise NSLCMException("CSAR(%s) is in using, cannot be deleted." % csar_id)
+        '''
+        nfvolcm.delete_ns_mock()
         NSDModel.objects.filter(id=csar_id).delete()
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
@@ -156,7 +160,8 @@ class SdcNsPackage(object):
             package_info["nsdProvider"] = csars[0].vendor
             package_info["nsdVersion"] = csars[0].version
 
-        nss = NSInstModel.objects.filter(nspackage_id=csar_id)
+        #nss = NSInstModel.objects.filter(nspackage_id=csar_id)
+        nss = nfvolcm.getNsInsts_mock()
         ns_instance_info = [{
             "nsInstanceId": ns.id, 
             "nsInstanceName": ns.name} for ns in nss]

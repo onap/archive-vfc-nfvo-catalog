@@ -54,6 +54,10 @@ SDC_BASE_URL = "https://127.0.0.1:1234/api"
 SDC_USER = "admin"
 SDC_PASSWD = "admin"
 
+NFVOLCM_BASE_URL = "https://127.0.0.1:1234/api"
+NFVOLCM_USER = "admin"
+NFVOLCM_PASSWD = "admin"
+
 
 
 
