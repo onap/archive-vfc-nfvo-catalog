@@ -443,8 +443,6 @@ class PackageTest(unittest.TestCase):
 
     @mock.patch.object(NsPackage,'get_nsd')
     def test_ns_distribute(self, mock_get_nsd):
-
-
         local_file_name = "/url/local/filename"
         nsd = json.JSONEncoder().encode(self.nsd_json)
         mock_get_nsd.return_value = self.nsd_json,local_file_name,nsd
