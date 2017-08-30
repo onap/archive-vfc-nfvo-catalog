@@ -19,26 +19,26 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from catalog.pub.utils.values import ignore_case_get
-from catalog.packages import sdc_nf_package
-from catalog.packages import sdc_ns_package
+from catalog.packages import nf_package
+from catalog.packages import ns_package
 
 
 logger = logging.getLogger(__name__)
 
 @api_view(http_method_names=['POST', 'GET'])
-def nspackage_get(request, *args, **kwargs):
+def nspackages_rc(request, *args, **kwargs):
     logger.debug("Enter %s, method is %s", fun_name(), request.method)
     ret, normal_status = None, None
 
     if request.method == 'GET':
         # Gets ns package list
-        ret = sdc_ns_package.SdcNsPackage().get_csars()
+        ret = ns_package.ns_get_csars();
         normal_status = status.HTTP_200_OK
     elif request.method == 'POST':
         # Distributes the package accroding to the given csarId
         csar_id = ignore_case_get(request.data, "csarId")
         logger.debug("csar_id is %s", csar_id)
-        ret = sdc_ns_package.ns_on_distribute(csar_id)
+        ret = ns_package.ns_on_distribute(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
@@ -46,18 +46,18 @@ def nspackage_get(request, *args, **kwargs):
     return Response(data=ret[1], status=normal_status)
 
 @api_view(http_method_names=['POST', 'GET'])
-def nfpackage_get(request, *args, **kwargs):
+def nfpackages_rc(request, *args, **kwargs):
     logger.debug("Enter %s%s, method is %s", fun_name(), request.data, request.method)
     ret, normal_status = None, None
     if request.method == 'GET':
-        ret = sdc_nf_package.nf_get_csars()
+        ret = nf_package.nf_get_csars()
         normal_status = status.HTTP_200_OK
     elif request.method == 'POST':
         csar_id = ignore_case_get(request.data, "csarId")
         vim_ids = ignore_case_get(request.data, "vimIds")
         lab_vim_id = ignore_case_get(request.data, "labVimId")
         job_id = str(uuid.uuid4())
-        sdc_nf_package.SdcNfDistributeThread(csar_id, vim_ids, lab_vim_id, job_id).start()
+        nf_package.NfDistributeThread(csar_id, vim_ids, lab_vim_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
@@ -71,13 +71,13 @@ def ns_rd_csar(request, *args, **kwargs):
     logger.info("Enter %s, method is %s, csar_id is %s", fun_name(), request.method, csar_id)
     ret, normal_status = None, None
     if request.method == 'GET':
-        ret = sdc_ns_package.ns_get_csar(csar_id)
+        ret = ns_package.ns_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
     elif request.method == 'DELETE':
         force_delete = csar_id.endswith("force")
         if force_delete:
             csar_id = csar_id[:-5]
-        ret = sdc_ns_package.ns_delete_csar(csar_id, force_delete)
+        ret = ns_package.ns_delete_csar(csar_id, force_delete)
         normal_status = status.HTTP_202_ACCEPTED
     logger.info("Leave %s, Return value is %s", fun_name(), str(ret))
     if ret[0] != 0:
@@ -90,14 +90,14 @@ def nf_rd_csar(request, *args, **kwargs):
     logger.info("Enter %s, method is %s, csar_id is %s", fun_name(), request.method, csar_id)
     ret, normal_status = None, None
     if request.method == 'GET':
-        ret = sdc_nf_package.nf_get_csar(csar_id)
+        ret = nf_package.nf_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
     elif request.method == 'DELETE':
         force_delete = csar_id.endswith("force")
         if force_delete:
             csar_id = csar_id[:-5]
         job_id = str(uuid.uuid4())
-        sdc_nf_package.SdcNfPkgDeleteThread(csar_id, job_id, force_delete).start()
+        nf_package.NfPkgDeleteThread(csar_id, job_id, force_delete).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
     logger.info("Leave %s, Return value is %s", fun_name(), str(ret))

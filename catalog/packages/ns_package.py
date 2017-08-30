@@ -40,13 +40,13 @@ def fmt_ns_pkg_rsp(status, desc, error_code="500"):
 def ns_on_distribute(csar_id):
     ret = None
     try:
-        ret = SdcNsPackage().on_distribute(csar_id)
+        ret = NsPackage().on_distribute(csar_id)
     except NSLCMException as e:
-        SdcNsPackage().delete_catalog(csar_id)
+        NsPackage().delete_catalog(csar_id)
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
         logger.error(traceback.format_exc())
-        SdcNsPackage().delete_catalog(csar_id)
+        NsPackage().delete_catalog(csar_id)
         return fmt_ns_pkg_rsp(STATUS_FAILED, str(sys.exc_info()))
     return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
 
@@ -54,7 +54,7 @@ def ns_on_distribute(csar_id):
 def ns_delete_csar(csar_id, force_delete):
     ret = None
     try:
-        ret = SdcNsPackage().delete_csar(csar_id, force_delete)
+        ret = NsPackage().delete_csar(csar_id, force_delete)
     except NSLCMException as e:
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
@@ -65,7 +65,7 @@ def ns_delete_csar(csar_id, force_delete):
 def ns_get_csars():
     ret = None
     try:
-        ret = SdcNsPackage().get_csars()
+        ret = NsPackage().get_csars()
     except NSLCMException as e:
         return [1, e.message]
     except:
@@ -76,7 +76,7 @@ def ns_get_csars():
 def ns_get_csar(csar_id):
     ret = None
     try:
-        ret = SdcNsPackage().get_csar(csar_id)
+        ret = NsPackage().get_csar(csar_id)
     except NSLCMException as e:
         return [1, e.message]
     except:
@@ -87,7 +87,7 @@ def ns_get_csar(csar_id):
 
 ###############################################################################################################
 
-class SdcNsPackage(object):
+class NsPackage(object):
     """
     Actions for sdc ns package.
     """
@@ -143,10 +143,10 @@ class SdcNsPackage(object):
 
 
     def get_csars(self):
-        csars = {"csars": []}
+        csars = []
         nss = NSDModel.objects.filter()
         for ns in nss:
-            csars["csars"].append({
+            csars.append({
                 "csarId": ns.id,
                 "nsdId": ns.nsd_id
             })

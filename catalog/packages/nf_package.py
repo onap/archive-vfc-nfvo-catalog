@@ -39,7 +39,7 @@ JOB_ERROR = 255
 def nf_get_csars():
     ret = None
     try:
-        ret = SdcNfPackage().get_csars()
+        ret = NfPackage().get_csars()
     except NSLCMException as e:
         return [1, e.message]
     except:
@@ -50,7 +50,7 @@ def nf_get_csars():
 def nf_get_csar(csar_id):
     ret = None
     try:
-        ret = SdcNfPackage().get_csar(csar_id)
+        ret = NfPackage().get_csar(csar_id)
     except NSLCMException as e:
         return [1, e.message]
     except:
@@ -60,7 +60,7 @@ def nf_get_csar(csar_id):
 
 #####################################################################################
 
-class SdcNfDistributeThread(threading.Thread):
+class NfDistributeThread(threading.Thread):
     """
     Sdc NF Package Distribute
     """
@@ -139,7 +139,7 @@ class SdcNfDistributeThread(threading.Thread):
 ######################################################################################################################
 
 
-class SdcNfPkgDeleteThread(threading.Thread):
+class NfPkgDeleteThread(threading.Thread):
     """
     Sdc NF Package Deleting
     """
@@ -190,7 +190,7 @@ class SdcNfPkgDeleteThread(threading.Thread):
 
 ######################################################################################################################
 
-class SdcNfPackage(object):
+class NfPackage(object):
     """
     Actions for sdc nf package.
     """

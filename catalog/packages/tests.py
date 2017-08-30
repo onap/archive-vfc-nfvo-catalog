@@ -38,29 +38,42 @@ class PackageTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_nspackages_get(self):
+        response = self.client.get("/api/catalog/v1/nspackages")
+        print response
+        self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
+
     def test_nspackage_get(self):
-        response = self.client.get("/api/nfvocatalog/v1/nspackages")
+        #response = self.client.get("/api/catalog/v1/nspackages/1")
+        #self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
+        # to do
+        pass
+
+    def test_nfpackages_get(self):
+        response = self.client.get("/api/catalog/v1/vnfpackages")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
 
     def test_nfpackage_get(self):
-        response = self.client.get("/api/nfvocatalog/v1/vnfpackages")
-        self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
+        #response = self.client.get("/api/catalog/v1/vnfpackages/1")
+        #self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
+        # to do
+        pass
 
     def test_ns_distribute(self):
-        response = self.client.post("/api/nfvocatalog/v1/nspackages",self.nsdata)
+        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
         #self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
 
 
     def test_nf_distribute(self):
-        response = self.client.post("/api/nfvocatalog/v1/vnfpackages",self.nfdata)
+        #response = self.client.post("/api/catalog/v1/vnfpackages",self.nfdata)
         #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        
+        pass
 
     def test_ns_package_delete(self):
-        response = self.client.delete("/api/nfvocatalog/v1/nspackages/" + str(self.ns_csarId))
+        response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
 
     def test_nf_package_delete(self):
-        #response = self.client.delete("/api/nfvocatalog/v1/vnfpackages/" + str(self.nf_csarId))
+        #response = self.client.delete("/api/catalog/v1/vnfpackages/" + str(self.nf_csarId))
         #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
         pass
