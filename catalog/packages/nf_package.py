@@ -97,12 +97,7 @@ class NfDistributeThread(threading.Thread):
         if NfPackageModel.objects.filter(nfpackageid=self.csar_id):
             raise NSLCMException("NF CSAR(%s) already exists." % self.csar_id)
 
-        artifact = sdc.get_artifact(sdc.ASSETTYPE_RESOURCES, self.csar_id)
-        local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
-        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path)
-        
-        vnfd_json = toscaparser.parse_vnfd(local_file_name)
-        vnfd = json.JSONDecoder().decode(vnfd_json)
+        vnfd,local_file_name,vnfd_json = self.get_vnfd(self.csar_id)
 
         nfd_id = vnfd["metadata"]["id"]
         if NfPackageModel.objects.filter(vnfdid=nfd_id):
@@ -126,6 +121,14 @@ class NfDistributeThread(threading.Thread):
 
         JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
 
+    def get_vnfd(self, csar_id):
+        artifact = sdc.get_artifact(sdc.ASSETTYPE_RESOURCES, self.csar_id)
+        local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
+        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path)
+
+        vnfd_json = toscaparser.parse_vnfd(local_file_name)
+        vnfd = json.JSONDecoder().decode(vnfd_json)
+        return vnfd,local_file_name,vnfd_json
 
     def rollback_distribute(self):
         try:

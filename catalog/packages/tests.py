@@ -17,9 +17,10 @@ import mock
 import catalog.pub.utils.restcall
 import json
 from catalog.packages.ns_package import NsPackage
-from catalog.packages import nf_package
+from catalog.packages.nf_package import NfPackage
+from catalog.packages.nf_package import NfDistributeThread
 from django.test import Client
-from catalog.pub.database.models import NSDModel, NfPackageModel
+from catalog.pub.database.models import NSDModel, NfPackageModel, JobStatusModel, JobModel
 from rest_framework import status
 
 
@@ -39,36 +40,38 @@ class PackageTest(unittest.TestCase):
             "csarId": self.nf_csarId
         }
 
-        self.nsd_json = {
-    "vnffgs": [
-        {
-            "vnffg_id": "vnffg1",
-            "description": "",
-            "members": [
-                "path1",
-                "path2"
-            ],
-            "properties": {
+        self.vnfd_json = {
+            "metadata": {
+                "id": "zte_xgw_51610",
                 "vendor": "zte",
-                "connection_point": [
-                    "m6000_data_in",
-                    "m600_tunnel_cp",
-                    "m6000_data_out"
-                ],
-                "version": "1.0",
-                "constituent_vnfs": [
-                    "VFW",
-                    "VNAT"
-                ],
-                "number_of_endpoints": 3,
-                "dependent_virtual_link": [
-                    "sfc_data_network",
-                    "ext_datanet_net",
-                    "ext_mnet_net"
-                ]
-            }
+                "version": "5.16.10",
+                "vnfd_version": "1.1.0",
+                "name": "zte_xgw",
+                "domain_type": "CN",
+                "vnf_type": "XGW",
+                "is_shared": "false",
+                "cross_dc": "false",
+                "vmnumber_overquota_alarm": "false",
+                "description": "",
+                "vnf_extend_type": "driver&script",
+                "plugin_info": "zte_cn_plugin_v6.16.10",
+                "script_info": "script/cn.py",
+                "adjust_vnf_capacity": "true",
+                "custom_properties": "",
+            },
+            "reserved_total": {
+                "vmnum": 10,
+                "vcpunum": 20,
+                "memorysize": 1000,
+                "portnum": 30,
+                "hdsize": 1024,
+                "shdsize": 2048,
+                "isreserve": 0,
+            },
         }
-    ],
+
+        self.nsd_json = {
+
     "inputs": {
         "sfc_data_network": {
             "type": "string",
@@ -442,12 +445,11 @@ class PackageTest(unittest.TestCase):
         self.assertEquals([],response.data)
 
     @mock.patch.object(NsPackage,'get_nsd')
-    def test_ns_distribute(self, mock_get_nsd):
+    def test_ns_distribute_2(self, mock_get_nsd):
         local_file_name = "/url/local/filename"
         nsd = json.JSONEncoder().encode(self.nsd_json)
         mock_get_nsd.return_value = self.nsd_json,local_file_name,nsd
-        response = self.client.post("/api/nfvocatalog/v1/nspackages",self.nsdata)
-
+        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
 
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
         self.assertIsNotNone(NSDModel.objects.filter(id=self.ns_csarId))
@@ -458,22 +460,22 @@ class PackageTest(unittest.TestCase):
 
         nsdModel = NSDModel.objects.filter(nsd_id="VCPE_NS")
         self.assertSequenceEqual(nsdModel,[])
-        #nsd_id = nsdModel.nsd_id
-        #self.assertEqual(self.nsd_json["metadata"]["id"], nsdModel.nsd_id)
-        #self.assertEqual(self.nsd_json["metadata"]["name"], nsdModel.name)
-        #self.assertEqual(self.nsd_json["metadata"]["version"], nsdModel.version)
-        #self.assertEqual(self.nsd_json["metadata"]["description"], nsdModel.description)
-        #self.assertEqual(self.nsd_json["metadata"]["vendor"], nsdModel.vendor)
 
     def test_ns_distribute(self):
         response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
         #self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
 
-
-    def test_nf_distribute(self):
+    @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    def test_nf_distribute(self, mock_get_vnfd):
         #response = self.client.post("/api/catalog/v1/vnfpackages",self.nfdata)
-        #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        pass
+        local_file_name = "/url/local/filename"
+        vnfd = json.JSONEncoder().encode(self.vnfd_json)
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+
+        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "5").run()
+        #self.assert_job_result("5")
+        self.assert_job_result("5", 100, "CSAR(456) distribute successfully.")
+
 
     def test_ns_package_delete(self):
         response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
@@ -483,3 +485,10 @@ class PackageTest(unittest.TestCase):
         #response = self.client.delete("/api/catalog/v1/vnfpackages/" + str(self.nf_csarId))
         #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
         pass
+
+    def assert_job_result(self, job_id, job_progress, job_detail):
+        jobs = JobStatusModel.objects.filter(
+            jobid=job_id,
+            progress=job_progress,
+            descp=job_detail)
+        self.assertEqual(1, len(jobs))
