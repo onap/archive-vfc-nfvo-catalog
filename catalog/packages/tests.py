@@ -452,7 +452,9 @@ class PackageTest(unittest.TestCase):
         response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
 
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assertIsNotNone(NSDModel.objects.filter(id=self.ns_csarId))
+        self.assert_nsdmodel_result("VCPE_NS",  0)
+        self.assertEqual("VNF package(456) is not distributed.", response.data["statusDescription"], response.content)
+        NSDModel.objects.filter(id="VCPE_NS").delete()
 
     def test_nfpackages_get(self):
         response = self.client.get("/api/catalog/v1/vnfpackages")
@@ -478,6 +480,9 @@ class PackageTest(unittest.TestCase):
         response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
         self.assertEqual("CSAR(123) distributed successfully.", response.data["statusDescription"], response.content)
+        self.assert_nsdmodel_result("VCPE_NS",  1)
+        NfPackageModel.objects.filter(vnfdid=str(self.nf_csarId)).delete()
+        NSDModel.objects.filter(nsd_id="VCPE_NS").delete()
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     def test_nf_distribute(self, mock_get_vnfd):
@@ -487,6 +492,7 @@ class PackageTest(unittest.TestCase):
 
         NfDistributeThread("dd", ["1"], "1", "5").run()
         self.assert_job_result("5", 100, "CSAR(dd) distribute successfully.")
+        NSDModel.objects.filter(id="dd").delete()
 
 
     def test_ns_package_delete(self):
@@ -504,3 +510,10 @@ class PackageTest(unittest.TestCase):
             progress=job_progress,
             descp=job_detail)
         self.assertEqual(1, len(jobs))
+
+    def assert_nsdmodel_result(self,nsd_id,size):
+        nsdmodels = NSDModel.objects.filter(
+            nsd_id = nsd_id
+        )
+
+        self.assertEquals(size, len(nsdmodels))
