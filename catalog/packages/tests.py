@@ -449,10 +449,10 @@ class PackageTest(unittest.TestCase):
         local_file_name = "/url/local/filename"
         nsd = json.JSONEncoder().encode(self.nsd_json)
         mock_get_nsd.return_value = self.nsd_json,local_file_name,nsd
-        #response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
+        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
 
-        #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        #self.assertIsNotNone(NSDModel.objects.filter(id=self.ns_csarId))
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+        self.assertIsNotNone(NSDModel.objects.filter(id=self.ns_csarId))
 
     def test_nfpackages_get(self):
         response = self.client.get("/api/catalog/v1/vnfpackages")
