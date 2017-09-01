@@ -494,11 +494,31 @@ class PackageTest(unittest.TestCase):
         self.assert_job_result("5", 100, "CSAR(dd) distribute successfully.")
         NfPackageModel.objects.filter(nfpackageid="dd").delete()
 
+    @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    @mock.patch.object(NsPackage,'get_nsd')
+    def test_ns_package_delete(self, mock_get_nsd,mock_get_vnfd):
 
-    def test_ns_package_delete(self):
+        # First distribute a VNF
+        local_file_name = "/url/local/filename"
+        vnfd = json.JSONEncoder().encode(self.vnfd_json)
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
+        self.assert_nfmodel_result(str(self.nf_csarId), 1)
+
+        # Then distribute a NS associated with the below VNF
+        local_file_name = "/url/local/filename"
+        nsd = json.JSONEncoder().encode(self.nsd_json)
+        mock_get_nsd.return_value = self.nsd_json,local_file_name,nsd
+        response = self.client.delete("/api/catalog/v1/nspackages/%s" % str(self.ns_csarId))
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+        self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
+        self.assert_nfmodel_result(str(self.ns_csarId), 0)
+        self.assert_nsdmodel_result("VCPE_NS",  0)
+
+        # Finally delete ns package
         response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-
+        self.assert_nsdmodel_result("VCPE_NS",  0)
 
     def test_nf_package_delete_error(self):
         # Delete it directly
