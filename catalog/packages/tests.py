@@ -502,10 +502,8 @@ class PackageTest(unittest.TestCase):
 
     def test_nf_package_delete_error(self):
         # Delete it directly
-
-        #response = self.client.delete("/api/catalog/v1/vnfpackages/" + str(self.nf_csarId))
-        #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        pass
+        NfPkgDeleteThread("bb", "6", False).run()
+        self.assert_nfmodel_result("bb",0)
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     def test_nf_package_delete(self,mock_get_vnfd):
@@ -521,8 +519,6 @@ class PackageTest(unittest.TestCase):
         # Then delete it
         NfPkgDeleteThread("bb", "6", False).run()
         self.assert_nfmodel_result("bb",0)
-
-
 
     def assert_job_result(self, job_id, job_progress, job_detail):
         jobs = JobStatusModel.objects.filter(

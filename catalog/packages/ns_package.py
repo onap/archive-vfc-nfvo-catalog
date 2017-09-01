@@ -141,7 +141,7 @@ class NsPackage(object):
             if NSInstModel.objects.filter(nspackage_id=csar_id):
                 raise NSLCMException("CSAR(%s) is in using, cannot be deleted." % csar_id)
         '''
-        nfvolcm.delete_ns_mock()
+        nfvolcm.delete_ns_inst_mock()
         NSDModel.objects.filter(id=csar_id).delete()
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 

@@ -34,11 +34,11 @@ def call_lcm(resource, method, content=''):
         content=content)
 
 # Mock code because the REST API from nfvolcm to delete ns instance is not implemented
-def delete_ns_mock():
+def delete_ns_inst_mock():
     return [0,'success']
 
 # Mock code because the REST API from nfvolcm to delete nf instance is not implemented
-def delete_nf_mock():
+def delete_nf_inst_mock():
     return [0,'success']
 
 def delete_ns(asset_type):
