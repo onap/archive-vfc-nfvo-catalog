@@ -19,6 +19,7 @@ import json
 from catalog.packages.ns_package import NsPackage
 from catalog.packages.nf_package import NfPackage
 from catalog.packages.nf_package import NfDistributeThread
+from catalog.packages.nf_package import NfPkgDeleteThread
 from django.test import Client
 from catalog.pub.database.models import NSDModel, NfPackageModel, JobStatusModel, JobModel
 from rest_framework import status
@@ -492,17 +493,36 @@ class PackageTest(unittest.TestCase):
 
         NfDistributeThread("dd", ["1"], "1", "5").run()
         self.assert_job_result("5", 100, "CSAR(dd) distribute successfully.")
-        NSDModel.objects.filter(id="dd").delete()
+        NfPackageModel.objects.filter(nfpackageid="dd").delete()
 
 
     def test_ns_package_delete(self):
         response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
 
-    def test_nf_package_delete(self):
+    def test_nf_package_delete_error(self):
+        # Delete it directly
+
         #response = self.client.delete("/api/catalog/v1/vnfpackages/" + str(self.nf_csarId))
         #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
         pass
+
+    @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    def test_nf_package_delete(self,mock_get_vnfd):
+        # First distribute a VNF
+        local_file_name = "/url/local/filename"
+        vnfd = json.JSONEncoder().encode(self.vnfd_json)
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+
+        NfDistributeThread("bb", ["1"], "1", "5").run()
+        self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
+        self.assert_nfmodel_result("bb",1)
+
+        # Then delete it
+        NfPkgDeleteThread("bb", "6", False).run()
+        self.assert_nfmodel_result("bb",0)
+
+
 
     def assert_job_result(self, job_id, job_progress, job_detail):
         jobs = JobStatusModel.objects.filter(
@@ -517,3 +537,10 @@ class PackageTest(unittest.TestCase):
         )
 
         self.assertEquals(size, len(nsdmodels))
+
+    def assert_nfmodel_result(self,csar_id,size):
+        vnfdmodels = NfPackageModel.objects.filter(
+            nfpackageid = csar_id
+        )
+
+        self.assertEquals(size, len(vnfdmodels))
