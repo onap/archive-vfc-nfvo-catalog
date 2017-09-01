@@ -21,7 +21,7 @@ import os
 
 from catalog.pub.database.models import NSDModel, NfPackageModel
 from catalog.pub.utils.values import ignore_case_get
-from catalog.pub.exceptions import NSLCMException
+from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import sdc
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import toscaparser
@@ -41,7 +41,7 @@ def ns_on_distribute(csar_id):
     ret = None
     try:
         ret = NsPackage().on_distribute(csar_id)
-    except NSLCMException as e:
+    except CatalogException as e:
         NsPackage().delete_catalog(csar_id)
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
@@ -55,7 +55,7 @@ def ns_delete_csar(csar_id, force_delete):
     ret = None
     try:
         ret = NsPackage().delete_csar(csar_id, force_delete)
-    except NSLCMException as e:
+    except CatalogException as e:
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
         logger.error(traceback.format_exc())
@@ -66,7 +66,7 @@ def ns_get_csars():
     ret = None
     try:
         ret = NsPackage().get_csars()
-    except NSLCMException as e:
+    except CatalogException as e:
         return [1, e.message]
     except:
         logger.error(traceback.format_exc())
@@ -77,13 +77,26 @@ def ns_get_csar(csar_id):
     ret = None
     try:
         ret = NsPackage().get_csar(csar_id)
-    except NSLCMException as e:
+    except CatalogException as e:
         return [1, e.message]
     except:
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return ret
 
+def parser_nsmodel(csar_id,inputs):
+    ret = None
+    try:
+        nf_pkg = NSDModel.objects.filter(id=csar_id)
+        if nf_pkg:
+             csar_path=nf_pkg["nsd_path"]
+             ret=toscaparser.parse_nsd(csar_path,inputs)
+    except CatalogException as e:
+        return [1, e.message]
+    except:
+        logger.error(traceback.format_exc())
+        return [1, str(sys.exc_info())]
+    return ret
 
 ###############################################################################################################
 
@@ -97,19 +110,19 @@ class NsPackage(object):
 
     def on_distribute(self, csar_id):
         if NSDModel.objects.filter(id=csar_id):
-            raise NSLCMException("NS CSAR(%s) already exists." % csar_id)
+            raise CatalogException("NS CSAR(%s) already exists." % csar_id)
 
         nsd,local_file_name,nsd_json = self.get_nsd(csar_id)
 
         nsd_id = nsd["metadata"]["id"]
         if NSDModel.objects.filter(nsd_id=nsd_id):
-            raise NSLCMException("NSD(%s) already exists." % nsd_id)
+            raise CatalogException("NSD(%s) already exists." % nsd_id)
 
         for vnf in nsd["vnfs"]:
             vnfd_id = vnf["properties"]["id"]
             pkg = NfPackageModel.objects.filter(vnfdid=vnfd_id)
             if not pkg:
-                raise NSLCMException("VNF package(%s) is not distributed." % vnfd_id)
+                raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
         NSDModel(
             id=csar_id,
@@ -139,7 +152,7 @@ class NsPackage(object):
             NSInstModel.objects.filter(nspackage_id=csar_id).delete()
         else:
             if NSInstModel.objects.filter(nspackage_id=csar_id):
-                raise NSLCMException("CSAR(%s) is in using, cannot be deleted." % csar_id)
+                raise CatalogException("CSAR(%s) is in using, cannot be deleted." % csar_id)
         '''
         nfvolcm.delete_ns_inst_mock()
         NSDModel.objects.filter(id=csar_id).delete()

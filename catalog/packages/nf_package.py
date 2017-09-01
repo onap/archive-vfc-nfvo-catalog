@@ -24,7 +24,7 @@ import sys
 from catalog.pub.database.models import NfPackageModel
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.utils import fileutil
-from catalog.pub.exceptions import NSLCMException
+from catalog.pub.exceptions import CatalogException
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.msapi.extsys import get_vims
 from catalog.pub.utils.jobutil import JobUtil
@@ -40,7 +40,7 @@ def nf_get_csars():
     ret = None
     try:
         ret = NfPackage().get_csars()
-    except NSLCMException as e:
+    except CatalogException as e:
         return [1, e.message]
     except:
         logger.error(traceback.format_exc())
@@ -51,13 +51,26 @@ def nf_get_csar(csar_id):
     ret = None
     try:
         ret = NfPackage().get_csar(csar_id)
-    except NSLCMException as e:
+    except CatalogException as e:
         return [1, e.message]
     except:
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return ret
 
+def parser_vnfmodel(csar_id,inputs):
+    ret = None
+    try:
+        nf_pkg = NfPackageModel.objects.filter(nfpackageid=csar_id)
+        if nf_pkg:
+             csar_path=nf_pkg["vnfd_path"]
+             ret=toscaparser.parse_vnfd(csar_path,inputs)
+    except CatalogException as e:
+        return [1, e.message]
+    except:
+        logger.error(traceback.format_exc())
+        return [1, str(sys.exc_info())]
+    return ret
 #####################################################################################
 
 class NfDistributeThread(threading.Thread):
@@ -77,7 +90,7 @@ class NfDistributeThread(threading.Thread):
     def run(self):
         try:
             self.on_distribute()
-        except NSLCMException as e:
+        except CatalogException as e:
             self.rollback_distribute()
             JobUtil.add_job_status(self.job_id, JOB_ERROR, e.message)
         except:
@@ -95,13 +108,13 @@ class NfDistributeThread(threading.Thread):
         JobUtil.add_job_status(self.job_id, 5, "Start CSAR(%s) distribute." % self.csar_id)
 
         if NfPackageModel.objects.filter(nfpackageid=self.csar_id):
-            raise NSLCMException("NF CSAR(%s) already exists." % self.csar_id)
+            raise CatalogException("NF CSAR(%s) already exists." % self.csar_id)
 
         vnfd,local_file_name,vnfd_json = self.get_vnfd(self.csar_id)
 
         nfd_id = vnfd["metadata"]["id"]
         if NfPackageModel.objects.filter(vnfdid=nfd_id):
-            raise NSLCMException("NFD(%s) already exists." % nfd_id)
+            raise CatalogException("NFD(%s) already exists." % nfd_id)
 
         JobUtil.add_job_status(self.job_id, 30, "Save CSAR(%s) to database." % self.csar_id)
 
@@ -138,7 +151,6 @@ class NfDistributeThread(threading.Thread):
             logger.error(traceback.format_exc())
             logger.error(str(sys.exc_info()))
 
-
 ######################################################################################################################
 
 
@@ -156,7 +168,7 @@ class NfPkgDeleteThread(threading.Thread):
     def run(self):
         try:
             self.delete_csar()
-        except NSLCMException as e:
+        except CatalogException as e:
             JobUtil.add_job_status(self.job_id, JOB_ERROR, e.message)
         except:
             logger.error(traceback.format_exc())
@@ -176,7 +188,7 @@ class NfPkgDeleteThread(threading.Thread):
             NfInstModel.objects.filter(package_id=self.csar_id).delete()
         else:
             if NfInstModel.objects.filter(package_id=self.csar_id):
-                raise NSLCMException("NfInst by csar(%s) exists, cannot delete." % self.csar_id)
+                raise CatalogException("NfInst by csar(%s) exists, cannot delete." % self.csar_id)
         '''
         nfvolcm.delete_nf_inst_mock()
         JobUtil.add_job_status(self.job_id, 50, "Delete CSAR(%s) from Database." % self.csar_id)
