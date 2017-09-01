@@ -16,7 +16,6 @@ import functools
 
 from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
 
-
 class EtsiNsdInfoModel(BaseInfoModel):
 
     def __init__(self, path, params):
