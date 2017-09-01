@@ -434,10 +434,9 @@ class PackageTest(unittest.TestCase):
         "description": "vcpe_ns"
     }
 }
-
-
     def tearDown(self):
         pass
+
 
     def test_nspackages_get(self):
         response = self.client.get("/api/catalog/v1/nspackages")
@@ -500,10 +499,13 @@ class PackageTest(unittest.TestCase):
         response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
 
+
     def test_nf_package_delete_error(self):
         # Delete it directly
-        NfPkgDeleteThread("bb", "6", False).run()
         self.assert_nfmodel_result("bb",0)
+        NfPkgDeleteThread("bb", "6", False).run()
+        self.assert_job_result("6", 100, "Error! CSAR(bb) does not exist.")
+
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     def test_nf_package_delete(self,mock_get_vnfd):

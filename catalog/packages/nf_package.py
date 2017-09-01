@@ -181,6 +181,10 @@ class NfPkgDeleteThread(threading.Thread):
         nfvolcm.delete_nf_inst_mock()
         JobUtil.add_job_status(self.job_id, 50, "Delete CSAR(%s) from Database." % self.csar_id)
 
+        if not NfPackageModel.objects.filter(nfpackageid=self.csar_id):
+            JobUtil.add_job_status(self.job_id, 100, "Error! CSAR(%s) does not exist." % self.csar_id)
+            return
+
         NfPackageModel.objects.filter(nfpackageid=self.csar_id).delete()
 
         JobUtil.add_job_status(self.job_id, 80, "Delete local CSAR(%s) file." % self.csar_id)
