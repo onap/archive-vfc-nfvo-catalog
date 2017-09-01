@@ -104,3 +104,29 @@ def nf_rd_csar(request, *args, **kwargs):
     if ret[0] != 0:
         return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=normal_status)
+
+@api_view(http_method_names=['POST'])
+def ns_model_parser(request, *args, **kwargs):
+    csar_id = ignore_case_get(kwargs, "csarId")
+    inputs = ignore_case_get(kwargs, "inputs")
+    if request.method == 'POST':
+        ret = ns_package.parser_nsmodel(csar_id,inputs)
+        normal_status = status.HTTP_200_OK
+
+    logger.info("Leave %s, Return value is %s", fun_name(), str(ret))
+    if ret[0] != 0:
+        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(data=ret[1], status=normal_status)
+
+@api_view(http_method_names=['POST'])
+def vnf_model_parser(request, *args, **kwargs):
+    csar_id = ignore_case_get(kwargs, "csarId")
+    inputs = ignore_case_get(kwargs, "inputs")
+    if request.method == 'POST':
+        ret = nf_package.parser_nfmodel(csar_id,inputs)
+        normal_status = status.HTTP_200_OK
+
+    logger.info("Leave %s, Return value is %s", fun_name(), str(ret))
+    if ret[0] != 0:
+        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(data=ret[1], status=normal_status)

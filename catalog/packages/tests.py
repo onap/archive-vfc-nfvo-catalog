@@ -542,3 +542,16 @@ class PackageTest(unittest.TestCase):
         )
 
         self.assertEquals(size, len(vnfdmodels))
+
+
+    def test_nf_package_parser(self):
+        # reqdata={"csarId":"1"}
+        # response = self.client.post("api/catalog/v1/vnfpackages/model",reqdata)
+        # self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+        pass
+
+    def test_ns_package_parser(self):
+        # reqdata={"csarId":"1"}
+        # response = self.client.post("api/catalog/v1/nspackages/model",reqdata)
+        # self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+        pass
