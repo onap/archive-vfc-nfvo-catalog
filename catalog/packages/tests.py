@@ -435,7 +435,9 @@ class PackageTest(unittest.TestCase):
     }
 }
     def tearDown(self):
-        pass
+        NfPackageModel.objects.all().delete()
+        NSDModel.objects.all().delete()
+        JobStatusModel.objects.all().delete()
 
 
     def test_nspackages_get(self):
