@@ -20,8 +20,8 @@ urlpatterns = [
     url(r'^api/catalog/v1/nspackages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', views.ns_rd_csar, name='nspackage_rd'),
     url(r'^api/catalog/v1/vnfpackages$', views.nfpackages_rc, name='nfpackages_rc'),
     url(r'^api/catalog/v1/vnfpackages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', views.nf_rd_csar, name='nfpackage_rd'),
-    url(r'^api/catalog/v1/nspackages/model', views.ns_model_parser, name='ns_model_parser'),
-    url(r'^api/catalog/v1/vnfpackages/model', views.vnf_model_parser, name='vnf_model_parser')
+    url(r'^api/catalog/v1/nspackagemodel$', views.ns_model_parser, name='nsmodelparser_rc'),
+    url(r'^api/catalog/v1/vnfpackagemodel$', views.vnf_model_parser, name='vnfmodelparser_rc'),
 
 ]
 
