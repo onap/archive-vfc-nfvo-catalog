@@ -144,7 +144,7 @@
         }
       }
     },
-    "/nspackagemodel": {
+    "/parsernsd": {
       "post": {
         "tags": [
           "model"
@@ -316,7 +316,7 @@
         }
       }
     },
-    "/vnfpackagemodel": {
+    "/parservnfd": {
       "post": {
         "tags": [
           "model"
@@ -590,8 +590,8 @@
           "description": "csar Package Id"
         },
         "inputs": {
-          "type": "string",
-          "description": "csar package inputs"
+          "type": "object",
+          "description": "csar package json inputs"
         }
       }
     },
@@ -599,8 +599,8 @@
       "type": "object",
       "properties": {
         "model": {
-          "type": "string",
-          "description": "model json data"
+          "type": "object",
+          "description": "csar model json data"
         }
       }
     }

@@ -452,9 +452,7 @@ class PackageTest(unittest.TestCase):
 
     @mock.patch.object(NsPackage, 'get_csars')
     def test_nspackages_get(self,mock_get_csars):
-
         mock_get_csars.return_value = [0,self.csars]
-
         response = self.client.get("/api/catalog/v1/nspackages")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
         self.assertEquals(self.csars,response.data)
@@ -580,10 +578,10 @@ class PackageTest(unittest.TestCase):
 
     def test_nf_package_parser(self):
          reqdata={"csarId":"1"}
-         response = self.client.post("/api/catalog/v1/vnfpackagemodel",reqdata)
+         response = self.client.post("/api/catalog/v1/parservnfd",reqdata)
          self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
 
     def test_ns_package_parser(self):
         reqdata = {"csarId": "1"}
-        response = self.client.post("/api/catalog/v1/nspackagemodel",reqdata)
+        response = self.client.post("/api/catalog/v1/parsernsd",reqdata)
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
