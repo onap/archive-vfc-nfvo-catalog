@@ -33,6 +33,11 @@ def call_lcm(resource, method, content=''):
         method=method,
         content=content)
 
+def get_nsInstances(csarid):
+    nsInstances=call_lcm("/nlcm/v1/ns ","get")
+
+
+
 # Mock code because the REST API from nfvolcm to delete ns instance is not implemented
 def delete_ns_inst_mock():
     return [0,'success']

@@ -37,6 +37,17 @@ class PackageTest(unittest.TestCase):
             "csarId": str(self.ns_csarId)
         }
 
+        self.csars= [
+            {
+                "csarId": "1",
+                "nsdId": "1"
+            },
+            {
+                "csarId": "2",
+                 "nsdId": "2"
+            }
+        ]
+
         self.nfdata = {
             "csarId": str(self.nf_csarId)
         }
@@ -439,12 +450,14 @@ class PackageTest(unittest.TestCase):
         NSDModel.objects.all().delete()
         JobStatusModel.objects.all().delete()
 
+    @mock.patch.object(NsPackage, 'get_csars')
+    def test_nspackages_get(self,mock_get_csars):
 
-    def test_nspackages_get(self):
+        mock_get_csars.return_value = [0,self.csars]
+
         response = self.client.get("/api/catalog/v1/nspackages")
-        print response
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
-        self.assertEquals([],response.data)
+        self.assertEquals(self.csars,response.data)
 
     @mock.patch.object(NsPackage,'get_nsd')
     def test_ns_distribute_2(self, mock_get_nsd):
@@ -565,15 +578,12 @@ class PackageTest(unittest.TestCase):
 
         self.assertEquals(size, len(vnfdmodels))
 
-
     def test_nf_package_parser(self):
-        # reqdata={"csarId":"1"}
-        # response = self.client.post("api/catalog/v1/vnfpackages/model",reqdata)
-        # self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        pass
+         reqdata={"csarId":"1"}
+         response = self.client.post("/api/catalog/v1/vnfpackagemodel",reqdata)
+         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
 
     def test_ns_package_parser(self):
-        # reqdata={"csarId":"1"}
-        # response = self.client.post("api/catalog/v1/nspackages/model",reqdata)
-        # self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        pass
+        reqdata = {"csarId": "1"}
+        response = self.client.post("/api/catalog/v1/nspackagemodel",reqdata)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)

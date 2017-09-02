@@ -144,6 +144,44 @@
         }
       }
     },
+    "/nspackagemodel": {
+      "post": {
+        "tags": [
+          "model"
+        ],
+        "summary": "ns package model",
+        "description": "ns package model",
+        "operationId": "ms_model_parser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "distribute request param",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/modelParserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/modelParserResponse"
+            }
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      }
+     },
     "/vnfpackages": {
       "get": {
         "tags": [
@@ -277,7 +315,45 @@
           }
         }
       }
-    }
+    },
+    "/vnfpackagemodel": {
+      "post": {
+        "tags": [
+          "model"
+        ],
+        "summary": "vnf package model",
+        "description": "vnf package model",
+        "operationId": "vnf_model_parser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "distribute request param",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/modelParserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/modelParserResponse"
+            }
+          },
+          "500": {
+            "description": "internal error"
+          }
+        }
+      }
+     }
   },
   "definitions": {
     "NsPkgDistributeRequest": {
@@ -505,6 +581,29 @@
           "description": "image file path in the csar or image url in external repository"
         }
       }
+    },
+    "modelParserRequest":{
+      "type": "object",
+      "properties": {
+        "csarId": {
+          "type": "string",
+          "description": "csar Package Id"
+        },
+        "inputs": {
+          "type": "string",
+          "description": "csar package inputs"
+        }
+      }
+    },
+    "modelParserResponse":{
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "model json data"
+        }
+      }
     }
+
   }
 }

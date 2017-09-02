@@ -84,19 +84,19 @@ def ns_get_csar(csar_id):
         return [1, str(sys.exc_info())]
     return ret
 
-def parser_nsmodel(csar_id,inputs):
-    ret = None
+def parser_nsdmodel(csar_id,inputs):
+    ret= None
     try:
         nf_pkg = NSDModel.objects.filter(id=csar_id)
         if nf_pkg:
              csar_path=nf_pkg["nsd_path"]
-             ret=toscaparser.parse_nsd(csar_path,inputs)
+             ret={"model":toscaparser.parse_nsd(csar_path,inputs)}
     except CatalogException as e:
         return [1, e.message]
     except:
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
-    return ret
+    return [0,ret]
 
 ###############################################################################################################
 
@@ -167,7 +167,7 @@ class NsPackage(object):
                 "csarId": ns.id,
                 "nsdId": ns.nsd_id
             })
-        return [0, csars]
+        return [0,csars]
 
     def get_csar(self, csar_id):
         package_info = {}
