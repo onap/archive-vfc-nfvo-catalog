@@ -91,13 +91,9 @@ def parser_nsdmodel(csar_id,inputs):
 
         if nf_pkg:
             for pkg in nf_pkg:
-                csarid = pkg.nsd_id
-                csar_path = os.path.join(os.path.dirname(__file__), pkg.nsd_path)
-                f = file(csar_path)
-                line = f.readline(1)
-                f.close()
+                csar_path = pkg.nsd_path
+                ret={"model":toscaparser.parse_nsd(csar_path,inputs)}
                 continue
-            ret={"model":toscaparser.parse_nsd(csar_path,inputs)}
     except CatalogException as e:
         return [1, e.message]
     except:

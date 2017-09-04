@@ -14,6 +14,7 @@
 
 import unittest
 import mock
+import os
 import catalog.pub.utils.restcall
 import json
 from catalog.packages.ns_package import NsPackage
@@ -586,14 +587,16 @@ class PackageTest(unittest.TestCase):
     @mock.patch.object(NsPackage,'get_nsd')
     def test_ns_distribute(self, mock_get_nsd,mock_get_vnfd):
         # First distribute a VNF
-        local_file_name = "/resource/resource-TestFyx-template.yml"
+        template_file_name = "resource-TestFyx-template.yml"
+        local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
         vnfd = json.JSONEncoder().encode(self.vnfd_json)
         mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
         NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
         self.assert_nfmodel_result(str(self.nf_csarId), 1)
 
         # Then distribute a NS associated with the below VNF
-        local_file_name = "service-TestServiceFyx-template.yml"
+        template_file_name = "service-TestServiceFyx-template.yml"
+        local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
         nsd = json.JSONEncoder().encode(self.nsd_json)
         mock_get_nsd.return_value = self.nsd_json,local_file_name,nsd
         response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
