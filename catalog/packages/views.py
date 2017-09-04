@@ -107,8 +107,8 @@ def nf_rd_csar(request, *args, **kwargs):
 
 @api_view(http_method_names=['POST'])
 def ns_model_parser(request, *args, **kwargs):
-    csar_id = ignore_case_get(kwargs, "csarId")
-    inputs = ignore_case_get(kwargs, "inputs")
+    csar_id = ignore_case_get(request.data, "csarId")
+    inputs = ignore_case_get(request.data, "inputs")
     if request.method == 'POST':
         ret = ns_package.parser_nsdmodel(csar_id,inputs)
         normal_status = status.HTTP_202_ACCEPTED
@@ -120,8 +120,8 @@ def ns_model_parser(request, *args, **kwargs):
 
 @api_view(http_method_names=['POST'])
 def vnf_model_parser(request, *args, **kwargs):
-    csar_id = ignore_case_get(kwargs, "csarId")
-    inputs = ignore_case_get(kwargs, "inputs")
+    csar_id = ignore_case_get(request.data, "csarId")
+    inputs = ignore_case_get(request.data, "inputs")
     if request.method == 'POST':
         ret = nf_package.parser_vnfdmodel(csar_id,inputs)
         normal_status = status.HTTP_202_ACCEPTED
