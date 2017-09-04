@@ -123,7 +123,7 @@ def vnf_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(kwargs, "csarId")
     inputs = ignore_case_get(kwargs, "inputs")
     if request.method == 'POST':
-        ret = nf_package.parser_vnfmodel(csar_id,inputs)
+        ret = nf_package.parser_vnfdmodel(csar_id,inputs)
         normal_status = status.HTTP_202_ACCEPTED
 
     logger.info("Leave %s, Return value is %s", fun_name(), str(ret))

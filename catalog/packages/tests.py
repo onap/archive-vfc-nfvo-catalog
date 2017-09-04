@@ -522,15 +522,16 @@ class PackageTest(unittest.TestCase):
         local_file_name = "/url/local/filename"
         nsd = json.JSONEncoder().encode(self.nsd_json)
         mock_get_nsd.return_value = self.nsd_json,local_file_name,nsd
-        response = self.client.delete("/api/catalog/v1/nspackages/%s" % str(self.ns_csarId))
+        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
-        self.assert_nfmodel_result(str(self.ns_csarId), 0)
-        self.assert_nsdmodel_result("VCPE_NS",  0)
+        self.assertEqual("CSAR(123) distributed successfully.", response.data["statusDescription"], response.content)
+        self.assert_nfmodel_result(str(self.nf_csarId), 1)
+        self.assert_nsdmodel_result("VCPE_NS",  1)
 
         # Finally delete ns package
         response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+        self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
         self.assert_nsdmodel_result("VCPE_NS",  0)
 
     def test_nf_package_delete_error(self):

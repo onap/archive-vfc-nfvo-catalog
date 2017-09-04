@@ -180,8 +180,8 @@ class NsPackage(object):
         #nss = NSInstModel.objects.filter(nspackage_id=csar_id)
         nss = nfvolcm.getNsInsts_mock()
         ns_instance_info = [{
-            "nsInstanceId": ns.id, 
-            "nsInstanceName": ns.name} for ns in nss]
+            "nsInstanceId": ns["nsInstanceId"],
+            "nsInstanceName": ns["nsInstanceName"]} for ns in nss]
 
         return [0, {"csarId": csar_id, 
             "packageInfo": package_info, 

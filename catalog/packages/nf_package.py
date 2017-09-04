@@ -58,7 +58,7 @@ def nf_get_csar(csar_id):
         return [1, str(sys.exc_info())]
     return ret
 
-def parser_vnfmodel(csar_id,inputs):
+def parser_vnfdmodel(csar_id,inputs):
     ret= None
     try:
         nf_pkg = NfPackageModel.objects.filter(nfpackageid=csar_id)
@@ -238,9 +238,9 @@ class NfPackage(object):
 
 
         #vnf_insts = NfInstModel.objects.filter(package_id=csar_id)
-        vnf_insts = nfvolcm.getNfInsts()
-        vnf_inst_info = [{"vnfInstanceId": vnf_inst.nfinstid,
-                          "vnfInstanceName": vnf_inst.nf_name} for vnf_inst in vnf_insts]
+        vnf_insts = nfvolcm.getNfInsts_mock()
+        vnf_inst_info = [{"vnfInstanceId": vnf_inst["vnfInstanceId"],
+                          "vnfInstanceName": vnf_inst["vnfInstanceName"]} for vnf_inst in vnf_insts]
 
         return [0, {"csarId": csar_id,
                     "packageInfo": pkg_info,
