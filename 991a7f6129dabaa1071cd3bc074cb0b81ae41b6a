@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_a6f5ad84",
+        "filename": "docker/remove_image.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1337
+      },
+      "writtenOn": "2017-09-05T07:39:17Z",
+      "side": 1,
+      "message": "This file is useless, delete it.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 24
+      },
+      "revId": "991a7f6129dabaa1071cd3bc074cb0b81ae41b6a",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_2631bd5a",
+        "filename": "docker/run_image.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1337
+      },
+      "writtenOn": "2017-09-05T07:39:17Z",
+      "side": 1,
+      "message": "Delete this scritp, this file is not necessary.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 11
+      },
+      "revId": "991a7f6129dabaa1071cd3bc074cb0b81ae41b6a",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
