@@ -14,23 +14,19 @@
 
 import json
 import logging
-import uuid
 import os
-import time
+import sys
 import threading
 import traceback
-import sys
 
-from catalog.pub.database.models import NfPackageModel
-from catalog.pub.utils.values import ignore_case_get
-from catalog.pub.utils import fileutil
-from catalog.pub.exceptions import CatalogException
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.msapi.extsys import get_vims
-from catalog.pub.utils.jobutil import JobUtil
-from catalog.pub.utils import toscaparser
-from catalog.pub.msapi import sdc
+from catalog.pub.database.models import NfPackageModel
+from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import nfvolcm
+from catalog.pub.msapi import sdc
+from catalog.pub.utils import fileutil
+from catalog.pub.utils import toscaparser
+from catalog.pub.utils.jobutil import JobUtil
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +67,7 @@ def parser_vnfdmodel(csar_id,inputs):
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return [0,ret]
-#####################################################################################
+
 
 class NfDistributeThread(threading.Thread):
     """
@@ -151,8 +147,6 @@ class NfDistributeThread(threading.Thread):
             logger.error(traceback.format_exc())
             logger.error(str(sys.exc_info()))
 
-######################################################################################################################
-
 
 class NfPkgDeleteThread(threading.Thread):
     """
@@ -207,8 +201,6 @@ class NfPkgDeleteThread(threading.Thread):
         JobUtil.add_job_status(self.job_id, 100, "Delete CSAR(%s) successfully." % self.csar_id)
 
 
-######################################################################################################################
-
 class NfPackage(object):
     """
     Actions for sdc nf package.
@@ -246,6 +238,3 @@ class NfPackage(object):
                     "packageInfo": pkg_info,
                     "imageInfo": [],
                     "vnfInstanceInfo": vnf_inst_info}]
-
-
-        

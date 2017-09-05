@@ -44,7 +44,7 @@
                 <include>*.sh</include>
                 <include>Dockerfile</include>
             </includes>
-        </fileSet>		
+        </fileSet>
         <fileSet>
             <directory>static</directory>
             <outputDirectory>/static</outputDirectory>

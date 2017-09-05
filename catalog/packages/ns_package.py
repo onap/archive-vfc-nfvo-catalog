@@ -14,19 +14,17 @@
 
 import json
 import logging
-
-import traceback
-import sys
 import os
+import sys
+import traceback
 
-from catalog.pub.database.models import NSDModel, NfPackageModel
-from catalog.pub.utils.values import ignore_case_get
-from catalog.pub.exceptions import CatalogException
-from catalog.pub.msapi import sdc
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.utils import toscaparser
-from catalog.pub.utils import fileutil
+from catalog.pub.database.models import NSDModel, NfPackageModel
+from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import nfvolcm
+from catalog.pub.msapi import sdc
+from catalog.pub.utils import fileutil
+from catalog.pub.utils import toscaparser
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +99,6 @@ def parser_nsdmodel(csar_id,inputs):
         return [1, str(sys.exc_info())]
     return [0,ret]
 
-###############################################################################################################
 
 class NsPackage(object):
     """
@@ -193,7 +190,3 @@ class NsPackage(object):
     def delete_catalog(self, csar_id):
         local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
         fileutil.delete_dirs(local_path)
-
-
-
-       

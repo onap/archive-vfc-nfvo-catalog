@@ -35,7 +35,7 @@ RUN wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifa
     unzip vfc-nfvo-catalog.zip && \
     rm -rf vfc-nfvo-catalog.zip
 
-EXPOSE 8403
+EXPOSE 8806
 EXPOSE 3306
 EXPOSE 6379
 

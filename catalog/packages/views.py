@@ -32,7 +32,7 @@ def nspackages_rc(request, *args, **kwargs):
 
     if request.method == 'GET':
         # Gets ns package list
-        ret = ns_package.ns_get_csars();
+        ret = ns_package.ns_get_csars()
         normal_status = status.HTTP_200_OK
     elif request.method == 'POST':
         # Distributes the package accroding to the given csarId
