@@ -1,0 +1,476 @@
+tosca_definitions_version: tosca_simple_yaml_1_1
+metadata:
+  invariantUUID: 54d92e89-b56b-41b1-af6b-cdeb75cb233f
+  UUID: 21fa8ccd-064f-4ecc-98e0-3196a4d12e0e
+  name: Test-Service-fyx
+  description: Service Test
+  type: Service
+  category: Mobility
+  serviceType: ''
+  serviceRole: ''
+  serviceEcompNaming: true
+  ecompGeneratedNaming: true
+  namingPolicy: ''
+imports:
+- nodes:
+    file: nodes.yml
+- datatypes:
+    file: data.yml
+- capabilities:
+    file: capabilities.yml
+- relationships:
+    file: relationships.yml
+- groups:
+    file: groups.yml
+- policies:
+    file: policies.yml
+- service-Test-Service-fyx-interface:
+    file: service-TestServiceFyx-template-interface.yml
+- resource-ExtVL:
+    file: resource-Extvl-template.yml
+- resource-Test-fyx:
+    file: resource-TestFyx-template.yml
+- resource-Test-fyx-interface:
+    file: resource-TestFyx-template-interface.yml
+- resource-ExtCP:
+    file: resource-Extcp-template.yml
+- resource-vIMS:
+    file: resource-Vims-template.yml
+- resource-vIMS-interface:
+    file: resource-Vims-template-interface.yml
+topology_template:
+  node_templates:
+    ExtVL 0:
+      type: org.openecomp.resource.vl.extVL
+      metadata:
+        invariantUUID: 25e1a13f-c8dc-4823-97b6-1ef40d06e695
+        UUID: 883a59b7-2221-4465-87d5-0cd880a5eb1a
+        customizationUUID: c62183b0-161b-441d-8e70-8cd931b01413
+        version: '1.0'
+        name: ExtVL
+        description: ECOMP generic virtual link (network) base type for all other service-level and global networks
+        type: VL
+        category: Generic
+        subcategory: Network Elements
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+      properties:
+        network_assignments:
+          is_external_network: false
+          ipv4_subnet_default_assignment:
+            min_subnets_count: 1
+          ecomp_generated_network_assignment: false
+          ipv6_subnet_default_assignment:
+            min_subnets_count: 1
+        exVL_naming:
+          ecomp_generated_naming: true
+        network_flows:
+          is_network_policy: false
+          is_bound_to_vpn: false
+        network_homing:
+          ecomp_selected_instance_node_target: false
+    Test-fyx 0:
+      type: org.openecomp.resource.vf.TestFyx
+      metadata:
+        invariantUUID: 4b8712de-254b-4dae-8f16-b3d63c9f2d49
+        UUID: faf6c8f0-b096-44e2-88e9-4527451a71ff
+        customizationUUID: 14254e74-4465-44af-a057-550a07785be8
+        version: '0.1'
+        name: Test-fyx
+        description: Application Test VF
+        type: VF
+        category: Application L4+
+        subcategory: Application Server
+        resourceVendor: zte
+        resourceVendorRelease: '1.0'
+        resourceVendorModelNumber: ''
+      properties:
+        nf_naming:
+          ecomp_generated_naming: true
+        availability_zone_max_count: 1
+      requirements:
+      - virtualLink:
+          capability: tosca.capabilities.network.Linkable
+          node: ExtVL 0
+          relationship: tosca.relationships.network.LinksTo
+    ExtCP 0:
+      type: org.openecomp.resource.cp.extCP
+      metadata:
+        invariantUUID: 68f72152-2c57-4099-8bbc-aedb388a8f81
+        UUID: 41d5a4a1-346e-4b47-a08f-936572916657
+        customizationUUID: f89628fa-4983-4468-a0f2-20c5810d43e4
+        version: '2.0'
+        name: ExtCP
+        description: The AT&T Connection Point base type all other CP derive from
+        type: CP
+        category: Generic
+        subcategory: Network Elements
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+      properties:
+        mac_requirements:
+          mac_count_required:
+            is_required: false
+        exCP_naming:
+          ecomp_generated_naming: true
+      requirements:
+      - virtualBinding:
+          capability: tosca.capabilities.network.Bindable
+          node: vIMS 0
+          relationship: tosca.relationships.network.BindsTo
+      - virtualLink:
+          capability: tosca.capabilities.network.Linkable
+          node: ExtVL 0
+          relationship: tosca.relationships.network.LinksTo
+    vIMS 0:
+      type: org.openecomp.resource.vf.Vims
+      metadata:
+        invariantUUID: 2191b35e-42aa-4407-81a2-184f4bf991be
+        UUID: a71ff273-fe43-46fa-a4bc-79d48a250c96
+        customizationUUID: f4cc1a90-ce84-43ab-aaa6-5eccad21f7d2
+        version: '0.1'
+        name: vIMS
+        description: Desc of vIMS
+        type: VF
+        category: Application L4+
+        subcategory: Web Server
+        resourceVendor: zte
+        resourceVendorRelease: v1.0
+        resourceVendorModelNumber: ''
+      properties:
+        nf_naming:
+          ecomp_generated_naming: true
+        availability_zone_max_count: 1
+  substitution_mappings:
+    node_type: org.openecomp.service.TestServiceFyx
+    capabilities:
+      vims0.port1.feature:
+      - Port 1
+      - port1.feature
+      testfyx0.contrailport0.network.incoming.packets:
+      - ContrailPort 0
+      - contrailport0.network.incoming.packets
+      vims0.compute0.feature:
+      - Compute 0
+      - compute0.feature
+      testfyx0.compute1.feature:
+      - Compute 1
+      - compute1.feature
+      testfyx0.contrailvirtualnetwork0.link:
+      - ContrailVirtualNetwork 0
+      - contrailvirtualnetwork0.link
+      testfyx0.contrailport0.network.incoming.packets.rate:
+      - ContrailPort 0
+      - contrailport0.network.incoming.packets.rate
+      testfyx0.compute2.host:
+      - Compute 2
+      - compute2.host
+      vims0.compute0.os:
+      - Compute 0
+      - compute0.os
+      vims0.compute1.scalable:
+      - Compute 1
+      - compute1.scalable
+      testfyx0.contrailport0.network.incoming.bytes.rate:
+      - ContrailPort 0
+      - contrailport0.network.incoming.bytes.rate
+      vims0.compute0.host:
+      - Compute 0
+      - compute0.host
+      vims0.compute0.endpoint:
+      - Compute 0
+      - compute0.endpoint
+      testfyx0.contrailport0.network.incoming.bytes:
+      - ContrailPort 0
+      - contrailport0.network.incoming.bytes
+      testfyx0.objectstorage0.storage_endpoint:
+      - ObjectStorage 0
+      - objectstorage0.storage_endpoint
+      testfyx0.compute0.binding:
+      - Compute 0
+      - compute0.binding
+      testfyx0.compute0.os:
+      - Compute 0
+      - compute0.os
+      testfyx0.compute0.endpoint:
+      - Compute 0
+      - compute0.endpoint
+      testfyx0.contrailport0.feature:
+      - ContrailPort 0
+      - contrailport0.feature
+      extcp0.internal_connectionPoint:
+      - ExtCP 0
+      - internal_connectionPoint
+      testfyx0.compute1.binding:
+      - Compute 1
+      - compute1.binding
+      vims0.compute1.host:
+      - Compute 1
+      - compute1.host
+      testfyx0.contrailport0.network.outgoing.packets.rate:
+      - ContrailPort 0
+      - contrailport0.network.outgoing.packets.rate
+      testfyx0.compute1.endpoint:
+      - Compute 1
+      - compute1.endpoint
+      testfyx0.contrailport1.network.outgoing.bytes:
+      - ContrailPort 1
+      - contrailport1.network.outgoing.bytes
+      vims0.compute1.os:
+      - Compute 1
+      - compute1.os
+      vims0.compute1.binding:
+      - Compute 1
+      - compute1.binding
+      testfyx0.contrailport1.network.outgoing.bytes.rate:
+      - ContrailPort 1
+      - contrailport1.network.outgoing.bytes.rate
+      vims0.vl0.virtual_linkable:
+      - VL 0
+      - vl0.virtual_linkable
+      testfyx0.extcp0.feature:
+      - ExtCP 0
+      - extcp0.feature
+      testfyx0.contrailvirtualnetwork0.feature:
+      - ContrailVirtualNetwork 0
+      - contrailvirtualnetwork0.feature
+      testfyx0.compute1.host:
+      - Compute 1
+      - compute1.host
+      extvl0.feature:
+      - ExtVL 0
+      - feature
+      extcp0.feature:
+      - ExtCP 0
+      - feature
+      vims0.compute1.feature:
+      - Compute 1
+      - compute1.feature
+      testfyx0.contrailport0.network.outpoing.packets:
+      - ContrailPort 0
+      - contrailport0.network.outpoing.packets
+      testfyx0.blockstorage0.attachment:
+      - BlockStorage 0
+      - blockstorage0.attachment
+      testfyx0.contrailport1.network.incoming.packets:
+      - ContrailPort 1
+      - contrailport1.network.incoming.packets
+      testfyx0.compute0.feature:
+      - Compute 0
+      - compute0.feature
+      testfyx0.compute2.feature:
+      - Compute 2
+      - compute2.feature
+      testfyx0.contrailport1.network.outgoing.packets.rate:
+      - ContrailPort 1
+      - contrailport1.network.outgoing.packets.rate
+      vims0.compute0.scalable:
+      - Compute 0
+      - compute0.scalable
+      testfyx0.contrailport1.network.incoming.bytes.rate:
+      - ContrailPort 1
+      - contrailport1.network.incoming.bytes.rate
+      testfyx0.compute0.scalable:
+      - Compute 0
+      - compute0.scalable
+      testfyx0.contrailvirtualnetwork0.end_point:
+      - ContrailVirtualNetwork 0
+      - contrailvirtualnetwork0.end_point
+      vims0.vl0.end_point:
+      - VL 0
+      - vl0.end_point
+      testfyx0.compute2.endpoint:
+      - Compute 2
+      - compute2.endpoint
+      vims0.extcp0.internal_connectionPoint:
+      - ExtCP 0
+      - extcp0.internal_connectionPoint
+      testfyx0.compute2.os:
+      - Compute 2
+      - compute2.os
+      testfyx0.contrailport0.network.outgoing.bytes:
+      - ContrailPort 0
+      - contrailport0.network.outgoing.bytes
+      testfyx0.compute0.host:
+      - Compute 0
+      - compute0.host
+      vims0.extcp0.feature:
+      - ExtCP 0
+      - extcp0.feature
+      testfyx0.contrailport1.network.incoming.packets.rate:
+      - ContrailPort 1
+      - contrailport1.network.incoming.packets.rate
+      vims0.compute0.binding:
+      - Compute 0
+      - compute0.binding
+      testfyx0.contrailport1.feature:
+      - ContrailPort 1
+      - contrailport1.feature
+      testfyx0.objectstorage0.feature:
+      - ObjectStorage 0
+      - objectstorage0.feature
+      testfyx0.compute1.scalable:
+      - Compute 1
+      - compute1.scalable
+      vims0.compute1.endpoint:
+      - Compute 1
+      - compute1.endpoint
+      extvl0.virtual_linkable:
+      - ExtVL 0
+      - virtual_linkable
+      testfyx0.compute2.binding:
+      - Compute 2
+      - compute2.binding
+      testfyx0.contrailvirtualnetwork0.attachment:
+      - ContrailVirtualNetwork 0
+      - contrailvirtualnetwork0.attachment
+      testfyx0.compute1.os:
+      - Compute 1
+      - compute1.os
+      vims0.vl0.feature:
+      - VL 0
+      - vl0.feature
+      testfyx0.extcp0.internal_connectionPoint:
+      - ExtCP 0
+      - extcp0.internal_connectionPoint
+      testfyx0.blockstorage0.feature:
+      - BlockStorage 0
+      - blockstorage0.feature
+      testfyx0.contrailport1.network.outpoing.packets:
+      - ContrailPort 1
+      - contrailport1.network.outpoing.packets
+      testfyx0.contrailport1.network.incoming.bytes:
+      - ContrailPort 1
+      - contrailport1.network.incoming.bytes
+      vims0.port0.feature:
+      - Port 0
+      - port0.feature
+      testfyx0.contrailport0.network.outgoing.bytes.rate:
+      - ContrailPort 0
+      - contrailport0.network.outgoing.bytes.rate
+      vims0.vl0.link:
+      - VL 0
+      - vl0.link
+      testfyx0.compute2.scalable:
+      - Compute 2
+      - compute2.scalable
+    requirements:
+      vims0.port0.dependency:
+      - Port 0
+      - port0.dependency
+      testfyx0.contrailport1.binding:
+      - ContrailPort 1
+      - contrailport1.binding
+      testfyx0.extcp0.virtualLink:
+      - ExtCP 0
+      - extcp0.virtualLink
+      vims0.extcp0.virtualLink:
+      - ExtCP 0
+      - extcp0.virtualLink
+      vims0.port1.link:
+      - Port 1
+      - port1.link
+      extvl0.dependency:
+      - ExtVL 0
+      - dependency
+      testfyx0.extcp0.dependency:
+      - ExtCP 0
+      - extcp0.dependency
+      testfyx0.compute1.dependency:
+      - Compute 1
+      - compute1.dependency
+      vims0.compute1.dependency:
+      - Compute 1
+      - compute1.dependency
+      testfyx0.compute1.local_storage:
+      - Compute 1
+      - compute1.local_storage
+      vims0.compute0.local_storage:
+      - Compute 0
+      - compute0.local_storage
+      vims0.port1.dependency:
+      - Port 1
+      - port1.dependency
+      vims0.extcp0.dependency:
+      - ExtCP 0
+      - extcp0.dependency
+      vims0.vl0.dependency:
+      - VL 0
+      - vl0.dependency
+      testfyx0.blockstorage0.dependency:
+      - BlockStorage 0
+      - blockstorage0.dependency
+      testfyx0.contrailport1.dependency:
+      - ContrailPort 1
+      - contrailport1.dependency
+      testfyx0.contrailport0.link:
+      - ContrailPort 0
+      - contrailport0.link
+      testfyx0.extcp0.external_virtualLink:
+      - ExtCP 0
+      - extcp0.external_virtualLink
+      testfyx0.contrailport0.binding:
+      - ContrailPort 0
+      - contrailport0.binding
+      testfyx0.compute2.dependency:
+      - Compute 2
+      - compute2.dependency
+      extcp0.virtualLink:
+      - ExtCP 0
+      - virtualLink
+      testfyx0.contrailport1.link:
+      - ContrailPort 1
+      - contrailport1.link
+      extcp0.virtualBinding:
+      - ExtCP 0
+      - virtualBinding
+      testfyx0.compute2.local_storage:
+      - Compute 2
+      - compute2.local_storage
+      vims0.port0.link:
+      - Port 0
+      - port0.link
+      vims0.port0.binding:
+      - Port 0
+      - port0.binding
+      testfyx0.contrailport0.dependency:
+      - ContrailPort 0
+      - contrailport0.dependency
+      extcp0.dependency:
+      - ExtCP 0
+      - dependency
+      vims0.compute1.local_storage:
+      - Compute 1
+      - compute1.local_storage
+      testfyx0.contrailvirtualnetwork0.dependency:
+      - ContrailVirtualNetwork 0
+      - contrailvirtualnetwork0.dependency
+      vims0.extcp0.virtualBinding:
+      - ExtCP 0
+      - extcp0.virtualBinding
+      testfyx0.compute0.local_storage:
+      - Compute 0
+      - compute0.local_storage
+      testfyx0.extcp0.virtualBinding:
+      - ExtCP 0
+      - extcp0.virtualBinding
+      extcp0.external_virtualLink:
+      - ExtCP 0
+      - external_virtualLink
+      testfyx0.objectstorage0.dependency:
+      - ObjectStorage 0
+      - objectstorage0.dependency
+      vims0.compute0.dependency:
+      - Compute 0
+      - compute0.dependency
+      vims0.port1.binding:
+      - Port 1
+      - port1.binding
+      vims0.extcp0.external_virtualLink:
+      - ExtCP 0
+      - extcp0.external_virtualLink
+      testfyx0.compute0.dependency:
+      - Compute 0
+      - compute0.dependency
