@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_35831d58",
+        "filename": "docker/instance_init.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1337
+      },
+      "writtenOn": "2017-09-06T08:13:32Z",
+      "side": 1,
+      "message": "please remove this tab character",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 1
+      },
+      "revId": "e8c664a1c2b79da7f8a3327c905b234d8a82bab9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
