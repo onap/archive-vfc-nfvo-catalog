@@ -1,0 +1,457 @@
+tosca_definitions_version: tosca_simple_yaml_1_1
+metadata:
+  invariantUUID: 4b8712de-254b-4dae-8f16-b3d63c9f2d49
+  UUID: faf6c8f0-b096-44e2-88e9-4527451a71ff
+  name: Test-fyx
+  description: Application Test VF
+  type: VF
+  category: Application L4+
+  subcategory: Application Server
+  resourceVendor: zte
+  resourceVendorRelease: '1.0'
+  resourceVendorModelNumber: ''
+imports:
+- nodes:
+    file: nodes.yml
+- datatypes:
+    file: data.yml
+- capabilities:
+    file: capabilities.yml
+- relationships:
+    file: relationships.yml
+- groups:
+    file: groups.yml
+- policies:
+    file: policies.yml
+- resource-Test-fyx-interface:
+    file: resource-TestFyx-template-interface.yml
+- resource-ExtCP:
+    file: resource-Extcp-template.yml
+- resource-Compute:
+    file: resource-Compute-template.yml
+- resource-BlockStorage:
+    file: resource-Blockstorage-template.yml
+- resource-ContrailVirtualNetwork:
+    file: resource-Contrailvirtualnetwork-template.yml
+- resource-ContrailPort:
+    file: resource-Contrailport-template.yml
+- resource-ObjectStorage:
+    file: resource-Objectstorage-template.yml
+topology_template:
+  inputs:
+    nf_naming:
+      type: org.openecomp.datatypes.Naming
+      default:
+        ecomp_generated_naming: true
+    nf_naming_code:
+      type: string
+      default: {
+        }
+    nf_function:
+      type: string
+      default: {
+        }
+    availability_zone_max_count:
+      type: integer
+      default: 1
+    nf_role:
+      type: string
+      default: {
+        }
+    max_instances:
+      type: integer
+      default: {
+        }
+    min_instances:
+      type: integer
+      default: {
+        }
+    nf_type:
+      type: string
+      default: {
+        }
+  node_templates:
+    VDU-B:
+      type: tosca.nodes.Compute
+      metadata:
+        invariantUUID: 96ac4c35-bdc2-4018-b022-d7df39507d7d
+        UUID: 0da94c51-2271-4ee2-ae13-cd89f46dbdff
+        customizationUUID: ea43f19d-770e-4ed4-9d5a-1f4999366fde
+        version: '1.0'
+        name: Compute
+        description: Represents a real or virtual machine or server. Information specified on the Compute node will be used to find the machine that fits the given requirements in the cloud available machines. If no sizing information are specified the cloud provider default machine will be used. It is strongly recommended to specify the required CPUs and memory at least.
+        type: VFC
+        category: Generic
+        subcategory: Infrastructure
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+    ContrailPort 0:
+      type: org.openecomp.resource.cp.nodes.heat.network.contrail.Port
+      metadata:
+        invariantUUID: 740aef05-3c26-4fc9-ab83-ef889801af59
+        UUID: 67110e55-8b3b-4595-9e7f-b76a8e5b78c8
+        customizationUUID: 37d74cc1-d060-4cbc-8a23-b0b81424e984
+        version: '2.0'
+        name: ContrailPort
+        description: Represents a logical entity that associates between Compute and Network normative types for contrail.
+        type: CP
+        category: Generic
+        subcategory: Network Elements
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+      properties:
+        mac_requirements:
+          mac_count_required:
+            is_required: false
+        static_route: false
+        shared_ip: false
+        exCP_naming:
+          ecomp_generated_naming: true
+        is_default: false
+      requirements:
+      - link:
+          capability: tosca.capabilities.network.Linkable
+          node: ContrailVirtualNetwork 0
+          relationship: tosca.relationships.network.LinksTo
+      - binding:
+          capability: tosca.capabilities.network.Bindable
+          node: VDU-B
+          relationship: tosca.relationships.network.BindsTo
+    VDU-C:
+      type: tosca.nodes.Compute
+      metadata:
+        invariantUUID: 96ac4c35-bdc2-4018-b022-d7df39507d7d
+        UUID: 0da94c51-2271-4ee2-ae13-cd89f46dbdff
+        customizationUUID: 8e76a90e-4ec3-4177-bdef-92ce55934f9d
+        version: '1.0'
+        name: Compute
+        description: Represents a real or virtual machine or server. Information specified on the Compute node will be used to find the machine that fits the given requirements in the cloud available machines. If no sizing information are specified the cloud provider default machine will be used. It is strongly recommended to specify the required CPUs and memory at least.
+        type: VFC
+        category: Generic
+        subcategory: Infrastructure
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+    ContrailPort 1:
+      type: org.openecomp.resource.cp.nodes.heat.network.contrail.Port
+      metadata:
+        invariantUUID: 740aef05-3c26-4fc9-ab83-ef889801af59
+        UUID: 67110e55-8b3b-4595-9e7f-b76a8e5b78c8
+        customizationUUID: 723cf043-6243-4a82-b220-d3fa548ce79f
+        version: '2.0'
+        name: ContrailPort
+        description: Represents a logical entity that associates between Compute and Network normative types for contrail.
+        type: CP
+        category: Generic
+        subcategory: Network Elements
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+      properties:
+        mac_requirements:
+          mac_count_required:
+            is_required: false
+        static_route: false
+        shared_ip: false
+        exCP_naming:
+          ecomp_generated_naming: true
+        is_default: false
+      requirements:
+      - link:
+          capability: tosca.capabilities.network.Linkable
+          node: ContrailVirtualNetwork 0
+          relationship: tosca.relationships.network.LinksTo
+      - binding:
+          capability: tosca.capabilities.network.Bindable
+          node: VDU-A
+          relationship: tosca.relationships.network.BindsTo
+    BlockStorage 0:
+      type: tosca.nodes.BlockStorage
+      metadata:
+        invariantUUID: 0b40dcd5-3d95-4dd4-bf9b-22b2f10755b8
+        UUID: 9ad49f03-2aa2-48e2-8fae-82d3b7f81788
+        customizationUUID: 9239f0fc-eaaa-400d-bca1-8510841fa651
+        version: '1.0'
+        name: BlockStorage
+        description: Represents a server-local block storage device (i.e., not shared) offering evenly sized blocks of data from which raw storage volumes can be created.
+        type: VFC
+        category: Generic
+        subcategory: Infrastructure
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+    VDU-A:
+      type: tosca.nodes.Compute
+      metadata:
+        invariantUUID: 96ac4c35-bdc2-4018-b022-d7df39507d7d
+        UUID: 0da94c51-2271-4ee2-ae13-cd89f46dbdff
+        customizationUUID: 35ccbeed-443d-4899-9042-82433aea3c01
+        version: '1.0'
+        name: Compute
+        description: Represents a real or virtual machine or server. Information specified on the Compute node will be used to find the machine that fits the given requirements in the cloud available machines. If no sizing information are specified the cloud provider default machine will be used. It is strongly recommended to specify the required CPUs and memory at least.
+        type: VFC
+        category: Generic
+        subcategory: Infrastructure
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+    ExtCP 0:
+      type: org.openecomp.resource.cp.extCP
+      metadata:
+        invariantUUID: 68f72152-2c57-4099-8bbc-aedb388a8f81
+        UUID: 41d5a4a1-346e-4b47-a08f-936572916657
+        customizationUUID: 94e2a43c-2c99-487f-a74b-d82edbbd1d5f
+        version: '2.0'
+        name: ExtCP
+        description: The AT&T Connection Point base type all other CP derive from
+        type: CP
+        category: Generic
+        subcategory: Network Elements
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+      properties:
+        mac_requirements:
+          mac_count_required:
+            is_required: false
+        exCP_naming:
+          ecomp_generated_naming: true
+      requirements:
+      - virtualBinding:
+          capability: tosca.capabilities.network.Bindable
+          node: VDU-C
+          relationship: tosca.relationships.network.BindsTo
+    ObjectStorage 0:
+      type: tosca.nodes.ObjectStorage
+      metadata:
+        invariantUUID: 4e89d2a8-ff83-47f8-9788-4aef40feaf0e
+        UUID: e7217097-ada2-42b9-81af-ccf525514796
+        customizationUUID: 42cc06c5-3bf2-480b-8c30-aac34c48e39f
+        version: '1.0'
+        name: ObjectStorage
+        description: Represents storage that provides the ability to store data as objects (or BLOBs of data) without consideration for the underlying filesystem or devices.
+        type: VFC
+        category: Generic
+        subcategory: Infrastructure
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+    ContrailVirtualNetwork 0:
+      type: org.openecomp.resource.vl.nodes.heat.network.contrail.VirtualNetwork
+      metadata:
+        invariantUUID: 86b02009-8634-44f1-a22f-dc685460c95d
+        UUID: 4ebcc4a7-d648-4b7b-a23c-a094ec89b7f0
+        customizationUUID: d320316b-e61e-44f4-991d-e06f5fa3f9d2
+        version: '1.0'
+        name: ContrailVirtualNetwork
+        description: Represents a network service with optional subnets and advanced configurations.
+        type: VL
+        category: Generic
+        subcategory: Network Elements
+        resourceVendor: ATT (Tosca)
+        resourceVendorRelease: 1.0.0.wd03
+        resourceVendorModelNumber: ''
+      properties:
+        dhcp_enabled: true
+        ip_version: 4
+  substitution_mappings:
+    node_type: org.openecomp.resource.vf.TestFyx
+    capabilities:
+      extcp0.feature:
+      - ExtCP 0
+      - feature
+      compute0.binding:
+      - Compute 0
+      - binding
+      contrailport1.network.outgoing.packets.rate:
+      - ContrailPort 1
+      - network.outgoing.packets.rate
+      objectstorage0.feature:
+      - ObjectStorage 0
+      - feature
+      compute1.binding:
+      - Compute 1
+      - binding
+      contrailport0.network.incoming.packets.rate:
+      - ContrailPort 0
+      - network.incoming.packets.rate
+      compute1.endpoint:
+      - Compute 1
+      - endpoint
+      contrailport1.network.incoming.packets:
+      - ContrailPort 1
+      - network.incoming.packets
+      objectstorage0.storage_endpoint:
+      - ObjectStorage 0
+      - storage_endpoint
+      compute2.binding:
+      - Compute 2
+      - binding
+      contrailport1.network.incoming.bytes.rate:
+      - ContrailPort 1
+      - network.incoming.bytes.rate
+      contrailport1.network.outpoing.packets:
+      - ContrailPort 1
+      - network.outpoing.packets
+      contrailport0.network.incoming.packets:
+      - ContrailPort 0
+      - network.incoming.packets
+      contrailport0.feature:
+      - ContrailPort 0
+      - feature
+      compute1.host:
+      - Compute 1
+      - host
+      compute0.endpoint:
+      - Compute 0
+      - endpoint
+      contrailport1.feature:
+      - ContrailPort 1
+      - feature
+      blockstorage0.attachment:
+      - BlockStorage 0
+      - attachment
+      contrailvirtualnetwork0.end_point:
+      - ContrailVirtualNetwork 0
+      - end_point
+      contrailport0.network.outgoing.packets.rate:
+      - ContrailPort 0
+      - network.outgoing.packets.rate
+      compute2.os:
+      - Compute 2
+      - os
+      compute0.os:
+      - Compute 0
+      - os
+      compute1.scalable:
+      - Compute 1
+      - scalable
+      contrailport1.network.incoming.bytes:
+      - ContrailPort 1
+      - network.incoming.bytes
+      contrailvirtualnetwork0.attachment:
+      - ContrailVirtualNetwork 0
+      - attachment
+      contrailvirtualnetwork0.link:
+      - ContrailVirtualNetwork 0
+      - link
+      extcp0.internal_connectionPoint:
+      - ExtCP 0
+      - internal_connectionPoint
+      contrailport1.network.incoming.packets.rate:
+      - ContrailPort 1
+      - network.incoming.packets.rate
+      contrailport0.network.outgoing.bytes.rate:
+      - ContrailPort 0
+      - network.outgoing.bytes.rate
+      compute2.endpoint:
+      - Compute 2
+      - endpoint
+      blockstorage0.feature:
+      - BlockStorage 0
+      - feature
+      contrailvirtualnetwork0.feature:
+      - ContrailVirtualNetwork 0
+      - feature
+      compute0.feature:
+      - Compute 0
+      - feature
+      compute0.host:
+      - Compute 0
+      - host
+      compute1.feature:
+      - Compute 1
+      - feature
+      contrailport1.network.outgoing.bytes:
+      - ContrailPort 1
+      - network.outgoing.bytes
+      compute0.scalable:
+      - Compute 0
+      - scalable
+      compute2.feature:
+      - Compute 2
+      - feature
+      compute2.scalable:
+      - Compute 2
+      - scalable
+      contrailport0.network.outgoing.bytes:
+      - ContrailPort 0
+      - network.outgoing.bytes
+      contrailport1.network.outgoing.bytes.rate:
+      - ContrailPort 1
+      - network.outgoing.bytes.rate
+      contrailport0.network.outpoing.packets:
+      - ContrailPort 0
+      - network.outpoing.packets
+      compute2.host:
+      - Compute 2
+      - host
+      contrailport0.network.incoming.bytes:
+      - ContrailPort 0
+      - network.incoming.bytes
+      compute1.os:
+      - Compute 1
+      - os
+      contrailport0.network.incoming.bytes.rate:
+      - ContrailPort 0
+      - network.incoming.bytes.rate
+    requirements:
+      compute2.local_storage:
+      - Compute 2
+      - local_storage
+      extcp0.virtualBinding:
+      - ExtCP 0
+      - virtualBinding
+      blockstorage0.dependency:
+      - BlockStorage 0
+      - dependency
+      contrailport0.dependency:
+      - ContrailPort 0
+      - dependency
+      compute2.dependency:
+      - Compute 2
+      - dependency
+      extcp0.dependency:
+      - ExtCP 0
+      - dependency
+      contrailport0.link:
+      - ContrailPort 0
+      - link
+      compute1.local_storage:
+      - Compute 1
+      - local_storage
+      contrailport0.binding:
+      - ContrailPort 0
+      - binding
+      compute0.local_storage:
+      - Compute 0
+      - local_storage
+      contrailport1.dependency:
+      - ContrailPort 1
+      - dependency
+      contrailport1.binding:
+      - ContrailPort 1
+      - binding
+      compute1.dependency:
+      - Compute 1
+      - dependency
+      compute0.dependency:
+      - Compute 0
+      - dependency
+      extcp0.external_virtualLink:
+      - ExtCP 0
+      - external_virtualLink
+      contrailport1.link:
+      - ContrailPort 1
+      - link
+      objectstorage0.dependency:
+      - ObjectStorage 0
+      - dependency
+      contrailvirtualnetwork0.dependency:
+      - ContrailVirtualNetwork 0
+      - dependency
+      extcp0.virtualLink:
+      - ExtCP 0
+      - virtualLink
