@@ -24,8 +24,7 @@ RUN apt-get update && \
     apt-get install -y curl && \
     apt-get install -y build-essential && \
     apt-get install -y libssl-dev && \
-    apt-get install -y libffi-dev && \
-    yes | pip install cryptography
+    apt-get install -y libffi-dev
 
 ADD . /service
 WORKDIR /service
@@ -34,6 +33,11 @@ WORKDIR /service
 RUN wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.catalog&a=vfc-nfvo-catalog&v=LATEST&e=zip' && \
     unzip vfc-nfvo-catalog.zip && \
     rm -rf vfc-nfvo-catalog.zip
+	
+RUN sed -i "s|bind-address.*|# bind-address = 127.0.0.1|" /etc/mysql/my.cnf
+
+WORKDIR /service/vfc/nfvo/catalog
+RUN pip install -r requirements.txt	
 
 EXPOSE 8806
 EXPOSE 3306
