@@ -578,14 +578,22 @@ class PackageTest(unittest.TestCase):
 
         self.assertEquals(size, len(vnfdmodels))
 
-    def test_nf_package_parser(self):
-         reqdata={"csarId":"1"}
-         #response = self.client.post("/api/catalog/v1/parservnfd",reqdata)
-         #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+    @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    def test_nf_package_parser(self, mock_get_vnfd):
+        # First distribute a VNF
+        template_file_name = "resource-TestFyx-template.yml"
+        local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
+        vnfd = json.JSONEncoder().encode(self.vnfd_json)
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
+        self.assert_nfmodel_result(str(self.nf_csarId), 1)
+        reqdata={"csarId":"456"}
+        #response = self.client.post("/api/catalog/v1/parservnfd",reqdata)
+        #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     @mock.patch.object(NsPackage,'get_nsd')
-    def test_ns_distribute(self, mock_get_nsd,mock_get_vnfd):
+    def test_ns_package_parser(self, mock_get_nsd,mock_get_vnfd):
         # First distribute a VNF
         template_file_name = "resource-TestFyx-template.yml"
         local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
