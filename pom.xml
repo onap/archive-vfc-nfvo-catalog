@@ -25,7 +25,7 @@
     <artifactId>vfc-nfvo-catalog</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>vfc/nfvo/catalog</name>
+    <name>vfc-nfvo-catalog</name>
     <description>vfc nfvo catalog</description>
     <build>
       <plugins>
