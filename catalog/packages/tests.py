@@ -24,6 +24,7 @@ from catalog.packages.nf_package import NfPkgDeleteThread
 from django.test import Client
 from catalog.pub.database.models import NSDModel, NfPackageModel, JobStatusModel, JobModel
 from rest_framework import status
+from catalog.pub.msapi import nfvolcm
 
 
 class PackageTest(unittest.TestCase):
@@ -510,7 +511,8 @@ class PackageTest(unittest.TestCase):
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     @mock.patch.object(NsPackage,'get_nsd')
-    def test_ns_package_delete(self, mock_get_nsd,mock_get_vnfd):
+    @mock.patch.object(nfvolcm,'get_nsInstances')
+    def test_ns_package_delete(self, mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
 
         # First distribute a VNF
         local_file_name = "/url/local/filename"
@@ -530,7 +532,37 @@ class PackageTest(unittest.TestCase):
         self.assert_nsdmodel_result("VCPE_NS",  1)
 
         # Finally delete ns package
+        mock_get_nsInstances.return_value = []
         response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+        self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
+        self.assert_nsdmodel_result("VCPE_NS",  0)
+
+    @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    @mock.patch.object(NsPackage,'get_nsd')
+    @mock.patch.object(nfvolcm,'get_nsInstances')
+    def test_ns_package_delete_force(self, mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
+
+        # First distribute a VNF
+        local_file_name = "/url/local/filename"
+        vnfd = json.JSONEncoder().encode(self.vnfd_json)
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
+        self.assert_nfmodel_result(str(self.nf_csarId), 1)
+
+        # Then distribute a NS associated with the below VNF
+        local_file_name = "/url/local/filename"
+        nsd = json.JSONEncoder().encode(self.nsd_json)
+        mock_get_nsd.return_value = self.nsd_json,local_file_name,nsd
+        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+        self.assertEqual("CSAR(123) distributed successfully.", response.data["statusDescription"], response.content)
+        self.assert_nfmodel_result(str(self.nf_csarId), 1)
+        self.assert_nsdmodel_result("VCPE_NS",  1)
+
+        # Finally delete ns package
+        mock_get_nsInstances.return_value = [{"csarid":"1"},{"csarid":"2"}]
+        response = self.client.delete("/api/catalog/v1/nspackages/%sforce"% str(self.ns_csarId))
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
         self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
         self.assert_nsdmodel_result("VCPE_NS",  0)

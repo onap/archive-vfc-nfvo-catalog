@@ -14,6 +14,7 @@
 
 import json
 import logging
+import os
 
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils import restcall
@@ -25,14 +26,35 @@ ASSETTYPE_RESOURCES = "resources"
 ASSETTYPE_SERVICES = "services"
 
 def call_sdc(resource, method, content=''):
+    additional_headers = {
+        'X-ECOMP-InstanceID': 'VFC',
+    }
     return restcall.call_req(base_url=SDC_BASE_URL, 
         user=SDC_USER, 
         passwd=SDC_PASSWD, 
         auth_type=restcall.rest_no_auth, 
         resource=resource, 
         method=method, 
-        content=content)
+        content=content,
+        additional_headers=additional_headers)
 
+"""
+sample of return value
+[
+    {
+        "uuid": "c94490a0-f7ef-48be-b3f8-8d8662a37236",
+        "invariantUUID": "63eaec39-ffbe-411c-a838-448f2c73f7eb",
+        "name": "underlayvpn",
+        "version": "2.0",
+        "toscaModelURL": "/sdc/v1/catalog/resources/c94490a0-f7ef-48be-b3f8-8d8662a37236/toscaModel",
+        "category": "Volte",
+        "subCategory": "VolteVF",
+        "resourceType": "VF",
+        "lifecycleState": "CERTIFIED",
+        "lastUpdaterUserId": "jh0003"
+    }
+]
+"""
 def get_artifacts(asset_type):
     resource = "/sdc/v1/catalog/{assetType}"
     resource = resource.format(assetType=asset_type)
@@ -58,12 +80,34 @@ def delete_artifact(asset_type, asset_id, artifact_id):
         raise CatalogException("Failed to delete artifacts(%s) from sdc." % artifact_id)
     return json.JSONDecoder().decode(ret[1])
 
-def download_artifacts(download_url, local_path):
-    ret = restcall.call_req(base_url=download_url, 
+def download_artifacts(download_url, local_path, file_name):
+    additional_headers = {
+        'X-ECOMP-InstanceID': 'VFC',
+        'accept': 'application/octet-stream'
+    }
+    ret = restcall.call_req(base_url=SDC_BASE_URL, 
         user=SDC_USER, 
         passwd=SDC_PASSWD, 
-        auth_type=rest_no_auth, 
-        resource="", 
-        method="GET")
-    # TODO:
+        auth_type=restcall.rest_no_auth,
+        resource=download_url, 
+        method="GET",
+        additional_headers=additional_headers)
+    if ret[0] != 0:
+        logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
+        raise CatalogException("Failed to download %s from sdc." % download_url)
+    local_file_name = os.path.join(local_path, file_name)
+    local_file = open(local_file_name, 'wb')
+    local_file.write(ret[1])
+    local_file.close()
+    return local_file_name
+
     
+
+    
+
+
+   
+
+
+
+
