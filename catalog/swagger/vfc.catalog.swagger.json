@@ -541,6 +541,10 @@
         "vnfVersion": {
           "type": "string",
           "description": "VNF Software version"
+        },
+        "downloadUri":{
+          "type": "string",
+          "description": "The download uri of VNF package"
         }
       }
     },

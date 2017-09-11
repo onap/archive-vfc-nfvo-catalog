@@ -25,6 +25,7 @@ from catalog.pub.msapi import nfvolcm
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
@@ -51,14 +52,23 @@ def ns_on_distribute(csar_id):
 
 def ns_delete_csar(csar_id, force_delete):
     ret = None
+    nsinstances = []
     try:
-        ret = NsPackage().delete_csar(csar_id, force_delete)
+       if force_delete:
+           ret = NsPackage().delete_csar(csar_id)
+           return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
+       nsinstances = nfvolcm.get_nsInstances(csar_id)
+       if nsinstances:
+          if len(nsinstances) > 0:
+              return fmt_ns_pkg_rsp(STATUS_FAILED, "NS instances using the CSAR exists!",status.HTTP_412_PRECONDITION_FAILED)
+       ret = NsPackage().delete_csar(csar_id)
+       return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
     except CatalogException as e:
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
         logger.error(traceback.format_exc())
         return fmt_ns_pkg_rsp(STATUS_FAILED, str(sys.exc_info()))
-    return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
+
 
 def ns_get_csars():
     ret = None
@@ -146,7 +156,7 @@ class NsPackage(object):
 
         return nsd,local_file_name,nsd_json
 
-    def delete_csar(self, csar_id, force_delete):
+    def delete_csar(self, csar_id):
         '''
         if force_delete:
             NSInstModel.objects.filter(nspackage_id=csar_id).delete()
@@ -154,7 +164,7 @@ class NsPackage(object):
             if NSInstModel.objects.filter(nspackage_id=csar_id):
                 raise CatalogException("CSAR(%s) is in using, cannot be deleted." % csar_id)
         '''
-        nfvolcm.delete_ns_inst_mock()
+        #nfvolcm.delete_ns_inst_mock()
         NSDModel.objects.filter(id=csar_id).delete()
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
