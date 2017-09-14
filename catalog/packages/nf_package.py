@@ -20,7 +20,7 @@ import threading
 import traceback
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.database.models import NfPackageModel
+from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import nfvolcm
 from catalog.pub.msapi import sdc
@@ -57,9 +57,9 @@ def nf_get_csar(csar_id):
 def parser_vnfdmodel(csar_id,inputs):
     ret= None
     try:
-        nf_pkg = NfPackageModel.objects.filter(nfpackageid=csar_id)
+        nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=csar_id)
         if nf_pkg:
-             csar_path=nf_pkg["vnfd_path"]
+             csar_path=nf_pkg["localFilePath"]
              ret={"model":toscaparser.parse_vnfd(csar_path,inputs)}
     except CatalogException as e:
         return [1, e.message]
@@ -103,13 +103,13 @@ class NfDistributeThread(threading.Thread):
             job_id=self.job_id)
         JobUtil.add_job_status(self.job_id, 5, "Start CSAR(%s) distribute." % self.csar_id)
 
-        if NfPackageModel.objects.filter(nfpackageid=self.csar_id):
+        if VnfPackageModel.objects.filter(vnfPackageId=self.csar_id):
             raise CatalogException("NF CSAR(%s) already exists." % self.csar_id)
 
         vnfd,local_file_name,vnfd_json = self.get_vnfd(self.csar_id)
 
         nfd_id = vnfd["metadata"]["id"]
-        if NfPackageModel.objects.filter(vnfdid=nfd_id):
+        if VnfPackageModel.objects.filter(vnfdId=nfd_id):
             raise CatalogException("NFD(%s) already exists." % nfd_id)
 
         JobUtil.add_job_status(self.job_id, 30, "Save CSAR(%s) to database." % self.csar_id)
@@ -117,15 +117,16 @@ class NfDistributeThread(threading.Thread):
         vnfd_ver = vnfd["metadata"].get("vnfd_version")
         if not vnfd_ver:
             vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
-        NfPackageModel(
-            uuid=self.csar_id,
-            nfpackageid=self.csar_id,
-            vnfdid=nfd_id,
-            vendor=vnfd["metadata"].get("vendor", "undefined"),
-            vnfdversion=vnfd_ver,
-            vnfversion=vnfd["metadata"].get("version", "undefined"),
-            vnfdmodel=vnfd_json,
-            vnfd_path=local_file_name
+        VnfPackageModel(
+            #  uuid=self.csar_id,
+            vnfPackageId=self.csar_id,
+            vnfdId=nfd_id,
+            vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
+            vnfdVersion=vnfd_ver,
+            vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
+            vnfdModel=vnfd_json,
+            localFilePath=local_file_name,
+            #vnfPackageUri to do
             ).save()
 
         JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
@@ -134,14 +135,13 @@ class NfDistributeThread(threading.Thread):
         artifact = sdc.get_artifact(sdc.ASSETTYPE_RESOURCES, self.csar_id)
         local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
         local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path)
-
         vnfd_json = toscaparser.parse_vnfd(local_file_name)
         vnfd = json.JSONDecoder().decode(vnfd_json)
         return vnfd,local_file_name,vnfd_json
 
     def rollback_distribute(self):
         try:
-            NfPackageModel.objects.filter(nfpackageid=self.csar_id).delete()
+            VnfPackageModel.objects.filter(vnfPackageId=self.csar_id).delete()
             fileutil.delete_dirs(self.csar_save_path)
         except:
             logger.error(traceback.format_exc())
@@ -187,11 +187,11 @@ class NfPkgDeleteThread(threading.Thread):
         nfvolcm.delete_nf_inst_mock()
         JobUtil.add_job_status(self.job_id, 50, "Delete CSAR(%s) from Database." % self.csar_id)
 
-        if not NfPackageModel.objects.filter(nfpackageid=self.csar_id):
+        if not VnfPackageModel.objects.filter(vnfPackageId=self.csar_id):
             JobUtil.add_job_status(self.job_id, 100, "Error! CSAR(%s) does not exist." % self.csar_id)
             return
 
-        NfPackageModel.objects.filter(nfpackageid=self.csar_id).delete()
+        VnfPackageModel.objects.filter(vnfPackageId=self.csar_id).delete()
 
         JobUtil.add_job_status(self.job_id, 80, "Delete local CSAR(%s) file." % self.csar_id)
 
@@ -211,26 +211,26 @@ class NfPackage(object):
 
     def get_csars(self):
         csars = {"csars": []}
-        nf_pkgs = NfPackageModel.objects.filter()
+        nf_pkgs = VnfPackageModel.objects.filter()
         for nf_pkg in nf_pkgs:
             csars["csars"].append({
-                "csarId": nf_pkg.nfpackageid,
-                "vnfdId": nf_pkg.vnfdid
+                "csarId": nf_pkg.vnfPackageId,
+                "vnfdId": nf_pkg.vnfdId
             })
         return [0, csars]
         
     def get_csar(self, csar_id):
         pkg_info = {}
-        nf_pkg = NfPackageModel.objects.filter(nfpackageid=csar_id)
+        nf_pkg = VnfPackageModel.objects.filter(nfpackageid=csar_id)
         if nf_pkg:
-            pkg_info["vnfdId"] = nf_pkg[0].vnfdid
-            pkg_info["vnfdProvider"] = nf_pkg[0].vendor
-            pkg_info["vnfdVersion"] = nf_pkg[0].vnfdversion
-            pkg_info["vnfVersion"] = nf_pkg[0].vnfversion
+            pkg_info["vnfdId"] = nf_pkg[0].vnfdId
+            pkg_info["vnfdProvider"] = nf_pkg[0].vnfVendor
+            pkg_info["vnfdVersion"] = nf_pkg[0].vnfdVersion
+            pkg_info["vnfVersion"] = nf_pkg[0].vnfSoftwareVersion
 
 
         #vnf_insts = NfInstModel.objects.filter(package_id=csar_id)
-        vnf_insts = nfvolcm.getNfInsts_mock()
+        vnf_insts = nfvolcm.get_vnfInstances()
         vnf_inst_info = [{"vnfInstanceId": vnf_inst["vnfInstanceId"],
                           "vnfInstanceName": vnf_inst["vnfInstanceName"]} for vnf_inst in vnf_insts]
 
