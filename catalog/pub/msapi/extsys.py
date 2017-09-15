@@ -17,7 +17,7 @@ import logging
 import uuid
 
 from catalog.pub.config.config import AAI_BASE_URL, AAI_USER, AAI_PASSWD
-from catalog.pub.exceptions import NSLCMException
+from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils import restcall
 from catalog.pub.utils.values import ignore_case_get
 
@@ -44,7 +44,7 @@ def get_vims():
     ret = call_aai("/cloud-infrastructure/cloud-regions?depth=all", "GET")
     if ret[0] != 0:
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
-        raise NSLCMException("Failed to query vims from extsys.")
+        raise CatalogException("Failed to query vims from extsys.")
     # convert vim_info_aai to internal vim_info
     vims_aai = json.JSONDecoder().decode(ret[1])
     vims_aai = ignore_case_get(vims_aai, "cloud-region")
@@ -90,7 +90,7 @@ def get_vim_by_id(vim_id):
                    % (cloud_owner, cloud_region), "GET")
     if ret[0] != 0:
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
-        raise NSLCMException("Failed to query vim(%s) from extsys." % vim_id)
+        raise CatalogException("Failed to query vim(%s) from extsys." % vim_id)
     # convert vim_info_aai to internal vim_info
     vim_info_aai = json.JSONDecoder().decode(ret[1])
     vim_info = convert_vim_info(vim_info_aai)
@@ -102,7 +102,7 @@ def get_sdn_controller_by_id(sdn_ontroller_id):
                    % sdn_ontroller_id, "GET")
     if ret[0] != 0:
         logger.error("Failed to query sdn ontroller(%s) from extsys. detail is %s.", sdn_ontroller_id, ret[1])
-        raise NSLCMException("Failed to query sdn ontroller(%s) from extsys." % sdn_ontroller_id)
+        raise CatalogException("Failed to query sdn ontroller(%s) from extsys." % sdn_ontroller_id)
     # convert vim_info_aai to internal vim_info
     sdnc_info_aai = json.JSONDecoder().decode(ret[1])
     sdnc_info = convert_sdnc_info(sdnc_info_aai)
@@ -133,7 +133,7 @@ def get_vnfm_by_id(vnfm_inst_id):
     ret = call_aai(uri, "GET")
     if ret[0] > 0:
         logger.error('Send get VNFM information request to extsys failed.')
-        raise NSLCMException('Send get VNFM information request to extsys failed.')
+        raise CatalogException('Send get VNFM information request to extsys failed.')
     # convert vnfm_info_aai to internal vnfm_info
     vnfm_info_aai = json.JSONDecoder().decode(ret[1])
     vnfm_info = convert_vnfm_info(vnfm_info_aai)
@@ -164,7 +164,7 @@ def select_vnfm(vnfm_type, vim_id):
     ret = call_aai(uri, "GET")
     if ret[0] > 0:
         logger.error("Failed to call %s: %s", uri, ret[1])
-        raise NSLCMException('Failed to get vnfms from extsys.')
+        raise CatalogException('Failed to get vnfms from extsys.')
     vnfms = json.JSONDecoder().decode(ret[1])
     vnfms = ignore_case_get(vnfms, "esr-vnfm")
     for vnfm in vnfms:
@@ -175,4 +175,4 @@ def select_vnfm(vnfm_type, vim_id):
             # convert vnfm_info_aai to internal vnfm_info
             vnfm = convert_vnfm_info(vnfm)
             return vnfm
-    raise NSLCMException('No vnfm found with %s in vim(%s)' % (vnfm_type, vim_id))
+    raise CatalogException('No vnfm found with %s in vim(%s)' % (vnfm_type, vim_id))
