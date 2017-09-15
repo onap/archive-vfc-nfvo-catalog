@@ -16,6 +16,7 @@ import functools
 
 from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
 
+
 class EtsiNsdInfoModel(BaseInfoModel):
 
     def __init__(self, path, params):
@@ -38,6 +39,10 @@ class EtsiNsdInfoModel(BaseInfoModel):
         self.fps = self._get_all_fp(nodeTemplates)
         self.vnffgs = self._get_all_vnffg(tosca.topology_template.groups)
         self.server_groups = self.get_all_server_group(tosca.topology_template.groups)
+        self.ns_exposed = self.get_all_endpoint_exposed(tosca.topology_template)
+        self.policies = self._get_policies_scaling(tosca.topology_template.policies)
+        self.ns_flavours = self.get_all_flavour(tosca.topology_template.groups)
+        self.nested_ns = self.get_all_nested_ns(nodeTemplates)
 
 
     def buildInputs(self, top_inputs):
@@ -286,3 +291,71 @@ class EtsiNsdInfoModel(BaseInfoModel):
     def _isServerGroup(self, group):
         return group.type.upper().find('.AFFINITYORANTIAFFINITYGROUP.') >= 0 or group.type.upper().endswith(
             '.AFFINITYORANTIAFFINITYGROUP')
+
+    def get_all_endpoint_exposed(self, topo_tpl):
+        if 'substitution_mappings' in topo_tpl.tpl:
+            external_cps = self._get_external_cps(topo_tpl.tpl['substitution_mappings'])
+            forward_cps = self._get_forward_cps(topo_tpl.tpl['substitution_mappings'])
+            return {"external_cps": external_cps, "forward_cps": forward_cps}
+        return {}
+
+    def _get_external_cps(self, subs_mappings):
+        external_cps = []
+        if 'requirements' in subs_mappings:
+            for key, value in subs_mappings['requirements'].items():
+                if isinstance(value, list) and len(value) > 0:
+                    external_cps.append({"key_name": key, "cpd_id": value[0]})
+                else:
+                    external_cps.append({"key_name": key, "cpd_id": value})
+        return external_cps
+
+    def _get_forward_cps(self, subs_mappings):
+        forward_cps = []
+        if 'capabilities' in subs_mappings:
+            for key, value in subs_mappings['capabilities'].items():
+                if isinstance(value, list) and len(value) > 0:
+                    forward_cps.append({"key_name": key, "cpd_id": value[0]})
+                else:
+                    forward_cps.append({"key_name": key, "cpd_id": value})
+        return forward_cps
+
+    def _get_policies_scaling(self, top_policies):
+        policies_scaling = []
+        scaling_policies = self.get_scaling_policies(top_policies)
+        if len(scaling_policies) > 0:
+            policies_scaling.append({"scaling": scaling_policies})
+        return policies_scaling
+
+    def get_policies_by_keyword(self, top_policies, keyword):
+        ret = []
+        for policy in top_policies:
+            if policy.type.upper().find(keyword) >= 0:
+                tmp = {}
+                tmp['policy_id'] = policy.name
+                tmp['description'] = policy.description
+                if 'properties' in policy.entity_tpl:
+                    tmp['properties'] = policy.entity_tpl['properties']
+                tmp['targets'] = policy.targets
+                ret.append(tmp)
+
+        return ret
+
+    def get_scaling_policies(self, top_policies):
+        return self.get_policies_by_keyword(top_policies, '.SCALING')
+
+    def get_all_flavour(self, groups):
+        rets = []
+        for group in groups:
+            if self._isFlavour(group):
+                ret = {}
+                ret['flavour_id'] = group.name
+                ret['description'] = group.description
+                if 'properties' in group.tpl:
+                    ret['properties'] = group.tpl['properties']
+                ret['members'] = group.members
+
+                rets.append(ret)
+        return rets
+
+    def _isFlavour(self, group):
+        return group.type.upper().find('FLAVOUR') >= 0

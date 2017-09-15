@@ -13,12 +13,14 @@
 # limitations under the License.
 
 import copy
+import ftplib
 import json
 import os
 import re
 import shutil
 import urllib
 
+import paramiko
 from toscaparser.functions import GetInput
 from toscaparser.tosca_template import ToscaTemplate
 
@@ -115,6 +117,32 @@ class BaseInfoModel(object):
             self.ftp_get(userName, userPwd, hostIp, hostPort, remoteFileName, localFileName)
         return localFileName
 
+    def sftp_get(self, userName, userPwd, hostIp, hostPort, remoteFileName, localFileName):
+        # return
+        t = None
+        try:
+            t = paramiko.Transport(hostIp, int(hostPort))
+            t.connect(username=userName, password=userPwd)
+            sftp = paramiko.SFTPClient.from_transport(t)
+            sftp.get(remoteFileName, localFileName)
+        finally:
+            if t != None:
+                t.close()
+
+
+    def ftp_get(self, userName, userPwd, hostIp, hostPort, remoteFileName, localFileName):
+        f = None
+        try:
+            ftp = ftplib.FTP()
+            ftp.connect(hostIp, hostPort)
+            ftp.login(userName, userPwd)
+            f = open(localFileName, 'wb')
+            ftp.retrbinary('RETR ' + remoteFileName, f.write, 1024)
+            f.close()
+        finally:
+            if f != None:
+                f.close()
+
     def buidMetadata(self, tosca):
         if 'metadata' in tosca.tpl:
             self.metadata = copy.deepcopy(tosca.tpl['metadata'])
@@ -202,6 +230,9 @@ class BaseInfoModel(object):
         return node['nodeType'].upper().find('.VIRTUALLINK.') >= 0 or node['nodeType'].upper().find('.VL.') >= 0 or \
                node['nodeType'].upper().endswith('.VIRTUALLINK') or node['nodeType'].upper().endswith('.VL')
 
+    def isService(self, node):
+        return node['nodeType'].upper().find('.SERVICE.') >= 0 or node['nodeType'].upper().endswith('.SERVICE')
+
     def get_requirement_node_name(self, req_value):
         return self.get_prop_from_obj(req_value, 'node')
 
@@ -279,3 +310,33 @@ class BaseInfoModel(object):
             if node['name'] == name:
                 return node
         return None
+
+    def get_all_nested_ns(self, nodes):
+        nss = []
+        for node in nodes:
+            if self.is_nested_ns(node):
+                ns = {}
+                ns['ns_id'] = node['name']
+                ns['description'] = node['description']
+                ns['properties'] = node['properties']
+                ns['networks'] = self.get_networks(node)
+
+                nss.append(ns)
+        return nss
+
+    def is_nested_ns(self, node):
+        return node['nodeType'].upper().find('.NS.') >= 0 or node['nodeType'].upper().endswith('.NS')
+
+    def isVdu(self, node):
+        return node['nodeType'].upper().find('.VDU.') >= 0 or node['nodeType'].upper().endswith('.VDU')
+
+    def getCapabilityByName(self, node, capabilityName):
+        if 'capabilities' in node and capabilityName in node['capabilities']:
+            return node['capabilities'][capabilityName]
+        return None
+
+    def get_node_vdu_id(self, node):
+        vdu_ids = map(lambda x: self.get_requirement_node_name(x), self.getVirtualbindings(node))
+        if len(vdu_ids) > 0:
+            return vdu_ids[0]
+        return ""
