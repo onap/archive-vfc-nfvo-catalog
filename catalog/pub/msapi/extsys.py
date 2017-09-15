@@ -14,11 +14,30 @@
 
 import json
 import logging
+import uuid
 
+from catalog.pub.config.config import AAI_BASE_URL, AAI_USER, AAI_PASSWD
 from catalog.pub.exceptions import NSLCMException
+from catalog.pub.utils import restcall
 from catalog.pub.utils.restcall import req_by_msb
 
 logger = logging.getLogger(__name__)
+
+
+def call_aai(resource, method, content=''):
+    additional_headers = {
+        'X-FromAppId': 'VFC-NFVO-LCM',
+        'X-TransactionId': str(uuid.uuid1())
+    }
+
+    return restcall.call_req(AAI_BASE_URL,
+                             AAI_USER,
+                             AAI_PASSWD,
+                             restcall.rest_no_auth,
+                             resource,
+                             method,
+                             content,
+                             additional_headers)
 
 
 def get_vims():

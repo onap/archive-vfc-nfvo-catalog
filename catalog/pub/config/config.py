@@ -17,6 +17,11 @@ import os
 MSB_SERVICE_IP = '127.0.0.1'
 MSB_SERVICE_PORT = '80'
 
+# [aai config]
+AAI_BASE_URL = "https://127.0.0.1:8443/aai/v11"
+AAI_USER = "AAI"
+AAI_PASSWD = "AAI"
+
 # [REDIS]
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = '6379'
