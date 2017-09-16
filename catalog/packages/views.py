@@ -115,7 +115,7 @@ def ns_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
     inputs = ignore_case_get(request.data, "inputs")
     if request.method == 'POST':
-        ret = ns_package.parser_nsdmodel(csar_id,inputs)
+        ret = ns_package.parser_NSPackageModel(csar_id,inputs)
         normal_status = status.HTTP_202_ACCEPTED
     else:
         ret = [1, "Request is not allowed"]

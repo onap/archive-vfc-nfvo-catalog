@@ -19,7 +19,7 @@ import sys
 import traceback
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.database.models import NSDModel, NfPackageModel
+from catalog.pub.database.models import NSPackageModel, VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import nfvolcm
 from catalog.pub.msapi import sdc
@@ -92,14 +92,14 @@ def ns_get_csar(csar_id):
         return [1, str(sys.exc_info())]
     return ret
 
-def parser_nsdmodel(csar_id,inputs):
+def parser_NSPackageModel(csar_id,inputs):
     ret= None
     try:
-        nf_pkg = NSDModel.objects.filter(id=csar_id)
+        nf_pkg = NSPackageModel.objects.filter(nsPackageId=csar_id)
 
         if nf_pkg:
             for pkg in nf_pkg:
-                csar_path = pkg.nsd_path
+                csar_path = pkg.localFilePath
                 ret={"model":toscaparser.parse_nsd(csar_path,inputs)}
                 continue
     except CatalogException as e:
@@ -119,30 +119,33 @@ class NsPackage(object):
         pass
 
     def on_distribute(self, csar_id):
-        if NSDModel.objects.filter(id=csar_id):
+        if NSPackageModel.objects.filter(nsPackageId=csar_id):
             raise CatalogException("NS CSAR(%s) already exists." % csar_id)
 
         nsd,local_file_name,nsd_json = self.get_nsd(csar_id)
 
         nsd_id = nsd["metadata"]["id"]
-        if NSDModel.objects.filter(nsd_id=nsd_id):
+        if NSPackageModel.objects.filter(nsdId=nsd_id):
             raise CatalogException("NSD(%s) already exists." % nsd_id)
 
         for vnf in nsd["vnfs"]:
             vnfd_id = vnf["properties"]["id"]
-            pkg = NfPackageModel.objects.filter(vnfdid=vnfd_id)
+            pkg = VnfPackageModel.objects.filter(vnfdId = vnfd_id)
             if not pkg:
                 raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
-        NSDModel(
-            id=csar_id,
-            nsd_id=nsd_id,
-            name=nsd["metadata"].get("name", nsd_id),
-            vendor=nsd["metadata"].get("vendor", "undefined"),
-            description=nsd["metadata"].get("description", ""),
-            version=nsd["metadata"].get("version", "undefined"),
-            nsd_path=local_file_name,
-            nsd_model=nsd_json).save()
+        NSPackageModel(
+            nsPackageId=csar_id,
+            nsdId=nsd_id,
+            nsdName=nsd["metadata"].get("name", nsd_id),
+            nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
+            nsdDescription=nsd["metadata"].get("description", ""),
+            nsdVersion=nsd["metadata"].get("version", "undefined"),
+            nsPackageUri=local_file_name,
+            sdcCsarId=csar_id,
+            localFilePath=local_file_name,
+            nsdModel=nsd_json
+            ).save()
 
         return [0, "CSAR(%s) distributed successfully." % csar_id]
 
@@ -165,33 +168,33 @@ class NsPackage(object):
                 raise CatalogException("CSAR(%s) is in using, cannot be deleted." % csar_id)
         '''
         #nfvolcm.delete_ns_inst_mock()
-        NSDModel.objects.filter(id=csar_id).delete()
+        NSPackageModel.objects.filter(nsPackageId=csar_id).delete()
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
 
     def get_csars(self):
         csars = []
-        nss = NSDModel.objects.filter()
+        nss = NSPackageModel.objects.filter()
         for ns in nss:
             csars.append({
-                "csarId": ns.id,
-                "nsdId": ns.nsd_id
+                "csarId": ns.nsPackageId,
+                "nsdId": ns.nsdId
             })
         return [0,csars]
 
     def get_csar(self, csar_id):
         package_info = {}
-        csars = NSDModel.objects.filter(id=csar_id)
+        csars = NSPackageModel.objects.filter(nsPackageId=csar_id)
         if csars:
-            package_info["nsdId"] = csars[0].nsd_id
-            package_info["nsdProvider"] = csars[0].vendor
-            package_info["nsdVersion"] = csars[0].version
+            package_info["nsdId"] = csars[0].nsdId
+            package_info["nsdProvider"] = csars[0].nsdDesginer
+            package_info["nsdVersion"] = csars[0].nsdVersion
 
         #nss = NSInstModel.objects.filter(nspackage_id=csar_id)
-        nss = nfvolcm.getNsInsts_mock()
+        nss = nfvolcm.get_nsInstances(csar_id)
         ns_instance_info = [{
             "nsInstanceId": ns["nsInstanceId"],
-            "nsInstanceName": ns["nsInstanceName"]} for ns in nss]
+            "nsInstanceName": ns["nsName"]} for ns in nss]
 
         return [0, {"csarId": csar_id, 
             "packageInfo": package_info, 
