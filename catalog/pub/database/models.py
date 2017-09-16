@@ -15,18 +15,18 @@ from django.db import models
 
 
 class NSPackageModel(models.Model):
-    nsPackageId = models.CharField(db_column='NSPACKAGEID', primary_key=True, max_length=200)
+    nsPackageId = models.CharField(db_column='NSPACKAGEID', primary_key=True, max_length=50)
     nsPackageUri = models.CharField(db_column='NSPACKAGEURI', max_length=300, null=True, blank=True)
-    checksum = models.CharField(db_column='CHECKSUM', max_length=300, null=True, blank=True)  # checksum
-    sdcCsarId = models.CharField(db_column='SDCCSARID', max_length=300, null=True, blank=True)  # SdcCSARUri
-    operationalState = models.TextField(db_column='OPERATIONALSTATE', max_length=20, blank=True,null=True)  # operationalState
-    usageState = models.TextField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
-    deletionPending = models.TextField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
-    nsdId = models.CharField(db_column='NSDID', max_length=200)
-    nsdName = models.CharField(db_column='NSDNAME', max_length=200)
-    nsdDesginer = models.CharField(db_column='NSDDESIGNER', max_length=200, null=True, blank=True)
-    nsdDescription = models.CharField(db_column='NSDDESCRIPTION', max_length=200, null=True, blank=True)
-    nsdVersion = models.CharField(db_column='NSDVERSION', max_length=200, null=True, blank=True)
+    checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
+    sdcCsarId = models.CharField(db_column='SDCCSARID', max_length=50, null=True, blank=True)  # SdcCSARUri
+    operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True,null=True)  # operationalState
+    usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
+    deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
+    nsdId = models.CharField(db_column='NSDID', max_length=50,blank=True, null=True)
+    nsdName = models.CharField(db_column='NSDNAME', max_length=50,blank=True, null=True)
+    nsdDesginer = models.CharField(db_column='NSDDESIGNER', max_length=50, null=True, blank=True)
+    nsdDescription = models.CharField(db_column='NSDDESCRIPTION', max_length=100, null=True, blank=True)
+    nsdVersion = models.CharField(db_column='NSDVERSION', max_length=20, null=True, blank=True)
     userDefinedData = models.TextField(db_column='USERDEFINEDDATA', max_length=1024, blank=True, null=True)  # userDefinedData
     localFilePath = models.CharField(db_column='LOCALFILEPATH', max_length=300, null=True, blank=True)
     nsdModel = models.TextField(db_column='NSDMODEL', max_length=65535, null=True, blank=True)
@@ -35,18 +35,18 @@ class NSPackageModel(models.Model):
 
 class VnfPackageModel(models.Model):
     #uuid = models.CharField(db_column='UUID', primary_key=True, max_length=255)
-    vnfPackageId = models.CharField(db_column='VNFPACKAGEID', max_length=200)   #onboardedVnfPkgInfoId
+    vnfPackageId = models.CharField(db_column='VNFPACKAGEID', primary_key=True, max_length=50)   #onboardedVnfPkgInfoId
     vnfPackageUri = models.CharField(db_column='VNFPACKAGEURI', max_length=300, null=True, blank=True)  # downloadUri
     SdcCSARUri = models.CharField(db_column='SDCCSARURI', max_length=300, null=True, blank=True)  # SdcCSARUri
-    checksum = models.CharField(db_column='CHECKSUM', max_length=300, null=True, blank=True)  # checksum
-    operationalState = models.TextField(db_column='OPERATIONALSTATE', max_length=20, blank=True,null=True)  # operationalState
-    usageState = models.TextField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
-    deletionPending = models.TextField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
-    vnfdId = models.CharField(db_column='VNFDID', max_length=255)                #vnfdId
-    vnfVendor = models.CharField(db_column='VENDOR', max_length=255)  # vnfProvider
-    vnfdProductName = models.CharField(db_column='vnfdProductName', max_length=200)  #vnfProductName
-    vnfdVersion = models.CharField(db_column='VNFDVERSION', max_length=255)     #vnfdVersion
-    vnfSoftwareVersion = models.CharField(db_column='VNFSOFTWAREVERSION', max_length=255)   #vnfSoftwareVersion
+    checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
+    operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True,null=True)  # operationalState
+    usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
+    deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
+    vnfdId = models.CharField(db_column='VNFDID', max_length=50,blank=True, null=True)                #vnfdId
+    vnfVendor = models.CharField(db_column='VENDOR', max_length=50,blank=True, null=True)  # vnfProvider
+    vnfdProductName = models.CharField(db_column='VNFDPRODUCTNAME', max_length=50,blank=True, null=True)  #vnfProductName
+    vnfdVersion = models.CharField(db_column='VNFDVERSION', max_length=20,blank=True, null=True)     #vnfdVersion
+    vnfSoftwareVersion = models.CharField(db_column='VNFSOFTWAREVERSION', max_length=20,blank=True, null=True)   #vnfSoftwareVersion
     userDefinedData = models.TextField(db_column='USERDEFINEDDATA', max_length=1024, blank=True, null=True)  # userDefinedData
     localFilePath = models.CharField(db_column='LOCALFILEPATH', max_length=300, null=True, blank=True)
     vnfdModel = models.TextField(db_column='VNFDMODEL', max_length=65535, blank=True, null=True)  # vnfd
@@ -55,7 +55,7 @@ class VnfPackageModel(models.Model):
 
 
 class SoftwareImageModel(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)
+    imageid = models.CharField(db_column='IMAGEID',  primary_key=True, max_length=50)
     diskFormat = models.CharField(db_column='DISKFORMAT', max_length=10)
     containerFormat = models.CharField(db_column='CONTAINERFORMAT', max_length=20)
     diskFormat = models.CharField(db_column='DISKFORMAT', max_length=20)
@@ -63,9 +63,8 @@ class SoftwareImageModel(models.Model):
     minram = models.CharField(db_column='MINRAM', max_length=20)
     usermetadata = models.CharField(db_column='USAERMETADATA', max_length=1024)
     vnfPackageId = models.CharField(db_column='VNFPACKAGEID', max_length=50)
-    filePath = models.CharField(db_column='FILEPATH', max_length=100)
+    filePath = models.CharField(db_column='FILEPATH', max_length=300)
     status = models.CharField(db_column='STATUS', max_length=10)
-    imageid = models.CharField(db_column='IMAGEID', max_length=50)
     vimid = models.CharField(db_column='VIMID', max_length=50)
     #filetype = models.CharField(db_column='FILETYPE', max_length=2)
     #vimuser = models.CharField(db_column='VIMUSER', max_length=50)
