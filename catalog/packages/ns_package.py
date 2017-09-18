@@ -54,15 +54,18 @@ def ns_delete_csar(csar_id, force_delete):
     ret = None
     nsinstances = []
     try:
-       if force_delete:
-           ret = NsPackage().delete_csar(csar_id)
-           return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
-       nsinstances = nfvolcm.get_nsInstances(csar_id)
-       if nsinstances:
-          if len(nsinstances) > 0:
-              return fmt_ns_pkg_rsp(STATUS_FAILED, "NS instances using the CSAR exists!",status.HTTP_412_PRECONDITION_FAILED)
-       ret = NsPackage().delete_csar(csar_id)
-       return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
+        response = nfvolcm.get_nsInstances(csar_id)
+        if force_delete:
+            nsinstances = response.data
+            for ns_instance in nsinstances:
+                ns_instance_id = ns_instance["nsInstanceId"]
+                # delete ns instances.
+                nfvolcm.delete_ns_inst(ns_instance_id)
+        if nsinstances:
+            if len(nsinstances) > 0:
+                return fmt_ns_pkg_rsp(STATUS_FAILED, "NS instances using the CSAR exists!",status.HTTP_412_PRECONDITION_FAILED)
+        ret = NsPackage().delete_csar(csar_id)
+        return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
     except CatalogException as e:
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:

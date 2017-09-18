@@ -34,7 +34,7 @@ def call_lcm(resource, method, content=''):
         content=content)
 
 def get_nsInstances(csarid):
-    ret=call_lcm("/nslcm/v1/ns?nsPackageId=%s"% csarid,"get")
+    ret=call_lcm("/nslcm/v1/ns?csarId=%s"% csarid,"get")
     if ret[0] != 0:
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
         raise CatalogException("Failed to query NS Instances(%s) from NSLCM." % csarid)
@@ -48,8 +48,12 @@ def get_vnfInstances(csarid):
     return json.JSONDecoder().decode(ret[1])
 
 # Mock code because the REST API from nfvolcm to delete ns instance is not implemented
-def delete_ns_inst_mock():
-    return [0,'success']
+def delete_ns_inst(ns_instance_id):
+    ret=call_lcm("api/nslcm/v1/ns/%s" % ns_instance_id,"delete")
+    if ret[0] != 0:
+        logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
+        raise CatalogException("Failed to query VNF Instances(%s) from NSLCM." % ns_instance_id)
+    return json.JSONDecoder().decode(ret[1])
 
 # Mock code because the REST API from nfvolcm to delete nf instance is not implemented
 def delete_nf_inst_mock():
