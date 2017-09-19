@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 ASSETTYPE_RESOURCES = "resources" 
 ASSETTYPE_SERVICES = "services"
 
+
 def call_sdc(resource, method, content=''):
     additional_headers = {
         'X-ECOMP-InstanceID': 'VFC',
@@ -55,6 +56,7 @@ sample of return value
     }
 ]
 """
+
 def get_artifacts(asset_type):
     resource = "/sdc/v1/catalog/{assetType}"
     resource = resource.format(assetType=asset_type)
@@ -64,12 +66,14 @@ def get_artifacts(asset_type):
         raise CatalogException("Failed to query artifacts(%s) from sdc." % asset_type)
     return json.JSONDecoder().decode(ret[1])
 
+
 def get_artifact(asset_type, csar_id):
     artifacts = get_artifacts(asset_type)
     for artifact in artifacts:
         if artifact["uuid"] == csar_id:
             return artifact
     raise CatalogException("Failed to query artifact(%s,%s) from sdc." % (asset_type, csar_id))
+
 
 def delete_artifact(asset_type, asset_id, artifact_id):
     resource = "/sdc/v1/catalog/{assetType}/{uuid}/artifacts/{artifactUUID}"
@@ -79,6 +83,7 @@ def delete_artifact(asset_type, asset_id, artifact_id):
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
         raise CatalogException("Failed to delete artifacts(%s) from sdc." % artifact_id)
     return json.JSONDecoder().decode(ret[1])
+
 
 def download_artifacts(download_url, local_path, file_name):
     additional_headers = {
@@ -100,14 +105,3 @@ def download_artifacts(download_url, local_path, file_name):
     local_file.write(ret[1])
     local_file.close()
     return local_file_name
-
-    
-
-    
-
-
-   
-
-
-
-

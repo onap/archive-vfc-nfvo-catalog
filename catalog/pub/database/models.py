@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from django.db import models
 
 
@@ -32,6 +33,7 @@ class NSPackageModel(models.Model):
     nsdModel = models.TextField(db_column='NSDMODEL', max_length=65535, null=True, blank=True)
     class Meta:
         db_table = 'CATALOG_NSPACKAGE'
+
 
 class VnfPackageModel(models.Model):
     #uuid = models.CharField(db_column='UUID', primary_key=True, max_length=255)
@@ -73,6 +75,7 @@ class SoftwareImageModel(models.Model):
     class Meta:
         db_table = 'CATALOG_SOFTWAREIMAGEMODEL'
 
+
 class JobModel(models.Model):
     jobid = models.CharField(db_column='JOBID', primary_key=True, max_length=255)
     jobtype = models.CharField(db_column='JOBTYPE', max_length=255)
@@ -109,4 +112,3 @@ class JobStatusModel(models.Model):
     def toJSON(self):
         import json
         return json.dumps(dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]]))
-

@@ -28,4 +28,4 @@ GRANT ALL PRIVILEGES ON mysql.* TO 'nfvocatalog'@'%' IDENTIFIED BY 'nfvocatalog'
 
 GRANT ALL PRIVILEGES ON nfvocatalog.* TO 'nfvocatalog'@'localhost' IDENTIFIED BY 'nfvocatalog' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON mysql.* TO 'nfvocatalog'@'localhost' IDENTIFIED BY 'nfvocatalog' WITH GRANT OPTION;
-FLUSH PRIVILEGES; 
+FLUSH PRIVILEGES;

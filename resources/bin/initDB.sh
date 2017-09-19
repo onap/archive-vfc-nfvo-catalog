@@ -47,4 +47,3 @@ do
 done
 echo "init nfvocatalog database success!"
 exit 0
-

@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from django.conf.urls import include, url
+from django.conf.urls import url
+
 from catalog.packages import views
 
 urlpatterns = [
