@@ -115,7 +115,7 @@ def ns_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
     inputs = ignore_case_get(request.data, "inputs")
     logger.debug("Enter %s, csar_id=%s, inputs=%s", fun_name(), csar_id, inputs)
-    ret = ns_package.parser_NSPackageModel(csar_id, inputs)
+    ret = ns_package.parse_nsd(csar_id, inputs)
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -127,7 +127,7 @@ def vnf_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
     inputs = ignore_case_get(request.data, "inputs")
     logger.debug("Enter %s, csar_id=%s, inputs=%s", fun_name(), csar_id, inputs)
-    nf_package.parser_vnfdmodel(csar_id, inputs)
+    nf_package.parse_vnfd(csar_id, inputs)
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

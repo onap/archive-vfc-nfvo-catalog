@@ -54,19 +54,19 @@ def nf_get_csar(csar_id):
         return [1, str(sys.exc_info())]
     return ret
 
-def parser_vnfdmodel(csar_id,inputs):
+def parse_vnfd(csar_id, inputs):
     ret= None
     try:
         nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=csar_id)
         if nf_pkg:
-             csar_path=nf_pkg["localFilePath"]
-             ret={"model":toscaparser.parse_vnfd(csar_path,inputs)}
+             csar_path = nf_pkg[0].localFilePath
+             ret = {"model": toscaparser.parse_vnfd(csar_path, inputs)}
     except CatalogException as e:
         return [1, e.message]
     except:
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
-    return [0,ret]
+    return [0, ret]
 
 
 class NfDistributeThread(threading.Thread):
