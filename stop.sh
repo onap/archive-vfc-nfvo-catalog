@@ -13,5 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-sip=127.0.0.1
-ps auxww | grep "manage.py runserver $sip:8806" | awk '{print $2}' | xargs kill -9
+ps auxww | grep "manage.py runserver 0.0.0.0:8806" | awk '{print $2}' | xargs kill -9
