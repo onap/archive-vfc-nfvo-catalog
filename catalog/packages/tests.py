@@ -513,7 +513,8 @@ class PackageTest(unittest.TestCase):
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     @mock.patch.object(NsPackage,'get_nsd')
     @mock.patch.object(nfvolcm,'get_nsInstances')
-    def test_ns_package_delete(self, mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
+    @mock.patch.object(nfvolcm,'delete_all_nsinst')
+    def test_ns_package_delete(self, mock_delete_all_nsinst, mock_get_nsInstances, mock_get_nsd, mock_get_vnfd):
 
         # First distribute a VNF
         local_file_name = "/url/local/filename"
@@ -534,6 +535,7 @@ class PackageTest(unittest.TestCase):
 
         # Finally delete ns package
         mock_get_nsInstances.return_value = []
+        mock_delete_all_nsinst.return_value = [0,"success"]
         response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
         self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
@@ -542,7 +544,8 @@ class PackageTest(unittest.TestCase):
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     @mock.patch.object(NsPackage,'get_nsd')
     @mock.patch.object(nfvolcm,'get_nsInstances')
-    def test_ns_package_delete_force(self, mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
+    @mock.patch.object(nfvolcm,'delete_all_nsinst')
+    def test_ns_package_delete_force(self, mock_delete_all_nsinst, mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
 
         # First distribute a VNF
         local_file_name = "/url/local/filename"
@@ -563,6 +566,7 @@ class PackageTest(unittest.TestCase):
 
         # Finally delete ns package
         mock_get_nsInstances.return_value = [{"csarid":"1"},{"csarid":"2"}]
+        mock_delete_all_nsinst.return_value = [0,"success"]
         response = self.client.delete("/api/catalog/v1/nspackages/%sforce"% str(self.ns_csarId))
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
         self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)

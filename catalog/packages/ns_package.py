@@ -55,7 +55,7 @@ def ns_delete_csar(csar_id, force_delete):
     nsinstances = []
     try:
        if force_delete:
-           ret = NsPackage().delete_csar(csar_id)
+           ret = NsPackage().delete_csar(csar_id,True)
            return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
        nsinstances = nfvolcm.get_nsInstances(csar_id)
        if nsinstances:
@@ -159,15 +159,9 @@ class NsPackage(object):
 
         return nsd,local_file_name,nsd_json
 
-    def delete_csar(self, csar_id):
-        '''
+    def delete_csar(self, csar_id,force_delete = False):
         if force_delete:
-            NSInstModel.objects.filter(nspackage_id=csar_id).delete()
-        else:
-            if NSInstModel.objects.filter(nspackage_id=csar_id):
-                raise CatalogException("CSAR(%s) is in using, cannot be deleted." % csar_id)
-        '''
-        #nfvolcm.delete_ns_inst_mock()
+            nfvolcm.delete_all_nsinst(csar_id)
         NSPackageModel.objects.filter(nsPackageId=csar_id).delete()
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 

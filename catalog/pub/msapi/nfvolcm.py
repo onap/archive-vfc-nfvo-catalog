@@ -48,11 +48,20 @@ def get_vnfInstances(csarid):
     return json.JSONDecoder().decode(ret[1])
 
 # Mock code because the REST API from nfvolcm to delete ns instance is not implemented
-def delete_ns_inst_mock():
+def delete_all_nsinst(csarid):
+    nsinstances = get_nsInstances(csarid)
+    for ns in nsinstances:
+        nsInstanceId = ns["nsInstanceId"]
+        ret=call_lcm("/nslcm/v1/ns/%s" % nsInstanceId,"delete")
+        if ret[0] != 0:
+            logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
+            raise CatalogException("Failed to delete NS Instances(%s) from NSLCM." % nsInstanceId)
+
     return [0,'success']
 
-# Mock code because the REST API from nfvolcm to delete nf instance is not implemented
-def delete_nf_inst_mock():
+def delete_nf_inst(csar_id):
+    #vnf_instance = get_vnfInstances(csar_id)
+    # REST API from nfvolcm to delete nf instance is not implemented
     return [0,'success']
 
 def delete_ns(asset_type):

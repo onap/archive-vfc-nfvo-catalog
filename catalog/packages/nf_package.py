@@ -184,7 +184,7 @@ class NfPkgDeleteThread(threading.Thread):
             if NfInstModel.objects.filter(package_id=self.csar_id):
                 raise CatalogException("NfInst by csar(%s) exists, cannot delete." % self.csar_id)
         '''
-        nfvolcm.delete_nf_inst_mock()
+        nfvolcm.delete_nf_inst(self.csar_id)
         JobUtil.add_job_status(self.job_id, 50, "Delete CSAR(%s) from Database." % self.csar_id)
 
         if not VnfPackageModel.objects.filter(vnfPackageId=self.csar_id):
