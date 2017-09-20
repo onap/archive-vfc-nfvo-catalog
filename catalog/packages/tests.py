@@ -24,7 +24,7 @@ from catalog.packages.nf_package import NfDistributeThread
 from catalog.packages.nf_package import NfPkgDeleteThread
 from catalog.packages.ns_package import NsPackage
 from catalog.pub.database.models import NSPackageModel, VnfPackageModel, JobStatusModel
-from catalog.pub.msapi import nfvolcm
+from catalog.pub.msapi import nslcm
 
 
 class PackageTest(unittest.TestCase):
@@ -119,7 +119,7 @@ class PackageTest(unittest.TestCase):
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     @mock.patch.object(NsPackage,'get_nsd')
-    @mock.patch.object(nfvolcm,'get_nsInstances')
+    @mock.patch.object(nslcm, 'get_nsInstances')
     def test_ns_package_delete(self, mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
 
         # First distribute a VNF
@@ -148,7 +148,7 @@ class PackageTest(unittest.TestCase):
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     @mock.patch.object(NsPackage,'get_nsd')
-    @mock.patch.object(nfvolcm,'get_nsInstances')
+    @mock.patch.object(nslcm, 'get_nsInstances')
     def test_ns_package_delete_force(self, mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
 
         # First distribute a VNF

@@ -22,7 +22,7 @@ import traceback
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
-from catalog.pub.msapi import nfvolcm
+from catalog.pub.msapi import nslcm
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
@@ -184,7 +184,7 @@ class NfPkgDeleteThread(threading.Thread):
             if NfInstModel.objects.filter(package_id=self.csar_id):
                 raise CatalogException("NfInst by csar(%s) exists, cannot delete." % self.csar_id)
         '''
-        nfvolcm.delete_nf_inst_mock()
+        nslcm.delete_nf_inst_mock()
         JobUtil.add_job_status(self.job_id, 50, "Delete CSAR(%s) from Database." % self.csar_id)
 
         if not VnfPackageModel.objects.filter(vnfPackageId=self.csar_id):
@@ -230,7 +230,7 @@ class NfPackage(object):
 
 
         #vnf_insts = NfInstModel.objects.filter(package_id=csar_id)
-        vnf_insts = nfvolcm.get_vnfInstances()
+        vnf_insts = nslcm.get_vnfInstances()
         vnf_inst_info = [{"vnfInstanceId": vnf_inst["vnfInstanceId"],
                           "vnfInstanceName": vnf_inst["vnfInstanceName"]} for vnf_inst in vnf_insts]
 

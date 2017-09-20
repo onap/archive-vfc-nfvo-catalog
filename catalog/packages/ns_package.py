@@ -21,7 +21,7 @@ import traceback
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import NSPackageModel, VnfPackageModel
 from catalog.pub.exceptions import CatalogException
-from catalog.pub.msapi import nfvolcm
+from catalog.pub.msapi import nslcm
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
@@ -56,7 +56,7 @@ def ns_delete_csar(csar_id, force_delete):
         if force_delete: 
             ret = NsPackage().delete_csar(csar_id)
             return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
-        if nfvolcm.get_nsInstances(csar_id):
+        if nslcm.get_nsInstances(csar_id):
             return fmt_ns_pkg_rsp(STATUS_FAILED, 
                 "NS instances using CSAR(%s) already exists!" % csar_id)
         ret = NsPackage().delete_csar(csar_id)
@@ -184,7 +184,7 @@ class NsPackage(object):
             package_info["nsdProvider"] = csars[0].nsdDesginer
             package_info["nsdVersion"] = csars[0].nsdVersion
 
-        nss = nfvolcm.get_nsInstances(csar_id)
+        nss = nslcm.get_nsInstances(csar_id)
         ns_instance_info = [{
             "nsInstanceId": ns["nsInstanceId"],
             "nsInstanceName": ns["nsName"]} for ns in nss]
