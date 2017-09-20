@@ -54,11 +54,12 @@ CATALOG_ROOT_PATH = None
 CATALOG_URL_PATH = None
 
 # [sdc config]
-SDC_BASE_URL = "https://127.0.0.1:1234/api"
-SDC_USER = "admin"
-SDC_PASSWD = "admin"
+SDC_BASE_URL = "https://127.0.0.1:8443/api/sdc/v1"
+SDC_USER = "SDC"
+SDC_PASSWD = "SDC"
 
-NFVOLCM_BASE_URL = "https://127.0.0.1:1234/api"
+# [nslcm config]
+NFVOLCM_BASE_URL = "http://127.0.0.1:8403/api"
 NFVOLCM_USER = "admin"
 NFVOLCM_PASSWD = "admin"
 
