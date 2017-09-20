@@ -52,17 +52,15 @@ def ns_on_distribute(csar_id):
 
 def ns_delete_csar(csar_id, force_delete):
     ret = None
-    nsinstances = []
     try:
-       if force_delete:
-           ret = NsPackage().delete_csar(csar_id)
-           return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
-       nsinstances = nfvolcm.get_nsInstances(csar_id)
-       if nsinstances:
-          if len(nsinstances) > 0:
-              return fmt_ns_pkg_rsp(STATUS_FAILED, "NS instances using the CSAR exists!",status.HTTP_412_PRECONDITION_FAILED)
-       ret = NsPackage().delete_csar(csar_id)
-       return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
+        if force_delete: 
+            ret = NsPackage().delete_csar(csar_id)
+            return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
+        if nfvolcm.get_nsInstances(csar_id):
+            return fmt_ns_pkg_rsp(STATUS_FAILED, 
+                "NS instances using CSAR(%s) already exists!" % csar_id)
+        ret = NsPackage().delete_csar(csar_id)
+        return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
     except CatalogException as e:
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
@@ -119,7 +117,7 @@ class NsPackage(object):
         if NSPackageModel.objects.filter(nsPackageId=csar_id):
             raise CatalogException("NS CSAR(%s) already exists." % csar_id)
 
-        nsd,local_file_name,nsd_json = self.get_nsd(csar_id)
+        nsd, local_file_name, nsd_json = self.get_nsd(csar_id)
 
         nsd_id = nsd["metadata"]["id"]
         if NSPackageModel.objects.filter(nsdId=nsd_id):
@@ -154,7 +152,7 @@ class NsPackage(object):
         nsd_json = toscaparser.parse_nsd(local_file_name)
         nsd = json.JSONDecoder().decode(nsd_json)
 
-        return nsd,local_file_name,nsd_json
+        return nsd, local_file_name, nsd_json
 
     def delete_csar(self, csar_id):
         '''
@@ -164,7 +162,6 @@ class NsPackage(object):
             if NSInstModel.objects.filter(nspackage_id=csar_id):
                 raise CatalogException("CSAR(%s) is in using, cannot be deleted." % csar_id)
         '''
-        #nfvolcm.delete_ns_inst_mock()
         NSPackageModel.objects.filter(nsPackageId=csar_id).delete()
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
@@ -177,7 +174,7 @@ class NsPackage(object):
                 "csarId": ns.nsPackageId,
                 "nsdId": ns.nsdId
             })
-        return [0,csars]
+        return [0, csars]
 
     def get_csar(self, csar_id):
         package_info = {}
@@ -187,7 +184,6 @@ class NsPackage(object):
             package_info["nsdProvider"] = csars[0].nsdDesginer
             package_info["nsdVersion"] = csars[0].nsdVersion
 
-        #nss = NSInstModel.objects.filter(nspackage_id=csar_id)
         nss = nfvolcm.get_nsInstances(csar_id)
         ns_instance_info = [{
             "nsInstanceId": ns["nsInstanceId"],
