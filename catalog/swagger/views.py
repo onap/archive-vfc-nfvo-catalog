@@ -13,13 +13,10 @@
 # limitations under the License.
 
 import json
-import logging
 import os
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-logger = logging.getLogger(__name__)
 
 
 class SwaggerJsonView(APIView):
