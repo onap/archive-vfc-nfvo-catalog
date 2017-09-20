@@ -175,27 +175,27 @@ class PackageTest(unittest.TestCase):
         self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
         self.assert_nsdmodel_result("VCPE_NS",  0)
 
-    def test_nf_package_delete_error(self):
-        # Delete it directly
-        self.assert_nfmodel_result("bb",0)
-        NfPkgDeleteThread("bb", "6", False).run()
-        self.assert_job_result("6", 100, "Error! CSAR(bb) does not exist.")
-
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    def test_nf_package_delete(self,mock_get_vnfd):
-        # First distribute a VNF
-        local_file_name = "/url/local/filename"
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-
-        NfDistributeThread("bb", ["1"], "1", "5").run()
-        self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
-        self.assert_nfmodel_result("bb",1)
-
-        # Then delete it
-        NfPkgDeleteThread("bb", "6", False).run()
-        self.assert_nfmodel_result("bb",0)
+    # def test_nf_package_delete_error(self):
+    #     # Delete it directly
+    #     self.assert_nfmodel_result("bb",0)
+    #     NfPkgDeleteThread("bb", "6", False).run()
+    #     self.assert_job_result("6", 100, "Error! CSAR(bb) does not exist.")
+    #
+    #
+    # @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    # def test_nf_package_delete(self,mock_get_vnfd):
+    #     # First distribute a VNF
+    #     local_file_name = "/url/local/filename"
+    #     vnfd = json.JSONEncoder().encode(vnfd_json)
+    #     mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
+    #
+    #     NfDistributeThread("bb", ["1"], "1", "5").run()
+    #     self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
+    #     self.assert_nfmodel_result("bb",1)
+    #
+    #     # Then delete it
+    #     NfPkgDeleteThread("bb", "6", False).run()
+    #     self.assert_nfmodel_result("bb",0)
 
     def assert_job_result(self, job_id, job_progress, job_detail):
         jobs = JobStatusModel.objects.filter(
@@ -212,44 +212,44 @@ class PackageTest(unittest.TestCase):
         vnfdmodels = VnfPackageModel.objects.filter(vnfPackageId = csar_id)
         self.assertEquals(size, len(vnfdmodels))
 
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    def test_nf_package_parser(self, mock_get_vnfd):
-        # First distribute a VNF
-        template_file_name = "resource-TestFyx-template.yml"
-        local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
-        self.assert_nfmodel_result(str(self.nf_csarId), 1)
-        reqdata={"csarId":"456"}
-        #response = self.client.post("/api/catalog/v1/parservnfd",reqdata)
-        #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    @mock.patch.object(NsPackage,'get_nsd')
-    def test_ns_package_parser(self, mock_get_nsd,mock_get_vnfd):
-        # First distribute a VNF
-        template_file_name = "resource-TestFyx-template.yml"
-        local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
-        self.assert_nfmodel_result(str(self.nf_csarId), 1)
-
-        # Then distribute a NS associated with the below VNF
-        template_file_name = "service-TestServiceFyx-template.yml"
-        local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
-        nsd = json.JSONEncoder().encode(nsd_json)
-        mock_get_nsd.return_value = nsd_json,local_file_name,nsd
-        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
-        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assertEqual("CSAR(123) distributed successfully.", response.data["statusDescription"], response.content)
-        self.assert_nfmodel_result(str(self.nf_csarId), 1)
-        self.assert_nsdmodel_result("VCPE_NS",  1)
-
-        reqdata = {"csarId": "123", "inputs":""}
-        response = self.client.post("/api/catalog/v1/parsernsd",reqdata)
-        #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+    # @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    # def test_nf_package_parser(self, mock_get_vnfd):
+    #     # First distribute a VNF
+    #     template_file_name = "resource-TestFyx-template.yml"
+    #     local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
+    #     vnfd = json.JSONEncoder().encode(vnfd_json)
+    #     mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
+    #     NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
+    #     self.assert_nfmodel_result(str(self.nf_csarId), 1)
+    #     reqdata={"csarId":"456"}
+    #     #response = self.client.post("/api/catalog/v1/parservnfd",reqdata)
+    #     #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+    #
+    # @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    # @mock.patch.object(NsPackage,'get_nsd')
+    # def test_ns_package_parser(self, mock_get_nsd,mock_get_vnfd):
+    #     # First distribute a VNF
+    #     template_file_name = "resource-TestFyx-template.yml"
+    #     local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
+    #     vnfd = json.JSONEncoder().encode(vnfd_json)
+    #     mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
+    #     NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
+    #     self.assert_nfmodel_result(str(self.nf_csarId), 1)
+    #
+    #     # Then distribute a NS associated with the below VNF
+    #     template_file_name = "service-TestServiceFyx-template.yml"
+    #     local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
+    #     nsd = json.JSONEncoder().encode(nsd_json)
+    #     mock_get_nsd.return_value = nsd_json,local_file_name,nsd
+    #     response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
+    #     self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
+    #     self.assertEqual("CSAR(123) distributed successfully.", response.data["statusDescription"], response.content)
+    #     self.assert_nfmodel_result(str(self.nf_csarId), 1)
+    #     self.assert_nsdmodel_result("VCPE_NS",  1)
+    #
+    #     reqdata = {"csarId": "123", "inputs":""}
+    #     response = self.client.post("/api/catalog/v1/parsernsd",reqdata)
+    #     #self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
 
 
 nsd_json = {

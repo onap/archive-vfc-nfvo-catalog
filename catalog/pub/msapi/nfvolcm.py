@@ -17,25 +17,26 @@ import logging
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils import restcall
 from catalog.pub.config.config import NFVOLCM_BASE_URL,NFVOLCM_USER,NFVOLCM_PASSWD
+from catalog.pub.utils.restcall import req_by_msb
 
 logger = logging.getLogger(__name__)
 
-ASSETTYPE_RESOURCES = "resources"
-ASSETTYPE_SERVICES = "services"
+# ASSETTYPE_RESOURCES = "resources"
+# ASSETTYPE_SERVICES = "services"
 
 
-def call_lcm(resource, method, content=''):
-    return restcall.call_req(base_url=NFVOLCM_BASE_URL,
-        user="",
-        passwd="",
-        auth_type=restcall.rest_no_auth,
-        resource=resource,
-        method=method,
-        content=content)
+# def call_lcm(resource, method, content=''):
+#     return restcall.call_req(base_url=NFVOLCM_BASE_URL,
+#         user="",
+#         passwd="",
+#         auth_type=restcall.rest_no_auth,
+#         resource=resource,
+#         method=method,
+#         content=content)
 
 
 def get_nsInstances(csarid):
-    ret=call_lcm("/nslcm/v1/ns?nsPackageId=%s"% csarid,"get")
+    ret=req_by_msb("/nslcm/v1/ns?nsPackageId=%s"% csarid, "GET")
     if ret[0] != 0:
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
         raise CatalogException("Failed to query NS Instances(%s) from NSLCM." % csarid)
@@ -43,52 +44,18 @@ def get_nsInstances(csarid):
 
 
 def get_vnfInstances(csarid):
-    ret=call_lcm("/nslcm/v1/vnfs?vnfPackageId=%s"% csarid,"get")
+    ret=req_by_msb("/nslcm/v1/vnfs?vnfPackageId=%s"% csarid, "GET")
     if ret[0] != 0:
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
         raise CatalogException("Failed to query VNF Instances(%s) from NSLCM." % csarid)
     return json.JSONDecoder().decode(ret[1])
 
 
-# Mock code because the REST API from nfvolcm to delete ns instance is not implemented
-def delete_ns_inst_mock():
-    return [0,'success']
-
-
-# Mock code because the REST API from nfvolcm to delete nf instance is not implemented
-def delete_nf_inst_mock():
-    return [0,'success']
-
-
-def delete_ns(asset_type):
-    resource = "/nfvolcm/v1/ns/"
-    resource = resource.format(assetType=asset_type)
-    ret = call_lcm(resource, "DELETE")
-    if ret[0] != 0:
-        logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
-        raise CatalogException("Failed to query artifacts(%s) from sdc." % asset_type)
-    return json.JSONDecoder().decode(ret[1])
-
-
-def getNsInsts_mock():
-    return [
-        {
-            "nsInstanceId":1,
-            "nsInstanceName":"vnf1"
-        },
-        {
-            "nsInstanceId": 2,
-            "nsInstanceName": "vnf2"
-        }]
-
-
-def getNfInsts_mock():
-    return [
-        {
-            "vnfInstanceId":1,
-            "vnfInstanceName":"vnf1"
-        },
-        {
-            "vnfInstanceId": 2,
-            "vnfInstanceName": "vnf2"
-        }]
+# def delete_ns(asset_type):
+#     resource = "/nfvolcm/v1/ns/"
+#     resource = resource.format(assetType=asset_type)
+#     ret = req_by_msb(resource, "DELETE")
+#     if ret[0] != 0:
+#         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
+#         raise CatalogException("Failed to query artifacts(%s) from sdc." % asset_type)
+#     return json.JSONDecoder().decode(ret[1])
