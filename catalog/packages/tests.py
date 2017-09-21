@@ -215,6 +215,23 @@ class PackageTest(unittest.TestCase):
         self.assert_nfmodel_result("bb",0)
         self.assert_job_result("6", 100, "Delete CSAR(bb) successfully.")
 
+    @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    @mock.patch.object(nslcm,'get_vnfInstances')
+    def test_nf_package_delete_force(self,mock_get_vnfInstances,mock_get_vnfd):
+        # First distribute a VNF
+        local_file_name = "/url/local/filename"
+        vnfd = json.JSONEncoder().encode(vnfd_json)
+        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
+
+        NfDistributeThread("bb", ["1"], "1", "5").run()
+        self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
+        self.assert_nfmodel_result("bb",1)
+
+        # Then delete the package by force
+        NfPkgDeleteThread("bb", "6", True).run()
+        self.assert_nfmodel_result("bb",0)
+        self.assert_job_result("6", 100, "Delete CSAR(bb) successfully.")
+
     def assert_job_result(self, job_id, job_progress, job_detail):
         jobs = JobStatusModel.objects.filter(
             jobid=job_id,
