@@ -181,35 +181,39 @@ class PackageTest(unittest.TestCase):
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     @mock.patch.object(nslcm,'get_vnfInstances')
-    def test_nf_package_delete_error(self, mock_get_vnfInstance, mock_get_vnfd):
-        # First distribute a VNF
+    def test_nf_package_delete_error(self, mock_get_vnfInstances, mock_get_vnfd):
+        # First distribute a VNF package
         local_file_name = "/url/local/filename"
         vnfd = json.JSONEncoder().encode(vnfd_json)
         mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
         NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
         self.assert_nfmodel_result(str(self.nf_csarId), 1)
 
+        # Then instantiate a VNF using this package
+        mock_get_vnfInstances.return_values = [{"csarid":"1"}]
+
         # Delete it directly
-        mock_get_vnfInstance.return_values = [{"csarid":"1"}]
         self.assert_nfmodel_result("bb",0)
         NfPkgDeleteThread("bb", "6", False).run()
         self.assert_job_result("6", 100, "Error! CSAR(bb) does not exist.")
-    #
-    #
-    # @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    # def test_nf_package_delete(self,mock_get_vnfd):
-    #     # First distribute a VNF
-    #     local_file_name = "/url/local/filename"
-    #     vnfd = json.JSONEncoder().encode(vnfd_json)
-    #     mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-    #
-    #     NfDistributeThread("bb", ["1"], "1", "5").run()
-    #     self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
-    #     self.assert_nfmodel_result("bb",1)
-    #
-    #     # Then delete it
-    #     NfPkgDeleteThread("bb", "6", False).run()
-    #     self.assert_nfmodel_result("bb",0)
+
+
+    @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    @mock.patch.object(nslcm,'get_vnfInstances')
+    def test_nf_package_delete(self,mock_get_vnfInstances,mock_get_vnfd):
+        # First distribute a VNF
+        local_file_name = "/url/local/filename"
+        vnfd = json.JSONEncoder().encode(vnfd_json)
+        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
+
+        NfDistributeThread("bb", ["1"], "1", "5").run()
+        self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
+        self.assert_nfmodel_result("bb",1)
+
+        # Then delete the vnf
+        NfPkgDeleteThread("bb", "6", False).run()
+        self.assert_nfmodel_result("bb",0)
+        self.assert_job_result("6", 100, "Delete CSAR(bb) successfully.")
 
     def assert_job_result(self, job_id, job_progress, job_detail):
         jobs = JobStatusModel.objects.filter(
