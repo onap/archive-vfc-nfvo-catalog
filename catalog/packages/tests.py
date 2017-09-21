@@ -179,11 +179,21 @@ class PackageTest(unittest.TestCase):
         self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
         self.assert_nsdmodel_result("VCPE_NS",  0)
 
-    # def test_nf_package_delete_error(self):
-    #     # Delete it directly
-    #     self.assert_nfmodel_result("bb",0)
-    #     NfPkgDeleteThread("bb", "6", False).run()
-    #     self.assert_job_result("6", 100, "Error! CSAR(bb) does not exist.")
+    @mock.patch.object(NfDistributeThread, 'get_vnfd')
+    @mock.patch.object(nslcm,'get_vnfInstances')
+    def test_nf_package_delete_error(self, mock_get_vnfInstance, mock_get_vnfd):
+        # First distribute a VNF
+        local_file_name = "/url/local/filename"
+        vnfd = json.JSONEncoder().encode(vnfd_json)
+        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
+        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
+        self.assert_nfmodel_result(str(self.nf_csarId), 1)
+
+        # Delete it directly
+        mock_get_vnfInstance.return_values = [{"csarid":"1"},{"csarid":"2"}]
+        self.assert_nfmodel_result("bb",0)
+        NfPkgDeleteThread("bb", "6", False).run()
+        self.assert_job_result("6", 100, "Error! CSAR(bb) does not exist.")
     #
     #
     # @mock.patch.object(NfDistributeThread, 'get_vnfd')
