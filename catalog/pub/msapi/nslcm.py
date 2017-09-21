@@ -50,6 +50,22 @@ def get_vnfInstances(csarid):
         raise CatalogException("Failed to query VNF Instances(%s) from NSLCM." % csarid)
     return json.JSONDecoder().decode(ret[1])
 
+def delete_all_nsinst(csarid):
+    nsinstances = get_nsInstances(csarid)
+    for ns in nsinstances:
+        nsInstanceId = ns["nsInstanceId"]
+        ret=req_by_msb("/nslcm/v1/ns/%s" % nsInstanceId,"delete")
+        if ret[0] != 0:
+            logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
+            raise CatalogException("Failed to delete NS Instances(%s) from NSLCM." % nsInstanceId)
+
+    return [0,'success']
+
+def delete_nf_inst(csar_id):
+    #vnf_instance = get_vnfInstances(csar_id)
+    # REST API from nslcm to delete nf instance is not implemented
+    # ret=req_by_msb("/nslcm/v1/nf/%s" % csar_id,"delete")
+    return [0,'success']
 
 # def delete_ns(asset_type):
 #     resource = "/nfvolcm/v1/ns/"
