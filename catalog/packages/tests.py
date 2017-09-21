@@ -190,7 +190,7 @@ class PackageTest(unittest.TestCase):
         self.assert_nfmodel_result(str(self.nf_csarId), 1)
 
         # Delete it directly
-        mock_get_vnfInstance.return_values = [{"csarid":"1"},{"csarid":"2"}]
+        mock_get_vnfInstance.return_values = [{"csarid":"1"}]
         self.assert_nfmodel_result("bb",0)
         NfPkgDeleteThread("bb", "6", False).run()
         self.assert_job_result("6", 100, "Error! CSAR(bb) does not exist.")
