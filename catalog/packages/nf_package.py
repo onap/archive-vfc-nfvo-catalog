@@ -19,7 +19,8 @@ import sys
 import threading
 import traceback
 
-from catalog.pub.config.config import CATALOG_ROOT_PATH
+from catalog.pub.config.config import CATALOG_ROOT_PATH, CATALOG_URL_PATH
+from catalog.pub.config.config import REG_TO_MSB_REG_PARAM
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import sdc
@@ -210,6 +211,11 @@ class NfPackage(object):
             pkg_info["vnfdProvider"] = nf_pkg[0].vnfVendor
             pkg_info["vnfdVersion"] = nf_pkg[0].vnfdVersion
             pkg_info["vnfVersion"] = nf_pkg[0].vnfSoftwareVersion
+            pkg_info["downloadUrl"] = "http://%s:%s/%s/%s" % (
+                REG_TO_MSB_REG_PARAM["nodes"][0]["ip"],
+                REG_TO_MSB_REG_PARAM["nodes"][0]["port"],
+                CATALOG_URL_PATH,
+                nf_pkg[0].vnfPackageUri)
 
         return [0, {"csarId": csar_id,
                     "packageInfo": pkg_info,
