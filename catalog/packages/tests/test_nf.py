@@ -11,443 +11,322 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import json
-import os
-import unittest
-
 import mock
-from django.test import Client
 from rest_framework import status
+from django.test import TestCase
+from django.test import Client
 
-from catalog.packages.nf_package import NfDistributeThread
-from catalog.packages.nf_package import NfPkgDeleteThread
-from catalog.packages.ns_package import NsPackage
-from catalog.pub.database.models import NSPackageModel, VnfPackageModel, JobStatusModel
+from catalog.pub.utils import restcall, toscaparser
+from catalog.pub.utils import fileutil
+from catalog.pub.database.models import VnfPackageModel
+from catalog.pub.database.models import JobStatusModel, JobModel
+from catalog.packages.nf_package import NfDistributeThread, NfPkgDeleteThread
+from catalog.packages import nf_package
+from catalog.pub.msapi import sdc
 
-
-class PackageTest(unittest.TestCase):
+class TestNfPackage(TestCase):
     def setUp(self):
         self.client = Client()
-        self.nsdata = None
-        self.nfdata = None
-        self.ns_csarId = 123
-        self.nf_csarId = 456
-
-        self.nsdata = {
-            "csarId": str(self.ns_csarId)
-        }
-
-        self.csars= [
-            {
-                "csarId": "1",
-                "nsdId": "1"
+        VnfPackageModel.objects.filter().delete()
+        JobModel.objects.filter().delete()
+        JobStatusModel.objects.filter().delete()
+        self.vnfd_data = {
+            "volume_storages": [
+                {
+                    "properties": {
+                        "size_of_storage": {
+                            "factor": 10,
+                            "value": 10000000000,
+                            "unit": "GB",
+                            "unit_size": 1000000000
+                        },
+                        "type_of_storage": "volume",
+                        "rdma_enabled": False,
+                        "size": "10 GB"
+                    },
+                    "volume_storage_id": "vNAT_Storage_6wdgwzedlb6sq18uzrr41sof7",
+                    "description": ""
+                }
+            ],
+            "inputs": {},
+            "vdus": [
+                {
+                    "volume_storages": [
+                        "vNAT_Storage_6wdgwzedlb6sq18uzrr41sof7"
+                    ],
+                    "description": "",
+                    "dependencies": [],
+                    "vls": [],
+                    "properties": {
+                        "name": "vNat",
+                        "configurable_properties": {
+                            "test": {
+                                "additional_vnfc_configurable_properties": {
+                                    "aaa": "1",
+                                    "bbb": "2",
+                                    "ccc": "3"
+                                }
+                            }
+                        },
+                        "description": "the virtual machine of vNat",
+                        "nfvi_constraints": [
+                            "test"
+                        ],
+                        "boot_order": [
+                            "vNAT_Storage"
+                        ]
+                    },
+                    "vdu_id": "vdu_vNat",
+                    "artifacts": [
+                        {
+                            "artifact_name": "vNatVNFImage",
+                            "type": "tosca.artifacts.nfv.SwImage",
+                            "properties": {
+                                "operating_system": "linux",
+                                "sw_image": "/swimages/vRouterVNF_ControlPlane.qcow2",
+                                "name": "vNatVNFImage",
+                                "container_format": "bare",
+                                "min_ram": "1 GB",
+                                "disk_format": "qcow2",
+                                "supported_virtualisation_environments": [
+                                    "test_0"
+                                ],
+                                "version": "1.0",
+                                "checksum": "5000",
+                                "min_disk": "10 GB",
+                                "size": "10 GB"
+                            },
+                            "file": "/swimages/vRouterVNF_ControlPlane.qcow2"
+                        }
+                    ],
+                    "nfv_compute": {
+                        "flavor_extra_specs": {
+                            "hw:cpu_sockets": "2",
+                            "sw:ovs_dpdk": "true",
+                            "hw:cpu_threads": "2",
+                            "hw:numa_mem.1": "3072",
+                            "hw:numa_mem.0": "1024",
+                            "hw:numa_nodes": "2",
+                            "hw:numa_cpus.0": "0,1",
+                            "hw:numa_cpus.1": "2,3,4,5",
+                            "hw:cpu_cores": "2",
+                            "hw:cpu_threads_policy": "isolate"
+                        },
+                        "cpu_frequency": "2.4 GHz",
+                        "num_cpus": 2,
+                        "mem_size": "10 GB"
+                    },
+                    "local_storages": [],
+                    "image_file": "vNatVNFImage",
+                    "cps": []
+                }
+            ],
+            "image_files": [
+                {
+                    "properties": {
+                        "operating_system": "linux",
+                        "sw_image": "/swimages/vRouterVNF_ControlPlane.qcow2",
+                        "name": "vNatVNFImage",
+                        "container_format": "bare",
+                        "min_ram": "1 GB",
+                        "disk_format": "qcow2",
+                        "supported_virtualisation_environments": [
+                            "test_0"
+                        ],
+                        "version": "1.0",
+                        "checksum": "5000",
+                        "min_disk": "10 GB",
+                        "size": "10 GB"
+                    },
+                    "image_file_id": "vNatVNFImage",
+                    "description": ""
+                }
+            ],
+            "routers": [],
+            "local_storages": [],
+            "vnf_exposed": {
+                "external_cps": [
+                    {
+                        "key_name": "sriov_plane",
+                        "cp_id": "SRIOV_Port"
+                    }
+                ],
+                "forward_cps": []
             },
-            {
-                "csarId": "2",
-                "nsdId": "2"
+            "vls": [
+                {
+                    "route_id": "",
+                    "vl_id": "sriov_link",
+                    "route_external": False,
+                    "description": "",
+                    "properties": {
+                        "vl_flavours": {
+                            "vl_id": "aaaa"
+                        },
+                        "connectivity_type": {
+                            "layer_protocol": "ipv4",
+                            "flow_pattern": "flat"
+                        },
+                        "description": "sriov_link",
+                        "test_access": [
+                            "test"
+                        ]
+                    }
+                }
+            ],
+            "cps": [
+                {
+                    "vl_id": "sriov_link",
+                    "vdu_id": "vdu_vNat",
+                    "description": "",
+                    "cp_id": "SRIOV_Port",
+                    "properties": {
+                        "address_data": [
+                            {
+                                "address_type": "ip_address",
+                                "l3_address_data": {
+                                    "ip_address_type": "ipv4",
+                                    "floating_ip_activated": False,
+                                    "number_of_ip_address": 1,
+                                    "ip_address_assignment": True
+                                }
+                            }
+                        ],
+                        "description": "sriov port",
+                        "layer_protocol": "ipv4",
+                        "virtual_network_interface_requirements": [
+                            {
+                                "requirement": {
+                                    "SRIOV": "true"
+                                },
+                                "support_mandatory": False,
+                                "name": "sriov",
+                                "description": "sriov"
+                            },
+                            {
+                                "requirement": {
+                                    "SRIOV": "False"
+                                },
+                                "support_mandatory": False,
+                                "name": "normal",
+                                "description": "normal"
+                            }
+                        ],
+                        "role": "root",
+                        "bitrate_requirement": 10
+                    }
+                }
+            ],
+            "metadata": {
+                "vnfSoftwareVersion": "1.0.0",
+                "vnfProductName": "zte",
+                "localizationLanguage": [
+                    "english",
+                    "chinese"
+                ],
+                "vnfProvider": "zte",
+                "vnfmInfo": "zte",
+                "defaultLocalizationLanguage": "english",
+                "vnfdId": "zte-hss-1.0",
+                "id": "zte-hss-1.0",
+                "vnfProductInfoDescription": "hss",
+                "vnfdVersion": "1.0.0",
+                "vnfProductInfoName": "hss"
             }
-        ]
-
-        self.nfdata = {
-            "csarId": str(self.nf_csarId)
         }
 
     def tearDown(self):
-        VnfPackageModel.objects.all().delete()
-        NSPackageModel.objects.all().delete()
-        JobStatusModel.objects.all().delete()
+        pass
 
+    def assert_job_result(self, job_id, job_progress, job_detail):
+        jobs = JobStatusModel.objects.filter(
+            jobid=job_id,
+            progress=job_progress,
+            descp=job_detail)
+        self.assertEqual(1, len(jobs))
 
-nsd_json = {
-    "inputs": {
-        "sfc_data_network": {
-            "type": "string",
-            "value": "sfc_data_network"
-        },
-        "externalDataNetworkName": {
-            "type": "string",
-            "value": "vlan_4004_tunnel_net"
-        },
-        "externalManageNetworkName": {
-            "type": "string",
-            "value": "vlan_4008_mng_net"
-        },
-        "NatIpRange": {
-            "type": "string",
-            "value": "192.167.0.10-192.168.0.20"
-        },
-        "externalPluginManageNetworkName": {
-            "type": "string",
-            "value": "vlan_4007_plugin_net"
-        }
-    },
-    "pnfs": [
-        {
-            "pnf_id": "m6000_s",
-            "cps": [],
-            "description": "",
-            "properties": {
-                "vendor": "zte",
-                "request_reclassification": "false",
-                "pnf_type": "m6000s",
-                "version": "1.0",
-                "management_address": "111111",
-                "id": "m6000_s",
-                "nsh_aware": "false"
-            }
-        }
-    ],
-    "fps": [
-        {
-            "properties": {
-                "symmetric": "false",
-                "policy": {
-                    "type": "ACL",
-                    "criteria": {
-                        "dest_port_range": "1-100",
-                        "ip_protocol": "tcp",
-                        "source_ip_range": [
-                            "119.1.1.1-119.1.1.10"
-                        ],
-                        "dest_ip_range": [
-                            {
-                                "get_input": "NatIpRange"
-                            }
-                        ],
-                        "dscp": 0,
-                        "source_port_range": "1-100"
-                    }
-                }
-            },
-            "forwarder_list": [
-                {
-                    "capability": "",
-                    "type": "cp",
-                    "node_name": "m6000_data_out"
-                },
-                {
-                    "capability": "",
-                    "type": "cp",
-                    "node_name": "m600_tunnel_cp"
-                },
-                {
-                    "capability": "vnat_fw_inout",
-                    "type": "vnf",
-                    "node_name": "VNAT"
-                }
-            ],
-            "description": "",
-            "fp_id": "path2"
-        },
-        {
-            "properties": {
-                "symmetric": "true",
-                "policy": {
-                    "type": "ACL",
-                    "criteria": {
-                        "dest_port_range": "1-100",
-                        "ip_protocol": "tcp",
-                        "source_ip_range": [
-                            "1-100"
-                        ],
-                        "dest_ip_range": [
-                            "1-100"
-                        ],
-                        "dscp": 4,
-                        "source_port_range": "1-100"
-                    }
-                }
-            },
-            "forwarder_list": [
-                {
-                    "capability": "",
-                    "type": "cp",
-                    "node_name": "m6000_data_in"
-                },
-                {
-                    "capability": "",
-                    "type": "cp",
-                    "node_name": "m600_tunnel_cp"
-                },
-                {
-                    "capability": "vfw_fw_inout",
-                    "type": "vnf",
-                    "node_name": "VFW"
-                },
-                {
-                    "capability": "vnat_fw_inout",
-                    "type": "vnf",
-                    "node_name": "VNAT"
-                },
-                {
-                    "capability": "",
-                    "type": "cp",
-                    "node_name": "m600_tunnel_cp"
-                },
-                {
-                    "capability": "",
-                    "type": "cp",
-                    "node_name": "m6000_data_out"
-                }
-            ],
-            "description": "",
-            "fp_id": "path1"
-        }
-    ],
-    "routers": [],
-    "vnfs": [
-        {
-            "vnf_id": "456",
-            "description": "",
-            "properties": {
-                "plugin_info": "vbrasplugin_1.0",
-                "vendor": "zte",
-                "is_shared": "false",
-                "adjust_vnf_capacity": "true",
-                "name": "VFW",
-                "vnf_extend_type": "driver",
-                "csarVersion": "v1.0",
-                "csarType": "NFAR",
-                "csarProvider": "ZTE",
-                "version": "1.0",
-                "nsh_aware": "true",
-                "cross_dc": "false",
-                "vnf_type": "VFW",
-                "vmnumber_overquota_alarm": "true",
-                "vnfd_version": "1.0.0",
-                "externalPluginManageNetworkName": "vlan_4007_plugin_net",
-                "id": "456",
-                "request_reclassification": "false"
-            },
-            "dependencies": [
-                {
-                    "key_name": "vfw_ctrl_by_manager_cp",
-                    "vl_id": "ext_mnet_net"
-                },
-                {
-                    "key_name": "vfw_data_cp",
-                    "vl_id": "sfc_data_network"
-                }
-            ],
-            "type": "tosca.nodes.nfv.ext.zte.VNF.VFW",
-            "networks": []
-        },
-        {
-            "vnf_id": "VNAT",
-            "description": "",
-            "properties": {
-                "NatIpRange": "192.167.0.10-192.168.0.20",
-                "plugin_info": "vbrasplugin_1.0",
-                "vendor": "zte",
-                "is_shared": "false",
-                "adjust_vnf_capacity": "true",
-                "name": "VNAT",
-                "id": "456",
-                "vnf_extend_type": "driver",
-                "csarVersion": "v1.0",
-                "csarType": "NFAR",
-                "csarProvider": "ZTE",
-                "version": "1.0",
-                "nsh_aware": "true",
-                "cross_dc": "false",
-                "vnf_type": "VNAT",
-                "vmnumber_overquota_alarm": "true",
-                "vnfd_version": "1.0.0",
-                "externalPluginManageNetworkName": "vlan_4007_plugin_net",
-                "request_reclassification": "false"
-            },
-            "dependencies": [
-                {
-                    "key_name": "vnat_ctrl_by_manager_cp",
-                    "vl_id": "ext_mnet_net"
-                },
-                {
-                    "key_name": "vnat_data_cp",
-                    "vl_id": "sfc_data_network"
-                }
-            ],
-            "type": "tosca.nodes.nfv.ext.zte.VNF.VNAT",
-            "networks": []
-        }
-    ],
-    "ns_exposed": {
-        "external_cps": [],
-        "forward_cps": []
-    },
-    "policies": [
-        {
-            "file_url": "policies/abc.drl",
-            "name": "aaa"
-        }
-    ],
-    "vls": [
-        {
-            "route_id": "",
-            "vl_id": "ext_mnet_net",
-            "route_external": "false",
-            "description": "",
-            "properties": {
-                "name": "vlan_4008_mng_net",
-                "mtu": 1500,
-                "location_info": {
-                    "tenant": "admin",
-                    "vimid": 2,
-                    "availability_zone": "nova"
-                },
-                "ip_version": 4,
-                "dhcp_enabled": "true",
-                "network_name": "vlan_4008_mng_net",
-                "network_type": "vlan"
-            }
-        },
-        {
-            "route_id": "",
-            "vl_id": "ext_datanet_net",
-            "route_external": "false",
-            "description": "",
-            "properties": {
-                "name": "vlan_4004_tunnel_net",
-                "mtu": 1500,
-                "location_info": {
-                    "tenant": "admin",
-                    "vimid": 2,
-                    "availability_zone": "nova"
-                },
-                "ip_version": 4,
-                "dhcp_enabled": "true",
-                "network_name": "vlan_4004_tunnel_net",
-                "network_type": "vlan"
-            }
-        },
-        {
-            "route_id": "",
-            "vl_id": "sfc_data_network",
-            "route_external": "false",
-            "description": "",
-            "properties": {
-                "name": "sfc_data_network",
-                "dhcp_enabled": "true",
-                "is_predefined": "false",
-                "location_info": {
-                    "tenant": "admin",
-                    "vimid": 2,
-                    "availability_zone": "nova"
-                },
-                "ip_version": 4,
-                "mtu": 1500,
-                "network_name": "sfc_data_network",
-                "network_type": "vlan"
-            }
-        }
-    ],
-    "cps": [
-        {
-            "pnf_id": "m6000_s",
-            "vl_id": "path2",
-            "description": "",
-            "cp_id": "m6000_data_out",
-            "properties": {
-                "direction": "bidirectional",
-                "vnic_type": "normal",
-                "bandwidth": 0,
-                "mac_address": "11-22-33-22-11-44",
-                "interface_name": "xgei-0/4/1/5",
-                "ip_address": "176.1.1.2",
-                "order": 0,
-                "sfc_encapsulation": "mac"
-            }
-        },
-        {
-            "pnf_id": "m6000_s",
-            "vl_id": "ext_datanet_net",
-            "description": "",
-            "cp_id": "m600_tunnel_cp",
-            "properties": {
-                "direction": "bidirectional",
-                "vnic_type": "normal",
-                "bandwidth": 0,
-                "mac_address": "00-11-00-22-33-00",
-                "interface_name": "gei-0/4/0/13",
-                "ip_address": "191.167.100.5",
-                "order": 0,
-                "sfc_encapsulation": "mac"
-            }
-        },
-        {
-            "pnf_id": "m6000_s",
-            "vl_id": "path2",
-            "description": "",
-            "cp_id": "m6000_data_in",
-            "properties": {
-                "direction": "bidirectional",
-                "vnic_type": "normal",
-                "bandwidth": 0,
-                "mac_address": "11-22-33-22-11-41",
-                "interface_name": "gei-0/4/0/7",
-                "ip_address": "1.1.1.1",
-                "order": 0,
-                "sfc_encapsulation": "mac",
-                "bond": "none"
-            }
-        },
-        {
-            "pnf_id": "m6000_s",
-            "vl_id": "ext_mnet_net",
-            "description": "",
-            "cp_id": "m600_mnt_cp",
-            "properties": {
-                "direction": "bidirectional",
-                "vnic_type": "normal",
-                "bandwidth": 0,
-                "mac_address": "00-11-00-22-33-11",
-                "interface_name": "gei-0/4/0/1",
-                "ip_address": "10.46.244.51",
-                "order": 0,
-                "sfc_encapsulation": "mac",
-                "bond": "none"
-            }
-        }
-    ],
-    "metadata": {
-        "invariant_id": "vcpe_ns_sff_1",
-        "name": "VCPE_NS",
-        "csarVersion": "v1.0",
-        "csarType": "NSAR",
-        "csarProvider": "ZTE",
-        "version": 1,
-        "vendor": "ZTE",
-        "id": "VCPE_NS",
-        "description": "vcpe_ns"
-    }
-}
+    @mock.patch.object(NfDistributeThread, 'run')
+    def test_nf_pkg_distribute_normal(self, mock_run):
+        resp = self.client.post("/api/catalog/v1/vnfpackages", {
+            "csarId": "1",
+            "vimIds": ["1"]
+            }, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+    
+    def test_nf_pkg_distribute_when_csar_already_exist(self):
+        VnfPackageModel(vnfPackageId="1", vnfdId="vcpe_vfw_zte_1_0").save()
+        NfDistributeThread(csar_id="1",
+                           vim_ids=["1"],
+                           lab_vim_id="",
+                           job_id="2").run()
+        self.assert_job_result("2", 255, "NF CSAR(1) already exists.")
 
-vnfd_json = {
-    "metadata": {
-        "id": "456",
-        "vendor": "zte",
-        "version": "5.16.10",
-        "vnfd_version": "1.1.0",
-        "name": "zte_xgw",
-        "domain_type": "CN",
-        "vnf_type": "XGW",
-        "is_shared": "false",
-        "cross_dc": "false",
-        "vmnumber_overquota_alarm": "false",
-        "description": "",
-        "vnf_extend_type": "driver&script",
-        "plugin_info": "zte_cn_plugin_v6.16.10",
-        "script_info": "script/cn.py",
-        "adjust_vnf_capacity": "true",
-        "custom_properties": ""
-    },
-    "reserved_total": {
-        "vmnum": 10,
-        "vcpunum": 20,
-        "memorysize": 1000,
-        "portnum": 30,
-        "hdsize": 1024,
-        "shdsize": 2048,
-        "isreserve": 0
-    }
-}
+    @mock.patch.object(restcall, 'call_req')
+    @mock.patch.object(sdc, 'download_artifacts')
+    @mock.patch.object(toscaparser, 'parse_vnfd')
+    def test_nf_pkg_distribute_when_vnfd_already_exist(self,
+        mock_parse_vnfd, mock_download_artifacts, mock_call_req):
+        mock_parse_vnfd.return_value = json.JSONEncoder().encode(self.vnfd_data)
+        mock_download_artifacts.return_value = "/home/hss.csar"
+        mock_call_req.return_value = [0, json.JSONEncoder().encode([{
+            "uuid": "1",
+            "toscaModelURL": "https://127.0.0.1:1234/sdc/v1/hss.csar"
+            }]), '200']
+        VnfPackageModel(vnfPackageId="2", vnfdId="zte-hss-1.0").save()
+        NfDistributeThread(csar_id="1",
+                           vim_ids=["1"],
+                           lab_vim_id="",
+                           job_id="2").run()
+        self.assert_job_result("2", 255, "NFD(zte-hss-1.0) already exists.")
+    
+    @mock.patch.object(restcall, 'call_req')
+    @mock.patch.object(sdc, 'download_artifacts')
+    @mock.patch.object(toscaparser, 'parse_vnfd')
+    def test_nf_pkg_distribute_successfully(self,
+        mock_parse_vnfd, mock_download_artifacts, mock_call_req):
+        mock_parse_vnfd.return_value = json.JSONEncoder().encode(self.vnfd_data)
+        mock_download_artifacts.return_value = "/home/hss.csar"
+        mock_call_req.return_value = [0, json.JSONEncoder().encode([{
+            "uuid": "1",
+            "toscaModelURL": "https://127.0.0.1:1234/sdc/v1/hss.csar"
+            }]), '200']
+        NfDistributeThread(csar_id="1",
+                           vim_ids=["1"],
+                           lab_vim_id="",
+                           job_id="4").run()
+        self.assert_job_result("4", 100, "CSAR(1) distribute successfully.")
+
+    ###############################################################################################################
+
+    @mock.patch.object(NfPkgDeleteThread, 'run')
+    def test_nf_pkg_delete_normal(self, mock_run):
+        resp = self.client.delete("/api/catalog/v1/vnfpackages/1")
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+    
+    def test_nf_pkg_normal_delete(self):
+        VnfPackageModel(vnfPackageId="2", vnfdId="vcpe_vfw_zte_1_0").save()
+        NfPkgDeleteThread(csar_id="2", job_id="2", force_delete=False).run()
+        self.assert_job_result("2", 100, "Delete CSAR(2) successfully.")
+
+    def test_nf_pkg_get_all(self):
+        VnfPackageModel(vnfPackageId="3", vnfdId="4").save()
+
+        resp = self.client.get("/api/catalog/v1/vnfpackages")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual({"csars": [{"csarId":"3", "vnfdId": "4"}]}, resp.data)
+
+    def test_nf_pkg_get_one(self):
+        VnfPackageModel(vnfPackageId="4", vnfdId="5", 
+            vnfVendor="6", vnfdVersion="7", vnfSoftwareVersion="8").save()
+
+        resp = self.client.get("/api/catalog/v1/vnfpackages/4")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual({"csarId": "4", 
+            "packageInfo": {
+                "vnfdId": "5",
+                "vnfdProvider": "6",
+                "vnfdVersion": "7",
+                "vnfVersion": "8"
+            }, 
+            "imageInfo": []}, resp.data)
