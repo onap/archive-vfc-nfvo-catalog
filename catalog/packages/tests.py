@@ -66,46 +66,14 @@ class PackageTest(unittest.TestCase):
         response = self.client.get("/api/catalog/v1/nspackages")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
         self.assertEquals(self.csars,response.data)
-
-    @mock.patch.object(NsPackage,'get_nsd')
-    def test_ns_distribute_2(self, mock_get_nsd):
-        local_file_name = "/url/local/filename"
-        nsd = json.JSONEncoder().encode(nsd_json)
-        mock_get_nsd.return_value = nsd_json,local_file_name,nsd
-        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
-
-        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assert_nsdmodel_result("VCPE_NS",  0)
-        self.assertEqual("VNF package(456) is not distributed.", response.data["statusDescription"], response.content)
-        NSPackageModel.objects.filter(nsPackageId="VCPE_NS").delete()
-
+    
     def test_nfpackages_get(self):
         response = self.client.get("/api/catalog/v1/vnfpackages")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
 
         nsdModel = NSPackageModel.objects.filter(nsdId="VCPE_NS")
         self.assertEqual(len(nsdModel),0)
-
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    @mock.patch.object(NsPackage,'get_nsd')
-    def test_ns_distribute(self, mock_get_nsd,mock_get_vnfd):
-        # First distribute a VNF
-        local_file_name = "/url/local/filename"
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
-
-        # Then distribute a NS associated with the below VNF
-        local_file_name = "/url/local/filename"
-        nsd = json.JSONEncoder().encode(nsd_json)
-        mock_get_nsd.return_value = nsd_json,local_file_name,nsd
-        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
-        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assertEqual("CSAR(123) distributed successfully.", response.data["statusDescription"], response.content)
-        self.assert_nsdmodel_result("VCPE_NS",  1)
-        VnfPackageModel.objects.filter(vnfdId=str(self.nf_csarId)).delete()
-        NSPackageModel.objects.filter(nsdId="VCPE_NS").delete()
+  
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     def test_nf_distribute(self, mock_get_vnfd):
@@ -116,86 +84,6 @@ class PackageTest(unittest.TestCase):
         NfDistributeThread("dd", ["1"], "1", "5").run()
         self.assert_job_result("5", 100, "CSAR(dd) distribute successfully.")
         VnfPackageModel.objects.filter(vnfPackageId="dd").delete()
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    @mock.patch.object(NsPackage,'get_nsd')
-    @mock.patch.object(nslcm, 'get_nsInstances')
-    @mock.patch.object(nslcm, 'delete_all_nsinst')
-    def test_ns_package_delete(self, mock_delete_all_nsinst,mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
-
-        # First distribute a VNF
-        local_file_name = "/url/local/filename"
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
-        self.assert_nfmodel_result(str(self.nf_csarId), 1)
-
-        # Then distribute a NS associated with the below VNF
-        local_file_name = "/url/local/filename"
-        nsd = json.JSONEncoder().encode(nsd_json)
-        mock_get_nsd.return_value = nsd_json,local_file_name,nsd
-        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
-        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assertEqual("CSAR(123) distributed successfully.", response.data["statusDescription"], response.content)
-        self.assert_nfmodel_result(str(self.nf_csarId), 1)
-        self.assert_nsdmodel_result("VCPE_NS",  1)
-
-        # Finally delete ns package
-        mock_get_nsInstances.return_value = []
-        mock_delete_all_nsinst.return_values = [0, "success"]
-        response = self.client.delete("/api/catalog/v1/nspackages/" + str(self.ns_csarId))
-        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
-        self.assert_nsdmodel_result("VCPE_NS",  0)
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    @mock.patch.object(NsPackage,'get_nsd')
-    @mock.patch.object(nslcm, 'get_nsInstances')
-    @mock.patch.object(nslcm, 'delete_all_nsinst')
-    def test_ns_package_delete_force(self, mock_delete_all_nsinst, mock_get_nsInstances,mock_get_nsd,mock_get_vnfd):
-
-        # First distribute a VNF
-        local_file_name = "/url/local/filename"
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
-        self.assert_nfmodel_result(str(self.nf_csarId), 1)
-
-        # Then distribute a NS associated with the below VNF
-        local_file_name = "/url/local/filename"
-        nsd = json.JSONEncoder().encode(nsd_json)
-        mock_get_nsd.return_value = nsd_json,local_file_name,nsd
-        response = self.client.post("/api/catalog/v1/nspackages",self.nsdata)
-        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assertEqual("CSAR(123) distributed successfully.", response.data["statusDescription"], response.content)
-        self.assert_nfmodel_result(str(self.nf_csarId), 1)
-        self.assert_nsdmodel_result("VCPE_NS",  1)
-
-        # Finally delete ns package
-        mock_get_nsInstances.return_value = [{"csarid":"1"},{"csarid":"2"}]
-        mock_delete_all_nsinst.return_values = [0, "success"]
-        response = self.client.delete("/api/catalog/v1/nspackages/%sforce"% str(self.ns_csarId))
-        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code, response.content)
-        self.assertEqual("Delete CSAR(123) successfully.", response.data["statusDescription"], response.content)
-        self.assert_nsdmodel_result("VCPE_NS",  0)
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    @mock.patch.object(nslcm,'get_vnfInstances')
-    def test_nf_package_delete_error(self, mock_get_vnfInstances, mock_get_vnfd):
-        # First distribute a VNF package
-        local_file_name = "/url/local/filename"
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-        NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
-        self.assert_nfmodel_result(str(self.nf_csarId), 1)
-
-        # Then instantiate a VNF using this package
-        mock_get_vnfInstances.return_values = [{"csarid":"1"}]
-
-        # Delete it directly
-        self.assert_nfmodel_result("bb",0)
-        NfPkgDeleteThread("bb", "6", False).run()
-        self.assert_job_result("6", 100, "Error! CSAR(bb) does not exist.")
 
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')

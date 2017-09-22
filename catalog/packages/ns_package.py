@@ -19,7 +19,7 @@ import sys
 import traceback
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.database.models import NSPackageModel, VnfPackageModel
+from catalog.pub.database.models import NSPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import nslcm
 from catalog.pub.msapi import sdc
@@ -52,22 +52,14 @@ def ns_on_distribute(csar_id):
 
 def ns_delete_csar(csar_id, force_delete):
     ret = None
-    nsinstances = []
     try:
-        if force_delete: 
-            ret = NsPackage().delete_csar(csar_id,True)
-            return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
-        nsinstances = nslcm.get_nsInstances(csar_id)
-        if nsinstances:
-            if len(nsinstances) > 0:
-                return fmt_ns_pkg_rsp(STATUS_FAILED, "NS instances using the CSAR exists!",status.HTTP_412_PRECONDITION_FAILED)
-        ret = NsPackage().delete_csar(csar_id)
-        return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
-    except CatalogException as e:
+        ret = NsPackage().delete_csar(csar_id, force_delete)
+    except NSLCMException as e:
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
         logger.error(traceback.format_exc())
         return fmt_ns_pkg_rsp(STATUS_FAILED, str(sys.exc_info()))
+    return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
 
 
 def ns_get_csars():
@@ -116,20 +108,26 @@ class NsPackage(object):
         pass
 
     def on_distribute(self, csar_id):
-        if NSPackageModel.objects.filter(nsPackageId=csar_id):
-            raise CatalogException("NS CSAR(%s) already exists." % csar_id)
+        if NSDModel.objects.filter(id=csar_id):
+            raise NSLCMException("NS CSAR(%s) already exists." % csar_id)
 
-        nsd, local_file_name, nsd_json = self.get_nsd(csar_id)
+        artifact = sdc.get_artifact(sdc.ASSETTYPE_SERVICES, csar_id)
+        local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
+        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], 
+            local_path, "%s.csar" % artifact.get("name", csar_id))
+        
+        nsd_json = toscaparser.parse_nsd(local_file_name)
+        nsd = json.JSONDecoder().decode(nsd_json)
 
         nsd_id = nsd["metadata"]["id"]
-        if NSPackageModel.objects.filter(nsdId=nsd_id):
-            raise CatalogException("NSD(%s) already exists." % nsd_id)
+        if NSDModel.objects.filter(nsd_id=nsd_id):
+            raise NSLCMException("NSD(%s) already exists." % nsd_id)
 
         for vnf in nsd["vnfs"]:
             vnfd_id = vnf["properties"]["id"]
-            pkg = VnfPackageModel.objects.filter(vnfdId = vnfd_id)
+            pkg = NfPackageModel.objects.filter(vnfdid=vnfd_id)
             if not pkg:
-                raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
+                raise NSLCMException("VNF package(%s) is not distributed." % vnfd_id)
 
         NSPackageModel(
             nsPackageId=csar_id,
@@ -146,27 +144,13 @@ class NsPackage(object):
 
         return [0, "CSAR(%s) distributed successfully." % csar_id]
 
-    def get_nsd(self, csar_id):
-        artifact = sdc.get_artifact(sdc.ASSETTYPE_SERVICES, csar_id)
-        local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
-        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path)
-
-        nsd_json = toscaparser.parse_nsd(local_file_name)
-        nsd = json.JSONDecoder().decode(nsd_json)
-
-        return nsd, local_file_name, nsd_json
-
-    def delete_csar(self, csar_id,force_delete = False):
+    def delete_csar(self, csar_id, force_delete):
         if force_delete:
-            nslcm.delete_all_nsinst(csar_id)
-        else:
-            nsinstances = nslcm.get_nsInstances(csar_id)
-            if nsinstances and len(nsinstances) > 0:
-                raise CatalogException("CSAR(%s) is in using, cannot be deleted." % csar_id)
-
-        NSPackageModel.objects.filter(nsPackageId=csar_id).delete()
+            nslcm.delete_nf_inst(csar_id)
+        elif nslcm.get_nsInstances(csar_id):
+            raise NSLCMException("CSAR(%s) is in using, cannot be deleted." % csar_id)
+        NSDModel.objects.filter(id=csar_id).delete()
         return [0, "Delete CSAR(%s) successfully." % csar_id]
-
 
     def get_csars(self):
         csars = []
