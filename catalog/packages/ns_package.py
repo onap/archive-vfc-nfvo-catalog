@@ -18,7 +18,8 @@ import os
 import sys
 import traceback
 
-from catalog.pub.config.config import CATALOG_ROOT_PATH
+from catalog.pub.config.config import CATALOG_ROOT_PATH, CATALOG_URL_PATH
+from catalog.pub.config.config import REG_TO_MSB_REG_PARAM
 from catalog.pub.database.models import NSPackageModel, VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import sdc
@@ -166,9 +167,13 @@ class NsPackage(object):
             package_info["nsdId"] = csars[0].nsdId
             package_info["nsdProvider"] = csars[0].nsdDesginer
             package_info["nsdVersion"] = csars[0].nsdVersion
+            package_info["downloadUrl"] = "http://%s:%s/%s/%s" % (
+                REG_TO_MSB_REG_PARAM["nodes"][0]["ip"],
+                REG_TO_MSB_REG_PARAM["nodes"][0]["port"],
+                CATALOG_URL_PATH,
+                csars[0].nsPackageUri)
 
-        return [0, {"csarId": csar_id, 
-            "packageInfo": package_info}]
+        return [0, {"csarId": csar_id, "packageInfo": package_info}]
 
     def delete_catalog(self, csar_id):
         local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
