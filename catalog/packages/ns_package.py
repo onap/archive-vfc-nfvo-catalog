@@ -21,7 +21,6 @@ import traceback
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import NSPackageModel
 from catalog.pub.exceptions import CatalogException
-from catalog.pub.msapi import nslcm
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
@@ -53,7 +52,7 @@ def ns_on_distribute(csar_id):
 def ns_delete_csar(csar_id, force_delete):
     ret = None
     try:
-        ret = NsPackage().delete_csar(csar_id, force_delete)
+        ret = NsPackage().delete_csar(csar_id)
     except NSLCMException as e:
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
@@ -144,11 +143,7 @@ class NsPackage(object):
 
         return [0, "CSAR(%s) distributed successfully." % csar_id]
 
-    def delete_csar(self, csar_id, force_delete):
-        if force_delete:
-            nslcm.delete_nf_inst(csar_id)
-        elif nslcm.get_nsInstances(csar_id):
-            raise NSLCMException("CSAR(%s) is in using, cannot be deleted." % csar_id)
+    def delete_csar(self, csar_id):
         NSDModel.objects.filter(id=csar_id).delete()
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
@@ -172,14 +167,8 @@ class NsPackage(object):
             package_info["nsdProvider"] = csars[0].nsdDesginer
             package_info["nsdVersion"] = csars[0].nsdVersion
 
-        nss = nslcm.get_nsInstances(csar_id)
-        ns_instance_info = [{
-            "nsInstanceId": ns["nsInstanceId"],
-            "nsInstanceName": ns["nsName"]} for ns in nss]
-
         return [0, {"csarId": csar_id, 
-            "packageInfo": package_info, 
-            "nsInstanceInfo": ns_instance_info}]
+            "packageInfo": package_info}]
 
     def delete_catalog(self, csar_id):
         local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
