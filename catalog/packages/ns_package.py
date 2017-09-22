@@ -19,7 +19,7 @@ import sys
 import traceback
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.database.models import NSPackageModel
+from catalog.pub.database.models import NSPackageModel, VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
@@ -49,11 +49,11 @@ def ns_on_distribute(csar_id):
     return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
 
 
-def ns_delete_csar(csar_id, force_delete):
+def ns_delete_csar(csar_id):
     ret = None
     try:
         ret = NsPackage().delete_csar(csar_id)
-    except NSLCMException as e:
+    except CatalogException as e:
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
         logger.error(traceback.format_exc())
@@ -107,8 +107,8 @@ class NsPackage(object):
         pass
 
     def on_distribute(self, csar_id):
-        if NSDModel.objects.filter(id=csar_id):
-            raise NSLCMException("NS CSAR(%s) already exists." % csar_id)
+        if NSPackageModel.objects.filter(nsPackageId=csar_id):
+            raise CatalogException("NS CSAR(%s) already exists." % csar_id)
 
         artifact = sdc.get_artifact(sdc.ASSETTYPE_SERVICES, csar_id)
         local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
@@ -119,14 +119,14 @@ class NsPackage(object):
         nsd = json.JSONDecoder().decode(nsd_json)
 
         nsd_id = nsd["metadata"]["id"]
-        if NSDModel.objects.filter(nsd_id=nsd_id):
-            raise NSLCMException("NSD(%s) already exists." % nsd_id)
+        if NSPackageModel.objects.filter(nsdId=nsd_id):
+            raise CatalogException("NSD(%s) already exists." % nsd_id)
 
         for vnf in nsd["vnfs"]:
             vnfd_id = vnf["properties"]["id"]
-            pkg = NfPackageModel.objects.filter(vnfdid=vnfd_id)
+            pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
             if not pkg:
-                raise NSLCMException("VNF package(%s) is not distributed." % vnfd_id)
+                raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
         NSPackageModel(
             nsPackageId=csar_id,
@@ -144,7 +144,8 @@ class NsPackage(object):
         return [0, "CSAR(%s) distributed successfully." % csar_id]
 
     def delete_csar(self, csar_id):
-        NSDModel.objects.filter(id=csar_id).delete()
+        NSPackageModel.objects.filter(nsPackageId=csar_id).delete()
+        self.delete_catalog(csar_id)
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
     def get_csars(self):

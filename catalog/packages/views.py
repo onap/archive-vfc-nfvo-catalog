@@ -77,10 +77,7 @@ def ns_rd_csar(request, *args, **kwargs):
         ret = ns_package.ns_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
     elif request.method == 'DELETE':
-        force_delete = csar_id.endswith("force")
-        if force_delete:
-            csar_id = csar_id[:-5]
-        ret = ns_package.ns_delete_csar(csar_id, force_delete)
+        ret = ns_package.ns_delete_csar(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
