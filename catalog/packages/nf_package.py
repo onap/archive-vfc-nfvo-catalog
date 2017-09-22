@@ -105,7 +105,14 @@ class NfDistributeThread(threading.Thread):
         if VnfPackageModel.objects.filter(vnfPackageId=self.csar_id):
             raise CatalogException("NF CSAR(%s) already exists." % self.csar_id)
 
-        vnfd,local_file_name,vnfd_json = self.get_vnfd(self.csar_id)
+        artifact = sdc.get_artifact(sdc.ASSETTYPE_RESOURCES, self.csar_id)
+        local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
+        csar_name = "%s.csar" % artifact.get("name", self.csar_id)
+        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], 
+            local_path, csar_name)
+        
+        vnfd_json = toscaparser.parse_vnfd(local_file_name)
+        vnfd = json.JSONDecoder().decode(vnfd_json)
 
         nfd_id = vnfd["metadata"]["id"]
         if VnfPackageModel.objects.filter(vnfdId=nfd_id):
@@ -117,7 +124,6 @@ class NfDistributeThread(threading.Thread):
         if not vnfd_ver:
             vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
         VnfPackageModel(
-            #  uuid=self.csar_id,
             vnfPackageId=self.csar_id,
             vnfdId=nfd_id,
             vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
@@ -125,18 +131,11 @@ class NfDistributeThread(threading.Thread):
             vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
             vnfdModel=vnfd_json,
             localFilePath=local_file_name,
-            #vnfPackageUri to do
+            vnfPackageUri="%s/%s" % (self.csar_id, csar_name)
             ).save()
 
         JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
 
-    def get_vnfd(self, csar_id):
-        artifact = sdc.get_artifact(sdc.ASSETTYPE_RESOURCES, self.csar_id)
-        local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
-        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path)
-        vnfd_json = toscaparser.parse_vnfd(local_file_name)
-        vnfd = json.JSONDecoder().decode(vnfd_json)
-        return vnfd,local_file_name,vnfd_json
 
     def rollback_distribute(self):
         try:
@@ -156,7 +155,6 @@ class NfPkgDeleteThread(threading.Thread):
         threading.Thread.__init__(self)
         self.csar_id = csar_id
         self.job_id = job_id
-        self.force_delete = force_delete
 
     def run(self):
         try:
@@ -206,7 +204,7 @@ class NfPackage(object):
         
     def get_csar(self, csar_id):
         pkg_info = {}
-        nf_pkg = VnfPackageModel.objects.filter(nfpackageid=csar_id)
+        nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=csar_id)
         if nf_pkg:
             pkg_info["vnfdId"] = nf_pkg[0].vnfdId
             pkg_info["vnfdProvider"] = nf_pkg[0].vnfVendor
