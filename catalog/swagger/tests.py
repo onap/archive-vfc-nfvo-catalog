@@ -15,13 +15,13 @@ from django.test import Client
 from rest_framework import status
 
 
-class SampleViewTest(unittest.TestCase):
+class SwaggerViewTest(unittest.TestCase):
     def setUp(self):
         self.client = Client()
 
     def tearDown(self):
         pass
 
-    def test_sample(self):
+    def test_swagger(self):
         response = self.client.get("/api/catalog/v1/swagger.json")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
