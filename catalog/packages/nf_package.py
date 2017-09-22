@@ -22,7 +22,6 @@ import traceback
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
-from catalog.pub.msapi import nslcm
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
@@ -177,23 +176,9 @@ class NfPkgDeleteThread(threading.Thread):
             job_id=self.job_id)
         JobUtil.add_job_status(self.job_id, 5, "Start to delete CSAR(%s)." % self.csar_id)
 
-
-        if self.force_delete:
-            nslcm.delete_nf_inst(self.csar_id)
-        else:
-            nfinstances = nslcm.get_vnfInstances(self.csar_id)
-            if nfinstances and len(nfinstances) > 0:
-                raise CatalogException("NfInst by csar(%s) exists, cannot delete." % self.csar_id)
-
-        JobUtil.add_job_status(self.job_id, 50, "Delete CSAR(%s) from Database." % self.csar_id)
-
-        if not VnfPackageModel.objects.filter(vnfPackageId=self.csar_id):
-            JobUtil.add_job_status(self.job_id, 100, "Error! CSAR(%s) does not exist." % self.csar_id)
-            return
-
         VnfPackageModel.objects.filter(vnfPackageId=self.csar_id).delete()
 
-        JobUtil.add_job_status(self.job_id, 80, "Delete local CSAR(%s) file." % self.csar_id)
+        JobUtil.add_job_status(self.job_id, 50, "Delete local CSAR(%s) file." % self.csar_id)
 
         csar_save_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
         fileutil.delete_dirs(csar_save_path)
@@ -228,13 +213,6 @@ class NfPackage(object):
             pkg_info["vnfdVersion"] = nf_pkg[0].vnfdVersion
             pkg_info["vnfVersion"] = nf_pkg[0].vnfSoftwareVersion
 
-
-        #vnf_insts = NfInstModel.objects.filter(package_id=csar_id)
-        vnf_insts = nslcm.get_vnfInstances()
-        vnf_inst_info = [{"vnfInstanceId": vnf_inst["vnfInstanceId"],
-                          "vnfInstanceName": vnf_inst["vnfInstanceName"]} for vnf_inst in vnf_insts]
-
         return [0, {"csarId": csar_id,
                     "packageInfo": pkg_info,
-                    "imageInfo": [],
-                    "vnfInstanceInfo": vnf_inst_info}]
+                    "imageInfo": []}]

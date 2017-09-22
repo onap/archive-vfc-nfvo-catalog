@@ -24,7 +24,6 @@ from catalog.packages.nf_package import NfDistributeThread
 from catalog.packages.nf_package import NfPkgDeleteThread
 from catalog.packages.ns_package import NsPackage
 from catalog.pub.database.models import NSPackageModel, VnfPackageModel, JobStatusModel
-from catalog.pub.msapi import nslcm
 
 
 class PackageTest(unittest.TestCase):
@@ -59,74 +58,6 @@ class PackageTest(unittest.TestCase):
         NSPackageModel.objects.all().delete()
         JobStatusModel.objects.all().delete()
 
-    
-    def test_nfpackages_get(self):
-        response = self.client.get("/api/catalog/v1/vnfpackages")
-        self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
-
-        nsdModel = NSPackageModel.objects.filter(nsdId="VCPE_NS")
-        self.assertEqual(len(nsdModel),0)
-  
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    def test_nf_distribute(self, mock_get_vnfd):
-        local_file_name = "/url/local/filename"
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-
-        NfDistributeThread("dd", ["1"], "1", "5").run()
-        self.assert_job_result("5", 100, "CSAR(dd) distribute successfully.")
-        VnfPackageModel.objects.filter(vnfPackageId="dd").delete()
-
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    @mock.patch.object(nslcm,'get_vnfInstances')
-    def test_nf_package_delete(self,mock_get_vnfInstances,mock_get_vnfd):
-        # First distribute a VNF
-        local_file_name = "/url/local/filename"
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-
-        NfDistributeThread("bb", ["1"], "1", "5").run()
-        self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
-        self.assert_nfmodel_result("bb",1)
-
-        # Then delete the vnf
-        NfPkgDeleteThread("bb", "6", False).run()
-        self.assert_nfmodel_result("bb",0)
-        self.assert_job_result("6", 100, "Delete CSAR(bb) successfully.")
-
-    @mock.patch.object(NfDistributeThread, 'get_vnfd')
-    @mock.patch.object(nslcm,'get_vnfInstances')
-    def test_nf_package_delete_force(self,mock_get_vnfInstances,mock_get_vnfd):
-        # First distribute a VNF
-        local_file_name = "/url/local/filename"
-        vnfd = json.JSONEncoder().encode(vnfd_json)
-        mock_get_vnfd.return_value = vnfd_json,local_file_name,vnfd
-
-        NfDistributeThread("bb", ["1"], "1", "5").run()
-        self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
-        self.assert_nfmodel_result("bb",1)
-
-        # Then delete the package by force
-        NfPkgDeleteThread("bb", "6", True).run()
-        self.assert_nfmodel_result("bb",0)
-        self.assert_job_result("6", 100, "Delete CSAR(bb) successfully.")
-
-    def assert_job_result(self, job_id, job_progress, job_detail):
-        jobs = JobStatusModel.objects.filter(
-            jobid=job_id,
-            progress=job_progress,
-            descp=job_detail)
-        self.assertEqual(1, len(jobs))
-
-    def assert_nsdmodel_result(self,nsd_id,size):
-        nsdmodels = NSPackageModel.objects.filter(nsdId = nsd_id)
-        self.assertEquals(size, len(nsdmodels))
-
-    def assert_nfmodel_result(self,csar_id,size):
-        vnfdmodels = VnfPackageModel.objects.filter(vnfPackageId = csar_id)
-        self.assertEquals(size, len(vnfdmodels))
 
 nsd_json = {
     "inputs": {
