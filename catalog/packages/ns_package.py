@@ -174,7 +174,9 @@ class NsPackage(object):
         for ns in nss:
             csars.append({
                 "csarId": ns.nsPackageId,
-                "nsdId": ns.nsdId
+                "nsdId": ns.nsdId,
+                "nsdProvider": ns.nsdDesginer,
+                "nsdVersion": ns.nsdVersion
             })
         return [0, csars]
 
