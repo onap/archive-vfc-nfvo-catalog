@@ -38,6 +38,9 @@
               "$ref": "#/definitions/NsPkgListInfo"
             }
           },
+          "404": {
+            "description": "URL not found"
+          },
           "500": {
             "description": "internal error"
           }
@@ -67,6 +70,9 @@
             "schema": {
               "$ref": "#/definitions/NsPkgDistributeResponse"
             }
+          },
+          "404": {
+            "description": "URL not found"
           },
           "500": {
             "description": "internal error"
@@ -104,6 +110,9 @@
               "$ref": "#/definitions/NsPkgDetailInfo"
             }
           },
+          "404": {
+            "description": "URL not found"
+          },
           "500": {
             "description": "internal error"
           }
@@ -137,6 +146,9 @@
             "schema": {
               "$ref": "#/definitions/NsPkgDelResponse"
             }
+          },
+          "404": {
+            "description": "URL not found"
           },
           "500": {
             "description": "internal error"
@@ -176,6 +188,9 @@
               "$ref": "#/definitions/modelParserResponse"
             }
           },
+          "404": {
+            "description": "URL not found"
+          },
           "500": {
             "description": "internal error"
           }
@@ -203,6 +218,9 @@
             "schema": {
               "$ref": "#/definitions/VnfPkgListInfo"
             }
+          },
+          "404": {
+            "description": "URL not found"
           },
           "500": {
             "description": "internal error"
@@ -240,6 +258,9 @@
               "$ref": "#/definitions/VnfPkgDistributeResponse"
             }
           },
+          "404": {
+            "description": "URL not found"
+          },
           "500": {
             "description": "internal error"
           }
@@ -276,6 +297,9 @@
               "$ref": "#/definitions/VnfPkgDetailInfo"
             }
           },
+          "404": {
+            "description": "URL not found"
+          },
           "500": {
             "description": "internal error"
           }
@@ -309,6 +333,9 @@
             "schema": {
               "$ref": "#/definitions/VnfPkgDelResponse"
             }
+          },
+          "404": {
+            "description": "URL not found"
           },
           "500": {
             "description": "internal error"
@@ -347,6 +374,9 @@
             "schema": {
               "$ref": "#/definitions/modelParserResponse"
             }
+          },
+          "404": {
+            "description": "URL not found"
           },
           "500": {
             "description": "internal error"
