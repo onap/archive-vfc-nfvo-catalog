@@ -467,7 +467,8 @@ class TestNsPackage(TestCase):
         self.assertEqual({"csars": [{"csarId":"13", "nsdId": "2"}]}, resp.data)
 
     def test_ns_pkg_get_one(self):
-        NSPackageModel(nsPackageId="14", nsdId="2", nsdDesginer="3", nsdVersion="4").save()
+        NSPackageModel(nsPackageId="14", nsdId="2", nsdDesginer="3", 
+            nsdVersion="4", nsPackageUri="14/14.csar").save()
 
         resp = self.client.get("/api/catalog/v1/nspackages/14")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -475,7 +476,8 @@ class TestNsPackage(TestCase):
             "packageInfo": {
                 "nsdId": "2",
                 "nsdProvider": "3",
-                "nsdVersion": "4"
+                "nsdVersion": "4",
+                "downloadUrl": "http://127.0.0.1:8806/static/catalog/14/14.csar"
             }}, resp.data)
 
 
