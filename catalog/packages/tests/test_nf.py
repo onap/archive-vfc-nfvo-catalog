@@ -306,7 +306,7 @@ class TestNfPackage(TestCase):
     
     def test_nf_pkg_normal_delete(self):
         VnfPackageModel(vnfPackageId="2", vnfdId="vcpe_vfw_zte_1_0").save()
-        NfPkgDeleteThread(csar_id="2", job_id="2", force_delete=False).run()
+        NfPkgDeleteThread(csar_id="2", job_id="2").run()
         self.assert_job_result("2", 100, "Delete CSAR(2) successfully.")
 
     def test_nf_pkg_get_all(self):

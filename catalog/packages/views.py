@@ -94,11 +94,8 @@ def nf_rd_csar(request, *args, **kwargs):
         ret = nf_package.nf_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
     elif request.method == 'DELETE':
-        force_delete = csar_id.endswith("force")
-        if force_delete:
-            csar_id = csar_id[:-5]
         job_id = str(uuid.uuid4())
-        nf_package.NfPkgDeleteThread(csar_id, job_id, force_delete).start()
+        nf_package.NfPkgDeleteThread(csar_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
     logger.info("Leave %s, Return value is %s", fun_name(), ret)

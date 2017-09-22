@@ -151,7 +151,7 @@ class NfPkgDeleteThread(threading.Thread):
     Sdc NF Package Deleting
     """
 
-    def __init__(self, csar_id, job_id, force_delete):
+    def __init__(self, csar_id, job_id):
         threading.Thread.__init__(self)
         self.csar_id = csar_id
         self.job_id = job_id
