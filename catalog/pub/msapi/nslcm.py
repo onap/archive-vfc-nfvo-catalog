@@ -16,23 +16,9 @@ import json
 import logging
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils import restcall
-from catalog.pub.config.config import NFVOLCM_BASE_URL,NFVOLCM_USER,NFVOLCM_PASSWD
 from catalog.pub.utils.restcall import req_by_msb
 
 logger = logging.getLogger(__name__)
-
-# ASSETTYPE_RESOURCES = "resources"
-# ASSETTYPE_SERVICES = "services"
-
-
-# def call_lcm(resource, method, content=''):
-#     return restcall.call_req(base_url=NFVOLCM_BASE_URL,
-#         user="",
-#         passwd="",
-#         auth_type=restcall.rest_no_auth,
-#         resource=resource,
-#         method=method,
-#         content=content)
 
 
 def get_nsInstances(csarid):
