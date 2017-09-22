@@ -486,7 +486,8 @@ class PackageTest(unittest.TestCase):
         # First distribute a VNF
         local_file_name = "/url/local/filename"
         vnfd = json.JSONEncoder().encode(self.vnfd_json)
-        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        file_url = "http://10.43.10.5/static/catalog/1/test.csar"
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd,file_url
         NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
 
         # Then distribute a NS associated with the below VNF
@@ -504,11 +505,13 @@ class PackageTest(unittest.TestCase):
     def test_nf_distribute(self, mock_get_vnfd):
         local_file_name = "/url/local/filename"
         vnfd = json.JSONEncoder().encode(self.vnfd_json)
-        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        file_url = "http://10.43.10.5/static/catalog/1/test.csar"
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd,file_url
 
         NfDistributeThread("dd", ["1"], "1", "5").run()
         self.assert_job_result("5", 100, "CSAR(dd) distribute successfully.")
         VnfPackageModel.objects.filter(vnfPackageId="dd").delete()
+
 
     @mock.patch.object(NfDistributeThread, 'get_vnfd')
     @mock.patch.object(NsPackage,'get_nsd')
@@ -518,7 +521,8 @@ class PackageTest(unittest.TestCase):
         # First distribute a VNF
         local_file_name = "/url/local/filename"
         vnfd = json.JSONEncoder().encode(self.vnfd_json)
-        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        file_url = "http://10.43.10.5/static/catalog/1/test.csar"
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd,file_url
         NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
         self.assert_nfmodel_result(str(self.nf_csarId), 1)
 
@@ -547,7 +551,8 @@ class PackageTest(unittest.TestCase):
         # First distribute a VNF
         local_file_name = "/url/local/filename"
         vnfd = json.JSONEncoder().encode(self.vnfd_json)
-        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        file_url = "http://10.43.10.5/static/catalog/1/test.csar"
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd,file_url
         NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
         self.assert_nfmodel_result(str(self.nf_csarId), 1)
 
@@ -580,7 +585,8 @@ class PackageTest(unittest.TestCase):
         # First distribute a VNF
         local_file_name = "/url/local/filename"
         vnfd = json.JSONEncoder().encode(self.vnfd_json)
-        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        file_url = "http://10.43.10.5/static/catalog/1/test.csar"
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd,file_url
 
         NfDistributeThread("bb", ["1"], "1", "5").run()
         self.assert_job_result("5", 100, "CSAR(bb) distribute successfully.")
@@ -617,7 +623,8 @@ class PackageTest(unittest.TestCase):
         template_file_name = "resource-TestFyx-template.yml"
         local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
         vnfd = json.JSONEncoder().encode(self.vnfd_json)
-        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        file_url = "http://10.43.10.5/static/catalog/1/test.csar"
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd,file_url
         NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
         self.assert_nfmodel_result(str(self.nf_csarId), 1)
         reqdata={"csarId":"456"}
@@ -631,7 +638,8 @@ class PackageTest(unittest.TestCase):
         template_file_name = "resource-TestFyx-template.yml"
         local_file_name = os.path.join(os.path.dirname(__file__), template_file_name)
         vnfd = json.JSONEncoder().encode(self.vnfd_json)
-        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd
+        file_url="http://10.43.10.5/static/catalog/1/test.csar"
+        mock_get_vnfd.return_value = self.vnfd_json,local_file_name,vnfd,file_url
         NfDistributeThread(str(self.nf_csarId), ["1"], "1", "4").run()
         self.assert_nfmodel_result(str(self.nf_csarId), 1)
 

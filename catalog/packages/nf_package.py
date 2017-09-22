@@ -19,7 +19,7 @@ import sys
 import threading
 import traceback
 
-from catalog.pub.config.config import CATALOG_ROOT_PATH
+from catalog.pub.config.config import CATALOG_ROOT_PATH,CATALOG_URL_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import nfvolcm
@@ -106,7 +106,7 @@ class NfDistributeThread(threading.Thread):
         if VnfPackageModel.objects.filter(vnfPackageId=self.csar_id):
             raise CatalogException("NF CSAR(%s) already exists." % self.csar_id)
 
-        vnfd,local_file_name,vnfd_json = self.get_vnfd(self.csar_id)
+        vnfd,local_file_name,vnfd_json,file_url = self.get_vnfd(self.csar_id)
 
         nfd_id = vnfd["metadata"]["id"]
         if VnfPackageModel.objects.filter(vnfdId=nfd_id):
@@ -126,7 +126,7 @@ class NfDistributeThread(threading.Thread):
             vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
             vnfdModel=vnfd_json,
             localFilePath=local_file_name,
-            #vnfPackageUri to do
+            vnfPackageUri=file_url
             ).save()
 
         JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
@@ -134,10 +134,12 @@ class NfDistributeThread(threading.Thread):
     def get_vnfd(self, csar_id):
         artifact = sdc.get_artifact(sdc.ASSETTYPE_RESOURCES, self.csar_id)
         local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
-        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path)
-        vnfd_json = toscaparser.parse_vnfd(local_file_name)
+        local_file_path, file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path)
+        file_url= os.path.join(CATALOG_URL_PATH,self.csar_id)
+        file_url=os.path.join(file_url,file_name)
+        vnfd_json = toscaparser.parse_vnfd(local_file_path)
         vnfd = json.JSONDecoder().decode(vnfd_json)
-        return vnfd,local_file_name,vnfd_json
+        return vnfd,local_file_path,vnfd_json,file_url
 
     def rollback_distribute(self):
         try:
@@ -227,7 +229,7 @@ class NfPackage(object):
             pkg_info["vnfdProvider"] = nf_pkg[0].vnfVendor
             pkg_info["vnfdVersion"] = nf_pkg[0].vnfdVersion
             pkg_info["vnfVersion"] = nf_pkg[0].vnfSoftwareVersion
-
+            pkg_info["downloadUri"]=nf_pkg[0].vnfPackageUri
 
         #vnf_insts = NfInstModel.objects.filter(package_id=csar_id)
         vnf_insts = nfvolcm.get_vnfInstances()

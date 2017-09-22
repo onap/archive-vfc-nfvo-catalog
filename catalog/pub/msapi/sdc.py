@@ -95,11 +95,11 @@ def download_artifacts(download_url, local_path, file_name):
     if ret[0] != 0:
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
         raise CatalogException("Failed to download %s from sdc." % download_url)
-    local_file_name = os.path.join(local_path, file_name)
-    local_file = open(local_file_name, 'wb')
+    local_file_path = os.path.join(local_path, file_name)
+    local_file = open(local_file_path, 'wb')
     local_file.write(ret[1])
     local_file.close()
-    return local_file_name
+    return local_file_path, file_name
 
     
 
