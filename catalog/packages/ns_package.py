@@ -112,8 +112,9 @@ class NsPackage(object):
 
         artifact = sdc.get_artifact(sdc.ASSETTYPE_SERVICES, csar_id)
         local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
+        csar_name = "%s.csar" % artifact.get("name", csar_id)
         local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], 
-            local_path, "%s.csar" % artifact.get("name", csar_id))
+            local_path, csar_name)
         
         nsd_json = toscaparser.parse_nsd(local_file_name)
         nsd = json.JSONDecoder().decode(nsd_json)
@@ -135,7 +136,7 @@ class NsPackage(object):
             nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
             nsdDescription=nsd["metadata"].get("description", ""),
             nsdVersion=nsd["metadata"].get("version", "undefined"),
-            nsPackageUri=local_file_name,
+            nsPackageUri="%s/%s" % (csar_id, csar_name),
             sdcCsarId=csar_id,
             localFilePath=local_file_name,
             nsdModel=nsd_json
@@ -149,10 +150,10 @@ class NsPackage(object):
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
     def get_csars(self):
-        csars = []
+        csars = {"csars": []}
         nss = NSPackageModel.objects.filter()
         for ns in nss:
-            csars.append({
+            csars["csars"].append({
                 "csarId": ns.nsPackageId,
                 "nsdId": ns.nsdId,
                 "nsdProvider": ns.nsdDesginer,

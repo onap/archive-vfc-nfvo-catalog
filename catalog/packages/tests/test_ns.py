@@ -464,7 +464,7 @@ class TestNsPackage(TestCase):
 
         resp = self.client.get("/api/catalog/v1/nspackages")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual([{"csarId":"13", "nsdId": "2"}], resp.data)
+        self.assertEqual({"csars": [{"csarId":"13", "nsdId": "2"}]}, resp.data)
 
     def test_ns_pkg_get_one(self):
         NSPackageModel(nsPackageId="14", nsdId="2", nsdDesginer="3", nsdVersion="4").save()
