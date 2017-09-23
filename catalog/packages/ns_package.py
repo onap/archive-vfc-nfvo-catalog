@@ -88,9 +88,10 @@ def parse_nsd(csar_id, inputs):
     ret= None
     try:
         ns_pkg = NSPackageModel.objects.filter(nsPackageId=csar_id)
-        if ns_pkg:
-            csar_path = ns_pkg[0].localFilePath
-            ret = {"model": toscaparser.parse_nsd(csar_path, inputs)}
+        if not ns_pkg:
+            raise CatalogException("CSAR(%s) does not exist." % csar_id)
+        csar_path = ns_pkg[0].localFilePath
+        ret = {"model": toscaparser.parse_nsd(csar_path, inputs)}
     except CatalogException as e:
         return [1, e.message]
     except:

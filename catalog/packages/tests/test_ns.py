@@ -485,7 +485,7 @@ class TestNsPackage(TestCase):
     ###############################################################################################################
 
     @mock.patch.object(toscaparser, 'parse_nsd')
-    def test_nsd_parse(self, mock_parse_nsd):
+    def test_nsd_parse_normal(self, mock_parse_nsd):
         NSPackageModel(nsPackageId="18", nsdId="12").save()
         mock_parse_nsd.return_value = json.JSONEncoder().encode({"a": "b"})
         resp = self.client.post("/api/catalog/v1/parsernsd", 
@@ -493,6 +493,10 @@ class TestNsPackage(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual({"model": '{"a": "b"}'}, resp.data)
 
+    def test_nsd_parse_when_csar_not_exist(self):
+        resp = self.client.post("/api/catalog/v1/parsernsd", 
+            {"csarId": "1", "inputs": []}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
