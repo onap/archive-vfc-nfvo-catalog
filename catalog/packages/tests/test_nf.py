@@ -332,3 +332,14 @@ class TestNfPackage(TestCase):
                 "downloadUrl": "http://127.0.0.1:8806/static/catalog/4/4.csar"
             }, 
             "imageInfo": []}, resp.data)
+
+    ###############################################################################################################
+
+    @mock.patch.object(toscaparser, 'parse_vnfd')
+    def test_vnfd_parse_normal(self, mock_parse_vnfd):
+        VnfPackageModel(vnfPackageId="8", vnfdId="10").save()
+        mock_parse_vnfd.return_value = json.JSONEncoder().encode({"c": "d"})
+        resp = self.client.post("/api/catalog/v1/parservnfd", 
+            {"csarId": "8", "inputs": []}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual({"model": '{"c": "d"}'}, resp.data)
