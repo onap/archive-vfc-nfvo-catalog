@@ -58,9 +58,10 @@ def parse_vnfd(csar_id, inputs):
     ret= None
     try:
         nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=csar_id)
-        if nf_pkg:
-             csar_path = nf_pkg[0].localFilePath
-             ret = {"model": toscaparser.parse_vnfd(csar_path, inputs)}
+        if not nf_pkg:
+            raise CatalogException("VNF CSAR(%s) does not exist." % csar_id)
+        csar_path = nf_pkg[0].localFilePath
+        ret = {"model": toscaparser.parse_vnfd(csar_path, inputs)}
     except CatalogException as e:
         return [1, e.message]
     except:

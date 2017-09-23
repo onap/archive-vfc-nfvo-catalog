@@ -343,3 +343,9 @@ class TestNfPackage(TestCase):
             {"csarId": "8", "inputs": []}, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual({"model": '{"c": "d"}'}, resp.data)
+
+    def test_vnfd_parse_when_csar_not_exist(self):
+        resp = self.client.post("/api/catalog/v1/parservnfd", 
+            {"csarId": "1", "inputs": []}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(resp.data, {"error": "VNF CSAR(1) does not exist."})
