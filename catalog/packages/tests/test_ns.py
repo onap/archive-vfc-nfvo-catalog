@@ -482,6 +482,21 @@ class TestNsPackage(TestCase):
                 "downloadUrl": "http://127.0.0.1:8806/static/catalog/14/14.csar"
             }}, resp.data)
 
+    ###############################################################################################################
+
+    @mock.patch.object(toscaparser, 'parse_nsd')
+    def test_nsd_parse(self, mock_parse_nsd):
+        NSPackageModel(nsPackageId="18", nsdId="12").save()
+        mock_parse_nsd.return_value = json.JSONEncoder().encode({"a": "b"})
+        resp = self.client.post("/api/catalog/v1/parsernsd", 
+            {"csarId": "18", "inputs": []}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual({"model": '{"a": "b"}'}, resp.data)
+
+
+
+
+
 
         
 
