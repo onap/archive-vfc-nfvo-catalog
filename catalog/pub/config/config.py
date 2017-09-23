@@ -16,11 +16,6 @@
 MSB_SERVICE_IP = '127.0.0.1'
 MSB_SERVICE_PORT = '80'
 
-# [aai config]
-AAI_BASE_URL = "https://127.0.0.1:8443/aai/v11"
-AAI_USER = "AAI"
-AAI_PASSWD = "AAI"
-
 # [REDIS]
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = '6379'
@@ -58,10 +53,7 @@ SDC_BASE_URL = "https://127.0.0.1:8443/api/sdc/v1"
 SDC_USER = "SDC"
 SDC_PASSWD = "SDC"
 
-# [nslcm config]
-NFVOLCM_BASE_URL = "http://127.0.0.1:8403/api"
-NFVOLCM_USER = "admin"
-NFVOLCM_PASSWD = "admin"
+
 
 
 
