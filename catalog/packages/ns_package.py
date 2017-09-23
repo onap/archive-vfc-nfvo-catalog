@@ -137,7 +137,7 @@ class NsPackage(object):
             nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
             nsdDescription=nsd["metadata"].get("description", ""),
             nsdVersion=nsd["metadata"].get("version", "undefined"),
-            nsPackageUri="%s/%s" % (csar_id, csar_name),
+            nsPackageUri=csar_name,
             sdcCsarId=csar_id,
             localFilePath=local_file_name,
             nsdModel=nsd_json
@@ -169,10 +169,12 @@ class NsPackage(object):
             package_info["nsdId"] = csars[0].nsdId
             package_info["nsdProvider"] = csars[0].nsdDesginer
             package_info["nsdVersion"] = csars[0].nsdVersion
-            package_info["downloadUrl"] = "http://%s:%s/%s/%s" % (
+            package_info["csarName"] = csars[0].nsPackageUri
+            package_info["downloadUrl"] = "http://%s:%s/%s/%s/%s" % (
                 REG_TO_MSB_REG_PARAM["nodes"][0]["ip"],
                 REG_TO_MSB_REG_PARAM["nodes"][0]["port"],
                 CATALOG_URL_PATH,
+                csar_id,
                 csars[0].nsPackageUri)
 
         return [0, {"csarId": csar_id, "packageInfo": package_info}]
