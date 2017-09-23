@@ -318,7 +318,7 @@ class TestNfPackage(TestCase):
 
     def test_nf_pkg_get_one(self):
         VnfPackageModel(vnfPackageId="4", vnfdId="5", vnfVendor="6", 
-            vnfdVersion="7", vnfSoftwareVersion="8", vnfPackageUri="4/4.csar").save()
+            vnfdVersion="7", vnfSoftwareVersion="8", vnfPackageUri="4.csar").save()
 
         resp = self.client.get("/api/catalog/v1/vnfpackages/4")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -328,6 +328,7 @@ class TestNfPackage(TestCase):
                 "vnfdProvider": "6",
                 "vnfdVersion": "7",
                 "vnfVersion": "8",
+                "csarName": "4.csar",
                 "downloadUrl": "http://127.0.0.1:8806/static/catalog/4/4.csar"
             }, 
             "imageInfo": []}, resp.data)

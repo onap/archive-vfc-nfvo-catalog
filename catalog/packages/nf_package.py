@@ -132,7 +132,7 @@ class NfDistributeThread(threading.Thread):
             vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
             vnfdModel=vnfd_json,
             localFilePath=local_file_name,
-            vnfPackageUri="%s/%s" % (self.csar_id, csar_name)
+            vnfPackageUri=csar_name
             ).save()
 
         JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
@@ -211,10 +211,12 @@ class NfPackage(object):
             pkg_info["vnfdProvider"] = nf_pkg[0].vnfVendor
             pkg_info["vnfdVersion"] = nf_pkg[0].vnfdVersion
             pkg_info["vnfVersion"] = nf_pkg[0].vnfSoftwareVersion
-            pkg_info["downloadUrl"] = "http://%s:%s/%s/%s" % (
+            pkg_info["csarName"] = nf_pkg[0].vnfPackageUri
+            pkg_info["downloadUrl"] = "http://%s:%s/%s/%s/%s" % (
                 REG_TO_MSB_REG_PARAM["nodes"][0]["ip"],
                 REG_TO_MSB_REG_PARAM["nodes"][0]["port"],
                 CATALOG_URL_PATH,
+                csar_id,
                 nf_pkg[0].vnfPackageUri)
 
         return [0, {"csarId": csar_id,
