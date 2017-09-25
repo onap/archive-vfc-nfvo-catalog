@@ -47,7 +47,6 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         self.vnf_exposed = self.get_all_endpoint_exposed(tosca.topology_template)
         self.vnf_flavours = self.get_all_flavour(tosca.topology_template.groups)
 
-
     def _get_all_services(self, nodeTemplates):
         ret = []
         for node in nodeTemplates:
@@ -177,13 +176,13 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
                 ret['dependencies'] = map(lambda x: self.get_requirement_node_name(x), self.getNodeDependencys(node))
 
                 nfv_compute = self.getCapabilityByName(node, 'nfv_compute')
-                if nfv_compute != None and 'properties' in nfv_compute:
+                if nfv_compute is not None and 'properties' in nfv_compute:
                     ret['nfv_compute'] = nfv_compute['properties']
 
                 ret['vls'] = self.get_linked_vl_ids(node, nodeTemplates)
 
                 scalable = self.getCapabilityByName(node, 'scalable')
-                if scalable != None and 'properties' in scalable:
+                if scalable is not None and 'properties' in scalable:
                     ret['scalable'] = scalable['properties']
 
                 ret['cps'] = self.getVirtalBindingCpIds(node, nodeTemplates)

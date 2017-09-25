@@ -39,7 +39,7 @@ class BaseInfoModel(object):
             valid_params = self._validate_input_params(file_name, params)
             return self._create_tosca_template(file_name, valid_params)
         finally:
-            if file_name != None and file_name != path and os.path.exists(file_name):
+            if file_name is not None and file_name != path and os.path.exists(file_name):
                 try:
                     os.remove(file_name)
                 except Exception as e:
@@ -66,7 +66,7 @@ class BaseInfoModel(object):
             print "-----------------------------"
             return tosca_tpl
         finally:
-            if tosca_tpl != None and hasattr(tosca_tpl, "temp_dir") and os.path.exists(tosca_tpl.temp_dir):
+            if tosca_tpl is not None and hasattr(tosca_tpl, "temp_dir") and os.path.exists(tosca_tpl.temp_dir):
                 try:
                     shutil.rmtree(tosca_tpl.temp_dir)
                 except Exception as e:
@@ -129,9 +129,8 @@ class BaseInfoModel(object):
             sftp = paramiko.SFTPClient.from_transport(t)
             sftp.get(remoteFileName, localFileName)
         finally:
-            if t != None:
+            if t is not None:
                 t.close()
-
 
     def ftp_get(self, userName, userPwd, hostIp, hostPort, remoteFileName, localFileName):
         f = None
@@ -143,7 +142,7 @@ class BaseInfoModel(object):
             ftp.retrbinary('RETR ' + remoteFileName, f.write, 1024)
             f.close()
         finally:
-            if f != None:
+            if f is not None:
                 f.close()
 
     def buidMetadata(self, tosca):
@@ -166,7 +165,6 @@ class BaseInfoModel(object):
             for k, item in nodeTemplate.entity_tpl['attributes'].items():
                 properties[k] = str(item)
         return properties
-
 
     def verify_properties(self, props, inputs, parsed_params):
         ret_props = {}
@@ -199,7 +197,7 @@ class BaseInfoModel(object):
         capabilities = json.dumps(nodeTemplate.entity_tpl.get('capabilities', None))
         match = re.findall(r'\{"get_input":\s*"([\w|\-]+)"\}',capabilities)
         for m in match:
-            aa= [input_def for input_def in inputs
+            aa = [input_def for input_def in inputs
                  if m == input_def.name][0]
             capabilities = re.sub(r'\{"get_input":\s*"([\w|\-]+)"\}', json.dumps(aa.default), capabilities,1)
         if capabilities != 'null':
@@ -209,7 +207,7 @@ class BaseInfoModel(object):
         artifacts = json.dumps(nodeTemplate.entity_tpl.get('artifacts', None))
         match = re.findall(r'\{"get_input":\s*"([\w|\-]+)"\}',artifacts)
         for m in match:
-            aa= [input_def for input_def in inputs
+            aa = [input_def for input_def in inputs
                  if m == input_def.name][0]
             artifacts = re.sub(r'\{"get_input":\s*"([\w|\-]+)"\}', json.dumps(aa.default), artifacts,1)
         if artifacts != 'null':
@@ -256,7 +254,6 @@ class BaseInfoModel(object):
     def getVirtualbindings(self, node):
         return self.getRequirementByName(node, 'virtualbinding')
 
-
     def getRequirementByName(self, node, requirementName):
         requirements = []
         if 'requirements' in node:
@@ -271,7 +268,7 @@ class BaseInfoModel(object):
         if 'requirements' in node:
             for item in node['requirements']:
                 for key, value in item.items():
-                    if key.upper().find('VIRTUALLINK') >=0:
+                    if key.upper().find('VIRTUALLINK') >= 0:
                         rets.append({"key_name":key, "vl_id":self.get_requirement_node_name(value)})
         return rets
 

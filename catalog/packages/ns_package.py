@@ -86,7 +86,7 @@ def ns_get_csar(csar_id):
 
 
 def parse_nsd(csar_id, inputs):
-    ret= None
+    ret = None
     try:
         ns_pkg = NSPackageModel.objects.filter(nsPackageId=csar_id)
         if not ns_pkg:
