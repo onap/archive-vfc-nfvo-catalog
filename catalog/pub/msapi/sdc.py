@@ -39,6 +39,7 @@ def call_sdc(resource, method, content=''):
         content=content,
         additional_headers=additional_headers)
 
+
 """
 sample of return value
 [

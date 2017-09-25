@@ -31,34 +31,35 @@ class NSPackageModel(models.Model):
     userDefinedData = models.TextField(db_column='USERDEFINEDDATA', max_length=1024, blank=True, null=True)  # userDefinedData
     localFilePath = models.CharField(db_column='LOCALFILEPATH', max_length=300, null=True, blank=True)
     nsdModel = models.TextField(db_column='NSDMODEL', max_length=65535, null=True, blank=True)
+
     class Meta:
         db_table = 'CATALOG_NSPACKAGE'
 
 
 class VnfPackageModel(models.Model):
-    #uuid = models.CharField(db_column='UUID', primary_key=True, max_length=255)
-    vnfPackageId = models.CharField(db_column='VNFPACKAGEID', primary_key=True, max_length=50)   #onboardedVnfPkgInfoId
+    # uuid = models.CharField(db_column='UUID', primary_key=True, max_length=255)
+    vnfPackageId = models.CharField(db_column='VNFPACKAGEID', primary_key=True, max_length=50)   # onboardedVnfPkgInfoId
     vnfPackageUri = models.CharField(db_column='VNFPACKAGEURI', max_length=300, null=True, blank=True)  # downloadUri
     SdcCSARUri = models.CharField(db_column='SDCCSARURI', max_length=300, null=True, blank=True)  # SdcCSARUri
     checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
     operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True,null=True)  # operationalState
     usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
     deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
-    vnfdId = models.CharField(db_column='VNFDID', max_length=50,blank=True, null=True)                #vnfdId
+    vnfdId = models.CharField(db_column='VNFDID', max_length=50,blank=True, null=True)                # vnfdId
     vnfVendor = models.CharField(db_column='VENDOR', max_length=50,blank=True, null=True)  # vnfProvider
-    vnfdProductName = models.CharField(db_column='VNFDPRODUCTNAME', max_length=50,blank=True, null=True)  #vnfProductName
-    vnfdVersion = models.CharField(db_column='VNFDVERSION', max_length=20,blank=True, null=True)     #vnfdVersion
-    vnfSoftwareVersion = models.CharField(db_column='VNFSOFTWAREVERSION', max_length=20,blank=True, null=True)   #vnfSoftwareVersion
+    vnfdProductName = models.CharField(db_column='VNFDPRODUCTNAME', max_length=50,blank=True, null=True)  # vnfProductName
+    vnfdVersion = models.CharField(db_column='VNFDVERSION', max_length=20,blank=True, null=True)     # vnfdVersion
+    vnfSoftwareVersion = models.CharField(db_column='VNFSOFTWAREVERSION', max_length=20,blank=True, null=True)   # vnfSoftwareVersion
     userDefinedData = models.TextField(db_column='USERDEFINEDDATA', max_length=1024, blank=True, null=True)  # userDefinedData
     localFilePath = models.CharField(db_column='LOCALFILEPATH', max_length=300, null=True, blank=True)
     vnfdModel = models.TextField(db_column='VNFDMODEL', max_length=65535, blank=True, null=True)  # vnfd
+
     class Meta:
         db_table = 'CATALOG_VNFPACKAGE'
 
 
 class SoftwareImageModel(models.Model):
-    imageid = models.CharField(db_column='IMAGEID',  primary_key=True, max_length=50)
-    diskFormat = models.CharField(db_column='DISKFORMAT', max_length=10)
+    imageid = models.CharField(db_column='IMAGEID', primary_key=True, max_length=50)
     containerFormat = models.CharField(db_column='CONTAINERFORMAT', max_length=20)
     diskFormat = models.CharField(db_column='DISKFORMAT', max_length=20)
     mindisk = models.CharField(db_column='MINDISK', max_length=20)
@@ -68,10 +69,11 @@ class SoftwareImageModel(models.Model):
     filePath = models.CharField(db_column='FILEPATH', max_length=300)
     status = models.CharField(db_column='STATUS', max_length=10)
     vimid = models.CharField(db_column='VIMID', max_length=50)
-    #filetype = models.CharField(db_column='FILETYPE', max_length=2)
-    #vimuser = models.CharField(db_column='VIMUSER', max_length=50)
-    #tenant = models.CharField(db_column='TENANT', max_length=50)
-    #purpose = models.CharField(db_column='PURPOSE', max_length=1000)
+    # filetype = models.CharField(db_column='FILETYPE', max_length=2)
+    # vimuser = models.CharField(db_column='VIMUSER', max_length=50)
+    # tenant = models.CharField(db_column='TENANT', max_length=50)
+    # purpose = models.CharField(db_column='PURPOSE', max_length=1000)
+
     class Meta:
         db_table = 'CATALOG_SOFTWAREIMAGEMODEL'
 
