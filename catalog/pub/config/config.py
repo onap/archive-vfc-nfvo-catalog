@@ -52,10 +52,3 @@ CATALOG_URL_PATH = None
 SDC_BASE_URL = "https://127.0.0.1:8443/api/sdc/v1"
 SDC_USER = "SDC"
 SDC_PASSWD = "SDC"
-
-
-
-
-
-
-

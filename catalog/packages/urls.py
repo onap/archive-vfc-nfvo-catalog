@@ -24,5 +24,3 @@ urlpatterns = [
     url(r'^api/catalog/v1/parsernsd$', views.ns_model_parser, name='nsmodelparser_rc'),
     url(r'^api/catalog/v1/parservnfd$', views.vnf_model_parser, name='vnfmodelparser_rc'),
 ]
-
-

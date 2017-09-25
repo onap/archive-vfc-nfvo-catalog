@@ -252,7 +252,7 @@ class TestNfPackage(TestCase):
         resp = self.client.post("/api/catalog/v1/vnfpackages", {
             "csarId": "1",
             "vimIds": ["1"]
-            }, format='json')
+        }, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
     
     def test_nf_pkg_distribute_when_csar_already_exist(self):
@@ -267,13 +267,13 @@ class TestNfPackage(TestCase):
     @mock.patch.object(sdc, 'download_artifacts')
     @mock.patch.object(toscaparser, 'parse_vnfd')
     def test_nf_pkg_distribute_when_vnfd_already_exist(self,
-        mock_parse_vnfd, mock_download_artifacts, mock_call_req):
+                                                       mock_parse_vnfd, mock_download_artifacts, mock_call_req):
         mock_parse_vnfd.return_value = json.JSONEncoder().encode(self.vnfd_data)
         mock_download_artifacts.return_value = "/home/hss.csar"
         mock_call_req.return_value = [0, json.JSONEncoder().encode([{
             "uuid": "1",
             "toscaModelURL": "https://127.0.0.1:1234/sdc/v1/hss.csar"
-            }]), '200']
+        }]), '200']
         VnfPackageModel(vnfPackageId="2", vnfdId="zte-hss-1.0").save()
         NfDistributeThread(csar_id="1",
                            vim_ids=["1"],
@@ -285,13 +285,13 @@ class TestNfPackage(TestCase):
     @mock.patch.object(sdc, 'download_artifacts')
     @mock.patch.object(toscaparser, 'parse_vnfd')
     def test_nf_pkg_distribute_successfully(self,
-        mock_parse_vnfd, mock_download_artifacts, mock_call_req):
+                                            mock_parse_vnfd, mock_download_artifacts, mock_call_req):
         mock_parse_vnfd.return_value = json.JSONEncoder().encode(self.vnfd_data)
         mock_download_artifacts.return_value = "/home/hss.csar"
         mock_call_req.return_value = [0, json.JSONEncoder().encode([{
             "uuid": "1",
             "toscaModelURL": "https://127.0.0.1:1234/sdc/v1/hss.csar"
-            }]), '200']
+        }]), '200']
         NfDistributeThread(csar_id="1",
                            vim_ids=["1"],
                            lab_vim_id="",

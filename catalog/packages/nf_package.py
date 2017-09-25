@@ -134,7 +134,7 @@ class NfDistributeThread(threading.Thread):
             vnfdModel=vnfd_json,
             localFilePath=local_file_name,
             vnfPackageUri=csar_name
-            ).save()
+        ).save()
 
         JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
 

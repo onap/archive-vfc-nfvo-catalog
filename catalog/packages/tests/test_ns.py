@@ -404,14 +404,14 @@ class TestNsPackage(TestCase):
     @mock.patch.object(restcall, 'call_req')
     @mock.patch.object(sdc, 'download_artifacts')
     @mock.patch.object(toscaparser, 'parse_nsd')
-    def test_ns_pkg_distribute_when_nsd_already_exists(self, 
-        mock_parse_nsd, mock_download_artifacts, mock_call_req):
+    def test_ns_pkg_distribute_when_nsd_already_exists(self,
+                                                       mock_parse_nsd, mock_download_artifacts, mock_call_req):
         mock_parse_nsd.return_value = json.JSONEncoder().encode(self.nsd_data)
         mock_download_artifacts.return_value = "/home/vcpe.csar"
         mock_call_req.return_value = [0, json.JSONEncoder().encode([{
             "uuid": "1",
             "toscaModelURL": "https://127.0.0.1:1234/sdc/v1/vcpe.csar"
-            }]), '200']
+        }]), '200']
         NSPackageModel(nsPackageId="2", nsdId="VCPE_NS").save()
         resp = self.client.post("/api/catalog/v1/nspackages", {"csarId": "1"}, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
@@ -421,14 +421,14 @@ class TestNsPackage(TestCase):
     @mock.patch.object(restcall, 'call_req')
     @mock.patch.object(sdc, 'download_artifacts')
     @mock.patch.object(toscaparser, 'parse_nsd')
-    def test_ns_pkg_distribute_when_nf_not_distributed(self, 
-        mock_parse_nsd, mock_download_artifacts, mock_call_req):
+    def test_ns_pkg_distribute_when_nf_not_distributed(self,
+                                                       mock_parse_nsd, mock_download_artifacts, mock_call_req):
         mock_parse_nsd.return_value = json.JSONEncoder().encode(self.nsd_data)
         mock_download_artifacts.return_value = "/home/vcpe.csar"
         mock_call_req.return_value = [0, json.JSONEncoder().encode([{
             "uuid": "1",
             "toscaModelURL": "https://127.0.0.1:1234/sdc/v1/vcpe.csar"
-            }]), '200']
+        }]), '200']
         resp = self.client.post("/api/catalog/v1/nspackages", {"csarId": "1"}, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual("failed", resp.data["status"])
@@ -437,14 +437,14 @@ class TestNsPackage(TestCase):
     @mock.patch.object(restcall, 'call_req')
     @mock.patch.object(sdc, 'download_artifacts')
     @mock.patch.object(toscaparser, 'parse_nsd')
-    def test_ns_pkg_distribute_when_successfully(self, 
-        mock_parse_nsd, mock_download_artifacts, mock_call_req):
+    def test_ns_pkg_distribute_when_successfully(self,
+                                                 mock_parse_nsd, mock_download_artifacts, mock_call_req):
         mock_parse_nsd.return_value = json.JSONEncoder().encode(self.nsd_data)
         mock_download_artifacts.return_value = "/home/vcpe.csar"
         mock_call_req.return_value = [0, json.JSONEncoder().encode([{
             "uuid": "1",
             "toscaModelURL": "https://127.0.0.1:1234/sdc/v1/vcpe.csar"
-            }]), '200']
+        }]), '200']
         VnfPackageModel(vnfPackageId="1", vnfdId="vcpe_vfw_zte_1_0").save()
         resp = self.client.post("/api/catalog/v1/nspackages", {"csarId": "1"}, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)

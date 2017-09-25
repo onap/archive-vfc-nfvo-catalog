@@ -141,7 +141,7 @@ class NsPackage(object):
             sdcCsarId=csar_id,
             localFilePath=local_file_name,
             nsdModel=nsd_json
-            ).save()
+        ).save()
 
         return [0, "CSAR(%s) distributed successfully." % csar_id]
 
