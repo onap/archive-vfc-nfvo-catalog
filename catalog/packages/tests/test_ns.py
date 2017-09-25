@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import json
 import mock
 from rest_framework import status
@@ -498,18 +499,3 @@ class TestNsPackage(TestCase):
             {"csarId": "1", "inputs": []}, format='json')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(resp.data, {"error": "NS CSAR(1) does not exist."})
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-

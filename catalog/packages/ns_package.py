@@ -25,7 +25,6 @@ from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
-from rest_framework import status
 
 logger = logging.getLogger(__name__)
 

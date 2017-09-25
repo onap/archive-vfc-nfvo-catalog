@@ -11,19 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import json
-import mock
-from rest_framework import status
-from django.test import TestCase
-from django.test import Client
 
-from catalog.pub.utils import restcall, toscaparser
-from catalog.pub.utils import fileutil
-from catalog.pub.database.models import VnfPackageModel
-from catalog.pub.database.models import JobStatusModel, JobModel
+import json
+
+import mock
+from django.test import Client
+from django.test import TestCase
+from rest_framework import status
+
 from catalog.packages.nf_package import NfDistributeThread, NfPkgDeleteThread
-from catalog.packages import nf_package
+from catalog.pub.database.models import JobStatusModel, JobModel
+from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.msapi import sdc
+from catalog.pub.utils import restcall, toscaparser
+
 
 class TestNfPackage(TestCase):
     def setUp(self):
