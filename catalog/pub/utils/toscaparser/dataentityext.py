@@ -16,6 +16,7 @@ from toscaparser.dataentity import DataEntity
 from toscaparser.elements.constraints import Schema
 from toscaparser.common.exception import ExceptionCollector
 
+
 class DataEntityExt(object):
     '''A complex data value entity ext.'''
     @staticmethod

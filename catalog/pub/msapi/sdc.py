@@ -58,6 +58,7 @@ sample of return value
 ]
 """
 
+
 def get_artifacts(asset_type):
     resource = "/sdc/v1/catalog/{assetType}"
     resource = resource.format(assetType=asset_type)

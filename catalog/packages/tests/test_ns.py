@@ -87,7 +87,7 @@ class TestNsPackage(TestCase):
                     "description": "",
                     "properties": {
                         "vendor": "zte",
-                        "request_reclassification": False ,
+                        "request_reclassification": False,
                         "pnf_type": "m6000s",
                         "version": "1.0",
                         "management_address": "111111",
@@ -99,7 +99,7 @@ class TestNsPackage(TestCase):
             "fps": [
                 {
                     "properties": {
-                        "symmetric": False ,
+                        "symmetric": False,
                         "policy": {
                             "type": "ACL",
                             "criteria": {
@@ -201,7 +201,7 @@ class TestNsPackage(TestCase):
                     "properties": {
                         "plugin_info": "vbrasplugin_1.0",
                         "vendor": "zte",
-                        "is_shared": False ,
+                        "is_shared": False,
                         "adjust_vnf_capacity": True,
                         "name": "VFW",
                         "vnf_extend_type": "driver",
@@ -210,7 +210,7 @@ class TestNsPackage(TestCase):
                         "csarProvider": "ZTE",
                         "version": "1.0",
                         "nsh_aware": True,
-                        "cross_dc": False ,
+                        "cross_dc": False,
                         "vnf_type": "VFW",
                         "vmnumber_overquota_alarm": True,
                         "vnfd_version": "1.0.0",
@@ -246,7 +246,7 @@ class TestNsPackage(TestCase):
                 {
                     "route_id": "",
                     "vl_id": "ext_mnet_net",
-                    "route_external": False ,
+                    "route_external": False,
                     "description": "",
                     "properties": {
                         "name": "vlan_4008_mng_net",
@@ -265,7 +265,7 @@ class TestNsPackage(TestCase):
                 {
                     "route_id": "",
                     "vl_id": "ext_datanet_net",
-                    "route_external": False ,
+                    "route_external": False,
                     "description": "",
                     "properties": {
                         "name": "vlan_4004_tunnel_net",
@@ -284,12 +284,12 @@ class TestNsPackage(TestCase):
                 {
                     "route_id": "",
                     "vl_id": "sfc_data_network",
-                    "route_external": False ,
+                    "route_external": False,
                     "description": "",
                     "properties": {
                         "name": "sfc_data_network",
                         "dhcp_enabled": True,
-                        "is_predefined": False ,
+                        "is_predefined": False,
                         "location_info": {
                             "tenant": "admin",
                             "vimid": 2,

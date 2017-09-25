@@ -72,6 +72,7 @@ def ns_get_csars():
         return [1, str(sys.exc_info())]
     return ret
 
+
 def ns_get_csar(csar_id):
     ret = None
     try:
@@ -82,6 +83,7 @@ def ns_get_csar(csar_id):
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return ret
+
 
 def parse_nsd(csar_id, inputs):
     ret= None

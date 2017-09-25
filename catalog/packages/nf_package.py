@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 JOB_ERROR = 255
 
+
 def nf_get_csars():
     ret = None
     try:
@@ -43,6 +44,7 @@ def nf_get_csars():
         return [1, str(sys.exc_info())]
     return ret
 
+
 def nf_get_csar(csar_id):
     ret = None
     try:
@@ -53,6 +55,7 @@ def nf_get_csar(csar_id):
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return ret
+
 
 def parse_vnfd(csar_id, inputs):
     ret= None

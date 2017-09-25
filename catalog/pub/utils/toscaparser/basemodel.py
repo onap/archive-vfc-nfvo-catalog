@@ -15,6 +15,7 @@
 import copy
 import ftplib
 import json
+import logging
 import os
 import re
 import shutil
@@ -25,6 +26,8 @@ from toscaparser.functions import GetInput
 from toscaparser.tosca_template import ToscaTemplate
 
 from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
+
+logger = logging.getLogger(__name__)
 
 
 class BaseInfoModel(object):
@@ -39,8 +42,8 @@ class BaseInfoModel(object):
             if file_name != None and file_name != path and os.path.exists(file_name):
                 try:
                     os.remove(file_name)
-                except Exception, e:
-                    pass
+                except Exception as e:
+                    logger.error("Failed to parse package, error: %s", e.message)
 
     def _validate_input_params(self, path, params):
         valid_params = {}
@@ -66,8 +69,8 @@ class BaseInfoModel(object):
             if tosca_tpl != None and hasattr(tosca_tpl, "temp_dir") and os.path.exists(tosca_tpl.temp_dir):
                 try:
                     shutil.rmtree(tosca_tpl.temp_dir)
-                except Exception, e:
-                    pass
+                except Exception as e:
+                    logger.error("Failed to create tosca template, error: %s", e.message)
 
     def _check_download_file(self, path):
         if (path.startswith("ftp") or path.startswith("sftp")):
@@ -189,7 +192,7 @@ class BaseInfoModel(object):
                 if (isinstance(req_value, dict)):
                     if ('node' in req_value and req_value['node'] not in node_template.templates):
                         continue  # No target requirement for aria parser, not add to result.
-                rets.append({req_name : req_value})
+                rets.append({req_name: req_value})
         return rets
 
     def buildCapabilities(self, nodeTemplate, inputs, ret):
@@ -227,8 +230,9 @@ class BaseInfoModel(object):
         return node['nodeType'].upper().find('.CP.') >= 0 or node['nodeType'].upper().endswith('.CP')
 
     def isVl(self, node):
-        return node['nodeType'].upper().find('.VIRTUALLINK.') >= 0 or node['nodeType'].upper().find('.VL.') >= 0 or \
-               node['nodeType'].upper().endswith('.VIRTUALLINK') or node['nodeType'].upper().endswith('.VL')
+        isvl = node['nodeType'].upper().find('.VIRTUALLINK.') >= 0 or node['nodeType'].upper().find('.VL.') >= 0
+        isvl = isvl or node['nodeType'].upper().endswith('.VIRTUALLINK') or node['nodeType'].upper().endswith('.VL')
+        return isvl
 
     def isService(self, node):
         return node['nodeType'].upper().find('.SERVICE.') >= 0 or node['nodeType'].upper().endswith('.SERVICE')
