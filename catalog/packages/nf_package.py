@@ -58,7 +58,7 @@ def nf_get_csar(csar_id):
 
 
 def parse_vnfd(csar_id, inputs):
-    ret= None
+    ret = None
     try:
         nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=csar_id)
         if not nf_pkg:
@@ -140,7 +140,6 @@ class NfDistributeThread(threading.Thread):
         ).save()
 
         JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
-
 
     def rollback_distribute(self):
         try:
