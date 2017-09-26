@@ -30,14 +30,14 @@ def call_sdc(resource, method, content=''):
     additional_headers = {
         'X-ECOMP-InstanceID': 'VFC',
     }
-    return restcall.call_req(base_url=SDC_BASE_URL, 
-        user=SDC_USER, 
-        passwd=SDC_PASSWD, 
-        auth_type=restcall.rest_no_auth, 
-        resource=resource, 
-        method=method, 
-        content=content,
-        additional_headers=additional_headers)
+    return restcall.call_req(base_url=SDC_BASE_URL,
+                             user=SDC_USER,
+                             passwd=SDC_PASSWD,
+                             auth_type=restcall.rest_no_auth,
+                             resource=resource,
+                             method=method,
+                             content=content,
+                             additional_headers=additional_headers)
 
 
 """
@@ -92,13 +92,13 @@ def download_artifacts(download_url, local_path, file_name):
         'X-ECOMP-InstanceID': 'VFC',
         'accept': 'application/octet-stream'
     }
-    ret = restcall.call_req(base_url=SDC_BASE_URL, 
-        user=SDC_USER, 
-        passwd=SDC_PASSWD, 
-        auth_type=restcall.rest_no_auth,
-        resource=download_url, 
-        method="GET",
-        additional_headers=additional_headers)
+    ret = restcall.call_req(base_url=SDC_BASE_URL,
+                            user=SDC_USER,
+                            passwd=SDC_PASSWD,
+                            auth_type=restcall.rest_no_auth,
+                            resource=download_url,
+                            method="GET",
+                            additional_headers=additional_headers)
     if ret[0] != 0:
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
         raise CatalogException("Failed to download %s from sdc." % download_url)

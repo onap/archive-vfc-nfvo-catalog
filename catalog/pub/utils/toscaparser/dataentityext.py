@@ -29,6 +29,5 @@ class DataEntityExt(object):
                     return float(value)
                 except Exception:
                     ExceptionCollector.appendException(ValueError(('"%s" is not an float.') % value))
-    
             return DataEntity.validate_datatype(type, value, entry_schema, custom_def)
         return value

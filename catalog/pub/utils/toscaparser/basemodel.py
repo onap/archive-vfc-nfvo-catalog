@@ -197,8 +197,7 @@ class BaseInfoModel(object):
         capabilities = json.dumps(nodeTemplate.entity_tpl.get('capabilities', None))
         match = re.findall(r'\{"get_input":\s*"([\w|\-]+)"\}',capabilities)
         for m in match:
-            aa = [input_def for input_def in inputs
-                 if m == input_def.name][0]
+            aa = [input_def for input_def in inputs if m == input_def.name][0]
             capabilities = re.sub(r'\{"get_input":\s*"([\w|\-]+)"\}', json.dumps(aa.default), capabilities,1)
         if capabilities != 'null':
             ret['capabilities'] = json.loads(capabilities)
@@ -207,8 +206,7 @@ class BaseInfoModel(object):
         artifacts = json.dumps(nodeTemplate.entity_tpl.get('artifacts', None))
         match = re.findall(r'\{"get_input":\s*"([\w|\-]+)"\}',artifacts)
         for m in match:
-            aa = [input_def for input_def in inputs
-                 if m == input_def.name][0]
+            aa = [input_def for input_def in inputs if m == input_def.name][0]
             artifacts = re.sub(r'\{"get_input":\s*"([\w|\-]+)"\}', json.dumps(aa.default), artifacts,1)
         if artifacts != 'null':
             ret['artifacts'] = json.loads(artifacts)

@@ -116,9 +116,8 @@ class NsPackage(object):
         artifact = sdc.get_artifact(sdc.ASSETTYPE_SERVICES, csar_id)
         local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
         csar_name = "%s.csar" % artifact.get("name", csar_id)
-        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], 
-            local_path, csar_name)
-        
+        local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path, csar_name)
+
         nsd_json = toscaparser.parse_nsd(local_file_name)
         nsd = json.JSONDecoder().decode(nsd_json)
 

@@ -254,7 +254,7 @@ class TestNfPackage(TestCase):
             "vimIds": ["1"]
         }, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
-    
+
     def test_nf_pkg_distribute_when_csar_already_exist(self):
         VnfPackageModel(vnfPackageId="1", vnfdId="vcpe_vfw_zte_1_0").save()
         NfDistributeThread(csar_id="1",
@@ -280,7 +280,7 @@ class TestNfPackage(TestCase):
                            lab_vim_id="",
                            job_id="2").run()
         self.assert_job_result("2", 255, "NFD(zte-hss-1.0) already exists.")
-    
+
     @mock.patch.object(restcall, 'call_req')
     @mock.patch.object(sdc, 'download_artifacts')
     @mock.patch.object(toscaparser, 'parse_vnfd')
@@ -304,7 +304,7 @@ class TestNfPackage(TestCase):
     def test_nf_pkg_delete_normal(self, mock_run):
         resp = self.client.delete("/api/catalog/v1/vnfpackages/1")
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
-    
+
     def test_nf_pkg_normal_delete(self):
         VnfPackageModel(vnfPackageId="2", vnfdId="vcpe_vfw_zte_1_0").save()
         NfPkgDeleteThread(csar_id="2", job_id="2").run()
@@ -318,12 +318,13 @@ class TestNfPackage(TestCase):
         self.assertEqual({"csars": [{"csarId":"3", "vnfdId": "4"}]}, resp.data)
 
     def test_nf_pkg_get_one(self):
-        VnfPackageModel(vnfPackageId="4", vnfdId="5", vnfVendor="6", 
-            vnfdVersion="7", vnfSoftwareVersion="8", vnfPackageUri="4.csar").save()
+        VnfPackageModel(vnfPackageId="4", vnfdId="5", vnfVendor="6",
+                        vnfdVersion="7", vnfSoftwareVersion="8", vnfPackageUri="4.csar").save()
 
         resp = self.client.get("/api/catalog/v1/vnfpackages/4")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual({"csarId": "4", 
+        expect_data = {
+            "csarId": "4",
             "packageInfo": {
                 "vnfdId": "5",
                 "vnfdProvider": "6",
@@ -331,8 +332,10 @@ class TestNfPackage(TestCase):
                 "vnfVersion": "8",
                 "csarName": "4.csar",
                 "downloadUrl": "http://127.0.0.1:8806/static/catalog/4/4.csar"
-            }, 
-            "imageInfo": []}, resp.data)
+            },
+            "imageInfo": []
+        }
+        self.assertEqual(expect_data, resp.data)
 
     ###############################################################################################################
 
@@ -340,13 +343,13 @@ class TestNfPackage(TestCase):
     def test_vnfd_parse_normal(self, mock_parse_vnfd):
         VnfPackageModel(vnfPackageId="8", vnfdId="10").save()
         mock_parse_vnfd.return_value = json.JSONEncoder().encode({"c": "d"})
-        resp = self.client.post("/api/catalog/v1/parservnfd", 
-            {"csarId": "8", "inputs": []}, format='json')
+        req_data = {"csarId": "8", "inputs": []}
+        resp = self.client.post("/api/catalog/v1/parservnfd", req_data, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual({"model": '{"c": "d"}'}, resp.data)
 
     def test_vnfd_parse_when_csar_not_exist(self):
-        resp = self.client.post("/api/catalog/v1/parservnfd", 
-            {"csarId": "1", "inputs": []}, format='json')
+        req_data = {"csarId": "1", "inputs": []}
+        resp = self.client.post("/api/catalog/v1/parservnfd", req_data, format='json')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(resp.data, {"error": "VNF CSAR(1) does not exist."})

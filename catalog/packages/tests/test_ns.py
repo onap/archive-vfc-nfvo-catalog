@@ -465,23 +465,33 @@ class TestNsPackage(TestCase):
 
         resp = self.client.get("/api/catalog/v1/nspackages")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual({"csars": [{"csarId":"13", "nsdId": "2",
-            "nsdProvider": "3", "nsdVersion": "4"}]}, resp.data)
+        expect_data = {
+            "csars": [
+                {
+                    "csarId": "13",
+                    "nsdId": "2",
+                    "nsdProvider": "3",
+                    "nsdVersion": "4"
+                }
+            ]
+        }
+        self.assertEqual(expect_data, resp.data)
 
     def test_ns_pkg_get_one(self):
-        NSPackageModel(nsPackageId="14", nsdId="2", nsdDesginer="3", 
-            nsdVersion="4", nsPackageUri="14.csar").save()
-
+        NSPackageModel(nsPackageId="14", nsdId="2", nsdDesginer="3", nsdVersion="4", nsPackageUri="14.csar").save()
         resp = self.client.get("/api/catalog/v1/nspackages/14")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual({"csarId": "14", 
+        expect_data = {
+            "csarId": "14",
             "packageInfo": {
                 "nsdId": "2",
                 "nsdProvider": "3",
                 "nsdVersion": "4",
                 "csarName": "14.csar",
                 "downloadUrl": "http://127.0.0.1:8806/static/catalog/14/14.csar"
-            }}, resp.data)
+            }
+        }
+        self.assertEqual(expect_data, resp.data)
 
     ###############################################################################################################
 
@@ -489,13 +499,13 @@ class TestNsPackage(TestCase):
     def test_nsd_parse_normal(self, mock_parse_nsd):
         NSPackageModel(nsPackageId="18", nsdId="12").save()
         mock_parse_nsd.return_value = json.JSONEncoder().encode({"a": "b"})
-        resp = self.client.post("/api/catalog/v1/parsernsd", 
-            {"csarId": "18", "inputs": []}, format='json')
+        req_data = {"csarId": "18", "inputs": []}
+        resp = self.client.post("/api/catalog/v1/parsernsd", req_data, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual({"model": '{"a": "b"}'}, resp.data)
 
     def test_nsd_parse_when_csar_not_exist(self):
-        resp = self.client.post("/api/catalog/v1/parsernsd", 
-            {"csarId": "1", "inputs": []}, format='json')
+        req_data = {"csarId": "1", "inputs": []}
+        resp = self.client.post("/api/catalog/v1/parsernsd", req_data, format='json')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(resp.data, {"error": "NS CSAR(1) does not exist."})
