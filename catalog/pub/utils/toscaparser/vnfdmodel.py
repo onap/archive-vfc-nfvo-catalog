@@ -295,8 +295,8 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         policies = []
         scaling_policies = self.get_scaling_policies(top_policies)
         healing_policies = self.get_healing_policies(top_policies)
-        policies.append({"scaling":scaling_policies, 'healing':healing_policies})
+        policies.append({"scaling": scaling_policies, 'healing': healing_policies})
         return policies
 
     def get_healing_policies(self, top_policies):
-        return self.get_policies_by_keyword(top_policies,'.HEALING')
+        return self.get_policies_by_keyword(top_policies, '.HEALING')

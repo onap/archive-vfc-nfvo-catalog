@@ -20,11 +20,11 @@ class NSPackageModel(models.Model):
     nsPackageUri = models.CharField(db_column='NSPACKAGEURI', max_length=300, null=True, blank=True)
     checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
     sdcCsarId = models.CharField(db_column='SDCCSARID', max_length=50, null=True, blank=True)  # SdcCSARUri
-    operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True,null=True)  # operationalState
+    operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True, null=True)  # operationalState
     usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
     deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
-    nsdId = models.CharField(db_column='NSDID', max_length=50,blank=True, null=True)
-    nsdName = models.CharField(db_column='NSDNAME', max_length=50,blank=True, null=True)
+    nsdId = models.CharField(db_column='NSDID', max_length=50, blank=True, null=True)
+    nsdName = models.CharField(db_column='NSDNAME', max_length=50, blank=True, null=True)
     nsdDesginer = models.CharField(db_column='NSDDESIGNER', max_length=50, null=True, blank=True)
     nsdDescription = models.CharField(db_column='NSDDESCRIPTION', max_length=100, null=True, blank=True)
     nsdVersion = models.CharField(db_column='NSDVERSION', max_length=20, null=True, blank=True)
@@ -42,14 +42,14 @@ class VnfPackageModel(models.Model):
     vnfPackageUri = models.CharField(db_column='VNFPACKAGEURI', max_length=300, null=True, blank=True)  # downloadUri
     SdcCSARUri = models.CharField(db_column='SDCCSARURI', max_length=300, null=True, blank=True)  # SdcCSARUri
     checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
-    operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True,null=True)  # operationalState
+    operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True, null=True)  # operationalState
     usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
     deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
-    vnfdId = models.CharField(db_column='VNFDID', max_length=50,blank=True, null=True)                # vnfdId
-    vnfVendor = models.CharField(db_column='VENDOR', max_length=50,blank=True, null=True)  # vnfProvider
-    vnfdProductName = models.CharField(db_column='VNFDPRODUCTNAME', max_length=50,blank=True, null=True)  # vnfProductName
-    vnfdVersion = models.CharField(db_column='VNFDVERSION', max_length=20,blank=True, null=True)     # vnfdVersion
-    vnfSoftwareVersion = models.CharField(db_column='VNFSOFTWAREVERSION', max_length=20,blank=True, null=True)   # vnfSoftwareVersion
+    vnfdId = models.CharField(db_column='VNFDID', max_length=50, blank=True, null=True)                # vnfdId
+    vnfVendor = models.CharField(db_column='VENDOR', max_length=50, blank=True, null=True)  # vnfProvider
+    vnfdProductName = models.CharField(db_column='VNFDPRODUCTNAME', max_length=50, blank=True, null=True)  # vnfProductName
+    vnfdVersion = models.CharField(db_column='VNFDVERSION', max_length=20, blank=True, null=True)     # vnfdVersion
+    vnfSoftwareVersion = models.CharField(db_column='VNFSOFTWAREVERSION', max_length=20, blank=True, null=True)   # vnfSoftwareVersion
     userDefinedData = models.TextField(db_column='USERDEFINEDDATA', max_length=1024, blank=True, null=True)  # userDefinedData
     localFilePath = models.CharField(db_column='LOCALFILEPATH', max_length=300, null=True, blank=True)
     vnfdModel = models.TextField(db_column='VNFDMODEL', max_length=65535, blank=True, null=True)  # vnfd

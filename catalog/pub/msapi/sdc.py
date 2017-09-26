@@ -22,7 +22,7 @@ from catalog.pub.config.config import SDC_BASE_URL, SDC_USER, SDC_PASSWD
 
 logger = logging.getLogger(__name__)
 
-ASSETTYPE_RESOURCES = "resources" 
+ASSETTYPE_RESOURCES = "resources"
 ASSETTYPE_SERVICES = "services"
 
 

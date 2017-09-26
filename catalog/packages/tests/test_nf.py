@@ -315,7 +315,15 @@ class TestNfPackage(TestCase):
 
         resp = self.client.get("/api/catalog/v1/vnfpackages")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual({"csars": [{"csarId":"3", "vnfdId": "4"}]}, resp.data)
+        expect_data = {
+            "csars": [
+                {
+                    "csarId": "3",
+                    "vnfdId": "4"
+                }
+            ]
+        }
+        self.assertEqual(expect_data, resp.data)
 
     def test_nf_pkg_get_one(self):
         VnfPackageModel(vnfPackageId="4", vnfdId="5", vnfVendor="6",

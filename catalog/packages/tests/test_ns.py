@@ -92,7 +92,7 @@ class TestNsPackage(TestCase):
                         "version": "1.0",
                         "management_address": "111111",
                         "id": "m6000_s",
-                        "nsh_aware": False 
+                        "nsh_aware": False
                     }
                 }
             ],
@@ -216,7 +216,7 @@ class TestNsPackage(TestCase):
                         "vnfd_version": "1.0.0",
                         "externalPluginManageNetworkName": "vlan_4007_plugin_net",
                         "id": "vcpe_vfw_zte_1_0",
-                        "request_reclassification": False 
+                        "request_reclassification": False
                     },
                     "dependencies": [
                         {
