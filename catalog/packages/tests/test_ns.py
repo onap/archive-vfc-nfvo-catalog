@@ -485,6 +485,7 @@ class TestNsPackage(TestCase):
             "csarId": "14",
             "packageInfo": {
                 "nsdId": "2",
+                "nsPackageId": "14",
                 "nsdProvider": "3",
                 "nsdVersion": "4",
                 "csarName": "14.csar",

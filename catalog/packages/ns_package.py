@@ -168,6 +168,7 @@ class NsPackage(object):
         csars = NSPackageModel.objects.filter(nsPackageId=csar_id)
         if csars:
             package_info["nsdId"] = csars[0].nsdId
+            package_info["nsPackageId"] = csars[0].nsPackageId
             package_info["nsdProvider"] = csars[0].nsdDesginer
             package_info["nsdVersion"] = csars[0].nsdVersion
             package_info["csarName"] = csars[0].nsPackageUri
