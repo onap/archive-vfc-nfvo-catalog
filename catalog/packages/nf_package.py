@@ -210,16 +210,20 @@ class NfPackage(object):
         nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=csar_id)
         if nf_pkg:
             pkg_info["vnfdId"] = nf_pkg[0].vnfdId
+            pkg_info["vnfPackageId"] = nf_pkg[0].vnfPackageId
             pkg_info["vnfdProvider"] = nf_pkg[0].vnfVendor
             pkg_info["vnfdVersion"] = nf_pkg[0].vnfdVersion
             pkg_info["vnfVersion"] = nf_pkg[0].vnfSoftwareVersion
             pkg_info["csarName"] = nf_pkg[0].vnfPackageUri
+            pkg_info["vnfdModel"] = nf_pkg[0].vnfdModel
             pkg_info["downloadUrl"] = "http://%s:%s/%s/%s/%s" % (
                 REG_TO_MSB_REG_PARAM["nodes"][0]["ip"],
                 REG_TO_MSB_REG_PARAM["nodes"][0]["port"],
                 CATALOG_URL_PATH,
                 csar_id,
                 nf_pkg[0].vnfPackageUri)
+        else:
+            raise CatalogException("Vnf package[%s] not Found." % csar_id)
 
         return [0, {"csarId": csar_id,
                     "packageInfo": pkg_info,

@@ -177,6 +177,8 @@ class NsPackage(object):
                 CATALOG_URL_PATH,
                 csar_id,
                 csars[0].nsPackageUri)
+        else:
+            raise CatalogException("Ns package[%s] not Found." % csar_id)
 
         return [0, {"csarId": csar_id, "packageInfo": package_info}]
 

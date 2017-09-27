@@ -335,9 +335,11 @@ class TestNfPackage(TestCase):
             "csarId": "4",
             "packageInfo": {
                 "vnfdId": "5",
+                "vnfPackageId": "4",
                 "vnfdProvider": "6",
                 "vnfdVersion": "7",
                 "vnfVersion": "8",
+                "vnfdModel": None,
                 "csarName": "4.csar",
                 "downloadUrl": "http://127.0.0.1:8806/static/catalog/4/4.csar"
             },
