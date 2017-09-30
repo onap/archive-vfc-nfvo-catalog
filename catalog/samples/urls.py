@@ -16,5 +16,5 @@ from django.conf.urls import url
 from catalog.samples import views
 
 urlpatterns = [
-    url(r'^api/nfvocatalog/v1/mandb/(?P<modelName>[a-zA-Z\-]+)$', views.TablesList.as_view()),
+    url(r'^api/catalog/v1/mandb/(?P<modelName>[a-zA-Z\-]+)$', views.TablesList.as_view()),
     url(r'^samples/$', views.SampleList.as_view()), ]

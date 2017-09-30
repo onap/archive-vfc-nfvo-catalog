@@ -32,9 +32,9 @@ DB_PASSWD = "nfvocatalog"
 REG_TO_MSB_WHEN_START = True
 REG_TO_MSB_REG_URL = "/api/microservices/v1/services"
 REG_TO_MSB_REG_PARAM = {
-    "serviceName": "nfvocatalog",
+    "serviceName": "catalog",
     "version": "v1",
-    "url": "/api/nfvocatalog/v1",
+    "url": "/api/catalog/v1",
     "protocol": "REST",
     "visualRange": "1",
     "nodes": [{
