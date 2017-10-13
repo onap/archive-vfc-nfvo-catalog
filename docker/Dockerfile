@@ -37,7 +37,6 @@ RUN wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifa
 RUN sed -i "s|bind-address.*|# bind-address = 127.0.0.1|" /etc/mysql/my.cnf
 
 WORKDIR /service/vfc/nfvo/catalog
-RUN pip install --pre nfv-toscaparser
 RUN pip install -r requirements.txt
 
 EXPOSE 8806
