@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_e673d613",
+        "filename": "requirements.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2017-10-13T05:36:04Z",
+      "side": 0,
+      "message": "Need to be modified to nfv-toscaparser\u003e\u003d0.5.1",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 28
+      },
+      "revId": "2e12b89e822b1999ade835426433721f977f9a41",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
