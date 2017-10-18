@@ -208,6 +208,9 @@ class NfPackage(object):
     def get_csar(self, csar_id):
         pkg_info = {}
         nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=csar_id)
+        if not nf_pkg:
+            nf_pkg = VnfPackageModel.objects.filter(vnfdId=csar_id)
+
         if nf_pkg:
             pkg_info["vnfdId"] = nf_pkg[0].vnfdId
             pkg_info["vnfPackageId"] = nf_pkg[0].vnfPackageId
