@@ -81,6 +81,21 @@ class EtsiNsdInfoModel(BaseInfoModel):
                 vnf['vnf_id'] = node['name']
                 vnf['description'] = node['description']
                 vnf['properties'] = node['properties']
+                for key in vnf['properties'].iterkeys():
+                    if key.endswith('_version'):
+                        vnf['properties'].update(version=vnf['properties'].pop(key))
+                    if key.endswith('_id'):
+                        vnf['properties'].update(id=vnf['properties'].pop(key))
+                    if key.endswith('_csarProvider'):
+                        vnf['properties'].update(csarProvider=vnf['properties'].pop(key))
+                    if key.endswith('_csarVersion'):
+                        vnf['properties'].update(csarVersion=vnf['properties'].pop(key))
+                    if key.endswith('_vendor'):
+                        vnf['properties'].update(vendor=vnf['properties'].pop(key))
+                    if key.endswith('_csarType'):
+                        vnf['properties'].update(csarType=vnf['properties'].pop(key))
+                    if key.endswith('_vnfm_type') or key.endswith('_vnfmType'):
+                        vnf['properties'].update(vnfmType=vnf['properties'].pop(key))
                 vnf['dependencies'] = map(lambda x: self.get_requirement_node_name(x), self.getNodeDependencys(node))
                 vnf['networks'] = self.get_networks(node)
 

@@ -30,6 +30,12 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
                             tosca.nodetemplates)
 
+        # convert property info to metadata
+        properties = nodeTemplates[0]['properties']
+        self.metadata['vnfdVersion'] = properties.get('csarVersion', 'undefined')
+        self.metadata['vendor'] = properties.get('vendor', 'undefined')
+        self.metadata['version'] = properties.get('version', 'version')
+
         self.services = self._get_all_services(nodeTemplates)
         self.vcloud = self._get_all_vcloud(nodeTemplates)
         self.vcenter = self._get_all_vcenter(nodeTemplates)
