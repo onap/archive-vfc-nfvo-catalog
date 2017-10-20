@@ -18,6 +18,7 @@ import os
 
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils import restcall
+from catalog.pub.utils import fileutil
 from catalog.pub.config.config import SDC_BASE_URL, SDC_USER, SDC_PASSWD
 
 logger = logging.getLogger(__name__)
@@ -102,6 +103,7 @@ def download_artifacts(download_url, local_path, file_name):
     if ret[0] != 0:
         logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
         raise CatalogException("Failed to download %s from sdc." % download_url)
+    fileutil.make_dirs(local_path)
     local_file_name = os.path.join(local_path, file_name)
     local_file = open(local_file_name, 'wb')
     local_file.write(ret[1])
