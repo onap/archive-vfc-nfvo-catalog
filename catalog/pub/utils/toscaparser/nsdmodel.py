@@ -63,6 +63,10 @@ class EtsiNsdInfoModel(BaseInfoModel):
             ret['description'] = nodeTemplate.entity_tpl['description']
         else:
             ret['description'] = ''
+        if 'metadata' in nodeTemplate.entity_tpl:
+            ret['metadata'] = nodeTemplate.entity_tpl['metadata']
+        else:
+            ret['metadata'] = ''
         props = self.buildProperties(nodeTemplate, parsed_params)
         ret['properties'] = self.verify_properties(props, inputs, parsed_params)
         ret['requirements'] = self.build_requirements(nodeTemplate)
@@ -81,11 +85,12 @@ class EtsiNsdInfoModel(BaseInfoModel):
                 vnf['vnf_id'] = node['name']
                 vnf['description'] = node['description']
                 vnf['properties'] = node['properties']
+                vnf['properties']['id'] = node['metadata'].get('UUID', 'undefined')
                 for key in vnf['properties'].iterkeys():
                     if key.endswith('_version'):
                         vnf['properties'].update(version=vnf['properties'].pop(key))
-                    if key.endswith('_id'):
-                        vnf['properties'].update(id=vnf['properties'].pop(key))
+                    # if key.endswith('_id'):
+                    #     vnf['properties'].update(id=vnf['properties'].pop(key))
                     if key.endswith('_csarProvider'):
                         vnf['properties'].update(csarProvider=vnf['properties'].pop(key))
                     if key.endswith('_csarVersion'):
