@@ -153,7 +153,7 @@ class BaseInfoModel(object):
     def buidMetadata(self, tosca):
         if 'metadata' in tosca.tpl:
             self.metadata = copy.deepcopy(tosca.tpl['metadata'])
-            self.metadata['id'] = tosca.tpl['metadata']['invariantUUID']
+            self.metadata['id'] = tosca.tpl['metadata']['UUID']
 
     def buildProperties(self, nodeTemplate, parsed_params):
         properties = {}
