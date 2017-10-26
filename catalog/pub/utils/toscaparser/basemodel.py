@@ -278,6 +278,8 @@ class BaseInfoModel(object):
         return rets
 
     def _verify_value(self, value, inputs, parsed_params):
+        if value == '{}':
+            return ''
         if isinstance(value, str):
             return self._verify_string(inputs, parsed_params, value)
         if isinstance(value, list) or isinstance(value, dict):
