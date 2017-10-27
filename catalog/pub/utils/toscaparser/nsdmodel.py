@@ -101,7 +101,8 @@ class EtsiNsdInfoModel(BaseInfoModel):
                         vnf['properties'].update(csarType=vnf['properties'].pop(key))
                     if key.endswith('_vnfm_type') or key.endswith('_vnfmType'):
                         vnf['properties'].update(vnfmType=vnf['properties'].pop(key))
-                vnf['dependencies'] = map(lambda x: self.get_requirement_node_name(x), self.getNodeDependencys(node))
+                # vnf['dependencies'] = map(lambda x: self.get_requirement_node_name(x), self.getNodeDependencys(node))
+                vnf['dependencies'] = self.get_networks(node)
                 vnf['networks'] = self.get_networks(node)
 
                 vnfs.append(vnf)
