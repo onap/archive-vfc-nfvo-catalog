@@ -129,6 +129,8 @@ class NsPackage(object):
             vnfd_id = vnf["properties"]["id"]
             pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
             if not pkg:
+                vnfd_name = vnf.get("vnf_id", "undefined")
+                logger.error("[%s] is not distributed.", vnfd_name)
                 raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
         NSPackageModel(
