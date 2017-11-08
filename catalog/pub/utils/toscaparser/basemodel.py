@@ -273,7 +273,7 @@ class BaseInfoModel(object):
         if 'requirements' in node:
             for item in node['requirements']:
                 for key, value in item.items():
-                    if key.upper().find('VIRTUAL_LINK') >= 0:
+                    if key.upper().find('VIRTUAL_LINK') >= 0 or key.upper().find('VIRTUALLINK') >= 0:
                         rets.append({"key_name": key, "vl_id": self.get_requirement_node_name(value)})
         return rets
 
