@@ -89,8 +89,8 @@ class EtsiNsdInfoModel(BaseInfoModel):
                 for key in vnf['properties'].iterkeys():
                     if key.endswith('_version'):
                         vnf['properties'].update(version=vnf['properties'].pop(key))
-                    # if key.endswith('_id'):
-                    #     vnf['properties'].update(id=vnf['properties'].pop(key))
+                    if key.endswith('_id'):
+                        vnf['properties'].update(id=vnf['properties'].pop(key))
                     if key.endswith('_csarProvider'):
                         vnf['properties'].update(csarProvider=vnf['properties'].pop(key))
                     if key.endswith('_csarVersion'):

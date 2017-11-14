@@ -174,6 +174,7 @@ class NsPackage(object):
             package_info["nsdProvider"] = csars[0].nsdDesginer
             package_info["nsdVersion"] = csars[0].nsdVersion
             package_info["csarName"] = csars[0].nsPackageUri
+            package_info["nsdModel"] = csars[0].nsdModel
             package_info["downloadUrl"] = "http://%s:%s/%s/%s/%s" % (
                 REG_TO_MSB_REG_PARAM["nodes"][0]["ip"],
                 REG_TO_MSB_REG_PARAM["nodes"][0]["port"],
