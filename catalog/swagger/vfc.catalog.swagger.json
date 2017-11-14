@@ -383,7 +383,41 @@
           }
         }
       }
-     }
+     },
+     "/jobs/{jobId}": {
+      "get": {
+        "tags": [
+          "job"
+        ],
+        "summary": "jobstatus",
+        "description": "",
+        "operationId": "get_jobstatus",
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "job Id",
+            "name": "jobId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "job response message id",
+            "name": "responseId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+             "schema": {
+              "$ref": "#/definitions/JobDetailInfo"
+            }
+          }
+        }
+      }
+    }
   },
   "definitions": {
     "NsPkgDistributeRequest": {
@@ -637,7 +671,61 @@
           "description": "csar model json data"
         }
       }
+    },
+    "jobResponseInfo": {
+       "type": "object",
+       "properties": {
+          "status": {
+            "type": "string"
+          },
+         "progress":{
+            "type": "string"
+         },
+         "statusDescription": {
+            "type": "string"
+         },
+         "errorCode": {
+            "type": "string"
+         },
+         "responseId": {
+            "type": "string"
+        }
+       }
+    },
+    "JobDetailInfo":{
+      "type": "object",
+      "properties": {
+            "jobId": {
+               "type": "string"
+             },
+            "responseDescriptor":
+            {
+                "type":"object",
+                "properties": {
+                    "status": {
+                       "type": "string"
+                    },
+                    "progress":{
+                       "type": "string"
+                    },
+                    "statusDescription": {
+                       "type": "string"
+                    },
+                    "errorCode": {
+                       "type": "string"
+                    },
+                    "responseId": {
+                       "type": "string"
+                    },
+                    "responseHistoryList": {
+                        "type": "array",
+                        "items": {
+                           "$ref": "#/definitions/jobResponseInfo"
+                        }
+                    }
+                }
+           }
+      }
     }
-
   }
 }
