@@ -47,15 +47,22 @@ class BaseInfoModel(object):
 
     def _validate_input_params(self, path, params):
         valid_params = {}
-        """
+        inputs = {}
+        if isinstance(params, list):
+            for param in params:
+                key = param.get('key', 'undefined')
+                value = param.get('value', 'undefined')
+                inputs[key] = value
+            params = inputs
+
         if params and len(params) > 0:
             tmp = self._create_tosca_template(path, None)
-            for key, value in params.items():
-                if hasattr(tmp, 'inputs') and len(tmp.inputs) > 0:
-                    for input_def in tmp.inputs:
-                        if (input_def.name == key):
-                            valid_params[key] = DataEntityExt.validate_datatype(input_def.type, value)
-        """
+            if isinstance(params, dict):
+                for key, value in params.items():
+                    if hasattr(tmp, 'inputs') and len(tmp.inputs) > 0:
+                        for input_def in tmp.inputs:
+                            if (input_def.name == key):
+                                valid_params[key] = DataEntityExt.validate_datatype(input_def.type, value)
         return valid_params
 
     def _create_tosca_template(self, file_name, valid_params):
