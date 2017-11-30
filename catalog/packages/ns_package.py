@@ -46,6 +46,8 @@ def ns_on_distribute(csar_id):
         logger.error(traceback.format_exc())
         NsPackage().delete_catalog(csar_id)
         return fmt_ns_pkg_rsp(STATUS_FAILED, str(sys.exc_info()))
+    if ret[0]:
+        return fmt_ns_pkg_rsp(STATUS_FAILED, ret[1])
     return fmt_ns_pkg_rsp(STATUS_SUCCESS, ret[1], "")
 
 
@@ -111,7 +113,7 @@ class NsPackage(object):
 
     def on_distribute(self, csar_id):
         if NSPackageModel.objects.filter(nsPackageId=csar_id):
-            raise CatalogException("NS CSAR(%s) already exists." % csar_id)
+            return [1, "NS CSAR(%s) already exists." % csar_id]
 
         artifact = sdc.get_artifact(sdc.ASSETTYPE_SERVICES, csar_id)
         local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
