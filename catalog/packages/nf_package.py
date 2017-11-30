@@ -108,7 +108,9 @@ class NfDistributeThread(threading.Thread):
         JobUtil.add_job_status(self.job_id, 5, "Start CSAR(%s) distribute." % self.csar_id)
 
         if VnfPackageModel.objects.filter(vnfPackageId=self.csar_id):
-            raise CatalogException("NF CSAR(%s) already exists." % self.csar_id)
+            err_msg = "NF CSAR(%s) already exists." % self.csar_id
+            JobUtil.add_job_status(self.job_id, JOB_ERROR, err_msg)
+            return
 
         artifact = sdc.get_artifact(sdc.ASSETTYPE_RESOURCES, self.csar_id)
         local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
