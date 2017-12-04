@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+import traceback
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -42,4 +43,6 @@ class JobView(APIView):
             JobUtil.add_job_status(job_id, progress, desc, error_code=errcode)
             return Response(data={'result': 'ok'})
         except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
             return Response(data={'result': 'error', 'msg': e.message})
