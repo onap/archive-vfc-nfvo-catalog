@@ -81,7 +81,8 @@ def ns_get_csar(csar_id):
         ret = NsPackage().get_csar(csar_id)
     except CatalogException as e:
         return [1, e.message]
-    except:
+    except Exception as e:
+        logger.error(e.message)
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return ret
@@ -97,7 +98,8 @@ def parse_nsd(csar_id, inputs):
         ret = {"model": toscaparser.parse_nsd(csar_path, inputs)}
     except CatalogException as e:
         return [1, e.message]
-    except:
+    except Exception as e:
+        logger.error(e.message)
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return [0, ret]
