@@ -96,7 +96,8 @@ class NfDistributeThread(threading.Thread):
         except CatalogException as e:
             self.rollback_distribute()
             JobUtil.add_job_status(self.job_id, JOB_ERROR, e.message)
-        except:
+        except Exception as e:
+            logger.error(e.message)
             logger.error(traceback.format_exc())
             logger.error(str(sys.exc_info()))
             self.rollback_distribute()
@@ -149,7 +150,8 @@ class NfDistributeThread(threading.Thread):
         try:
             VnfPackageModel.objects.filter(vnfPackageId=self.csar_id).delete()
             fileutil.delete_dirs(self.csar_save_path)
-        except:
+        except Exception as e:
+            logger.error(e.message)
             logger.error(traceback.format_exc())
             logger.error(str(sys.exc_info()))
 
@@ -169,7 +171,8 @@ class NfPkgDeleteThread(threading.Thread):
             self.delete_csar()
         except CatalogException as e:
             JobUtil.add_job_status(self.job_id, JOB_ERROR, e.message)
-        except:
+        except Exception as e:
+            logger.error(e.message)
             logger.error(traceback.format_exc())
             logger.error(str(sys.exc_info()))
             JobUtil.add_job_status(self.job_id, JOB_ERROR, "Failed to delete CSAR(%s)" % self.csar_id)
