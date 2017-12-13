@@ -466,7 +466,7 @@
     "NsPkgListInfo": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/NsPkgInfo"
+        "$ref": "#/definitions/NsPkgDetailInfo"
       }
     },
     "NsPkgDetailInfo": {
@@ -475,7 +475,7 @@
         "csarId": {
           "type": "string"
         },
-        "NsPackageInfo": {
+        "packageInfo": {
           "$ref": "#/definitions/NsPkgInfo"
         },
         "NsInstanceInfo": {
@@ -486,9 +486,9 @@
     "NsPkgInfo": {
       "type": "object",
       "properties": {
-        "csarId": {
+        "nsPackageId": {
           "type": "string",
-          "description": "network service package id, UUID"
+          "description": "network service package id, UUID, csarId"
         },
         "nsdId": {
           "type": "string",
@@ -501,6 +501,18 @@
         "nsdVersion": {
           "type": "string",
           "description": "network service descriptor version"
+        },
+        "csarName": {
+          "type": "string",
+          "description": "network service package name"
+        },
+        "nsdModel": {
+          "type": "string",
+          "description": "ns JSON string parsed and transformed by parser"
+        },
+        "downloadUrl": {
+          "type": "string",
+          "description": "download url of network service package"
         }
       }
     },
@@ -561,7 +573,7 @@
     "VnfPkgListInfo": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/VnfPkgInfo"
+        "$ref": "#/definitions/VnfPkgDetailInfo"
       }
     },
     "VnfPkgDetailInfo": {
