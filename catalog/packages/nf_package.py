@@ -204,13 +204,11 @@ class NfPackage(object):
         pass
 
     def get_csars(self):
-        csars = {"csars": []}
+        csars = []
         nf_pkgs = VnfPackageModel.objects.filter()
         for nf_pkg in nf_pkgs:
-            csars["csars"].append({
-                "csarId": nf_pkg.vnfPackageId,
-                "vnfdId": nf_pkg.vnfdId
-            })
+            ret = self.get_csar(nf_pkg.vnfPackageId)
+            csars.append(ret[1])
         return [0, csars]
 
     def get_csar(self, csar_id):
@@ -236,6 +234,9 @@ class NfPackage(object):
         else:
             raise CatalogException("Vnf package[%s] not Found." % csar_id)
 
-        return [0, {"csarId": csar_id,
-                    "packageInfo": pkg_info,
-                    "imageInfo": []}]
+        csar_info = {
+            "csarId": csar_id,
+            "packageInfo": pkg_info,
+            "imageInfo": []
+        }
+        return [0, csar_info]

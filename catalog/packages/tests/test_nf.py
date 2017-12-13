@@ -311,39 +311,63 @@ class TestNfPackage(TestCase):
         self.assert_job_result("2", 100, "Delete CSAR(2) successfully.")
 
     def test_nf_pkg_get_all(self):
-        VnfPackageModel(vnfPackageId="3", vnfdId="4").save()
-
+        VnfPackageModel(vnfPackageId="3", vnfdId="3", vnfVendor='3', vnfdVersion='3',
+                        vnfSoftwareVersion='', vnfPackageUri='', vnfdModel='').save()
+        VnfPackageModel(vnfPackageId="4", vnfdId="4", vnfVendor='4', vnfdVersion='4',
+                        vnfSoftwareVersion='', vnfPackageUri='', vnfdModel='').save()
         resp = self.client.get("/api/catalog/v1/vnfpackages")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        expect_data = {
-            "csars": [
-                {
-                    "csarId": "3",
-                    "vnfdId": "4"
+        expect_data = [
+            {
+                "imageInfo": [],
+                "csarId": "3",
+                "packageInfo": {
+                    "csarName": "",
+                    "vnfdModel": "",
+                    "vnfdProvider": "3",
+                    "vnfdId": "3",
+                    "downloadUrl": "http://127.0.0.1:8806/static/catalog/3/",
+                    "vnfVersion": "",
+                    "vnfdVersion": "3",
+                    "vnfPackageId": "3"
                 }
-            ]
-        }
+            },
+            {
+                "imageInfo": [],
+                "csarId": "4",
+                "packageInfo": {
+                    "csarName": "",
+                    "vnfdModel": "",
+                    "vnfdProvider": "4",
+                    "vnfdId": "4",
+                    "downloadUrl": "http://127.0.0.1:8806/static/catalog/4/",
+                    "vnfVersion": "",
+                    "vnfdVersion": "4",
+                    "vnfPackageId": "4"
+                }
+            }
+        ]
         self.assertEqual(expect_data, resp.data)
 
     def test_nf_pkg_get_one(self):
-        VnfPackageModel(vnfPackageId="4", vnfdId="5", vnfVendor="6",
-                        vnfdVersion="7", vnfSoftwareVersion="8", vnfPackageUri="4.csar").save()
+        VnfPackageModel(vnfPackageId="4", vnfdId="4", vnfVendor='4', vnfdVersion='4',
+                        vnfSoftwareVersion='', vnfPackageUri='', vnfdModel='').save()
 
         resp = self.client.get("/api/catalog/v1/vnfpackages/4")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         expect_data = {
+            "imageInfo": [],
             "csarId": "4",
             "packageInfo": {
-                "vnfdId": "5",
-                "vnfPackageId": "4",
-                "vnfdProvider": "6",
-                "vnfdVersion": "7",
-                "vnfVersion": "8",
-                "vnfdModel": None,
-                "csarName": "4.csar",
-                "downloadUrl": "http://127.0.0.1:8806/static/catalog/4/4.csar"
-            },
-            "imageInfo": []
+                "csarName": "",
+                "vnfdModel": "",
+                "vnfdProvider": "4",
+                "vnfdId": "4",
+                "downloadUrl": "http://127.0.0.1:8806/static/catalog/4/",
+                "vnfVersion": "",
+                "vnfdVersion": "4",
+                "vnfPackageId": "4"
+            }
         }
         self.assertEqual(expect_data, resp.data)
 
