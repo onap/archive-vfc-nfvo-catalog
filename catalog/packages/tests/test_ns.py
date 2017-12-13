@@ -461,20 +461,38 @@ class TestNsPackage(TestCase):
         self.assertEqual("Delete CSAR(8) successfully.", resp.data["statusDescription"])
 
     def test_ns_pkg_get_all(self):
-        NSPackageModel(nsPackageId="13", nsdId="2", nsdDesginer="3", nsdVersion="4").save()
-
+        NSPackageModel(nsPackageId="13", nsdId="2", nsdDesginer="2", nsdVersion="2",
+                       nsPackageUri="13.csar", nsdModel="").save()
+        NSPackageModel(nsPackageId="14", nsdId="3", nsdDesginer="3", nsdVersion="3",
+                       nsPackageUri="14.csar", nsdModel="").save()
         resp = self.client.get("/api/catalog/v1/nspackages")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        expect_data = {
-            "csars": [
-                {
-                    "csarId": "13",
+        expect_data = [
+            {
+                "csarId": "13",
+                "packageInfo": {
+                    "csarName": "13.csar",
+                    "nsdProvider": "2",
                     "nsdId": "2",
-                    "nsdProvider": "3",
-                    "nsdVersion": "4"
+                    "nsPackageId": "13",
+                    "downloadUrl": "http://127.0.0.1:8806/static/catalog/13/13.csar",
+                    "nsdModel": "",
+                    "nsdVersion": "2"
                 }
-            ]
-        }
+            },
+            {
+                "csarId": "14",
+                "packageInfo": {
+                    "csarName": "14.csar",
+                    "nsdProvider": "3",
+                    "nsdId": "3",
+                    "nsPackageId": "14",
+                    "downloadUrl": "http://127.0.0.1:8806/static/catalog/14/14.csar",
+                    "nsdModel": "",
+                    "nsdVersion": "3"
+                }
+            }
+        ]
         self.assertEqual(expect_data, resp.data)
 
     def test_ns_pkg_get_one(self):

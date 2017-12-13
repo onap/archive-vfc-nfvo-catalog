@@ -158,15 +158,11 @@ class NsPackage(object):
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
     def get_csars(self):
-        csars = {"csars": []}
+        csars = []
         nss = NSPackageModel.objects.filter()
         for ns in nss:
-            csars["csars"].append({
-                "csarId": ns.nsPackageId,
-                "nsdId": ns.nsdId,
-                "nsdProvider": ns.nsdDesginer,
-                "nsdVersion": ns.nsdVersion
-            })
+            ret = self.get_csar(ns.nsPackageId)
+            csars.append(ret[1])
         return [0, csars]
 
     def get_csar(self, csar_id):
