@@ -12,13 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from django.conf.urls import patterns, url
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.conf.urls import url
 
 from catalog.swagger.views import SwaggerJsonView
 
-urlpatterns = patterns('',
-                       url(r'^api/catalog/v1/swagger.json$', SwaggerJsonView.as_view())
-                       )
-
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = [
+    url(r'^api/catalog/v1/swagger.json$', SwaggerJsonView.as_view())
+]
