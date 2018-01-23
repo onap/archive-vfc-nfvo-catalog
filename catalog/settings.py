@@ -46,7 +46,33 @@ INSTALLED_APPS = [
     'rest_framework',
     'catalog.pub.database',
     'catalog.samples',
-    'catalog.swagger'
+    'catalog.swagger',
+
+    'drf_yasg',
+]
+
+# drf-yasg
+SWAGGER_SETTINGS = {
+    'LOGIN_URL': '/admin/login',
+    'LOGOUT_URL': '/admin/logout',
+
+    'DEFAULT_INFO': 'catalog.urls.swagger_info'
+}
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
 ]
 
 MIDDLEWARE_CLASSES = [
