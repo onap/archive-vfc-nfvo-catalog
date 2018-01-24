@@ -14,22 +14,42 @@
 import logging
 import traceback
 
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from catalog.jobs.job_get import GetJobInfoService
 from catalog.pub.utils.jobutil import JobUtil
 from catalog.pub.utils.values import ignore_case_get
+from catalog.serializers import JobResponseSerializer
+from catalog.serializers import PostJobResponseSerializer
 
 logger = logging.getLogger(__name__)
 
 
 class JobView(APIView):
+
+    input_job_id = openapi.Parameter('job_id', openapi.IN_QUERY, description="job id", type=openapi.TYPE_STRING)
+    input_response_id = openapi.Parameter('responseId', openapi.IN_QUERY, description="response id", type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(
+        operation_description="Get job status",
+        manual_parameters=[input_job_id, input_response_id],
+        responses={200: JobResponseSerializer()})
     def get(self, request, job_id):
         response_id = ignore_case_get(request.META, 'responseId')
         ret = GetJobInfoService(job_id, response_id).do_biz()
         return Response(data=ret)
 
+    @swagger_auto_schema(
+        operation_description="Update job status",
+        manual_parameters=[input_job_id, input_response_id],
+        responses={
+            200: PostJobResponseSerializer(),
+            500: PostJobResponseSerializer()
+        }
+    )
     def post(self, request, job_id):
         try:
             logger.debug("Enter JobView:post, %s, %s ", job_id, request.data)
