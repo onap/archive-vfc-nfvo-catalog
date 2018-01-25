@@ -18,7 +18,6 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from catalog.jobs.job_get import GetJobInfoService
 from catalog.pub.utils.jobutil import JobUtil
 from catalog.pub.utils.values import ignore_case_get
@@ -46,7 +45,7 @@ class JobView(APIView):
         operation_description="Update job status",
         manual_parameters=[input_job_id, input_response_id],
         responses={
-            200: PostJobResponseSerializer(),
+            202: PostJobResponseSerializer(),
             500: PostJobResponseSerializer()
         }
     )
