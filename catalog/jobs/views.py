@@ -37,11 +37,21 @@ class JobView(APIView):
     @swagger_auto_schema(
         operation_description="Get job status",
         manual_parameters=[input_job_id, input_response_id],
-        responses={status.HTTP_200_OK: JobResponseSerializer()})
+        responses={
+            status.HTTP_200_OK: JobResponseSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: PostJobResponseResultSerializer()
+        })
     def get(self, request, job_id):
         response_id = ignore_case_get(request.META, 'responseId')
         ret = GetJobInfoService(job_id, response_id).do_biz()
-        return Response(data=ret, status=status.HTTP_200_OK)
+        response_serializer = JobResponseSerializer(ret)
+        isValid = response_serializer.is_valid()
+        if not isValid:
+            message = 'Invalid resposne'
+            logger.error(message)
+            return Response(data={'result': 'error', 'msg': message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(data=response_serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         request_body=PostJobRequestSerializer(),
@@ -66,25 +76,22 @@ class JobView(APIView):
                 logger.error(message)
                 return Response(data={'result': 'error', 'msg': message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            #progress = request.data.get('progress')
             requestData = serializer.data
             progress = ignore_case_get(requestData, "progress")
-            #desc = request.data.get('desc', '%s' % progress)
             desc = ignore_case_get(requestData, "desc", '%s' % progress)
-            #errcode = '0' if request.data.get('errcode') in ('true', 'active') else '255'
             errcode = '0' if ignore_case_get(requestData, 'errcode') in ('true', 'active') else '255'
             logger.debug("errcode=%s", errcode)
             JobUtil.add_job_status(job_id, progress, desc, error_code=errcode)
 
             response = Response(data={'result': 'ok'}, status=status.HTTP_202_ACCEPTED)
-            responseSerializer = PostJobResponseResultSerializer(response.data)
-            isValid = responseSerializer.is_valid()
+            response_serializer = PostJobResponseResultSerializer(response.data)
+            isValid = response_serializer.is_valid()
             if not isValid:
                 message = 'Invalid resposne'
                 logger.error(message)
                 return Response(data={'result': 'error', 'msg': message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            return Response(data=responseSerializer.data, status=status.HTTP_202_ACCEPTED)
+            return Response(data=response_serializer.data, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
