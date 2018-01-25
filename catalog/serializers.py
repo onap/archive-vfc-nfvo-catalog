@@ -18,7 +18,7 @@ from catalog.pub.utils.toscaparser.nsdmodel import EtsiNsdInfoModel
 from catalog.pub.utils.toscaparser.vnfdmodel import EtsiVnfdInfoModel
 
 
-class JobResponseSerializer(serializers.Serializer):
+class PostJobRequestSerializer(serializers.Serializer):
     progress = serializers.CharField(help_text="Job Progress", required=False)
     desc = serializers.CharField(help_text="Description", required=False)
     errcode = serializers.CharField(help_text="Error Code", required=False)
@@ -44,7 +44,7 @@ class JobResponseDescriptorSerializer(serializers.Serializer):
         many=True, help_text="Response History List", required=False)
 
 
-class JobRequestSerializer(serializers.Serializer):
+class JobResponseSerializer(serializers.Serializer):
     jobId = serializers.CharField(
         help_text="Job Id",
         required=False)
