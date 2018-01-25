@@ -40,7 +40,7 @@ class JobView(APIView):
     def get(self, request, job_id):
         response_id = ignore_case_get(request.META, 'responseId')
         ret = GetJobInfoService(job_id, response_id).do_biz()
-        return Response(data=ret)
+        return Response(data=ret, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="Update job status",
@@ -61,8 +61,8 @@ class JobView(APIView):
             errcode = '0' if request.data.get('errcode') in ('true', 'active') else '255'
             logger.debug("errcode=%s", errcode)
             JobUtil.add_job_status(job_id, progress, desc, error_code=errcode)
-            return Response(data={'result': 'ok'})
+            return Response(data={'result': 'ok'}, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'result': 'error', 'msg': e.message})
+            return Response(data={'result': 'error', 'msg': e.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
