@@ -19,42 +19,42 @@ from catalog.pub.utils.toscaparser.vnfdmodel import EtsiVnfdInfoModel
 
 
 class JobResponseSerializer(serializers.Serializer):
-    progress = serializers.CharField(help_text="progress", required=False)
-    desc = serializers.CharField(help_text="desc", required=False)
-    errcode = serializers.CharField(help_text="errcode", required=False)
+    progress = serializers.CharField(help_text="Job Progress", required=False)
+    desc = serializers.CharField(help_text="Description", required=False)
+    errcode = serializers.CharField(help_text="Error Code", required=False)
 
 
 class JobResponseHistoryListSerializer(serializers.Serializer):
-    status = serializers.CharField(help_text="status", required=False)
-    progress = serializers.CharField(help_text="progress", required=False)
+    status = serializers.CharField(help_text="Status", required=False)
+    progress = serializers.CharField(help_text="Job Progress", required=False)
     statusDescription = serializers.CharField(
-        help_text="statusDescription", required=False)
-    errorCode = serializers.CharField(help_text="errcode", required=False)
-    responseId = serializers.CharField(help_text="responseId", required=False)
+        help_text="Status Description", required=False)
+    errorCode = serializers.CharField(help_text="Error Code", required=False)
+    responseId = serializers.CharField(help_text="Response Id", required=False)
 
 
 class JobResponseDescriptorSerializer(serializers.Serializer):
-    status = serializers.CharField(help_text="status", required=False)
-    progress = serializers.CharField(help_text="progress", required=False)
+    status = serializers.CharField(help_text="Status", required=False)
+    progress = serializers.CharField(help_text="Job Progress", required=False)
     statusDescription = serializers.CharField(
-        help_text="statusDescription", required=False)
-    errorCode = serializers.CharField(help_text="errcode", required=False)
-    responseId = serializers.CharField(help_text="responseId", required=False)
+        help_text="Status Description", required=False)
+    errorCode = serializers.CharField(help_text="Error Code", required=False)
+    responseId = serializers.CharField(help_text="Response Id", required=False)
     responseHistoryList = JobResponseHistoryListSerializer(
-        many=True, help_text="responseHistoryList", required=False)
+        many=True, help_text="Response History List", required=False)
 
 
 class JobRequestSerializer(serializers.Serializer):
     jobId = serializers.CharField(
-        help_text="this field is generated from a query_serializer",
+        help_text="Job Id",
         required=False)
     responseDescriptor = JobResponseDescriptorSerializer(
-        help_text="this one too!", required=False)
+        help_text="Job Response Descriptor", required=False)
 
 
 class PostJobResponseResultSerializer(serializers.Serializer):
-    result = serializers.CharField(help_text="result", required=True)
-    msg = serializers.CharField(help_text="msg", required=False)
+    result = serializers.CharField(help_text="Result", required=True)
+    msg = serializers.CharField(help_text="Message", required=False)
 
 
 class NsPackageDistributeRequestSerializer(serializers.Serializer):
