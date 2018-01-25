@@ -58,12 +58,33 @@ class JobView(APIView):
             jobs = JobUtil.query_job_status(job_id)
             if len(jobs) > 0 and jobs[-1].errcode == '255':
                 return Response(data={'result': 'ok'})
-            progress = request.data.get('progress')
-            desc = request.data.get('desc', '%s' % progress)
-            errcode = '0' if request.data.get('errcode') in ('true', 'active') else '255'
+
+            serializer = PostJobRequestSerializer(data=request.data)
+            request_isValid = serializer.is_valid()
+            if not request_isValid:
+                message = 'Invalid request'
+                logger.error(message)
+                return Response(data={'result': 'error', 'msg': message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            #progress = request.data.get('progress')
+            requestData = serializer.data
+            progress = ignore_case_get(requestData, "progress")
+            #desc = request.data.get('desc', '%s' % progress)
+            desc = ignore_case_get(requestData, "desc", '%s' % progress)
+            #errcode = '0' if request.data.get('errcode') in ('true', 'active') else '255'
+            errcode = '0' if ignore_case_get(requestData, 'errcode') in ('true', 'active') else '255'
             logger.debug("errcode=%s", errcode)
             JobUtil.add_job_status(job_id, progress, desc, error_code=errcode)
-            return Response(data={'result': 'ok'}, status=status.HTTP_202_ACCEPTED)
+
+            response = Response(data={'result': 'ok'}, status=status.HTTP_202_ACCEPTED)
+            responseSerializer = PostJobResponseResultSerializer(response.data)
+            isValid = responseSerializer.is_valid()
+            if not isValid:
+                message = 'Invalid resposne'
+                logger.error(message)
+                return Response(data={'result': 'error', 'msg': message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response(data=responseSerializer.data, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
