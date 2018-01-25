@@ -23,7 +23,8 @@ from catalog.jobs.job_get import GetJobInfoService
 from catalog.pub.utils.jobutil import JobUtil
 from catalog.pub.utils.values import ignore_case_get
 from catalog.serializers import JobResponseSerializer
-from catalog.serializers import PostJobResponseSerializer
+from catalog.serializers import PostJobResponseResultSerializer
+from catalog.serializers import PostJobRequestSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +44,12 @@ class JobView(APIView):
         return Response(data=ret, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
+        request_body=PostJobRequestSerializer(),
         operation_description="Update job status",
-        manual_parameters=[input_job_id, input_response_id],
+        manual_parameters=[input_job_id],
         responses={
-            status.HTTP_202_ACCEPTED: PostJobResponseSerializer(),
-            status.HTTP_500_INTERNAL_SERVER_ERROR: PostJobResponseSerializer()
+            status.HTTP_202_ACCEPTED: PostJobResponseResultSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: PostJobResponseResultSerializer()
         }
     )
     def post(self, request, job_id):
