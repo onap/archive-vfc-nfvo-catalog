@@ -18,6 +18,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 from catalog.jobs.job_get import GetJobInfoService
 from catalog.pub.utils.jobutil import JobUtil
 from catalog.pub.utils.values import ignore_case_get
@@ -35,7 +36,7 @@ class JobView(APIView):
     @swagger_auto_schema(
         operation_description="Get job status",
         manual_parameters=[input_job_id, input_response_id],
-        responses={200: JobResponseSerializer()})
+        responses={status.HTTP_200_OK: JobResponseSerializer()})
     def get(self, request, job_id):
         response_id = ignore_case_get(request.META, 'responseId')
         ret = GetJobInfoService(job_id, response_id).do_biz()
@@ -45,8 +46,8 @@ class JobView(APIView):
         operation_description="Update job status",
         manual_parameters=[input_job_id, input_response_id],
         responses={
-            202: PostJobResponseSerializer(),
-            500: PostJobResponseSerializer()
+            status.HTTP_202_ACCEPTED: PostJobResponseSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: PostJobResponseSerializer()
         }
     )
     def post(self, request, job_id):
