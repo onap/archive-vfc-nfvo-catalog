@@ -44,8 +44,7 @@ logger = logging.getLogger(__name__)
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
-                type=openapi.TYPE_STRING,
-                pattern='failed'))})
+                type=openapi.TYPE_STRING))})
 @swagger_auto_schema(
     method='GET',
     operation_description="Query NS packages",
