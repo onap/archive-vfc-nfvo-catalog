@@ -67,12 +67,19 @@ def nspackages_rc(request, *args, **kwargs):
         # Gets ns package list
         ret = ns_package.ns_get_csars()
         normal_status = status.HTTP_200_OK
+        responseSerializer = NsPackagesSerializer(data=ret[1])
+        if not responseSerializer.is_valid():
+            handleValidatonError(responseSerializer, False)
     elif request.method == 'POST':
         # Distributes the package accroding to the given csarId
         csar_id = ignore_case_get(request.data, "csarId")
         logger.debug("csar_id is %s", csar_id)
         ret = ns_package.ns_on_distribute(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
+        responseSerializer = NsPackageDistributeRequestSerializer(data=ret[1])
+        if not responseSerializer.is_valid():
+            handleValidatonError(responseSerializer, False)
+
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
@@ -191,3 +198,16 @@ def vnf_model_parser(request, *args, **kwargs):
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=status.HTTP_202_ACCEPTED)
+
+def handleValidatonError(base_serializer, is_request):
+    errormessage = base_serializer.errors
+    logger.error(errormessage)
+
+    if is_request:
+        message = 'Invalid request'
+    else:
+        message = 'Invalid response'
+    logger.error(message)
+
+    return Response(data={'result': message, 'msg': errormessage}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
