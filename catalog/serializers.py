@@ -64,24 +64,24 @@ class NsPackageDistributeRequestSerializer(serializers.Serializer):
 class NsPackageInfoSerializer(serializers.Serializer):
     nsdId = serializers.CharField(help_text="NSD ID", required=True)
     nsPackageId = serializers.CharField(
-        help_text="NS Package ID", required=True)
+        help_text="NS Package ID", allow_blank=True, required=True)
     nsdProvider = serializers.CharField(
-        help_text="NSD Provider", required=True)
-    nsdVersion = serializers.CharField(help_text="NSD Version", required=True)
-    csarName = serializers.CharField(help_text="CSAR name", required=True)
-    nsdModel = serializers.CharField(help_text="NSD Model", required=True)
+        help_text="NSD Provider", allow_blank=True, required=True)
+    nsdVersion = serializers.CharField(help_text="NSD Version", allow_blank=True, required=True)
+    csarName = serializers.CharField(help_text="CSAR name", allow_blank=True, required=True)
+    nsdModel = serializers.CharField(help_text="NSD Model", allow_blank=True, required=True)
     downloadUrl = serializers.CharField(
         help_text="URL to download NSD Model", required=True)
 
 
 class NsPackageSerializer(serializers.Serializer):
     csarId = serializers.CharField(help_text="CSAR ID", required=True)
-    package_info = NsPackageInfoSerializer(
+    packageInfo = NsPackageInfoSerializer(
         help_text="NS Package Info", required=True)
 
 
 class NsPackagesSerializer(serializers.ListSerializer):
-    child = NsPackageSerializer(many=True)
+    child = NsPackageSerializer()
 
 
 class NfPackageDistributeRequestSerializer(serializers.Serializer):
