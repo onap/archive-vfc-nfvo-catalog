@@ -44,7 +44,7 @@ class JobResponseDescriptorSerializer(serializers.Serializer):
         many=True, help_text="Response History List", required=False)
 
 
-class JobResponseSerializer(serializers.Serializer):
+class PostResponseSerializer(serializers.Serializer):
     jobId = serializers.CharField(
         help_text="Job Id",
         required=False)
@@ -52,7 +52,7 @@ class JobResponseSerializer(serializers.Serializer):
         help_text="Job Response Descriptor", required=False)
 
 
-class PostJobResponseResultSerializer(serializers.Serializer):
+class GetJobResponseResultSerializer(serializers.Serializer):
     result = serializers.CharField(help_text="Result", required=True)
     msg = serializers.CharField(help_text="Message", required=False)
 
@@ -85,13 +85,15 @@ class NsPackagesSerializer(serializers.ListSerializer):
 
 
 class NfPackageDistributeRequestSerializer(serializers.Serializer):
-    csar_id = serializers.CharField(help_text="CSAR ID", required=True)
+    csarId = serializers.CharField(help_text="CSAR ID", required=True)
     vimIds = serializers.ListField(
-        help_text="vim_ids",
+        help_text="A string for vimIds",
         child=serializers.CharField(),
         required=False)
     labVimId = serializers.CharField(
-        help_text="A list of VIM IDs.", required=False)
+        help_text="A list of VIM IDs.",
+        allow_blank=True,
+        required=False)
 
 
 class NfPackageInfoSerializer(serializers.Serializer):

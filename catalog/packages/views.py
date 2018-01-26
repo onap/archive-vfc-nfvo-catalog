@@ -28,7 +28,7 @@ from drf_yasg.utils import no_body, swagger_auto_schema
 from catalog.serializers import NsPackagesSerializer
 from catalog.serializers import NfPackageSerializer
 from catalog.serializers import NfPackageDistributeRequestSerializer
-from catalog.serializers import PostJobResponseResultSerializer
+from catalog.serializers import GetJobResponseResultSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -62,7 +62,7 @@ logger = logging.getLogger(__name__)
 @api_view(http_method_names=['POST', 'GET'])
 def nspackages_rc(request, *args, **kwargs):
     logger.debug("Enter %s, method is %s", fun_name(), request.method)
-    ret, normal_status, validation_response = None, None, None
+    ret, normal_status, validation_error = None, None, None
 
     if request.method == 'GET':
         # Gets ns package list
@@ -71,7 +71,7 @@ def nspackages_rc(request, *args, **kwargs):
         responseSerializer = NsPackagesSerializer(data=ret[1])
 
         if not responseSerializer.is_valid():
-            validation_response = handleValidatonError(
+            validation_error = handleValidatonError(
                 responseSerializer, False)
     elif request.method == 'POST':
         # Distributes the package accroding to the given csarId
@@ -80,8 +80,8 @@ def nspackages_rc(request, *args, **kwargs):
         ret = ns_package.ns_on_distribute(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
 
-    if validation_response:
-        return validation_response
+    if validation_error:
+        return validation_error
 
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
@@ -97,7 +97,7 @@ def nspackages_rc(request, *args, **kwargs):
     operation_description="On distribute Nf package",
     request_body=NfPackageDistributeRequestSerializer(),
     responses={
-        status.HTTP_202_ACCEPTED: PostJobResponseResultSerializer,
+        status.HTTP_202_ACCEPTED: GetJobResponseResultSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
@@ -120,20 +120,25 @@ def nfpackages_rc(request, *args, **kwargs):
         fun_name(),
         request.data,
         request.method)
-    ret, normal_status = None, None
+    ret, normal_status, validation_error = None, None, None
     if request.method == 'GET':
         ret = nf_package.nf_get_csars()
         normal_status = status.HTTP_200_OK
     elif request.method == 'POST':
-        csar_id = ignore_case_get(request.data, "csarId")
-        vim_ids = ignore_case_get(request.data, "vimIds")
-        lab_vim_id = ignore_case_get(request.data, "labVimId")
+        request_serivalizer = NfPackageDistributeRequestSerializer(data=request.data)
+        if not request_serivalizer.is_valid():
+            validation_error = handleValidatonError(request_serivalizer, True)
+            return validation_error
+        csar_id = ignore_case_get(request_serivalizer.data, "csarId")
+        vim_ids = ignore_case_get(request_serivalizer.data, "vimIds")
+        lab_vim_id = ignore_case_get(request_serivalizer.data, "labVimId")
         job_id = str(uuid.uuid4())
         nf_package.NfDistributeThread(
             csar_id, vim_ids, lab_vim_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
+
     if ret[0] != 0:
         return Response(
             data={
