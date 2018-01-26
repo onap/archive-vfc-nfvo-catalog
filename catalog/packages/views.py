@@ -37,12 +37,12 @@ logger = logging.getLogger(__name__)
     operation_description="On distribute NS package",
     request_body=NsPackageDistributeRequestSerializer(),
     responses={
-        202: openapi.Response(
+        status.HTTP_202_ACCEPTED: openapi.Response(
             'return code',
             openapi.Schema(
                 type=openapi.TYPE_STRING,
                 pattern='CSAR(\w+) distributed successfully.')),
-        500: openapi.Response(
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
                 type=openapi.TYPE_STRING,
@@ -52,8 +52,8 @@ logger = logging.getLogger(__name__)
     operation_description="Query NS packages",
     request_body=no_body,
     responses={
-        200: NsPackagesSerializer,
-        500: openapi.Response(
+        status.HTTP_200_OK: NsPackagesSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
                 type=openapi.TYPE_STRING,
