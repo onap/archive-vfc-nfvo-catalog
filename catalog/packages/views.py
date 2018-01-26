@@ -22,10 +22,42 @@ from catalog.pub.utils.values import ignore_case_get
 from catalog.packages import nf_package
 from catalog.packages import ns_package
 
+from drf_yasg import openapi
+from drf_yasg.utils import no_body, swagger_auto_schema
+
+from catalog.serializers import NsPackageDistributeRequestSerializer
+from catalog.serializers import NsPackagesSerializer
+
 
 logger = logging.getLogger(__name__)
 
 
+@swagger_auto_schema(
+    method='POST',
+    operation_description="On distribute NS package",
+    request_body=NsPackageDistributeRequestSerializer(),
+    responses={
+        202: openapi.Response(
+            'return code',
+            openapi.Schema(
+                type=openapi.TYPE_STRING,
+                pattern='CSAR(\w+) distributed successfully.')),
+        500: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING,
+                pattern='failed'))})
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query NS packages",
+    request_body=no_body,
+    responses={
+        200: NsPackagesSerializer,
+        500: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING,
+                pattern='failed'))})
 @api_view(http_method_names=['POST', 'GET'])
 def nspackages_rc(request, *args, **kwargs):
     logger.debug("Enter %s, method is %s", fun_name(), request.method)
@@ -43,13 +75,20 @@ def nspackages_rc(request, *args, **kwargs):
         normal_status = status.HTTP_202_ACCEPTED
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
-        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            data={
+                'error': ret[1]},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=normal_status)
 
 
 @api_view(http_method_names=['POST', 'GET'])
 def nfpackages_rc(request, *args, **kwargs):
-    logger.debug("Enter %s%s, method is %s", fun_name(), request.data, request.method)
+    logger.debug(
+        "Enter %s%s, method is %s",
+        fun_name(),
+        request.data,
+        request.method)
     ret, normal_status = None, None
     if request.method == 'GET':
         ret = nf_package.nf_get_csars()
@@ -59,19 +98,24 @@ def nfpackages_rc(request, *args, **kwargs):
         vim_ids = ignore_case_get(request.data, "vimIds")
         lab_vim_id = ignore_case_get(request.data, "labVimId")
         job_id = str(uuid.uuid4())
-        nf_package.NfDistributeThread(csar_id, vim_ids, lab_vim_id, job_id).start()
+        nf_package.NfDistributeThread(
+            csar_id, vim_ids, lab_vim_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
-        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            data={
+                'error': ret[1]},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=normal_status)
 
 
 @api_view(http_method_names=['DELETE', 'GET'])
 def ns_rd_csar(request, *args, **kwargs):
     csar_id = ignore_case_get(kwargs, "csarId")
-    logger.info("Enter %s, method is %s, csar_id is %s", fun_name(), request.method, csar_id)
+    logger.info("Enter %s, method is %s, csar_id is %s",
+                fun_name(), request.method, csar_id)
     ret, normal_status = None, None
     if request.method == 'GET':
         ret = ns_package.ns_get_csar(csar_id)
@@ -81,14 +125,18 @@ def ns_rd_csar(request, *args, **kwargs):
         normal_status = status.HTTP_202_ACCEPTED
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
-        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            data={
+                'error': ret[1]},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=normal_status)
 
 
 @api_view(http_method_names=['DELETE', 'GET'])
 def nf_rd_csar(request, *args, **kwargs):
     csar_id = ignore_case_get(kwargs, "csarId")
-    logger.info("Enter %s, method is %s, csar_id is %s", fun_name(), request.method, csar_id)
+    logger.info("Enter %s, method is %s, csar_id is %s",
+                fun_name(), request.method, csar_id)
     ret, normal_status = None, None
     if request.method == 'GET':
         ret = nf_package.nf_get_csar(csar_id)
@@ -100,7 +148,10 @@ def nf_rd_csar(request, *args, **kwargs):
         normal_status = status.HTTP_202_ACCEPTED
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
-        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            data={
+                'error': ret[1]},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=normal_status)
 
 
@@ -108,11 +159,18 @@ def nf_rd_csar(request, *args, **kwargs):
 def ns_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
     inputs = ignore_case_get(request.data, "inputs")
-    logger.debug("Enter %s, csar_id=%s, inputs=%s", fun_name(), csar_id, inputs)
+    logger.debug(
+        "Enter %s, csar_id=%s, inputs=%s",
+        fun_name(),
+        csar_id,
+        inputs)
     ret = ns_package.parse_nsd(csar_id, inputs)
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
-        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            data={
+                'error': ret[1]},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=status.HTTP_202_ACCEPTED)
 
 
@@ -120,9 +178,16 @@ def ns_model_parser(request, *args, **kwargs):
 def vnf_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
     inputs = ignore_case_get(request.data, "inputs")
-    logger.debug("Enter %s, csar_id=%s, inputs=%s", fun_name(), csar_id, inputs)
+    logger.debug(
+        "Enter %s, csar_id=%s, inputs=%s",
+        fun_name(),
+        csar_id,
+        inputs)
     ret = nf_package.parse_vnfd(csar_id, inputs)
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
-        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            data={
+                'error': ret[1]},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=status.HTTP_202_ACCEPTED)
