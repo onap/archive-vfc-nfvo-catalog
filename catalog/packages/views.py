@@ -26,6 +26,9 @@ from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
 
 from catalog.serializers import NsPackagesSerializer
+from catalog.serializers import NfPackageSerializer
+from catalog.serializers import NfPackageDistributeRequestSerializer
+from catalog.serializers import PostJobResponseResultSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -89,6 +92,27 @@ def nspackages_rc(request, *args, **kwargs):
     return Response(data=ret[1], status=normal_status)
 
 
+@swagger_auto_schema(
+    method='POST',
+    operation_description="On distribute Nf package",
+    request_body=NfPackageDistributeRequestSerializer(),
+    responses={
+        status.HTTP_202_ACCEPTED: PostJobResponseResultSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING))})
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query Nf packages",
+    request_body=no_body,
+    responses={
+        status.HTTP_200_OK: NfPackageSerializer(
+            many=True),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING))})
 @api_view(http_method_names=['POST', 'GET'])
 def nfpackages_rc(request, *args, **kwargs):
     logger.debug(
