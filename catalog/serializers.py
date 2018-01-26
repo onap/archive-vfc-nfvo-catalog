@@ -86,11 +86,11 @@ class NsPackagesSerializer(serializers.ListSerializer):
 
 class NfPackageDistributeRequestSerializer(serializers.Serializer):
     csar_id = serializers.CharField(help_text="CSAR ID", required=True)
-    vim_ids = serializers.ListField(
+    vimIds = serializers.ListField(
         help_text="vim_ids",
         child=serializers.CharField(),
         required=False)
-    lab_vim_id = serializers.CharField(
+    labVimId = serializers.CharField(
         help_text="A list of VIM IDs.", required=False)
 
 
