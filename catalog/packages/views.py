@@ -21,14 +21,13 @@ from rest_framework.decorators import api_view
 from catalog.pub.utils.values import ignore_case_get
 from catalog.packages import nf_package
 from catalog.packages import ns_package
+from catalog.serializers import NsPackagesSerializer
+from catalog.serializers import NfPackagesSerializer
+from catalog.serializers import NfPackageDistributeRequestSerializer
+from catalog.serializers import PostJobResponseSerializer
 
 from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
-
-from catalog.serializers import NsPackagesSerializer
-from catalog.serializers import NfPackageSerializer
-from catalog.serializers import NfPackageDistributeRequestSerializer
-from catalog.serializers import GetJobResponseResultSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -97,7 +96,7 @@ def nspackages_rc(request, *args, **kwargs):
     operation_description="On distribute Nf package",
     request_body=NfPackageDistributeRequestSerializer(),
     responses={
-        status.HTTP_202_ACCEPTED: GetJobResponseResultSerializer,
+        status.HTTP_202_ACCEPTED: PostJobResponseSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
@@ -107,8 +106,7 @@ def nspackages_rc(request, *args, **kwargs):
     operation_description="Query Nf packages",
     request_body=no_body,
     responses={
-        status.HTTP_200_OK: NfPackageSerializer(
-            many=True),
+        status.HTTP_200_OK: NfPackagesSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
@@ -124,11 +122,17 @@ def nfpackages_rc(request, *args, **kwargs):
     if request.method == 'GET':
         ret = nf_package.nf_get_csars()
         normal_status = status.HTTP_200_OK
+        response = Response(data=ret[1], status=normal_status)
+        response_serializer = NfPackagesSerializer(data=response.data)
+        if not response_serializer.is_valid():
+            validation_error = handleValidatonError(response_serializer, False)
+            return validation_error
     elif request.method == 'POST':
         request_serivalizer = NfPackageDistributeRequestSerializer(data=request.data)
         if not request_serivalizer.is_valid():
             validation_error = handleValidatonError(request_serivalizer, True)
             return validation_error
+
         csar_id = ignore_case_get(request_serivalizer.data, "csarId")
         vim_ids = ignore_case_get(request_serivalizer.data, "vimIds")
         lab_vim_id = ignore_case_get(request_serivalizer.data, "labVimId")
@@ -137,6 +141,12 @@ def nfpackages_rc(request, *args, **kwargs):
             csar_id, vim_ids, lab_vim_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
+
+        response = Response(data=ret[1], status=normal_status)
+        response_serializer = PostJobResponseSerializer(data=response.data)
+        if not response_serializer.is_valid():
+            validation_error = handleValidatonError(response_serializer, False)
+            return validation_error
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
 
     if ret[0] != 0:
@@ -144,7 +154,7 @@ def nfpackages_rc(request, *args, **kwargs):
             data={
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response(data=ret[1], status=normal_status)
+    return Response(data=response_serializer.data, status=normal_status)
 
 
 @api_view(http_method_names=['DELETE', 'GET'])
