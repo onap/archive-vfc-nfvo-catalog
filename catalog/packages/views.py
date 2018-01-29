@@ -27,7 +27,7 @@ from catalog.serializers import NfPackageDistributeRequestSerializer
 from catalog.serializers import PostJobResponseSerializer
 from catalog.serializers import ParseModelRequestSerializer
 from catalog.serializers import ParseNfPackageResponseSerializer
-
+from catalog.serializers import ParseNSPackageResponseSerializer
 from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
 
@@ -203,6 +203,16 @@ def nf_rd_csar(request, *args, **kwargs):
     return Response(data=ret[1], status=normal_status)
 
 
+@swagger_auto_schema(
+    method='POST',
+    operation_description="Parse NS model",
+    request_body=ParseModelRequestSerializer,
+    responses={
+        status.HTTP_202_ACCEPTED: ParseNSPackageResponseSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+            'error',
+            openapi.Schema(
+                type=openapi.TYPE_STRING))})
 @api_view(http_method_names=['POST'])
 def ns_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
