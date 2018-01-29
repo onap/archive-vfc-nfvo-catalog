@@ -220,7 +220,7 @@ def ns_model_parser(request, *args, **kwargs):
 
 @swagger_auto_schema(
     method='POST',
-    operation_description="Parse Nf model",
+    operation_description="Parse NF model",
     request_body=ParseModelRequestSerializer,
     responses={
         status.HTTP_202_ACCEPTED: ParseModelResponseSerializer,
