@@ -31,8 +31,16 @@ logger = logging.getLogger(__name__)
 
 class JobView(APIView):
 
-    input_job_id = openapi.Parameter('job_id', openapi.IN_QUERY, description="job id", type=openapi.TYPE_STRING)
-    input_response_id = openapi.Parameter('responseId', openapi.IN_QUERY, description="response id", type=openapi.TYPE_STRING)
+    input_job_id = openapi.Parameter(
+        'job_id',
+        openapi.IN_QUERY,
+        description="job id",
+        type=openapi.TYPE_STRING)
+    input_response_id = openapi.Parameter(
+        'responseId',
+        openapi.IN_QUERY,
+        description="response id",
+        type=openapi.TYPE_STRING)
 
     @swagger_auto_schema(
         operation_description="Get job status",
@@ -47,11 +55,12 @@ class JobView(APIView):
         response_serializer = PostResponseSerializer(data=ret)
         isValid = response_serializer.is_valid()
         if not isValid:
-            message = 'Invalid resposne'
-            logger.error(response_serializer.errors)
-            return Response(data={'result': 'error', 'msg': message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            response = self.handleValidatonError(response_serializer, False)
+            return response
 
-        return Response(data=response_serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            data=response_serializer.data,
+            status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         request_body=PostJobRequestSerializer(),
@@ -69,30 +78,53 @@ class JobView(APIView):
             if len(jobs) > 0 and jobs[-1].errcode == '255':
                 return Response(data={'result': 'ok'})
 
-            serializer = PostJobRequestSerializer(data=request.data)
-            request_isValid = serializer.is_valid()
+            request_serializer = PostJobRequestSerializer(data=request.data)
+            request_isValid = request_serializer.is_valid()
             if not request_isValid:
-                message = 'Invalid request'
-                logger.error(message)
-                return Response(data={'result': 'error', 'msg': message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                response = self.handleValidatonError(request_serializer, True)
+                return response
 
-            requestData = serializer.data
+            requestData = request_serializer.data
             progress = ignore_case_get(requestData, "progress")
             desc = ignore_case_get(requestData, "desc", '%s' % progress)
-            errcode = '0' if ignore_case_get(requestData, 'errcode') in ('true', 'active') else '255'
+            errcode = '0' if ignore_case_get(
+                requestData, 'errcode') in (
+                'true', 'active') else '255'
             logger.debug("errcode=%s", errcode)
             JobUtil.add_job_status(job_id, progress, desc, error_code=errcode)
 
-            response = Response(data={'result': 'ok'}, status=status.HTTP_202_ACCEPTED)
-            response_serializer = GetJobResponseResultSerializer(data=response.data)
+            response = Response(
+                data={'result': 'ok'},
+                status=status.HTTP_202_ACCEPTED)
+            response_serializer = GetJobResponseResultSerializer(
+                data=response.data)
             isValid = response_serializer.is_valid()
             if not isValid:
-                message = 'Invalid resposne'
-                logger.error(message)
-                return Response(data={'result': 'error', 'msg': message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            return Response(data=response_serializer.data, status=status.HTTP_202_ACCEPTED)
+                response = self.handleValidatonError(
+                    response_serializer, False)
+                return response
+            return Response(
+                data=response_serializer.data,
+                status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'result': 'error', 'msg': e.message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'result': 'error',
+                    'msg': e.message},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def handleValidatonError(base_serializer, is_request):
+        errormessage = base_serializer.errors
+        logger.error(errormessage)
+
+        if is_request:
+            message = 'Invalid request'
+        else:
+            message = 'Invalid response'
+        logger.error(message)
+
+        return Response(
+            data={'result': message, 'msg': errormessage},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
