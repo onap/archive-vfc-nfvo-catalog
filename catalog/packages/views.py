@@ -25,6 +25,8 @@ from catalog.serializers import NsPackagesSerializer
 from catalog.serializers import NfPackagesSerializer
 from catalog.serializers import NfPackageDistributeRequestSerializer
 from catalog.serializers import PostJobResponseSerializer
+from catalog.serializers import ParseModelRequestSerializer
+from catalog.serializers import ParseNfPackageResponseSerializer
 
 from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
@@ -56,8 +58,7 @@ logger = logging.getLogger(__name__)
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
-                type=openapi.TYPE_STRING,
-                pattern='failed'))})
+                type=openapi.TYPE_STRING))})
 @api_view(http_method_names=['POST', 'GET'])
 def nspackages_rc(request, *args, **kwargs):
     logger.debug("Enter %s, method is %s", fun_name(), request.method)
@@ -128,7 +129,8 @@ def nfpackages_rc(request, *args, **kwargs):
             validation_error = handleValidatonError(response_serializer, False)
             return validation_error
     elif request.method == 'POST':
-        request_serivalizer = NfPackageDistributeRequestSerializer(data=request.data)
+        request_serivalizer = NfPackageDistributeRequestSerializer(
+            data=request.data)
         if not request_serivalizer.is_valid():
             validation_error = handleValidatonError(request_serivalizer, True)
             return validation_error
@@ -220,6 +222,16 @@ def ns_model_parser(request, *args, **kwargs):
     return Response(data=ret[1], status=status.HTTP_202_ACCEPTED)
 
 
+@swagger_auto_schema(
+    method='POST',
+    operation_description="Parse Nf model",
+    request_body=ParseModelRequestSerializer,
+    responses={
+        status.HTTP_202_ACCEPTED: ParseNfPackageResponseSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING))})
 @api_view(http_method_names=['POST'])
 def vnf_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
