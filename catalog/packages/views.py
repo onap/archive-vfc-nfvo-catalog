@@ -26,8 +26,8 @@ from catalog.serializers import NfPackagesSerializer
 from catalog.serializers import NfPackageDistributeRequestSerializer
 from catalog.serializers import PostJobResponseSerializer
 from catalog.serializers import ParseModelRequestSerializer
-from catalog.serializers import ParseNfPackageResponseSerializer
-from catalog.serializers import ParseNSPackageResponseSerializer
+from catalog.serializers import ParseModelResponseSerializer
+
 from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
 
@@ -208,7 +208,7 @@ def nf_rd_csar(request, *args, **kwargs):
     operation_description="Parse NS model",
     request_body=ParseModelRequestSerializer,
     responses={
-        status.HTTP_202_ACCEPTED: ParseNSPackageResponseSerializer,
+        status.HTTP_202_ACCEPTED: ParseModelResponseSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error',
             openapi.Schema(
@@ -237,7 +237,7 @@ def ns_model_parser(request, *args, **kwargs):
     operation_description="Parse Nf model",
     request_body=ParseModelRequestSerializer,
     responses={
-        status.HTTP_202_ACCEPTED: ParseNfPackageResponseSerializer,
+        status.HTTP_202_ACCEPTED: ParseModelResponseSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error',
             openapi.Schema(

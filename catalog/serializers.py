@@ -171,6 +171,10 @@ class ParseModelRequestSerializer(serializers.Serializer):
     inputs = serializers.JSONField(help_text="Inputs", required=False)
 
 
+class ParseModelResponseSerializer(serializers.Serializer):
+    model = serializers.JSONField(help_text="Model", required=True)
+
+
 class EtsiNsdInfoModelSerializer(serializers.ModelSerializer):
 
     class Meta:
