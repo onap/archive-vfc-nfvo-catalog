@@ -24,10 +24,11 @@ from catalog.packages import ns_package
 from catalog.serializers import NsPackagesSerializer
 from catalog.serializers import NfPackagesSerializer
 from catalog.serializers import NfPackageDistributeRequestSerializer
-from catalog.serializers import PostJobResponseSerializer
+from catalog.serializers import NfPackageSerializer
 from catalog.serializers import ParseModelRequestSerializer
 from catalog.serializers import ParseModelResponseSerializer
 from catalog.serializers import InternalErrorRequestSerializer
+from catalog.serializers import PostJobResponseSerializer
 
 from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
@@ -169,26 +170,68 @@ def ns_rd_csar(request, *args, **kwargs):
     return Response(data=ret[1], status=normal_status)
 
 
+@swagger_auto_schema(
+    method='DELETE',
+    operation_description="Delete one Nf package",
+    request_body=no_body,
+    manual_parameters=[
+        openapi.Parameter(
+            'csarId',
+            openapi.IN_QUERY,
+            "csarId",
+            type=openapi.TYPE_STRING)],
+    responses={
+        status.HTTP_200_OK: PostJobResponseSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING))})
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query one Nf package",
+    request_body=no_body,
+    manual_parameters=[
+        openapi.Parameter(
+            'csarId',
+            openapi.IN_QUERY,
+            "csarId",
+            type=openapi.TYPE_STRING)],
+    responses={
+        status.HTTP_200_OK: NfPackageSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING))})
 @api_view(http_method_names=['DELETE', 'GET'])
 def nf_rd_csar(request, *args, **kwargs):
     csar_id = ignore_case_get(kwargs, "csarId")
     logger.info("Enter %s, method is %s, csar_id is %s",
                 fun_name(), request.method, csar_id)
-    ret, normal_status = None, None
+    ret, normal_status, validation_error = None, None, None
+
     if request.method == 'GET':
         ret = nf_package.nf_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
+        response_serializer = NfPackageSerializer(data=ret[1])
+
     elif request.method == 'DELETE':
         job_id = str(uuid.uuid4())
         nf_package.NfPkgDeleteThread(csar_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
+        response_serializer = PostJobResponseSerializer(data=ret[1])
+
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
             data={
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if not response_serializer.is_valid():
+        validation_error = handleValidatonError(response_serializer, False)
+        return validation_error
+
     return Response(data=ret[1], status=normal_status)
 
 
