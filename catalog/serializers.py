@@ -57,6 +57,11 @@ class GetJobResponseResultSerializer(serializers.Serializer):
     msg = serializers.CharField(help_text="Message", required=False)
 
 
+class InternalErrorRequestSerializer(serializers.Serializer):
+    error = serializers.CharField(help_text="Error", required=True)
+    errorMessage = serializers.CharField(help_text="Error Message", required=False)
+
+
 class NsPackageDistributeRequestSerializer(serializers.Serializer):
     csarId = serializers.CharField(help_text="csarId", required=True)
 

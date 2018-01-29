@@ -27,6 +27,7 @@ from catalog.serializers import NfPackageDistributeRequestSerializer
 from catalog.serializers import PostJobResponseSerializer
 from catalog.serializers import ParseModelRequestSerializer
 from catalog.serializers import ParseModelResponseSerializer
+from catalog.serializers import InternalErrorRequestSerializer
 
 from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
@@ -45,20 +46,14 @@ logger = logging.getLogger(__name__)
             openapi.Schema(
                 type=openapi.TYPE_STRING,
                 pattern='CSAR(\w+) distributed successfully.')),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-            'error',
-            openapi.Schema(
-                type=openapi.TYPE_STRING))})
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @swagger_auto_schema(
     method='GET',
     operation_description="Query NS packages",
     request_body=no_body,
     responses={
         status.HTTP_200_OK: NsPackagesSerializer,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-            'error',
-            openapi.Schema(
-                type=openapi.TYPE_STRING))})
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @api_view(http_method_names=['POST', 'GET'])
 def nspackages_rc(request, *args, **kwargs):
     logger.debug("Enter %s, method is %s", fun_name(), request.method)
@@ -98,20 +93,14 @@ def nspackages_rc(request, *args, **kwargs):
     request_body=NfPackageDistributeRequestSerializer(),
     responses={
         status.HTTP_202_ACCEPTED: PostJobResponseSerializer,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-            'error',
-            openapi.Schema(
-                type=openapi.TYPE_STRING))})
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @swagger_auto_schema(
     method='GET',
     operation_description="Query Nf packages",
     request_body=no_body,
     responses={
         status.HTTP_200_OK: NfPackagesSerializer,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-            'error',
-            openapi.Schema(
-                type=openapi.TYPE_STRING))})
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @api_view(http_method_names=['POST', 'GET'])
 def nfpackages_rc(request, *args, **kwargs):
     logger.debug(
@@ -209,10 +198,7 @@ def nf_rd_csar(request, *args, **kwargs):
     request_body=ParseModelRequestSerializer,
     responses={
         status.HTTP_202_ACCEPTED: ParseModelResponseSerializer,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-            'error',
-            openapi.Schema(
-                type=openapi.TYPE_STRING))})
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @api_view(http_method_names=['POST'])
 def ns_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
@@ -238,10 +224,7 @@ def ns_model_parser(request, *args, **kwargs):
     request_body=ParseModelRequestSerializer,
     responses={
         status.HTTP_202_ACCEPTED: ParseModelResponseSerializer,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
-            'error',
-            openapi.Schema(
-                type=openapi.TYPE_STRING))})
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @api_view(http_method_names=['POST'])
 def vnf_model_parser(request, *args, **kwargs):
     csar_id = ignore_case_get(request.data, "csarId")
