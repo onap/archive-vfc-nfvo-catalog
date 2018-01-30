@@ -22,6 +22,7 @@ from catalog.pub.utils.values import ignore_case_get
 from catalog.packages import nf_package
 from catalog.packages import ns_package
 from catalog.serializers import NsPackagesSerializer
+from catalog.serializers import NsPackageSerializer
 from catalog.serializers import NfPackagesSerializer
 from catalog.serializers import NsPackageDistributeRequestSerializer
 from catalog.serializers import NfPackageDistributeRequestSerializer
@@ -153,6 +154,41 @@ def nfpackages_rc(request, *args, **kwargs):
     return Response(data=response_serializer.data, status=normal_status)
 
 
+@swagger_auto_schema(
+    method='DELETE',
+    operation_description="Delete one NS package",
+    request_body=no_body,
+    manual_parameters=[
+        openapi.Parameter(
+            'csarId',
+            openapi.IN_QUERY,
+            "csarId",
+            type=openapi.TYPE_STRING)],
+    responses={
+        status.HTTP_200_OK: openapi.Response(
+            'Delete CSAR successfully',
+            openapi.Schema(
+                type=openapi.TYPE_STRING)),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING))})
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query one NS package",
+    request_body=no_body,
+    manual_parameters=[
+        openapi.Parameter(
+            'csarId',
+            openapi.IN_QUERY,
+            "csarId",
+            type=openapi.TYPE_STRING)],
+    responses={
+        status.HTTP_200_OK: NsPackageSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
+            'error message',
+            openapi.Schema(
+                type=openapi.TYPE_STRING))})
 @api_view(http_method_names=['DELETE', 'GET'])
 def ns_rd_csar(request, *args, **kwargs):
     csar_id = ignore_case_get(kwargs, "csarId")
