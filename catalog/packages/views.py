@@ -29,7 +29,6 @@ from catalog.serializers import ParseModelRequestSerializer
 from catalog.serializers import ParseModelResponseSerializer
 from catalog.serializers import InternalErrorRequestSerializer
 from catalog.serializers import PostJobResponseSerializer
-
 from drf_yasg import openapi
 from drf_yasg.utils import no_body, swagger_auto_schema
 
@@ -58,17 +57,19 @@ logger = logging.getLogger(__name__)
 @api_view(http_method_names=['POST', 'GET'])
 def nspackages_rc(request, *args, **kwargs):
     logger.debug("Enter %s, method is %s", fun_name(), request.method)
-    ret, normal_status, validation_error = None, None, None
+    ret, normal_status, response_serializer, validation_error = None, None, None, None
 
     if request.method == 'GET':
         # Gets ns package list
         ret = ns_package.ns_get_csars()
         normal_status = status.HTTP_200_OK
-        responseSerializer = NsPackagesSerializer(data=ret[1])
 
-        if not responseSerializer.is_valid():
+        if ret[0] == 0:
+            response_serializer = NsPackagesSerializer(data=ret[1])
             validation_error = handleValidatonError(
-                responseSerializer, False)
+                response_serializer, False)
+            if validation_error:
+                return validation_error
     elif request.method == 'POST':
         # Distributes the package accroding to the given csarId
         csar_id = ignore_case_get(request.data, "csarId")
@@ -76,15 +77,13 @@ def nspackages_rc(request, *args, **kwargs):
         ret = ns_package.ns_on_distribute(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
 
-    if validation_error:
-        return validation_error
-
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
             data={
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     return Response(data=ret[1], status=normal_status)
 
 
@@ -109,20 +108,17 @@ def nfpackages_rc(request, *args, **kwargs):
         fun_name(),
         request.data,
         request.method)
-    ret, normal_status, validation_error = None, None, None
+    ret, normal_status, response_serializer, validation_error = None, None, None, None
     if request.method == 'GET':
         ret = nf_package.nf_get_csars()
         normal_status = status.HTTP_200_OK
-        response = Response(data=ret[1], status=normal_status)
-        response_serializer = NfPackagesSerializer(data=response.data)
-        if not response_serializer.is_valid():
-            validation_error = handleValidatonError(response_serializer, False)
-            return validation_error
+        response_serializer = NfPackagesSerializer(data=ret[1])
     elif request.method == 'POST':
         request_serivalizer = NfPackageDistributeRequestSerializer(
             data=request.data)
-        if not request_serivalizer.is_valid():
-            validation_error = handleValidatonError(request_serivalizer, True)
+        validation_error = handleValidatonError(
+            request_serivalizer, True)
+        if validation_error:
             return validation_error
 
         csar_id = ignore_case_get(request_serivalizer.data, "csarId")
@@ -134,11 +130,7 @@ def nfpackages_rc(request, *args, **kwargs):
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
 
-        response = Response(data=ret[1], status=normal_status)
-        response_serializer = PostJobResponseSerializer(data=response.data)
-        if not response_serializer.is_valid():
-            validation_error = handleValidatonError(response_serializer, False)
-            return validation_error
+        response_serializer = PostJobResponseSerializer(data=ret[1])
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
 
     if ret[0] != 0:
@@ -146,6 +138,12 @@ def nfpackages_rc(request, *args, **kwargs):
             data={
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    validation_error = handleValidatonError(
+        response_serializer, False)
+    if validation_error:
+        return validation_error
+
     return Response(data=response_serializer.data, status=normal_status)
 
 
@@ -207,7 +205,7 @@ def nf_rd_csar(request, *args, **kwargs):
     csar_id = ignore_case_get(kwargs, "csarId")
     logger.info("Enter %s, method is %s, csar_id is %s",
                 fun_name(), request.method, csar_id)
-    ret, normal_status, validation_error = None, None, None
+    ret, normal_status, response_serializer, validation_error = None, None, None, None
 
     if request.method == 'GET':
         ret = nf_package.nf_get_csar(csar_id)
@@ -228,11 +226,12 @@ def nf_rd_csar(request, *args, **kwargs):
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    if not response_serializer.is_valid():
-        validation_error = handleValidatonError(response_serializer, False)
+    validation_error = handleValidatonError(
+        response_serializer, False)
+    if validation_error:
         return validation_error
 
-    return Response(data=ret[1], status=normal_status)
+    return Response(data=response_serializer.data, status=normal_status)
 
 
 @swagger_auto_schema(
@@ -258,7 +257,14 @@ def ns_model_parser(request, *args, **kwargs):
             data={
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response(data=ret[1], status=status.HTTP_202_ACCEPTED)
+
+    response_serializer = ParseModelResponseSerializer(data=ret[1])
+    validation_error = handleValidatonError(
+        response_serializer, False)
+    if validation_error:
+        return validation_error
+
+    return Response(data=response_serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 @swagger_auto_schema(
@@ -284,18 +290,30 @@ def vnf_model_parser(request, *args, **kwargs):
             data={
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response(data=ret[1], status=status.HTTP_202_ACCEPTED)
+
+    response_serializer = ParseModelResponseSerializer(data=ret[1])
+    validation_error = handleValidatonError(
+        response_serializer, False)
+    if validation_error:
+        return validation_error
+
+    return Response(data=response_serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 def handleValidatonError(base_serializer, is_request):
-    errormessage = base_serializer.errors
-    logger.error(errormessage)
+    response = None
 
-    if is_request:
-        message = 'Invalid request'
-    else:
-        message = 'Invalid response'
-    logger.error(message)
+    if not base_serializer.is_valid():
+        errormessage = base_serializer.errors
+        logger.error(errormessage)
 
-    return Response(data={'error': errormessage},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if is_request:
+            message = 'Invalid request'
+        else:
+            message = 'Invalid response'
+        logger.error(message)
+        response = Response(
+            data={'error': errormessage},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return response
