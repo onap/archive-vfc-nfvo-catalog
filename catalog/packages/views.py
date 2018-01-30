@@ -194,10 +194,15 @@ def ns_rd_csar(request, *args, **kwargs):
     csar_id = ignore_case_get(kwargs, "csarId")
     logger.info("Enter %s, method is %s, csar_id is %s",
                 fun_name(), request.method, csar_id)
-    ret, normal_status = None, None
+    ret, normal_status, response_serializer, validation_error = None, None, None, None
     if request.method == 'GET':
         ret = ns_package.ns_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
+        if ret[0] == 0:
+            response_serializer = NsPackageSerializer(data=ret[1])
+            validation_error = handleValidatonError(response_serializer, False)
+            if validation_error:
+                return validation_error
     elif request.method == 'DELETE':
         ret = ns_package.ns_delete_csar(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
