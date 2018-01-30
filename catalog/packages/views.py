@@ -58,17 +58,14 @@ logger = logging.getLogger(__name__)
 @api_view(http_method_names=['POST', 'GET'])
 def nspackages_rc(request, *args, **kwargs):
     logger.debug("Enter %s, method is %s", fun_name(), request.method)
-    ret, normal_status, validation_error = None, None, None
+    ret, normal_status, responseSerializer, validation_error = None, None, None, None
 
     if request.method == 'GET':
         # Gets ns package list
         ret = ns_package.ns_get_csars()
         normal_status = status.HTTP_200_OK
-        responseSerializer = NsPackagesSerializer(data=ret[1])
 
-        if not responseSerializer.is_valid():
-            validation_error = handleValidatonError(
-                responseSerializer, False)
+        responseSerializer = NsPackagesSerializer(data=ret[1])
     elif request.method == 'POST':
         # Distributes the package accroding to the given csarId
         csar_id = ignore_case_get(request.data, "csarId")
@@ -76,15 +73,18 @@ def nspackages_rc(request, *args, **kwargs):
         ret = ns_package.ns_on_distribute(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
 
-    if validation_error:
-        return validation_error
-
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
             data={
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if not responseSerializer.is_valid():
+        validation_error = handleValidatonError(
+            responseSerializer, False)
+        return validation_error
+
     return Response(data=ret[1], status=normal_status)
 
 
