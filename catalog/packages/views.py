@@ -23,6 +23,7 @@ from catalog.packages import nf_package
 from catalog.packages import ns_package
 from catalog.serializers import NsPackagesSerializer
 from catalog.serializers import NfPackagesSerializer
+from catalog.serializers import NsPackageDistributeRequestSerializer
 from catalog.serializers import NfPackageDistributeRequestSerializer
 from catalog.serializers import NfPackageSerializer
 from catalog.serializers import ParseModelRequestSerializer
@@ -39,7 +40,7 @@ logger = logging.getLogger(__name__)
 @swagger_auto_schema(
     method='POST',
     operation_description="On distribute NS package",
-    request_body=no_body,
+    request_body=NsPackageDistributeRequestSerializer,
     responses={
         status.HTTP_202_ACCEPTED: openapi.Response(
             'return code',
@@ -72,6 +73,11 @@ def nspackages_rc(request, *args, **kwargs):
                 return validation_error
     elif request.method == 'POST':
         # Distributes the package accroding to the given csarId
+        request_serializer = NsPackageDistributeRequestSerializer(data=request.data)
+        validation_error = handleValidatonError(request_serializer, True)
+        if validation_error:
+            return validation_error
+
         csar_id = ignore_case_get(request.data, "csarId")
         logger.debug("csar_id is %s", csar_id)
         ret = ns_package.ns_on_distribute(csar_id)
