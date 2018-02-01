@@ -44,7 +44,7 @@ class JobResponseDescriptorSerializer(serializers.Serializer):
         many=True, help_text="Response History List", required=False)
 
 
-class PostResponseSerializer(serializers.Serializer):
+class GetJobResponseSerializer(serializers.Serializer):
     jobId = serializers.CharField(
         help_text="Job Id",
         required=False)
@@ -52,7 +52,7 @@ class PostResponseSerializer(serializers.Serializer):
         help_text="Job Response Descriptor", required=False)
 
 
-class GetJobResponseResultSerializer(serializers.Serializer):
+class PostJobResponseResultSerializer(serializers.Serializer):
     result = serializers.CharField(help_text="Result", required=True)
     msg = serializers.CharField(help_text="Message", required=False)
 

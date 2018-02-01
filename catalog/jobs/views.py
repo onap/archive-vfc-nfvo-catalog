@@ -22,8 +22,8 @@ from rest_framework import status
 from catalog.jobs.job_get import GetJobInfoService
 from catalog.pub.utils.jobutil import JobUtil
 from catalog.pub.utils.values import ignore_case_get
-from catalog.serializers import PostResponseSerializer
-from catalog.serializers import GetJobResponseResultSerializer
+from catalog.serializers import GetJobResponseSerializer
+from catalog.serializers import PostJobResponseResultSerializer
 from catalog.serializers import PostJobRequestSerializer
 
 logger = logging.getLogger(__name__)
@@ -46,13 +46,13 @@ class JobView(APIView):
         operation_description="Get job status",
         manual_parameters=[input_job_id, input_response_id],
         responses={
-            status.HTTP_200_OK: PostResponseSerializer(),
-            status.HTTP_500_INTERNAL_SERVER_ERROR: GetJobResponseResultSerializer()
+            status.HTTP_200_OK: GetJobResponseSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: PostJobResponseResultSerializer()
         })
     def get(self, request, job_id):
         response_id = ignore_case_get(request.META, 'responseId')
         ret = GetJobInfoService(job_id, response_id).do_biz()
-        response_serializer = PostResponseSerializer(data=ret)
+        response_serializer = GetJobResponseSerializer(data=ret)
         isValid = response_serializer.is_valid()
         if not isValid:
             response = self.handleValidatonError(response_serializer, False)
@@ -67,8 +67,8 @@ class JobView(APIView):
         operation_description="Update job status",
         manual_parameters=[input_job_id],
         responses={
-            status.HTTP_202_ACCEPTED: GetJobResponseResultSerializer(),
-            status.HTTP_500_INTERNAL_SERVER_ERROR: GetJobResponseResultSerializer()
+            status.HTTP_202_ACCEPTED: PostJobResponseResultSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: PostJobResponseResultSerializer()
         }
     )
     def post(self, request, job_id):
@@ -96,7 +96,7 @@ class JobView(APIView):
             response = Response(
                 data={'result': 'ok'},
                 status=status.HTTP_202_ACCEPTED)
-            response_serializer = GetJobResponseResultSerializer(
+            response_serializer = PostJobResponseResultSerializer(
                 data=response.data)
             isValid = response_serializer.is_valid()
             if not isValid:
