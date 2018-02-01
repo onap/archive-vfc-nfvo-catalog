@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-import traceback
-
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
@@ -72,48 +70,38 @@ class JobView(APIView):
         }
     )
     def post(self, request, job_id):
-        try:
-            logger.debug("Enter JobView:post, %s, %s ", job_id, request.data)
-            jobs = JobUtil.query_job_status(job_id)
-            if len(jobs) > 0 and jobs[-1].errcode == '255':
-                return Response(data={'result': 'ok'})
+        job_result_ok = {'result': 'ok'}
 
-            request_serializer = PostJobRequestSerializer(data=request.data)
-            validataion_error = self.handleValidatonError(
-                request_serializer, True)
-            if not validataion_error:
-                return validataion_error
+        logger.debug("Enter JobView:post, %s, %s ", job_id, request.data)
+        jobs = JobUtil.query_job_status(job_id)
+        if len(jobs) > 0 and jobs[-1].errcode == '255':
+            return Response(data=job_result_ok)
 
-            requestData = request_serializer.data
-            progress = ignore_case_get(requestData, "progress")
-            desc = ignore_case_get(requestData, "desc", '%s' % progress)
-            errcode = '0' if ignore_case_get(
-                requestData, 'errcode') in (
-                'true', 'active') else '255'
-            logger.debug("errcode=%s", errcode)
-            JobUtil.add_job_status(job_id, progress, desc, error_code=errcode)
+        request_serializer = PostJobRequestSerializer(data=request.data)
+        validataion_error = self.handleValidatonError(
+            request_serializer, True)
+        if not validataion_error:
+            return validataion_error
 
-            response = Response(
-                data={'result': 'ok'},
-                status=status.HTTP_202_ACCEPTED)
-            response_serializer = PostJobResponseResultSerializer(
-                data=response.data)
-            validataion_error = self.handleValidatonError(
-                response_serializer, False)
-            if validataion_error:
-                return validataion_error
+        requestData = request_serializer.data
+        progress = ignore_case_get(requestData, "progress")
+        desc = ignore_case_get(requestData, "desc", '%s' % progress)
+        errcode = '0' if ignore_case_get(
+            requestData, 'errcode') in (
+            'true', 'active') else '255'
+        logger.debug("errcode=%s", errcode)
+        JobUtil.add_job_status(job_id, progress, desc, error_code=errcode)
 
-            return Response(
-                data=response_serializer.data,
-                status=status.HTTP_202_ACCEPTED)
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            return Response(
-                data={
-                    'result': 'error',
-                    'msg': e.message},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        response_serializer = PostJobResponseResultSerializer(
+            data=job_result_ok)
+        validataion_error = self.handleValidatonError(
+            response_serializer, False)
+        if validataion_error:
+            return validataion_error
+
+        return Response(
+            data=response_serializer.data,
+            status=status.HTTP_202_ACCEPTED)
 
     def handleValidatonError(self, base_serializer, is_request):
         response = None
