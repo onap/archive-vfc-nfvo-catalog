@@ -53,10 +53,10 @@ class JobView(APIView):
         response_id = ignore_case_get(request.META, 'responseId')
         ret = GetJobInfoService(job_id, response_id).do_biz()
         response_serializer = GetJobResponseSerializer(data=ret)
-        isValid = response_serializer.is_valid()
-        if not isValid:
-            response = self.handleValidatonError(response_serializer, False)
-            return response
+        validataion_error = self.handleValidatonError(
+            response_serializer, False)
+        if not validataion_error:
+            return validataion_error
 
         return Response(
             data=response_serializer.data,
@@ -79,10 +79,10 @@ class JobView(APIView):
                 return Response(data={'result': 'ok'})
 
             request_serializer = PostJobRequestSerializer(data=request.data)
-            request_isValid = request_serializer.is_valid()
-            if not request_isValid:
-                response = self.handleValidatonError(request_serializer, True)
-                return response
+            validataion_error = self.handleValidatonError(
+                request_serializer, True)
+            if not validataion_error:
+                return validataion_error
 
             requestData = request_serializer.data
             progress = ignore_case_get(requestData, "progress")
@@ -98,11 +98,11 @@ class JobView(APIView):
                 status=status.HTTP_202_ACCEPTED)
             response_serializer = PostJobResponseResultSerializer(
                 data=response.data)
-            isValid = response_serializer.is_valid()
-            if not isValid:
-                response = self.handleValidatonError(
-                    response_serializer, False)
-                return response
+            validataion_error = self.handleValidatonError(
+                response_serializer, False)
+            if not validataion_error:
+                return validataion_error
+
             return Response(
                 data=response_serializer.data,
                 status=status.HTTP_202_ACCEPTED)
@@ -116,15 +116,19 @@ class JobView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def handleValidatonError(base_serializer, is_request):
-        errormessage = base_serializer.errors
-        logger.error(errormessage)
+        response = None
 
-        if is_request:
-            message = 'Invalid request'
-        else:
-            message = 'Invalid response'
-        logger.error(message)
+        if not base_serializer.is_valid():
+            errormessage = base_serializer.errors
+            logger.error(errormessage)
 
-        return Response(
-            data={'result': message, 'msg': errormessage},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if is_request:
+                message = 'Invalid request'
+            else:
+                message = 'Invalid response'
+            logger.error(message)
+
+            Response(
+                data={'result': message, 'msg': errormessage},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return response
