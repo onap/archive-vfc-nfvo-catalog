@@ -141,8 +141,8 @@
           }
         ],
         "responses": {
-          "202": {
-            "description": "",
+          "200": {
+            "description": "Delete NS Package Response",
             "schema": {
               "$ref": "#/definitions/NsPkgDelResponse"
             }
@@ -329,7 +329,7 @@
         ],
         "responses": {
           "202": {
-            "description": "",
+            "description": "Delete VNF Pakcage Response",
             "schema": {
               "$ref": "#/definitions/VnfPkgDelResponse"
             }
