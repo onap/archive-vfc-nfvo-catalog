@@ -25,6 +25,7 @@ from catalog.serializers import NsPackagesSerializer
 from catalog.serializers import NsPackageSerializer
 from catalog.serializers import NfPackagesSerializer
 from catalog.serializers import NsPackageDistributeRequestSerializer
+from catalog.serializers import NsPackageDistributeResponseSerializer
 from catalog.serializers import NfPackageDistributeRequestSerializer
 from catalog.serializers import NfPackageSerializer
 from catalog.serializers import ParseModelRequestSerializer
@@ -43,11 +44,7 @@ logger = logging.getLogger(__name__)
     operation_description="On distribute NS package",
     request_body=NsPackageDistributeRequestSerializer,
     responses={
-        status.HTTP_202_ACCEPTED: openapi.Response(
-            'return code',
-            openapi.Schema(
-                type=openapi.TYPE_STRING,
-                pattern='CSAR(\w+) distributed successfully.')),
+        status.HTTP_202_ACCEPTED: NsPackageDistributeResponseSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @swagger_auto_schema(
     method='GET',

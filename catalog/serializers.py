@@ -66,6 +66,12 @@ class NsPackageDistributeRequestSerializer(serializers.Serializer):
     csarId = serializers.CharField(help_text="csarId", required=True)
 
 
+class NsPackageDistributeResponseSerializer(serializers.Serializer):
+    status = serializers.CharField(help_text="status", required=True)
+    statusDescription = serializers.CharField(help_text="statusDescription", required=True)
+    errorCode = serializers.CharField(help_text="errorCode", required=True)
+
+
 class NsPackageInfoSerializer(serializers.Serializer):
     nsdId = serializers.CharField(help_text="NSD ID", required=True)
     nsPackageId = serializers.CharField(
