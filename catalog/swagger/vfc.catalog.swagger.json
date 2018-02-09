@@ -390,7 +390,7 @@
           "job"
         ],
         "summary": "jobstatus",
-        "description": "",
+        "description": "Get Job Status",
         "operationId": "get_jobstatus",
         "parameters": [
           {
@@ -422,7 +422,7 @@
           "job"
         ],
         "summary": "Update Job Status",
-        "description": "",
+        "description": "Update Job Status",
         "operationId": "post_jobstatus",
         "parameters": [
           {
