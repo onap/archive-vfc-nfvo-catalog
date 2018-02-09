@@ -329,7 +329,7 @@ class TestNsPackage(TestCase):
     def test_ns_pkg_normal_delete(self):
         NSPackageModel(nsPackageId="8", nsdId="2").save()
         resp = self.client.delete("/api/catalog/v1/nspackages/8")
-        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual("success", resp.data["status"])
         self.assertEqual(
             "Delete CSAR(8) successfully.",
