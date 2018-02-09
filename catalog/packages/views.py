@@ -162,10 +162,7 @@ def nfpackages_rc(request, *args, **kwargs):
             "csarId",
             type=openapi.TYPE_STRING)],
     responses={
-        status.HTTP_200_OK: openapi.Response(
-            'Delete CSAR successfully',
-            openapi.Schema(
-                type=openapi.TYPE_STRING)),
+        status.HTTP_200_OK: NsPackageDistributeResponseSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
