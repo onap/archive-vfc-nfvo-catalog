@@ -199,7 +199,7 @@ def ns_rd_csar(request, *args, **kwargs):
                 return validation_error
     elif request.method == 'DELETE':
         ret = ns_package.ns_delete_csar(csar_id)
-        normal_status = status.HTTP_202_ACCEPTED
+        normal_status = status.HTTP_200_OK
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
@@ -220,7 +220,7 @@ def ns_rd_csar(request, *args, **kwargs):
             "csarId",
             type=openapi.TYPE_STRING)],
     responses={
-        status.HTTP_200_OK: PostJobResponseSerializer,
+        status.HTTP_202_ACCEPTED: PostJobResponseSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: openapi.Response(
             'error message',
             openapi.Schema(
