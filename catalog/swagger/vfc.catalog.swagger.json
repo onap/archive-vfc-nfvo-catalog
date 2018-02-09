@@ -409,7 +409,7 @@
           }
         ],
         "responses": {
-          "202": {
+          "200": {
             "description": "",
              "schema": {
               "$ref": "#/definitions/JobDetailInfo"
