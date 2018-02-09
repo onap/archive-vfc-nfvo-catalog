@@ -416,6 +416,40 @@
             }
           }
         }
+      },
+       "post": {
+        "tags": [
+          "job"
+        ],
+        "summary": "Update Job Status",
+        "description": "",
+        "operationId": "post_jobstatus",
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "job Id",
+            "name": "jobId",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostJobRequest"
+            },
+            "description": "job status",
+            "name": "responseId",
+            "in": "body"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+             "schema": {
+              "$ref": "#/definitions/JobDetailInfo"
+            }
+          }
+        }
       }
     }
   },
@@ -711,6 +745,20 @@
             "type": "string"
         }
        }
+    },
+    "PostJobRequest": {
+      "type": "object",
+      "properties": {
+        "progress": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "errcode": {
+          "type": "string"
+        }
+      }
     },
     "JobDetailInfo":{
       "type": "object",
