@@ -511,9 +511,6 @@
         },
         "packageInfo": {
           "$ref": "#/definitions/NsPkgInfo"
-        },
-        "NsInstanceInfo": {
-          "$ref": "#/definitions/NsInstListInfo"
         }
       }
     },
@@ -622,9 +619,6 @@
         },
         "imageInfo": {
           "$ref": "#/definitions/VnfPkgImgListInfo"
-        },
-        "vnfInstanceInfo": {
-          "$ref": "#/definitions/VnfInstListInfo"
         }
       }
     },
