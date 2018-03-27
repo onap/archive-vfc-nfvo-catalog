@@ -13,4 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+logDir="/var/log/onap/vfc/catalog/"
+if [ ! -x  $logDir  ]; then
+       mkdir -p $logDir
+fi
+
 nohup python manage.py runserver 0.0.0.0:8806 > /dev/null &
+
+while [ ! -f $logDir/runtime_catalog.log ]; do
+    sleep 1
+done
+
+tail -F  $logDir/runtime_catalog.log
