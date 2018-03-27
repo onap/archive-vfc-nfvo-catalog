@@ -20,6 +20,9 @@ import redisco
 from catalog.pub.config.config import REDIS_HOST, REDIS_PORT, REDIS_PASSWD
 from catalog.pub.config.config import DB_NAME, DB_IP, DB_USER, DB_PASSWD, DB_PORT
 from catalog.pub.config import config
+from logging import config
+from onaplogging import monkey
+monkey.patch_all()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -130,36 +133,40 @@ STATICFILES_DIRS = [
 
 config.CATALOG_ROOT_PATH = os.path.join(STATICFILES_DIRS[0], "catalog")
 config.CATALOG_URL_PATH = "static/catalog"
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
-        },
-    },
-    'filters': {
-    },
-    'handlers': {
-        'catalog_handler': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/runtime_catalog.log'),
-            'formatter': 'standard',
-            'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 5,
-        },
-    },
-
-    'loggers': {
-        'catalog': {
-            'handlers': ['catalog_handler'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-    }
-}
+#
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': True,
+#     'formatters': {
+#         'standard': {
+#             'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
+#         },
+#     },
+#     'filters': {
+#     },
+#     'handlers': {
+#         'catalog_handler': {
+#             'level': 'DEBUG',
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': os.path.join(BASE_DIR, 'logs/runtime_catalog.log'),
+#             'formatter': 'standard',
+#             'maxBytes': 1024 * 1024 * 50,
+#             'backupCount': 5,
+#         },
+#     },
+#
+#     'loggers': {
+#         'catalog': {
+#             'handlers': ['catalog_handler'],
+#             'level': 'DEBUG',
+#             'propagate': False
+#         },
+#     }
+# }
+LOGGING_CONFIG = None
+# yaml configuration of logging
+LOGGING_FILE = os.path.join(BASE_DIR, 'mgr/log.yml')
+config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
 
 if 'test' in sys.argv:
     config.REG_TO_MSB_WHEN_START = False

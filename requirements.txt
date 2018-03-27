@@ -29,3 +29,6 @@ nfv-toscaparser==0.5.1.dev25
 drf-yasg>=1.2.2
 flex>=6.11.1
 swagger-spec-validator>=2.1.0
+
+# for onap logging
+onappylog>=1.0.6
