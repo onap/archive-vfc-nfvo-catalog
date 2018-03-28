@@ -29,7 +29,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
 
         nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
                             tosca.nodetemplates)
-
+        node_types = tosca.topology_template.custom_defs
         self.services = self._get_all_services(nodeTemplates)
         self.vcloud = self._get_all_vcloud(nodeTemplates)
         self.vcenter = self._get_all_vcenter(nodeTemplates)
@@ -38,7 +38,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         self.volume_storages = self._get_all_volume_storage(nodeTemplates)
         self.vdus = self._get_all_vdu(nodeTemplates)
         self.vls = self.get_all_vl(nodeTemplates)
-        self.cps = self.get_all_cp(nodeTemplates)
+        self.cps = self.get_all_cp(nodeTemplates, node_types)
         self.plugins = self.get_all_plugin(nodeTemplates)
         self.routers = self.get_all_router(nodeTemplates)
         self.server_groups = self.get_all_server_group(tosca.topology_template.groups)
@@ -241,10 +241,10 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
                 rets.append(ret)
         return rets
 
-    def get_all_cp(self, nodeTemplates):
+    def get_all_cp(self, nodeTemplates, node_types):
         cps = []
         for node in nodeTemplates:
-            if self.isCp(node):
+            if self.isCp(node, node_types):
                 cp = {}
                 cp['cp_id'] = node['name']
                 cp['cpd_id'] = node['name']

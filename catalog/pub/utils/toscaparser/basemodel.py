@@ -238,8 +238,13 @@ class BaseInfoModel(object):
     def isPnf(self, node):
         return node['nodeType'].upper().find('.PNF.') >= 0 or node['nodeType'].upper().endswith('.PNF')
 
-    def isCp(self, node):
-        return node['nodeType'].upper().find('.CP.') >= 0 or node['nodeType'].upper().endswith('.CP')
+    def isCp(self, node, node_types):
+        node_type = node['nodeType']
+        while node_type.upper().find('.CP') == -1:
+            node_type = node_types[node_type]['derived_from']
+            if node_type == "tosca.nodes.Root":
+                return False
+        return True
 
     def isVl(self, node):
         isvl = node['nodeType'].upper().find('.VIRTUALLINK.') >= 0 or node['nodeType'].upper().find('.VL.') >= 0
