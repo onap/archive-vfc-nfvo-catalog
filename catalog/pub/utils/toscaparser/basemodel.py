@@ -29,6 +29,10 @@ from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 
 logger = logging.getLogger(__name__)
 
+# TOSCA template key names
+SECTIONS = (CP_TYPE) = \
+           ('tosca.nodes.nfv.Cp')
+
 
 class BaseInfoModel(object):
 
@@ -231,6 +235,15 @@ class BaseInfoModel(object):
             return node_template.entity_tpl['interfaces']
         return None
 
+    def isNodeTypeX(self, node, nodeTypes, x):
+        node_type = node['nodeType']
+        while node_type.upper().find(x) == -1:
+            node_type_derived = node_type
+            node_type = nodeTypes[node_type]['derived_from']
+            if node_type == "tosca.nodes.Root" or node_type == node_type_derived:
+                return False
+        return True
+
     def isVnf(self, node):
         # return node['nodeType'].upper().find('.VNF.') >= 0 or node['nodeType'].upper().endswith('.VNF')
         return node['nodeType'].upper().find('.VF.') >= 0 or node['nodeType'].upper().endswith('.VF')
@@ -238,8 +251,8 @@ class BaseInfoModel(object):
     def isPnf(self, node):
         return node['nodeType'].upper().find('.PNF.') >= 0 or node['nodeType'].upper().endswith('.PNF')
 
-    def isCp(self, node):
-        return node['nodeType'].upper().find('.CP.') >= 0 or node['nodeType'].upper().endswith('.CP')
+    def isCp(self, node, node_types):
+        return self.isNodeTypeX(node, node_types, CP_TYPE)
 
     def isVl(self, node):
         isvl = node['nodeType'].upper().find('.VIRTUALLINK.') >= 0 or node['nodeType'].upper().find('.VL.') >= 0
