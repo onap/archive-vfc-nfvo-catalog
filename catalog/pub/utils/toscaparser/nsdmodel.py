@@ -166,10 +166,10 @@ class EtsiNsdInfoModel(BaseInfoModel):
     def _isExternalVL(self, node):
         return node['nodeType'].upper().find('.ROUTEEXTERNALVL') >= 0
 
-    def get_all_cp(self, nodeTemplates):
+    def get_all_cp(self, nodeTemplates, node_types):
         cps = []
         for node in nodeTemplates:
-            if self.isCp(node):
+            if self.isCp(node, node_types):
                 cp = {}
                 cp['cp_id'] = node['name']
                 cp['cpd_id'] = node['name']
