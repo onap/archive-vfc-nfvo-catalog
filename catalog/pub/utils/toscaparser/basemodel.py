@@ -29,6 +29,10 @@ from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 
 logger = logging.getLogger(__name__)
 
+# TOSCA template key names
+SECTIONS = (VDU_TYPE) = \
+           ('tosca.nodes.nfv.Vdu.Compute')
+
 
 class BaseInfoModel(object):
 
@@ -231,6 +235,15 @@ class BaseInfoModel(object):
             return node_template.entity_tpl['interfaces']
         return None
 
+    def isNodeTypeX(self, node, nodeTypes, x):
+        node_type = node['nodeType']
+        while node_type.upper().find(x) == -1:
+            node_type_derived = node_type
+            node_type = nodeTypes[node_type]['derived_from']
+            if node_type == "tosca.nodes.Root" or node_type == node_type_derived:
+                return False
+        return True
+
     def isVnf(self, node):
         # return node['nodeType'].upper().find('.VNF.') >= 0 or node['nodeType'].upper().endswith('.VNF')
         return node['nodeType'].upper().find('.VF.') >= 0 or node['nodeType'].upper().endswith('.VF')
@@ -344,8 +357,8 @@ class BaseInfoModel(object):
     def is_nested_ns(self, node):
         return node['nodeType'].upper().find('.NS.') >= 0 or node['nodeType'].upper().endswith('.NS')
 
-    def isVdu(self, node):
-        return node['nodeType'].upper().find('.VDU.') >= 0 or node['nodeType'].upper().endswith('.VDU')
+    def isVdu(self, node, node_types):
+        return self.isNodeTypeX(node, node_types, VDU_TYPE)
 
     def getCapabilityByName(self, node, capabilityName):
         if 'capabilities' in node and capabilityName in node['capabilities']:
