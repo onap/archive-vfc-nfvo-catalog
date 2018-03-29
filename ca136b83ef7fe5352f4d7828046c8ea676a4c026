@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_892e53f9",
+        "filename": "catalog/pub/utils/toscaparser/basemodel.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1337
+      },
+      "writtenOn": "2018-03-29T08:54:09Z",
+      "side": 1,
+      "message": "expected 2 blank lines, found 1, before class",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 28
+      },
+      "revId": "ca136b83ef7fe5352f4d7828046c8ea676a4c026",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
