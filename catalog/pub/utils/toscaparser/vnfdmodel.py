@@ -175,9 +175,9 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
                 ret['volume_storages'] = map(functools.partial(self._trans_volume_storage), volume_storages)
                 ret['dependencies'] = map(lambda x: self.get_requirement_node_name(x), self.getNodeDependencys(node))
 
-                nfv_compute = self.getCapabilityByName(node, 'nfv_compute')
-                if nfv_compute is not None and 'properties' in nfv_compute:
-                    ret['nfv_compute'] = nfv_compute['properties']
+                virtual_compute = self.getCapabilityByName(node, 'virtual_compute')
+                if virtual_compute is not None and 'properties' in virtual_compute:
+                    ret['virtual_compute'] = virtual_compute['properties']
 
                 ret['vls'] = self.get_linked_vl_ids(node, nodeTemplates)
 
