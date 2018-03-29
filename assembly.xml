@@ -28,6 +28,7 @@
                 <include>**/*.py</include>
                 <include>**/*.json</include>
                 <include>**/*.xml</include>
+                <include>**/*.yml</include>
             </includes>
         </fileSet>
         <fileSet>
