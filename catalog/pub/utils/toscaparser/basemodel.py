@@ -29,6 +29,10 @@ from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 
 logger = logging.getLogger(__name__)
 
+# TOSCA template key names
+SECTIONS = (VL_TYPE) = \
+           ('tosca.nodes.nfv.VnfVirtualLink')
+
 
 class BaseInfoModel(object):
 
@@ -231,6 +235,15 @@ class BaseInfoModel(object):
             return node_template.entity_tpl['interfaces']
         return None
 
+    def isNodeTypeX(self, node, nodeTypes, x):
+        node_type = node['nodeType']
+        while node_type.upper().find(x) == -1:
+            node_type_derived = node_type
+            node_type = nodeTypes[node_type]['derived_from']
+            if node_type == "tosca.nodes.Root" or node_type == node_type_derived:
+                return False
+        return True
+
     def isVnf(self, node):
         # return node['nodeType'].upper().find('.VNF.') >= 0 or node['nodeType'].upper().endswith('.VNF')
         return node['nodeType'].upper().find('.VF.') >= 0 or node['nodeType'].upper().endswith('.VF')
@@ -241,10 +254,8 @@ class BaseInfoModel(object):
     def isCp(self, node):
         return node['nodeType'].upper().find('.CP.') >= 0 or node['nodeType'].upper().endswith('.CP')
 
-    def isVl(self, node):
-        isvl = node['nodeType'].upper().find('.VIRTUALLINK.') >= 0 or node['nodeType'].upper().find('.VL.') >= 0
-        isvl = isvl or node['nodeType'].upper().endswith('.VIRTUALLINK') or node['nodeType'].upper().endswith('.VL')
-        return isvl
+    def isVl(self, node, node_types):
+        return self.isNodeTypeX(node, node_types, VL_TYPE)
 
     def isService(self, node):
         return node['nodeType'].upper().find('.SERVICE.') >= 0 or node['nodeType'].upper().endswith('.SERVICE')

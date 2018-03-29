@@ -29,7 +29,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
 
         nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
                             tosca.nodetemplates)
-
+        node_types = tosca.topology_template.custom_defs
         self.services = self._get_all_services(nodeTemplates)
         self.vcloud = self._get_all_vcloud(nodeTemplates)
         self.vcenter = self._get_all_vcenter(nodeTemplates)
@@ -37,7 +37,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         self.local_storages = self._get_all_local_storage(nodeTemplates)
         self.volume_storages = self._get_all_volume_storage(nodeTemplates)
         self.vdus = self._get_all_vdu(nodeTemplates)
-        self.vls = self.get_all_vl(nodeTemplates)
+        self.vls = self.get_all_vl(nodeTemplates, node_types)
         self.cps = self.get_all_cp(nodeTemplates)
         self.plugins = self.get_all_plugin(nodeTemplates)
         self.routers = self.get_all_router(nodeTemplates)

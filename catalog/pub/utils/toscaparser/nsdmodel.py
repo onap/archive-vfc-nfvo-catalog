@@ -30,10 +30,10 @@ class EtsiNsdInfoModel(BaseInfoModel):
 
         nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
                             tosca.nodetemplates)
-
+        node_types = tosca.topology_template.custom_defs
         self.vnfs = self._get_all_vnf(nodeTemplates)
         self.pnfs = self._get_all_pnf(nodeTemplates)
-        self.vls = self.get_all_vl(nodeTemplates)
+        self.vls = self.get_all_vl(nodeTemplates, node_types)
         self.cps = self.get_all_cp(nodeTemplates)
         self.routers = self.get_all_router(nodeTemplates)
         self.fps = self._get_all_fp(nodeTemplates)
@@ -136,10 +136,10 @@ class EtsiNsdInfoModel(BaseInfoModel):
                                 cps.append(tmpnode)
         return cps
 
-    def get_all_vl(self, nodeTemplates):
+    def get_all_vl(self, nodeTemplates, node_types):
         vls = []
         for node in nodeTemplates:
-            if self.isVl(node):
+            if self.isVl(node, node_types):
                 vl = {}
                 vl['vl_id'] = node['name']
                 vl['description'] = node['description']
