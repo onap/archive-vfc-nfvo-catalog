@@ -30,8 +30,8 @@ from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 logger = logging.getLogger(__name__)
 
 # TOSCA template key names
-SECTIONS = (CP_TYPE) = \
-           ('tosca.nodes.nfv.Cp')
+SECTIONS = (VDU_TYPE, CP_TYPE) = \
+           ('tosca.nodes.nfv.Vdu.Compute', 'tosca.nodes.nfv.Cp')
 
 
 class BaseInfoModel(object):
@@ -358,7 +358,7 @@ class BaseInfoModel(object):
         return node['nodeType'].upper().find('.NS.') >= 0 or node['nodeType'].upper().endswith('.NS')
 
     def isVdu(self, node):
-        return node['nodeType'].upper().find('.VDU.') >= 0 or node['nodeType'].upper().endswith('.VDU')
+        return self.isNodeTypeX(node, node_types, VDU_TYPE)
 
     def getCapabilityByName(self, node, capabilityName):
         if 'capabilities' in node and capabilityName in node['capabilities']:

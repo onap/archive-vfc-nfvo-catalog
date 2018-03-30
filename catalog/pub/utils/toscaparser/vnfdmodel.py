@@ -36,7 +36,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         self.image_files = self._get_all_image_file(nodeTemplates)
         self.local_storages = self._get_all_local_storage(nodeTemplates)
         self.volume_storages = self._get_all_volume_storage(nodeTemplates)
-        self.vdus = self._get_all_vdu(nodeTemplates)
+        self.vdus = self._get_all_vdu(nodeTemplates, node_types)
         self.vls = self.get_all_vl(nodeTemplates)
         self.cps = self.get_all_cp(nodeTemplates, node_types)
         self.plugins = self.get_all_plugin(nodeTemplates)
@@ -159,10 +159,10 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         return node['nodeType'].upper().find('.VOLUMESTORAGE.') >= 0 or node['nodeType'].upper().endswith(
             '.VOLUMESTORAGE')
 
-    def _get_all_vdu(self, nodeTemplates):
+    def _get_all_vdu(self, nodeTemplates, node_types):
         rets = []
         for node in nodeTemplates:
-            if self.isVdu(node):
+            if self.isVdu(node, node_types):
                 ret = {}
                 ret['vdu_id'] = node['name']
                 if 'description' in node:
