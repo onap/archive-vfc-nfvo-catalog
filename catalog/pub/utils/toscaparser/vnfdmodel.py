@@ -37,7 +37,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         self.local_storages = self._get_all_local_storage(nodeTemplates)
         self.volume_storages = self._get_all_volume_storage(nodeTemplates)
         self.vdus = self._get_all_vdu(nodeTemplates, node_types)
-        self.vls = self.get_all_vl(nodeTemplates)
+        self.vls = self.get_all_vl(nodeTemplates, node_types)
         self.cps = self.get_all_cp(nodeTemplates, node_types)
         self.plugins = self.get_all_plugin(nodeTemplates)
         self.routers = self.get_all_router(nodeTemplates)
