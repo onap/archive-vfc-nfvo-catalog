@@ -30,8 +30,8 @@ from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 logger = logging.getLogger(__name__)
 
 # TOSCA template key names
-SECTIONS = (VDU_TYPE, CP_TYPE) = \
-           ('tosca.nodes.nfv.Vdu.Compute', 'tosca.nodes.nfv.Cp')
+SECTIONS = (VDU_TYPE, VL_TYPE, CP_TYPE) = \
+           ('tosca.nodes.nfv.Vdu.Compute', 'tosca.nodes.nfv.VnfVirtualLink', 'tosca.nodes.nfv.Cp')
 
 
 class BaseInfoModel(object):
@@ -254,10 +254,8 @@ class BaseInfoModel(object):
     def isCp(self, node, node_types):
         return self.isNodeTypeX(node, node_types, CP_TYPE)
 
-    def isVl(self, node):
-        isvl = node['nodeType'].upper().find('.VIRTUALLINK.') >= 0 or node['nodeType'].upper().find('.VL.') >= 0
-        isvl = isvl or node['nodeType'].upper().endswith('.VIRTUALLINK') or node['nodeType'].upper().endswith('.VL')
-        return isvl
+    def isVl(self, node, node_types):
+        return self.isNodeTypeX(node, node_types, VL_TYPE)
 
     def isService(self, node):
         return node['nodeType'].upper().find('.SERVICE.') >= 0 or node['nodeType'].upper().endswith('.SERVICE')
