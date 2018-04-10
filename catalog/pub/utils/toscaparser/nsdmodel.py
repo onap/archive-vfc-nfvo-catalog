@@ -33,7 +33,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
         node_types = tosca.topology_template.custom_defs
         self.vnfs = self._get_all_vnf(nodeTemplates)
         self.pnfs = self._get_all_pnf(nodeTemplates)
-        self.vls = self.get_all_vl(nodeTemplates, node_types)
+        self.vls = self.get_all_vl(nodeTemplates, node_types, inputs)
         self.cps = self.get_all_cp(nodeTemplates, node_types)
         self.routers = self.get_all_router(nodeTemplates)
         self.fps = self._get_all_fp(nodeTemplates)
@@ -136,23 +136,29 @@ class EtsiNsdInfoModel(BaseInfoModel):
                                 cps.append(tmpnode)
         return cps
 
-    def get_all_vl(self, nodeTemplates, node_types):
+    def get_all_vl(self, nodeTemplates, node_types, inputs):
         vls = []
         for node in nodeTemplates:
-            if self.isVl(node, node_types):
-                vl = {}
+            if self.isVl(node, node_types) or self._isExternalVL(node):
+                vl = dict()
                 vl['vl_id'] = node['name']
                 vl['description'] = node['description']
-                vl['properties'] = node['properties']
-                vl['route_external'] = False
-                vl['route_id'] = self._get_vl_route_id(node)
-                vls.append(vl)
-            if self._isExternalVL(node):
-                vl = {}
-                vl['vl_id'] = node['name']
-                vl['description'] = node['description']
-                vl['properties'] = node['properties']
-                vl['route_external'] = True
+                vl['properties'] = {}
+                vl['properties'].update(node['properties'])
+                vl_profile = self.get_prop_from_obj(node['properties'], 'vl_profile')
+                if vl_profile is not None and isinstance(vl_profile, dict):
+                    vl_profile = self.buildXWithInputs(inputs, vl_profile)
+                    if vl_profile is not None:
+                        vl['properties'].update(vl_profile)
+                connectivity_type = self.get_prop_from_obj(node['properties'], 'connectivity_type')
+                if connectivity_type is not None:
+                    layer_protocol = self.get_prop_from_obj(node['properties']['connectivity_type'], 'layer_protocol')
+                    if layer_protocol is not None:
+                        vl['properties']['ip_version'] = 4 if(layer_protocol == 'ipv4') \
+                            else (6 if(layer_protocol == 'ipv6') else None)
+                vl['route_external'] = False if self.isVl(node, node_types) \
+                    else (True if self._isExternalVL(node) else None)
+                # vl['route_id'] = self._get_vl_route_id(node)
                 vls.append(vl)
         return vls
 

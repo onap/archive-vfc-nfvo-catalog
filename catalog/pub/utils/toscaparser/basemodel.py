@@ -235,6 +235,17 @@ class BaseInfoModel(object):
             return node_template.entity_tpl['interfaces']
         return None
 
+    def buildXWithInputs(self, inputs, x):
+        if x is not None and isinstance(x, dict):
+            str_x = json.dumps(x)
+            match = re.findall(r'\{"get_input":\s*"([\w|\-]+)"\}', str_x)
+            for m in match:
+                aa = [input_def for input_def in inputs if m == input_def.name][0]
+                str_x = re.sub(r'\{"get_input":\s*"([\w|\-]+)"\}', json.dumps(aa.default), str_x, 1)
+            if str_x != 'null':
+                return json.loads(str_x)
+        return None
+
     def isNodeTypeX(self, node, nodeTypes, x):
         node_type = node['nodeType']
         while node_type.upper().find(x) == -1:
