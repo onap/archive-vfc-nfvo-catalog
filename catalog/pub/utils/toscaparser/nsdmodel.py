@@ -139,20 +139,13 @@ class EtsiNsdInfoModel(BaseInfoModel):
     def get_all_vl(self, nodeTemplates, node_types):
         vls = []
         for node in nodeTemplates:
-            if self.isVl(node, node_types):
-                vl = {}
+            if self.isVl(node, node_types) or self._isExternalVL(node):
+                vl = dict()
                 vl['vl_id'] = node['name']
                 vl['description'] = node['description']
                 vl['properties'] = node['properties']
-                vl['route_external'] = False
-                vl['route_id'] = self._get_vl_route_id(node)
-                vls.append(vl)
-            if self._isExternalVL(node):
-                vl = {}
-                vl['vl_id'] = node['name']
-                vl['description'] = node['description']
-                vl['properties'] = node['properties']
-                vl['route_external'] = True
+                vl['route_external'] = False if self.isVl(node, node_types) else True
+                # vl['route_id'] = self._get_vl_route_id(node)
                 vls.append(vl)
         return vls
 
