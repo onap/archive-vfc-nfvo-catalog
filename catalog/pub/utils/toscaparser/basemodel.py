@@ -274,10 +274,10 @@ class BaseInfoModel(object):
         return self.getRequirementByName(node, 'dependency')
 
     def getVirtualLinks(self, node):
-        return self.getRequirementByName(node, 'virtualLink')
+        return self.getRequirementByName(node, 'virtual_link')
 
     def getVirtualbindings(self, node):
-        return self.getRequirementByName(node, 'virtualbinding')
+        return self.getRequirementByName(node, 'virtual_binding')
 
     def getRequirementByName(self, node, requirementName):
         requirements = []
