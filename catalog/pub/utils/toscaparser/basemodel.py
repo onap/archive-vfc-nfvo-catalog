@@ -10,7 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
+# limitations under the License. 
 
 import copy
 import ftplib
@@ -237,7 +237,7 @@ class BaseInfoModel(object):
 
     def isNodeTypeX(self, node, nodeTypes, x):
         node_type = node['nodeType']
-        while node_type.upper().find(x) == -1:
+        while node_type != x:
             node_type_derived = node_type
             node_type = nodeTypes[node_type]['derived_from']
             if node_type == "tosca.nodes.Root" or node_type == node_type_derived:
