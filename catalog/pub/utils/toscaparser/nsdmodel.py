@@ -28,7 +28,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
         if hasattr(tosca, 'topology_template') and hasattr(tosca.topology_template, 'inputs'):
             self.inputs = self.buildInputs(tosca.topology_template.inputs)
 
-        nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
+        nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
                             tosca.nodetemplates)
         node_types = tosca.topology_template.custom_defs
         self.vnfs = self._get_all_vnf(nodeTemplates)
@@ -55,7 +55,9 @@ class EtsiNsdInfoModel(BaseInfoModel):
             ret[tmpinput.name] = tmp
         return ret
 
-    def buildNode(self, nodeTemplate, inputs, parsed_params):
+    def buildNode(self, nodeTemplate, tosca):  #inputs, parsed_params):
+        inputs =tosca.inputs
+        parsed_params = tosca.parsed_params
         ret = {}
         ret['name'] = nodeTemplate.name
         ret['nodeType'] = nodeTemplate.type
@@ -67,7 +69,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
             ret['metadata'] = nodeTemplate.entity_tpl['metadata']
         else:
             ret['metadata'] = ''
-        props = self.buildProperties(nodeTemplate, parsed_params)
+        props = self.buildProperties_ex( nodeTemplate, tosca.topology_template)
         ret['properties'] = self.verify_properties(props, inputs, parsed_params)
         ret['requirements'] = self.build_requirements(nodeTemplate)
         self.buildCapabilities(nodeTemplate, inputs, ret)

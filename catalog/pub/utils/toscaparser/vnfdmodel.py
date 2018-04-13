@@ -27,7 +27,9 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         if hasattr(tosca, 'topology_template') and hasattr(tosca.topology_template, 'inputs'):
             self.inputs = self.buildInputs(tosca.topology_template.inputs)
 
-        nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
+     #   nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
+     #                       tosca.nodetemplates)
+        nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
                             tosca.nodetemplates)
         node_types = tosca.topology_template.custom_defs
         self.services = self._get_all_services(nodeTemplates)

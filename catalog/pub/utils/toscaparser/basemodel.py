@@ -24,6 +24,8 @@ import urllib
 import paramiko
 from toscaparser.functions import GetInput
 from toscaparser.tosca_template import ToscaTemplate
+from toscaparser.properties import Property
+from toscaparser.functions import Function, Concat, GetInput,get_function,function_mappings
 
 from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 
@@ -84,9 +86,9 @@ class BaseInfoModel(object):
                     shutil.rmtree(tosca_tpl.temp_dir)
                 except Exception as e:
                     logger.error("Failed to create tosca template, error: %s", e.message)
-            print "-----------------------------"
-            print '\n'.join(['%s:%s' % item for item in tosca_tpl.__dict__.items()])
-            print "-----------------------------"
+            #print "-----------------------------"
+            #print '\n'.join(['%s:%s' % item for item in tosca_tpl.__dict__.items()])
+            #print "-----------------------------"
             return tosca_tpl
 
     def _check_download_file(self, path):
@@ -185,6 +187,71 @@ class BaseInfoModel(object):
                 properties[k] = str(item)
         return properties
 
+    def buildProperties_ex(self, nodeTemplate, topology_template, properties=None):
+        if properties is None:
+            properties = nodeTemplate.get_properties()
+        _properties = {}
+        if isinstance(properties, dict):
+            for name, prop in properties.items():
+                if isinstance(prop, Property):
+                    if isinstance(prop.value, Function):
+                        if isinstance(prop.value, Concat):  # support one layer inner function.
+                            value_str = ''
+                            for arg in prop.value.args:
+                                if isinstance(arg, str):
+                                    value_str += arg
+                                elif isinstance(arg, dict):
+                                    raw_func = {}
+                                    for k, v in arg.items():
+                                        func_args = []
+                                        func_args.append(v)
+                                        raw_func[k] = func_args
+                                    func = get_function(topology_template, nodeTemplate, raw_func)
+                                    value_str += str(func.result())
+                            _properties[name] = value_str
+                        else:
+                            _properties[name] = prop.value.result()
+                    elif isinstance(prop.value, dict) or isinstance(prop.value, list):
+                        _properties[name] = self.buildProperties_ex(nodeTemplate, topology_template, prop.value)
+                    else:
+                        _properties[name] = json.dumps(prop.value)
+                elif isinstance(prop, dict):
+                    _properties[name] = self.buildProperties_ex(nodeTemplate, topology_template, prop)
+                elif isinstance(prop, list):
+                    _properties[name] = self.buildProperties_ex(nodeTemplate, topology_template, prop)
+                elif name in function_mappings:
+                    raw_func = {}
+                    func_args = []
+                    func_args.append(prop)
+                    raw_func[name] = func_args
+                    if name == 'CONCAT':
+                        value_str = ''
+                        for arg in prop:
+                            if isinstance(arg, str):
+                                value_str += arg
+                            elif isinstance(arg, dict):
+                                raw_func = {}
+                                for k, v in arg.items():
+                                    func_args = []
+                                    func_args.append(v)
+                                    raw_func[k] = func_args
+                                value_str += str(
+                                    get_function(topology_template, nodeTemplate, raw_func).result())
+                                value = value_str
+                    else:
+                        return get_function(topology_template, nodeTemplate, raw_func).result()
+                else:
+                    _properties[name] = prop
+        elif isinstance(properties, list):
+            value = []
+            for para in properties:
+                if isinstance(para, dict) or isinstance(para, list):
+                    value.append(self.buildProperties_ex(nodeTemplate, topology_template, para))
+                else:
+                    value.append(para)
+            return value
+        return _properties
+
     def verify_properties(self, props, inputs, parsed_params):
         ret_props = {}
         if (props and len(props) > 0):
@@ -237,7 +304,7 @@ class BaseInfoModel(object):
 
     def isNodeTypeX(self, node, nodeTypes, x):
         node_type = node['nodeType']
-        while node_type.upper().find(x) == -1:
+        while node_type != x:
             node_type_derived = node_type
             node_type = nodeTypes[node_type]['derived_from']
             if node_type == "tosca.nodes.Root" or node_type == node_type_derived:
