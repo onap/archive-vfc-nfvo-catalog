@@ -25,10 +25,10 @@ swagger_info = openapi.Info(
     default_version='v1',
     description="""
 
-The `swagger-ui` view can be found [here](/api/vnflcm/v1/swagger).
-The `ReDoc` view can be found [here](/api/vnflcm/v1/redoc).
-The swagger YAML document can be found [here](/api/vnflcm/v1/swagger.yaml).
-The swagger JSON document can be found [here](/api/vnflcm/v1/swagger.json)."""
+The `swagger-ui` view can be found [here](/api/catalog/v1/swagger).
+The `ReDoc` view can be found [here](/api/catalog/v1/redoc).
+The swagger YAML document can be found [here](/api/catalog/v1/swagger.yaml).
+The swagger JSON document can be found [here](/api/catalog/v1/swagger.json)."""
 )
 
 SchemaView = get_schema_view(
@@ -38,8 +38,8 @@ SchemaView = get_schema_view(
 )
 
 urlpatterns = [
-    url(r'^api/catalog/v1/swagger.json$', SwaggerJsonView.as_view()),
-    url(r'^swagger(?P<format>.json|.yaml)$', SchemaView.without_ui(cache_timeout=0), name='schema-json'),
-    url(r'^swagger/$', SchemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    url(r'^redoc/$', SchemaView.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # url(r'^api/catalog/v1/swagger.json$', SwaggerJsonView.as_view()),
+    url(r'^api/catalog/v1/swagger(?P<format>.json|.yaml)$', SchemaView.without_ui(cache_timeout=0), name='schema-json'),
+    url(r'^api/catalog/v1/swagger$', SchemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    url(r'^api/catalog/v1/redoc$', SchemaView.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
