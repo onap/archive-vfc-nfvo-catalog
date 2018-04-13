@@ -237,7 +237,7 @@ class BaseInfoModel(object):
 
     def isNodeTypeX(self, node, nodeTypes, x):
         node_type = node['nodeType']
-        while node_type.upper().find(x) == -1:
+        while node_type != x:
             node_type_derived = node_type
             node_type = nodeTypes[node_type]['derived_from']
             if node_type == "tosca.nodes.Root" or node_type == node_type_derived:
