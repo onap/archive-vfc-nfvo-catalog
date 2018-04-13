@@ -10,7 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
+# limitations under the License. 
 
 import functools
 
@@ -27,7 +27,9 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         if hasattr(tosca, 'topology_template') and hasattr(tosca.topology_template, 'inputs'):
             self.inputs = self.buildInputs(tosca.topology_template.inputs)
 
-        nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
+     #   nodeTemplates = map(functools.partial(self.buildNode, inputs=tosca.inputs, parsed_params=tosca.parsed_params),
+     #                       tosca.nodetemplates)
+        nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
                             tosca.nodetemplates)
         node_types = tosca.topology_template.custom_defs
         self.services = self._get_all_services(nodeTemplates)
