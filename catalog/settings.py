@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'catalog.pub.database',
     'catalog.samples',
     'catalog.swagger',
-
     'drf_yasg',
 ]
 
@@ -58,8 +57,7 @@ INSTALLED_APPS = [
 SWAGGER_SETTINGS = {
     'LOGIN_URL': '/admin/login',
     'LOGOUT_URL': '/admin/logout',
-
-    'DEFAULT_INFO': 'catalog.urls.swagger_info'
+    'DEFAULT_INFO': 'catalog.swagger.urls.swagger_info'
 }
 
 TEMPLATES = [
@@ -102,8 +100,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.MultiPartParser',
-        # 'rest_framework.parsers.FormParser',
-        # 'rest_framework.parsers.FileUploadParser',
     )
 }
 
