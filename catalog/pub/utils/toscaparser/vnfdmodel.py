@@ -13,8 +13,9 @@
 # limitations under the License.
 
 import functools
-
+import logging
 from catalog.pub.utils.toscaparser import EtsiNsdInfoModel
+logger = logging.getLogger(__name__)
 
 
 class EtsiVnfdInfoModel(EtsiNsdInfoModel):
@@ -178,6 +179,10 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
                 virtual_compute = self.getCapabilityByName(node, 'virtual_compute')
                 if virtual_compute is not None and 'properties' in virtual_compute:
                     ret['virtual_compute'] = virtual_compute['properties']
+                virtual_storage_names = self.getRequirementByName(node, 'virtual_storage')
+                virtual_storage = self.getRequirementByNodeName(nodeTemplates, virtual_storage_names[0], 'properties')
+                if virtual_storage is not None:
+                    ret['virtual_compute']['virtual_storage'] = virtual_storage
 
                 ret['vls'] = self.get_linked_vl_ids(node, nodeTemplates)
 
@@ -189,6 +194,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
                 ret['artifacts'] = self._build_artifacts(node)
 
                 rets.append(ret)
+        logger.debug("rets:%s", rets)
         return rets
 
     def get_node_image_file(self, node):

@@ -329,6 +329,12 @@ class BaseInfoModel(object):
     def get_requirement_node_name(self, req_value):
         return self.get_prop_from_obj(req_value, 'node')
 
+    def getRequirementByNodeName(self, nodeTemplates, storage_name, prop):
+        for node in nodeTemplates:
+            if node['name'] == storage_name:
+                if prop in node:
+                    return node[prop]
+
     def get_prop_from_obj(self, obj, prop):
         if isinstance(obj, str):
             return obj
