@@ -11,6 +11,10 @@ if [ $MSB_PORT ]; then
     sed -i "s|MSB_SERVICE_PORT.*|MSB_SERVICE_PORT = '$MSB_PORT'|" vfc/nfvo/catalog/catalog/pub/config/config.py
 fi
 
+if [ $REG_TO_MSB ]; then
+    sed -i "s|REG_TO_MSB_WHEN_START.*|REG_TO_MSB_WHEN_START = '$REG_TO_MSB'|" vfc/nfvo/catalog/catalog/pub/config/config.py
+fi
+
 if [ $SERVICE_IP ]; then
     sed -i "s|\"ip\": \".*\"|\"ip\": \"$SERVICE_IP\"|" vfc/nfvo/catalog/catalog/pub/config/config.py
 fi
