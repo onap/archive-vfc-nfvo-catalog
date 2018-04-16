@@ -132,7 +132,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
             if 'requirements' in tmpnode:
                 for item in tmpnode['requirements']:
                     for key, value in item.items():
-                        if key.upper().startswith('VIRTUALBINDING'):
+                        if key.upper().startswith('VIRTUAL_BINDING'):
                             req_node_name = self.get_requirement_node_name(value)
                             if req_node_name is not None and req_node_name == node['name']:
                                 cps.append(tmpnode)
