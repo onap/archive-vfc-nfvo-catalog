@@ -54,6 +54,6 @@ CATALOG_ROOT_PATH = None
 CATALOG_URL_PATH = None
 
 # [sdc config]
-SDC_BASE_URL = "http://127.0.0.1/api"
+SDC_BASE_URL = "https://10.0.3.1:8443"
 SDC_USER = "SDC"
 SDC_PASSWD = "SDC"
