@@ -22,6 +22,30 @@
       "revId": "45519549d73f77b080ecd397d45dfb39d9055b54",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_9f22a9a1",
+        "filename": "catalog/pub/config/config.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 2255
+      },
+      "writtenOn": "2018-04-24T05:05:53Z",
+      "side": 1,
+      "message": "This is unfortunately not true: I have tried it with Beijing master\n\n grep -r SDC_BASE_URL *\ncatalog/pub/config/config.py:SDC_BASE_URL \u003d \"https://10.0.3.1:8443\"\ncatalog/pub/msapi/sdc.py:from catalog.pub.config.config import SDC_BASE_URL, SDC_USER, SDC_PASSWD\ncatalog/pub/msapi/sdc.py:    return restcall.call_req(base_url\u003dSDC_BASE_URL,\ncatalog/pub/msapi/sdc.py:    ret \u003d restcall.call_req(base_url\u003dSDC_BASE_URL,\ndocker/instance_config.sh:if [ $SDC_BASE_URL ]; then\ndocker/instance_config.sh:    sed -i \"s|SDC_BASE_URL.*|SDC_BASE_URL \u003d \u0027$SDC_BASE_URL\u0027|\" vfc/nfvo/catalog/catalog/pub/config/config.py\nNemets-MacBook-Pro:catalog dnemeth$",
+      "parentUuid": "5a93c517_9f738a15",
+      "range": {
+        "startLine": 57,
+        "startChar": 21,
+        "endLine": 57,
+        "endChar": 37
+      },
+      "revId": "45519549d73f77b080ecd397d45dfb39d9055b54",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
