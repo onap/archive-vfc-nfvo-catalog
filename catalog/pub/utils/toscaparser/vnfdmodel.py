@@ -14,6 +14,7 @@
 
 import functools
 import logging
+import os
 from catalog.pub.utils.toscaparser import EtsiNsdInfoModel
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
                             tosca.nodetemplates)
         node_types = tosca.topology_template.custom_defs
+        self.keypath = self._get_keypath(tosca)
         self.services = self._get_all_services(nodeTemplates)
         self.vcloud = self._get_all_vcloud(nodeTemplates)
         self.vcenter = self._get_all_vcenter(nodeTemplates)
@@ -47,6 +49,11 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         self.policies = self._get_policies(tosca.topology_template.policies)
         self.vnf_exposed = self.get_all_endpoint_exposed(tosca.topology_template)
         self.vnf_flavours = self.get_all_flavour(tosca.topology_template.groups)
+
+    def _get_keypath(self, tosca):
+        fpath, fname = os.path.split(tosca.path)
+        keypath = os.path.join(fpath, "artifacts/keys/authorized_keys")
+        return keypath
 
     def _get_all_services(self, nodeTemplates):
         ret = []
@@ -169,6 +176,11 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
                 if 'description' in node:
                     ret['description'] = node['description']
                 ret['properties'] = node['properties']
+                with open(self.keypath, "rb") as f:
+                    key_data = f.read()
+                    key_data_base64 = key_data.encode("base64")
+                    ret['properties']['inject_files'][0]['source_path'] = key_data_base64
+
                 ret['image_file'] = self.get_node_image_file(node)
                 local_storages = self.getRequirementByName(node, 'local_storage')
                 ret['local_storages'] = map(lambda x: self.get_requirement_node_name(x), local_storages)
