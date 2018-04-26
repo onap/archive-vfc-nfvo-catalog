@@ -19,9 +19,9 @@ if [ $REDIS_HOST ]; then
     sed -i "s|REDIS_HOST.*|REDIS_HOST = '$REDIS_HOST'|" vfc/nfvo/catalog/catalog/pub/config/config.py
 fi
 
-if [ $SDC_BASE_URL ]; then
-    sed -i "s|SDC_BASE_URL.*|SDC_BASE_URL = '$SDC_BASE_URL'|" vfc/nfvo/catalog/catalog/pub/config/config.py
-fi
+#if [ $SDC_BASE_URL ]; then
+#    sed -i "s|SDC_BASE_URL.*|SDC_BASE_URL = '$SDC_BASE_URL'|" vfc/nfvo/catalog/catalog/pub/config/config.py
+#fi
 
 sed -i "s|DB_NAME.*|DB_NAME = 'nfvocatalog'|" vfc/nfvo/catalog/catalog/pub/config/config.py
 sed -i "s|DB_USER.*|DB_USER = 'nfvocatalog'|" vfc/nfvo/catalog/catalog/pub/config/config.py
