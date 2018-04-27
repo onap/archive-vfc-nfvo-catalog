@@ -1,0 +1,9 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+1: yunlong ying <ying.yunlong@zte.com.cn>
+Code-Review+1: Dénes Németh <denes.nemeth@nokia.com>
+Code-Review+2: Gao Weitao <victor.gao@huawei.com>
+Submitted-by: Gao Weitao <victor.gao@huawei.com>
+Submitted-at: Fri, 27 Apr 2018 02:31:47 +0000
+Reviewed-on: https://gerrit.onap.org/r/44823
+Project: vfc/nfvo/catalog
+Branch: refs/heads/master
