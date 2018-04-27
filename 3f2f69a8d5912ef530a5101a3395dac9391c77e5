@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_f289976f",
+        "filename": "catalog/pub/utils/toscaparser/vnfdmodel.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 309
+      },
+      "writtenOn": "2018-04-27T02:28:25Z",
+      "side": 1,
+      "message": "I don\u0027t think this is a very good way to do this. What about multiple inject files in VNFD? What if the injected file names is not \"artifacts/keys/authorized_keys\"?",
+      "range": {
+        "startLine": 179,
+        "startChar": 50,
+        "endLine": 179,
+        "endChar": 51
+      },
+      "revId": "3f2f69a8d5912ef530a5101a3395dac9391c77e5",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
