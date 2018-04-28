@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_ab239503",
+        "filename": "catalog/pub/utils/toscaparser/vnfdmodel.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 309
+      },
+      "writtenOn": "2018-04-28T05:55:54Z",
+      "side": 1,
+      "message": "let\u0027s use the Python convention here, there is no need to go though the list of ret[\u0027properties\u0027][\u0027inject_files\u0027] twice:\n\nfor inject_file in ret[\u0027properties\u0027][\u0027inject_files\u0027]:\n    src_path \u003d os.path.join(self.basepath, inject_file[\u0027source_path\u0027]\n    ... ...",
+      "range": {
+        "startLine": 180,
+        "startChar": 39,
+        "endLine": 180,
+        "endChar": 41
+      },
+      "revId": "18c1f67974cc5b0a394684bf95a3e6dee82f36fe",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
