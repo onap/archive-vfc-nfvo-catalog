@@ -22,6 +22,29 @@
       "revId": "18c1f67974cc5b0a394684bf95a3e6dee82f36fe",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_0b7c09eb",
+        "filename": "catalog/pub/utils/toscaparser/vnfdmodel.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 309
+      },
+      "writtenOn": "2018-04-28T06:00:28Z",
+      "side": 1,
+      "message": "change the content of the already existing key to a totally different thing seems to me is not a very good coding practice, we could just store the base64 encoded file content with a different keyname.",
+      "range": {
+        "startLine": 186,
+        "startChar": 78,
+        "endLine": 186,
+        "endChar": 90
+      },
+      "revId": "18c1f67974cc5b0a394684bf95a3e6dee82f36fe",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
