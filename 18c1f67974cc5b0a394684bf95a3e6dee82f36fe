@@ -93,6 +93,30 @@
       "revId": "18c1f67974cc5b0a394684bf95a3e6dee82f36fe",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_6b702d08",
+        "filename": "catalog/pub/utils/toscaparser/vnfdmodel.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 309
+      },
+      "writtenOn": "2018-04-28T06:19:29Z",
+      "side": 1,
+      "message": "sure",
+      "parentUuid": "5a93c517_ab6ab517",
+      "range": {
+        "startLine": 186,
+        "startChar": 78,
+        "endLine": 186,
+        "endChar": 90
+      },
+      "revId": "18c1f67974cc5b0a394684bf95a3e6dee82f36fe",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
