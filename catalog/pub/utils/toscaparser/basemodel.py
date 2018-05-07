@@ -212,6 +212,8 @@ class BaseInfoModel(object):
                             _properties[name] = prop.value.result()
                     elif isinstance(prop.value, dict) or isinstance(prop.value, list):
                         _properties[name] = self.buildProperties_ex(nodeTemplate, topology_template, prop.value)
+                    elif prop.type == 'string':
+                        _properties[name] = prop.value
                     else:
                         _properties[name] = json.dumps(prop.value)
                 elif isinstance(prop, dict):
