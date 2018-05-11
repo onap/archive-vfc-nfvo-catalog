@@ -29,7 +29,7 @@ class JobResponseHistoryListSerializer(serializers.Serializer):
     progress = serializers.CharField(help_text="Job Progress", required=False)
     statusDescription = serializers.CharField(
         help_text="Status Description", required=False)
-    errorCode = serializers.CharField(help_text="Error Code", required=False)
+    errorCode = serializers.CharField(help_text="Error Code", required=False, allow_null=True, allow_empty=True)
     responseId = serializers.CharField(help_text="Response Id", required=False)
 
 
@@ -38,7 +38,7 @@ class JobResponseDescriptorSerializer(serializers.Serializer):
     progress = serializers.CharField(help_text="Job Progress", required=False)
     statusDescription = serializers.CharField(
         help_text="Status Description", required=False)
-    errorCode = serializers.CharField(help_text="Error Code", required=False)
+    errorCode = serializers.CharField(help_text="Error Code", required=False, allow_null=True, allow_empty=True)
     responseId = serializers.CharField(help_text="Response Id", required=False)
     responseHistoryList = JobResponseHistoryListSerializer(
         many=True, help_text="Response History List", required=False)
@@ -69,7 +69,7 @@ class NsPackageDistributeRequestSerializer(serializers.Serializer):
 class NsPackageDistributeResponseSerializer(serializers.Serializer):
     status = serializers.CharField(help_text="status", required=True)
     statusDescription = serializers.CharField(help_text="statusDescription", required=True)
-    errorCode = serializers.CharField(help_text="errorCode", required=True)
+    errorCode = serializers.CharField(help_text="errorCode", required=True, allow_null=True, allow_empty=True)
 
 
 class NsPackageInfoSerializer(serializers.Serializer):
