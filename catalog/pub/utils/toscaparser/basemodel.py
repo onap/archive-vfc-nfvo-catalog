@@ -320,10 +320,10 @@ class BaseInfoModel(object):
         return node['nodeType'].upper().find('.PNF.') >= 0 or node['nodeType'].upper().endswith('.PNF')
 
     def isCp(self, node, node_types):
-        return self.isNodeTypeX(node, node_types, CP_TYPE)
+        return node['nodeType'].upper().find('TOSCA.NODES.NFV.VDUCP') >= 0
 
     def isVl(self, node, node_types):
-        return self.isNodeTypeX(node, node_types, VL_TYPE)
+        return node['nodeType'].upper().find('TOSCA.NODES.NFV.VNFVIRTUALLINK') >= 0
 
     def isService(self, node):
         return node['nodeType'].upper().find('.SERVICE.') >= 0 or node['nodeType'].upper().endswith('.SERVICE')
@@ -430,7 +430,7 @@ class BaseInfoModel(object):
         return node['nodeType'].upper().find('.NS.') >= 0 or node['nodeType'].upper().endswith('.NS')
 
     def isVdu(self, node, node_types):
-        return self.isNodeTypeX(node, node_types, VDU_TYPE)
+        return node['nodeType'].upper().find('TOSCA.NODES.NFV.VDU.COMPUTE') >= 0
 
     def getCapabilityByName(self, node, capabilityName):
         if 'capabilities' in node and capabilityName in node['capabilities']:
