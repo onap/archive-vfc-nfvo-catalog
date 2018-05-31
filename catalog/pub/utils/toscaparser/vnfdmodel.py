@@ -32,6 +32,7 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
                             tosca.nodetemplates)
         node_types = tosca.topology_template.custom_defs
+        logger.error("customdefs:%s", node_types)
         self.basepath = self._get_base_path(tosca)
         self.services = self._get_all_services(nodeTemplates)
         self.vcloud = self._get_all_vcloud(nodeTemplates)
@@ -40,7 +41,9 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         self.local_storages = self._get_all_local_storage(nodeTemplates)
         self.volume_storages = self._get_all_volume_storage(nodeTemplates)
         self.vdus = self._get_all_vdu(nodeTemplates, node_types)
+        #logger.debug("vdus:%s", self.vdus)
         self.vls = self.get_all_vl(nodeTemplates, node_types)
+        logger.debug("vls:%s", self.vls)
         self.cps = self.get_all_cp(nodeTemplates, node_types)
         self.plugins = self.get_all_plugin(nodeTemplates)
         self.routers = self.get_all_router(nodeTemplates)
@@ -168,21 +171,26 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
 
     def _get_all_vdu(self, nodeTemplates, node_types):
         rets = []
+        inject_files = []
         for node in nodeTemplates:
+            logger.error("nodeTemplates :%s", node)
             if self.isVdu(node, node_types):
                 ret = {}
                 ret['vdu_id'] = node['name']
+                ret['type'] = node['nodeType']
                 if 'description' in node:
                     ret['description'] = node['description']
                 ret['properties'] = node['properties']
-                for inject_file in ret['properties']['inject_files']:
-                    source_path = os.path.join(self.basepath, inject_file['source_path'])
-                    with open(source_path, "rb") as f:
-                        source_data = f.read()
-                        source_data_base64 = source_data.encode("base64")
-                        inject_file["source_data_base64"] = source_data_base64
+                if 'inject_files' in node['properties']:
+                    inject_files = node['properties']['inject_files']
+                if inject_files is not None:
+                    for inject_file in inject_files:
+                        source_path = os.path.join(self.basepath, inject_file['source_path'])
+                        with open(source_path, "rb") as f:
+                            source_data = f.read()
+                            source_data_base64 = source_data.encode("base64")
+                            inject_file["source_data_base64"] = source_data_base64
 
-                ret['image_file'] = self.get_node_image_file(node)
                 local_storages = self.getRequirementByName(node, 'local_storage')
                 ret['local_storages'] = map(lambda x: self.get_requirement_node_name(x), local_storages)
                 volume_storages = self.getRequirementByName(node, 'volume_storage')
@@ -192,10 +200,6 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
                 virtual_compute = self.getCapabilityByName(node, 'virtual_compute')
                 if virtual_compute is not None and 'properties' in virtual_compute:
                     ret['virtual_compute'] = virtual_compute['properties']
-                virtual_storage_names = self.getRequirementByName(node, 'virtual_storage')
-                virtual_storage = self.getRequirementByNodeName(nodeTemplates, virtual_storage_names[0], 'properties')
-                if virtual_storage is not None:
-                    ret['virtual_compute']['virtual_storage'] = virtual_storage
 
                 ret['vls'] = self.get_linked_vl_ids(node, nodeTemplates)
 

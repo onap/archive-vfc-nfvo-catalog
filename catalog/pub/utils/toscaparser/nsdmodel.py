@@ -36,7 +36,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
         self.vls = self.get_all_vl(nodeTemplates, node_types)
         self.cps = self.get_all_cp(nodeTemplates, node_types)
         self.routers = self.get_all_router(nodeTemplates)
-        self.fps = self._get_all_fp(nodeTemplates)
+        self.fps = self._get_all_fp(nodeTemplates, node_types)
         self.vnffgs = self._get_all_vnffg(tosca.topology_template.groups)
         self.server_groups = self.get_all_server_group(tosca.topology_template.groups)
         self.ns_exposed = self.get_all_endpoint_exposed(tosca.topology_template)
@@ -141,12 +141,12 @@ class EtsiNsdInfoModel(BaseInfoModel):
     def get_all_vl(self, nodeTemplates, node_types):
         vls = []
         for node in nodeTemplates:
-            if self.isVl(node) or self._isExternalVL(node):
+            if self.isVl(node, node_types) or self._isExternalVL(node):
                 vl = dict()
                 vl['vl_id'] = node['name']
                 vl['description'] = node['description']
                 vl['properties'] = node['properties']
-                vl['route_external'] = False if self.isVl(node) else True
+                vl['route_external'] = False if self.isVl(node, node_types) else True
                 # vl['route_id'] = self._get_vl_route_id(node)
                 vls.append(vl)
         return vls
@@ -160,11 +160,6 @@ class EtsiNsdInfoModel(BaseInfoModel):
 
     def _isExternalVL(self, node):
         return node['nodeType'].upper().find('.ROUTEEXTERNALVL') >= 0
-
-    def isVl(self, node):
-        isvl = node['nodeType'].upper().find('.VIRTUALLINK.') >= 0 or node['nodeType'].upper().find('.VL.') >= 0
-        isvl = isvl or node['nodeType'].upper().endswith('.VIRTUALLINK') or node['nodeType'].upper().endswith('.VL')
-        return isvl
 
     def get_all_cp(self, nodeTemplates, node_types):
         cps = []
@@ -239,7 +234,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
                 return external_vls[0]['relationship']['properties']['router_ip_address']
         return []
 
-    def _get_all_fp(self, nodeTemplates):
+    def _get_all_fp(self, nodeTemplates, node_types):
         fps = []
         for node in nodeTemplates:
             if self._isFp(node):
@@ -247,7 +242,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
                 fp['fp_id'] = node['name']
                 fp['description'] = node['description']
                 fp['properties'] = node['properties']
-                fp['forwarder_list'] = self._getForwarderList(node, nodeTemplates)
+                fp['forwarder_list'] = self._getForwarderList(node, nodeTemplates, node_types)
 
                 fps.append(fp)
         return fps
@@ -256,14 +251,14 @@ class EtsiNsdInfoModel(BaseInfoModel):
         return node['nodeType'].upper().find('.FP.') >= 0 or node['nodeType'].upper().find('.SFP.') >= 0 or node[
             'nodeType'].upper().endswith('.FP') or node['nodeType'].upper().endswith('.SFP')
 
-    def _getForwarderList(self, node, node_templates):
+    def _getForwarderList(self, node, node_templates, node_types):
         forwarderList = []
         if 'requirements' in node:
             for item in node['requirements']:
                 for key, value in item.items():
                     if key == 'forwarder':
                         tmpnode = self.get_node_by_req(node_templates, value)
-                        type = 'cp' if self.isCp(tmpnode) else 'vnf'
+                        type = 'cp' if self.isCp(tmpnode, node_types) else 'vnf'
                         req_node_name = self.get_requirement_node_name(value)
                         if isinstance(value, dict) and 'capability' in value:
                             forwarderList.append(
