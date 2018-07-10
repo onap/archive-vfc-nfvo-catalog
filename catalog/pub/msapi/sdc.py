@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 ASSETTYPE_RESOURCES = "resources"
 ASSETTYPE_SERVICES = "services"
+DISTRIBUTED = "DISTRIBUTED"
 
 
 def call_sdc(resource, method, content=''):
@@ -74,7 +75,11 @@ def get_artifact(asset_type, csar_id):
     artifacts = get_artifacts(asset_type)
     for artifact in artifacts:
         if artifact["uuid"] == csar_id:
-            return artifact
+            if asset_type == ASSETTYPE_SERVICES and \
+                artifact.get("distributionStatus", None) != DISTRIBUTED:
+                raise CatalogException("The artifact (%s,%s) is not distributed from sdc." % (asset_type, csar_id))
+            else:
+                return artifact
     raise CatalogException("Failed to query artifact(%s,%s) from sdc." % (asset_type, csar_id))
 
 
