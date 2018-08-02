@@ -168,15 +168,20 @@ LOGGING_FILE = os.path.join(BASE_DIR, 'catalog/log.yml')
 log_config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
 
 if 'test' in sys.argv:
+
+    from catalog.pub.utils import fileutil
+    fileutil.make_dirs("/var/log/onap/vfc/nslcm/")
+
     pub_config.REG_TO_MSB_WHEN_START = False
+
     DATABASES = {}
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:',
     }
     REST_FRAMEWORK = {}
-    import platform
 
+    import platform
     if platform.system() == 'Linux':
         TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
         TEST_OUTPUT_VERBOSE = True
