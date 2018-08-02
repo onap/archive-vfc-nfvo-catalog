@@ -165,18 +165,21 @@ pub_config.SDC_BASE_URL = "http://%s:%s/api" % (pub_config.MSB_SERVICE_IP, pub_c
 LOGGING_CONFIG = None
 # yaml configuration of logging
 LOGGING_FILE = os.path.join(BASE_DIR, 'catalog/log.yml')
+if 'test' in sys.argv:
+    os.system('sed -i "s|/var/log/onap/vfc/catalog|logs|" %s' % LOGGING_FILE)
 log_config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
 
 if 'test' in sys.argv:
     pub_config.REG_TO_MSB_WHEN_START = False
+
     DATABASES = {}
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:',
     }
     REST_FRAMEWORK = {}
-    import platform
 
+    import platform
     if platform.system() == 'Linux':
         TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
         TEST_OUTPUT_VERBOSE = True
