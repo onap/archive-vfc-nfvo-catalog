@@ -105,7 +105,7 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': DB_NAME,
         'HOST': DB_IP,
         'PORT': DB_PORT,
