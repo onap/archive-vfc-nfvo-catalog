@@ -418,6 +418,13 @@ class TestNsPackage(TestCase):
                 "downloadUrl": "http://127.0.0.1:8806/static/catalog/14/14.csar"}}
         self.assertEqual(expect_data, resp.data)
 
+    def test_ns_pkg_get_one_not_found(self):
+        resp = self.client.get("/api/catalog/v1/nspackages/22")
+        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(
+            {"error": "Ns package[22] not Found."},
+            resp.data)
+
     ##########################################################################
 
     @mock.patch.object(toscaparser, 'parse_nsd')
