@@ -371,6 +371,14 @@ class TestNfPackage(TestCase):
         }
         self.assertEqual(expect_data, resp.data)
 
+    def test_nf_pkg_get_one_failed(self):
+        VnfPackageModel(vnfPackageId="4", vnfdId="4", vnfVendor='4', vnfdVersion='4',
+                        vnfSoftwareVersion='', vnfPackageUri='', vnfdModel='').save()
+
+        resp = self.client.get("/api/catalog/v1/vnfpackages/2")
+        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual({'error': 'Vnf package[2] not Found.'}, resp.data)
+
     ###############################################################################################################
 
     @mock.patch.object(toscaparser, 'parse_vnfd')
