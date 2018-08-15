@@ -19,7 +19,7 @@ from django.test import Client
 from django.test import TestCase
 from rest_framework import status
 
-from catalog.packages.nf_package import NfDistributeThread, NfPkgDeleteThread
+from catalog.packages.biz.nf_package import NfDistributeThread, NfPkgDeleteThread
 from catalog.pub.database.models import JobStatusModel, JobModel
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.msapi import sdc
