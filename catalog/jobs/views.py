@@ -12,17 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
+
 from catalog.jobs.job_get import GetJobInfoService
+from catalog.packages.serializers.catalog_serializers import GetJobResponseSerializer
+from catalog.packages.serializers.catalog_serializers import PostJobRequestSerializer
+from catalog.packages.serializers.catalog_serializers import PostJobResponseResultSerializer
 from catalog.pub.utils.jobutil import JobUtil
 from catalog.pub.utils.values import ignore_case_get
-from catalog.serializers import GetJobResponseSerializer
-from catalog.serializers import PostJobResponseResultSerializer
-from catalog.serializers import PostJobRequestSerializer
 
 logger = logging.getLogger(__name__)
 

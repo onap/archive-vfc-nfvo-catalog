@@ -14,13 +14,35 @@
 
 from django.conf.urls import url
 
-from catalog.packages import views
+from catalog.packages.views import catalog_views
+from catalog.packages.views.nsd_views import ns_descriptors, ns_info, nsd_content, pnf_descriptors, pnfd_info, pnfd_content, nsd_subscriptions, nsd_subscription
+from catalog.packages.views.vnfpkg_views import vnf_packages, vnf_package, vnfd, package_content, upload_from_uri, vnfpkg_subscriptions, vnfpkg_subscription, artifacts
 
 urlpatterns = [
-    url(r'^api/catalog/v1/nspackages$', views.nspackages_rc, name='nspackages_rc'),
-    url(r'^api/catalog/v1/nspackages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', views.ns_rd_csar, name='nspackage_rd'),
-    url(r'^api/catalog/v1/vnfpackages$', views.nfpackages_rc, name='nfpackages_rc'),
-    url(r'^api/catalog/v1/vnfpackages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', views.nf_rd_csar, name='nfpackage_rd'),
-    url(r'^api/catalog/v1/parsernsd$', views.ns_model_parser, name='nsmodelparser_rc'),
-    url(r'^api/catalog/v1/parservnfd$', views.vnf_model_parser, name='vnfmodelparser_rc'),
+    url(r'^api/catalog/v1/nspackages$', catalog_views.nspackages_rc, name='nspackages_rc'),
+    url(r'^api/catalog/v1/nspackages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', catalog_views.ns_rd_csar, name='nspackage_rd'),
+    url(r'^api/catalog/v1/vnfpackages$', catalog_views.nfpackages_rc, name='nfpackages_rc'),
+    url(r'^api/catalog/v1/vnfpackages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', catalog_views.nf_rd_csar, name='nfpackage_rd'),
+    url(r'^api/catalog/v1/parsernsd$', catalog_views.ns_model_parser, name='nsmodelparser_rc'),
+    url(r'^api/catalog/v1/parservnfd$', catalog_views.vnf_model_parser, name='vnfmodelparser_rc'),
+
+    # SOL 005 API TODO: Register to MSB
+    url(r'^api/nsd/v1/ns_descriptors', ns_descriptors.as_view(), name='ns_descriptors_rc'),
+    url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)$', ns_info.as_view(), name='ns_info_rd'),
+    url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)$/nsd_content', nsd_content.as_view(), name='nsd_content_ru'),
+    url(r'^api/nsd/v1/pnf_descriptors', pnf_descriptors.as_view(), name='pnf_descriptors_rc'),
+    url(r'^api/nsd/v1/pnf_descriptors/(?P<pnfdInfoId>[0-9a-zA-Z\-\_]+)$', pnfd_info.as_view(), name='pnfd_info_rd'),
+    url(r'^api/nsd/v1/pnf_descriptors/(?P<pnfdInfoId>[0-9a-zA-Z\-\_]+)$/pnfd_content', pnfd_content.as_view(), name='pnfd_content_ru'),
+    url(r'^api/nsd/v1/subscriptions', nsd_subscriptions.as_view(), name='subscriptions_rc'),
+    url(r'^api/nsd/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', nsd_subscription.as_view(), name='subscription_rd'),
+    # SOL 005 all the vnfpkg api TODO: Register to MSB
+    # SOL 003 all the vnfpkge get api and subscriptions
+    url(r'^api/vnfpkgm/v1/vnf_packages', vnf_packages.as_view(), name='vnf_packages_rc'),
+    url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)$', vnf_package.as_view(), name='vnf_package_rd'),
+    url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/vnfd$', vnfd.as_view(), name='vnfd_r'),
+    url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/package_content$', package_content.as_view(), name='package_content_ru'),
+    url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/package_content/upload_from_uri$', upload_from_uri.as_view(), name='upload_from_uri_c'),
+    url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/artifacts/artifactPath$', artifacts.as_view(), name='artifacts_r'),
+    url(r'^api/vnfpkgm/v1/subscriptions', vnfpkg_subscriptions.as_view(), name='subscriptions_rc'),
+    url(r'^api/vnfpkgm/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', vnfpkg_subscription.as_view(), name='subscription_rd'),
 ]
