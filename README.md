@@ -13,3 +13,7 @@
 # limitations under the License.
 
 # Micro service of nfvo catalog.
+
+/static/catalog/nspkg
+               /vnfpkg
+               /pnfpkg
