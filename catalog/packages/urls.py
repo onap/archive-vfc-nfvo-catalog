@@ -14,9 +14,8 @@
 
 from django.conf.urls import url
 
-from catalog.packages.views import catalog_views
-# from catalog.packages.views.nsd_views import ns_descriptors, ns_info, nsd_content, pnf_descriptors, pnfd_info, pnfd_content, nsd_subscriptions, nsd_subscription
-# from catalog.packages.views.vnfpkg_views import vnf_packages, vnf_package, vnfd, package_content, upload_from_uri, vnfpkg_subscriptions, vnfpkg_subscription, artifacts
+from catalog.packages.views import catalog_views, ns_descriptor_views
+
 
 urlpatterns = [
     url(r'^api/catalog/v1/nspackages$', catalog_views.nspackages_rc, name='nspackages_rc'),
@@ -26,10 +25,12 @@ urlpatterns = [
     url(r'^api/catalog/v1/parsernsd$', catalog_views.ns_model_parser, name='nsmodelparser_rc'),
     url(r'^api/catalog/v1/parservnfd$', catalog_views.vnf_model_parser, name='vnfmodelparser_rc'),
 
+    # NSD
+    url(r'^api/nsd/v1/ns_descriptors$', ns_descriptor_views.create_ns_descriptors, name='ns_descriptors_rc'),
+    url(r'^api/nsd/v1/ns_descriptors$', ns_descriptor_views.query_ns_descriptors, name='ns_info_rd'),
+    # url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)/nsd_content$', nsd_content_views.upload_nsd_content, name='nsd_content_ru'),
+
     # TODO SOL005 & SOL003
-    # url(r'^api/nsd/v1/ns_descriptors', ns_descriptors.as_view(), name='ns_descriptors_rc'),
-    # url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)$', ns_info.as_view(), name='ns_info_rd'),
-    # url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)$/nsd_content', nsd_content.as_view(), name='nsd_content_ru'),
     # url(r'^api/nsd/v1/pnf_descriptors', pnf_descriptors.as_view(), name='pnf_descriptors_rc'),
     # url(r'^api/nsd/v1/pnf_descriptors/(?P<pnfdInfoId>[0-9a-zA-Z\-\_]+)$', pnfd_info.as_view(), name='pnfd_info_rd'),
     # url(r'^api/nsd/v1/pnf_descriptors/(?P<pnfdInfoId>[0-9a-zA-Z\-\_]+)$/pnfd_content', pnfd_content.as_view(), name='pnfd_content_ru'),
