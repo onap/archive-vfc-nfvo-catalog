@@ -54,7 +54,13 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_nsd_content_upload_normal(self):
-        pass
+        with open('/home/vcpe.csar', 'rb') as fp:
+            resp = self.client.put(
+                "/api/nsd/v1/ns_descriptors/22/nsd_content",
+                {'file': fp},
+            )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual({}, resp.data)
 
     def test_nsd_content_upload_failure(self):
         pass
