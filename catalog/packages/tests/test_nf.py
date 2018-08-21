@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import json
-
+import os
 import mock
-from django.test import Client
+from rest_framework.test import APIClient
 from django.test import TestCase
 from rest_framework import status
 
@@ -24,11 +24,12 @@ from catalog.pub.database.models import JobStatusModel, JobModel
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import restcall, toscaparser
+from catalog.pub.config.config import CATALOG_ROOT_PATH
 
 
 class TestNfPackage(TestCase):
     def setUp(self):
-        self.client = Client()
+        self.client = APIClient()
         VnfPackageModel.objects.filter().delete()
         JobModel.objects.filter().delete()
         JobStatusModel.objects.filter().delete()
@@ -395,3 +396,8 @@ class TestNfPackage(TestCase):
         resp = self.client.post("/api/catalog/v1/parservnfd", req_data, format='json')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(resp.data, {"error": "VNF CSAR(1) does not exist."})
+
+    def test_upload_vnfPkg(self):
+        data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "empty.txt"), "rb")}
+        response = self.client.put("/api/vnfpkgm/v1/vnf_packages/222/package_content", data=data)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
