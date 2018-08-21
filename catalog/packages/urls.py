@@ -14,7 +14,7 @@
 
 from django.conf.urls import url
 
-from catalog.packages.views import catalog_views, ns_descriptor_views
+from catalog.packages.views import catalog_views, ns_descriptor_views, nsd_content_views
 
 
 urlpatterns = [
@@ -28,7 +28,7 @@ urlpatterns = [
     # NSD
     url(r'^api/nsd/v1/ns_descriptors$', ns_descriptor_views.create_ns_descriptors, name='ns_descriptors_rc'),
     url(r'^api/nsd/v1/ns_descriptors$', ns_descriptor_views.query_ns_descriptors, name='ns_info_rd'),
-    # url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)/nsd_content$', nsd_content_views.upload_nsd_content, name='nsd_content_ru'),
+    url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)/nsd_content$', nsd_content_views.upload_nsd_content, name='nsd_content_ru'),
 
     # TODO SOL005 & SOL003
     # url(r'^api/nsd/v1/pnf_descriptors', pnf_descriptors.as_view(), name='pnf_descriptors_rc'),
