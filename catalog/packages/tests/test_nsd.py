@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+import os
+
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -54,7 +56,18 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_nsd_content_upload_normal(self):
-        pass
+        with open('nsd_content.txt', 'wb') as fp:
+            fp.write('test')
+
+        with open('nsd_content.txt', 'rb') as fp:
+            resp = self.client.put(
+                "/api/nsd/v1/ns_descriptors/22/nsd_content",
+                {'file': fp},
+            )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual({}, resp.data)
+
+        os.remove('nsd_content.txt', 'rb')
 
     def test_nsd_content_upload_failure(self):
         pass
