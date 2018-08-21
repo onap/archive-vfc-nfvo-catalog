@@ -55,5 +55,4 @@ class ProblemDetailsSerializer(serializers.Serializer):
         child=serializers.CharField(help_text='Additional attribute', allow_blank=True),
         required=False,
         allow_null=True,
-        allow_blank=True
     )
