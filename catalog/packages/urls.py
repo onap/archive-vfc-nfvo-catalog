@@ -15,6 +15,7 @@
 from django.conf.urls import url
 
 from catalog.packages.views import catalog_views, ns_descriptor_views, nsd_content_views
+from catalog.packages.views.vnfpkg_views import package_content
 
 
 urlpatterns = [
@@ -39,7 +40,8 @@ urlpatterns = [
     # url(r'^api/vnfpkgm/v1/vnf_packages', vnf_packages.as_view(), name='vnf_packages_rc'),
     # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)$', vnf_package.as_view(), name='vnf_package_rd'),
     # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/vnfd$', vnfd.as_view(), name='vnfd_r'),
-    # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/package_content$', package_content.as_view(), name='package_content_ru'),
+    url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/package_content$',
+        package_content.as_view(), name='package_content_ru'),
     # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/package_content/upload_from_uri$', upload_from_uri.as_view(), name='upload_from_uri_c'),
     # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/artifacts/artifactPath$', artifacts.as_view(), name='artifacts_r'),
     # url(r'^api/vnfpkgm/v1/subscriptions', vnfpkg_subscriptions.as_view(), name='subscriptions_rc'),
