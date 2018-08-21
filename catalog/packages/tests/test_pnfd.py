@@ -53,7 +53,18 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_pnfd_content_upload_normal(self):
-        pass
+        with open('pnfd_content.txt', 'wb') as fp:
+            fp.write('test')
+
+        with open('pnfd_content.txt', 'rb') as fp:
+            resp = self.client.put(
+                "/api/nsd/v1/pnf_descriptors/22/pnfd_content",
+                {'file': fp},
+            )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual({}, resp.data)
+
+        os.remove('pnfd_content.txt')
 
     def test_pnfd_content_upload_failure(self):
         pass
