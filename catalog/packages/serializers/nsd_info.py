@@ -14,7 +14,20 @@
 
 from rest_framework import serializers
 from problem_details import ProblemDetailsSerializer
-from _link import _LinkSerializer
+from link import LinkSerializer
+
+
+class _LinkSerializer(serializers.Serializer):
+    this = LinkSerializer(
+        help_text='URI of this resource.',
+        required=True,
+        allow_null=False
+    )
+    nsd_content = LinkSerializer(
+        help_text='Link to the NSD content resource.',
+        required=True,
+        allow_null=False
+    )
 
 
 class NsdInfoSerializer(serializers.Serializer):
@@ -104,12 +117,11 @@ class NsdInfoSerializer(serializers.Serializer):
         allow_null=False,
         allow_blank=False
     )
-    nsdUsageState = serializers.CharField(
+    nsdUsageState = serializers.ChoiceField(
         help_text='Usage state of the individual NS descriptor resource.',
         choices=['IN_USE', 'NOT_IN_USE'],
         required=True,
         allow_null=False,
-        allow_blank=False
     )
     userDefinedData = serializers.DictField(
         help_text='User defined data for the individual NS descriptor resource. \
@@ -118,8 +130,8 @@ class NsdInfoSerializer(serializers.Serializer):
         required=False,
         allow_null=True
     )
-    _link = _LinkSerializer(
+    _links = _LinkSerializer(
         help_text='Links to resources related to this resource.',
         required=True,
-        allow_null=False
+        allow_null=True  # TODO: supposed to be False
     )
