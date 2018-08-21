@@ -12,9 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import traceback
+import logging
+from catalog.pub.config.config import CATALOG_ROOT_PATH
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.response import Response
+
+logger = logging.getLogger(__name__)
 
 
 class vnf_packages(APIView):
@@ -107,6 +114,22 @@ class package_content(APIView):
     def post(self, request):
         # TODO
         return None
+
+    def put(self, request, vnfPkgId):
+        logger.debug("UploadVnf %s" % vnfPkgId)
+        file_object = request.FILES.get('file')
+        upload_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
+        if not os.path.exists(upload_path):
+            os.makedirs(upload_path, 0o777)
+        try:
+            upload_file_name = os.path.join(upload_path, file_object.name)
+            with open(upload_file_name, 'wb+') as dest_file:
+                for chunk in file_object.chunks():
+                    dest_file.write(chunk)
+        except Exception as e:
+            logger.error("File upload exception.[%s:%s]" % (type(e), str(e)))
+            logger.error("%s", traceback.format_exc())
+        return Response(None, status.HTTP_202_ACCEPTED)
 
 
 class upload_from_uri(APIView):
