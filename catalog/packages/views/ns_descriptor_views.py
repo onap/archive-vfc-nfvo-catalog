@@ -15,15 +15,16 @@
 import logging
 import traceback
 
-from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from catalog.packages.biz.ns_descriptor import create
+from catalog.packages.biz.ns_descriptor import create, query_multiple
 from catalog.packages.serializers.create_nsd_info_request import \
     CreateNsdInfoRequestSerializer
 from catalog.packages.serializers.nsd_info import NsdInfoSerializer
+from catalog.packages.serializers.nsd_infos import NsdInfosSerializer
 from catalog.pub.exceptions import CatalogException
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
     }
 )
 # @api_view(http_method_names=['GET'])
-def query_ns_descriptors(self, request):
+def ns_info_rd(request):
     # TODO
     return None
 
@@ -50,17 +51,41 @@ def query_ns_descriptors(self, request):
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
-@api_view(http_method_names=['POST'])
-def create_ns_descriptors(request, *args, **kwargs):
-    try:
-        create_nsd_info_requst = CreateNsdInfoRequestSerializer(data=request.data)
-        if not create_nsd_info_requst.is_valid():
-            raise CatalogException
-        data = create(create_nsd_info_requst.data)
-        nsd_info = NsdInfoSerializer(data=data)
-        if not nsd_info.is_valid():
-            raise CatalogException
-        return Response(data=data, status=status.HTTP_201_CREATED)
-    except CatalogException:
-        logger.error(traceback.format_exc())
-        return Response(data={'error': 'Creating nsd info failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query multiple NS descriptor resources",
+    request_body=no_body,
+    responses={
+        status.HTTP_200_OK: NsdInfosSerializer(),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['POST', 'GET'])
+def ns_descriptors_rc(request, *args, **kwargs):
+    if request.method == 'POST':
+        try:
+            create_nsd_info_requst = CreateNsdInfoRequestSerializer(data=request.data)
+            if not create_nsd_info_requst.is_valid():
+                raise CatalogException
+            data = create(create_nsd_info_requst.data)
+            nsd_info = NsdInfoSerializer(data=data)
+            if not nsd_info.is_valid():
+                raise CatalogException
+            return Response(data=nsd_info.data, status=status.HTTP_201_CREATED)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Creating nsd info failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if request.method == 'GET':
+        try:
+            data = query_multiple()
+            nsd_infos = NsdInfosSerializer(data=data)
+            if not nsd_infos.is_valid():
+                raise CatalogException
+            return Response(data=nsd_infos.data, status=status.HTTP_200_OK)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(
+                data={'error': 'Query of multiple NS descriptor resources failed.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
