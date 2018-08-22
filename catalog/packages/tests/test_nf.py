@@ -418,3 +418,20 @@ class TestNfPackage(TestCase):
         mock_urlopen.return_value = MockReq()
         vnfPkgId = "222"
         VnfpkgUploadThread(req_data, vnfPkgId).run()
+
+    def test_create_vnf_pkg(self):
+        req_data = {
+            "userDefinedData": {"a": "A"}
+        }
+        response = self.client.post("/api/vnfpkgm/v1/vnf_packages", data=req_data, format="json")
+        resp_data = json.loads(response.content)
+        expect_resp_data = {
+            "id": resp_data.get("id"),
+            "onboardingState": "CREATED",
+            "operationalState": "DISABLED",
+            "usageState": "NOT_IN_USE",
+            "userDefinedData": {"a": "A"},
+            "_links": None  # TODO
+        }
+        self.assertEqual(expect_resp_data, resp_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
