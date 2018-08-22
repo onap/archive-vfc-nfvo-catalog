@@ -25,7 +25,7 @@ from catalog.pub.exceptions import CatalogException
 from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
-from catalog.packages.biz.nf_package import create_vnf_pkg
+from catalog.packages.biz.nf_package import create_vnf_pkg, query_multiple
 
 logger = logging.getLogger(__name__)
 
@@ -33,13 +33,25 @@ logger = logging.getLogger(__name__)
 class vnf_packages(APIView):
     @swagger_auto_schema(
         responses={
-            # status.HTTP_200_OK: Serializer(),
+            status.HTTP_200_OK: VnfPkgInfoSerializer(),
             status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
         }
     )
     def get(self, request):
-        # TODO
-        return None
+        logger.debug("Query VNF Packages> %s" % request.data)
+        try:
+            res = query_multiple()
+            query_serializer = VnfPkgInfoSerializer(data=res)
+            if not query_serializer.is_valid():
+                raise CatalogException
+            return Response(data=query_serializer.data, status=status.HTTP_200_OK)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Querying vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @swagger_auto_schema(
         request_body=CreateVnfPkgInfoRequestSerializer(),
@@ -62,6 +74,10 @@ class vnf_packages(APIView):
         except CatalogException:
             logger.error(traceback.format_exc())
             return Response(data={'error': 'Creating vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class vnf_package(APIView):
