@@ -20,6 +20,7 @@ class NSPackageModel(models.Model):
     nsPackageUri = models.CharField(db_column='NSPACKAGEURI', max_length=300, null=True, blank=True)
     checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
     sdcCsarId = models.CharField(db_column='SDCCSARID', max_length=50, null=True, blank=True)  # SdcCSARUri
+    onboardingState = models.CharField(db_column='ONBOARDINGSTATE', max_length=20, blank=True, null=True)
     operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True, null=True)  # operationalState
     usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
     deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
