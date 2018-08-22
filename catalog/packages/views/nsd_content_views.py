@@ -63,7 +63,7 @@ def upload_nsd_content(request, *args, **kwargs):
     nsd_info_id = kwargs.get("nsdInfoId")
     files = request.FILES.getlist('file')
     try:
-        upload(files, nsd_info_id)
+        upload(files[0], nsd_info_id)
         return Response(data={}, status=status.HTTP_204_NO_CONTENT)
     except IOError:
         logger.error(traceback.format_exc())
