@@ -142,6 +142,19 @@ def query_single(nsd_info_id):
     return data
 
 
+def delete_single(nsd_info_id):
+    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+    if not ns_pkgs.exists():
+        raise CatalogException('The NS descriptor (%s) does not exist.' % nsd_info_id)
+    if not ns_pkgs[0].nsdModel:
+        raise CatalogException('The NS descriptor (%s) is not ONBOARDED.' % nsd_info_id)
+    if ns_pkgs[0].operationalState != 'DISABLED':
+        raise CatalogException('The NS descriptor (%s) is not DISABLED.' % nsd_info_id)
+    if ns_pkgs[0].usageState != 'NOT_IN_USE':
+        raise CatalogException('The NS descriptor (%s) is not NOT_IN_USE.' % nsd_info_id)
+    ns_pkgs.delete()
+
+
 def upload(files, nsd_info_id):
     remote_files = files
     for remote_file in remote_files:
