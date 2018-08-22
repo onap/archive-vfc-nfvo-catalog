@@ -46,11 +46,11 @@ def create(data):
 
 
 def query_multiple():
-    ns_packages = NSPackageModel.objects.all()
-    if not ns_packages:
+    ns_pkgs = NSPackageModel.objects.all()
+    if not ns_pkgs:
         raise CatalogException('NS descriptors do not exist.')
     response_data = []
-    for ns_pkg in ns_packages:
+    for ns_pkg in ns_pkgs:
         data = {
             'id': ns_pkg.nsPackageId,
             'nsdId': ns_pkg.nsdId,
@@ -96,7 +96,50 @@ def query_multiple():
 
 
 def query_single(nsd_info_id):
-    pass
+    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+    if not ns_pkgs.exists():
+        raise CatalogException('NS descriptors(%s) does not exist.' % nsd_info_id)
+    data = {
+        'id': ns_pkgs[0].nsPackageId,
+        'nsdId': ns_pkgs[0].nsdId,
+        'nsdName': ns_pkgs[0].nsdName,
+        'nsdVersion': ns_pkgs[0].nsdVersion,
+        'nsdDesigner': ns_pkgs[0].nsdDesginer,
+        'nsdInvariantId': None,  # TODO
+        'vnfPkgIds': [],
+        'pnfdInfoIds': [],  # TODO
+        'nestedNsdInfoIds': [],  # TODO
+        'nsdOnboardingState': 'CREATED',
+        'onboardingFailureDetails': None,  # TODO
+        'nsdOperationalState': ns_pkgs[0].operationalState,
+        'nsdUsageState': ns_pkgs[0].usageState,
+        'userDefinedData': {},
+        '_links': None  # TODO
+    }
+
+    if ns_pkgs[0].nsdModel:
+        ns_pkgs[0]['nsdOnboardingState'] = 'ONBOARDED'
+    elif ns_pkgs[0].localFilePath:  # TODO: strip()
+        ns_pkgs[0]['nsdOnboardingState'] = 'PROCESSING'
+    elif ns_pkgs[0].nsdId:
+        ns_pkgs[0]['nsdOnboardingState'] = 'UPLOADING'
+        ns_pkgs[0]['nsdOnboardingState'] = 'CREATED'
+
+    if ns_pkgs[0].nsdModel:
+        nsd_model = json.JSONDecoder().decode(ns_pkgs[0].nsdModel)
+        vnf_pkg_ids = []
+        for vnf in nsd_model['vnfs']:
+            vnfd_id = vnf["properties"]["id"]
+            pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
+            for pkg in pkgs:
+                vnf_pkg_ids.append(pkg.vnfPackageId)
+        data['vnfPkgIds'] = vnf_pkg_ids
+
+    if ns_pkgs[0].userDefinedData:
+        user_defined_data = json.JSONDecoder().decode(ns_pkgs[0].userDefinedData)
+        data['userDefinedData'] = user_defined_data
+
+    return data
 
 
 def upload(files, nsd_info_id):
