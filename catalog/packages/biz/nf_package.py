@@ -18,6 +18,7 @@ import os
 import sys
 import threading
 import traceback
+import urllib2
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH, CATALOG_URL_PATH, MSB_SERVICE_IP
 from catalog.pub.config.config import REG_TO_MSB_REG_PARAM
@@ -27,6 +28,7 @@ from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
 from catalog.pub.utils.jobutil import JobUtil
+from catalog.pub.utils.values import ignore_case_get
 
 logger = logging.getLogger(__name__)
 
@@ -193,6 +195,38 @@ class NfPkgDeleteThread(threading.Thread):
         fileutil.delete_dirs(csar_save_path)
 
         JobUtil.add_job_status(self.job_id, 100, "Delete CSAR(%s) successfully." % self.csar_id)
+
+
+class VnfpkgUploadThread(threading.Thread):
+    def __init__(self, data, vnfPkgId):
+        threading.Thread.__init__(self)
+        self.vnfPkgId = vnfPkgId
+        self.data = data
+
+    def run(self):
+        try:
+            self.upload_vnfPkg_from_uri()
+        except CatalogException as e:
+            logger.error(e.message)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            logger.error(str(sys.exc_info()))
+
+    def upload_vnfPkg_from_uri(self):
+        logger.debug("UploadVnf %s" % self.vnfPkgId)
+        uri = ignore_case_get(self.data, "addressInformation")
+        upload_path = os.path.join(CATALOG_ROOT_PATH, self.vnfPkgId)
+        if not os.path.exists(upload_path):
+            os.makedirs(upload_path, 0o777)
+        r = urllib2.Request(uri)
+        req = urllib2.urlopen(r)
+
+        upload_file_name = os.path.join(upload_path, os.path.basename(uri))
+        save_file = open(upload_file_name, "wb")
+        save_file.write(req.read())
+        save_file.close()
+        req.close()
 
 
 class NfPackage(object):
