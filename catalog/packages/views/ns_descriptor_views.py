@@ -20,7 +20,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from catalog.packages.biz.ns_descriptor import create, query_multiple
+from catalog.packages.biz.ns_descriptor import create, query_multiple, query_single
 from catalog.packages.serializers.create_nsd_info_request import \
     CreateNsdInfoRequestSerializer
 from catalog.packages.serializers.nsd_info import NsdInfoSerializer
@@ -29,17 +29,40 @@ from catalog.pub.exceptions import CatalogException
 
 logger = logging.getLogger(__name__)
 
-
+"""
 @swagger_auto_schema(
     responses={
         # status.HTTP_200_OK: Serializer(),
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
-# @api_view(http_method_names=['GET'])
-def ns_info_rd(request):
-    # TODO
-    return None
+"""
+
+
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query an individual NS descriptor resource",
+    request_body=no_body,
+    responses={
+        status.HTTP_200_OK: NsdInfoSerializer(),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['GET'])
+def ns_info_rd(request, nsdInfoId):
+    if request.method == 'GET':
+        try:
+            data = query_single(nsdInfoId)
+            nsd_info = NsdInfoSerializer(data=data)
+            if not nsd_info.is_valid():
+                raise CatalogException
+            return Response(data=nsd_info.data, status=status.HTTP_200_OK)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(
+                data={'error': 'Query of an individual NS descriptor resource failed.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @swagger_auto_schema(
