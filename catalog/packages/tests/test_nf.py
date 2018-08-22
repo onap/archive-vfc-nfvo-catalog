@@ -15,6 +15,7 @@
 import json
 import os
 import mock
+import urllib2
 from rest_framework.test import APIClient
 from django.test import TestCase
 from rest_framework import status
@@ -25,6 +26,15 @@ from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import restcall, toscaparser
 from catalog.pub.config.config import CATALOG_ROOT_PATH
+from catalog.packages.biz.nf_package import VnfpkgUploadThread
+
+
+class MockReq():
+    def read(self):
+        return "1"
+
+    def close(self):
+        pass
 
 
 class TestNfPackage(TestCase):
@@ -401,3 +411,10 @@ class TestNfPackage(TestCase):
         data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "empty.txt"), "rb")}
         response = self.client.put("/api/vnfpkgm/v1/vnf_packages/222/package_content", data=data)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+    @mock.patch.object(urllib2, 'urlopen')
+    def test_upload_nf_pkg(self, mock_urlopen):
+        req_data = {"addressInformation": "https://127.0.0.1:1234/sdc/v1/hss.csar"}
+        mock_urlopen.return_value = MockReq()
+        vnfPkgId = "222"
+        VnfpkgUploadThread(req_data, vnfPkgId).run()

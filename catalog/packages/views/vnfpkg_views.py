@@ -20,6 +20,9 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from catalog.packages.biz.nf_package import VnfpkgUploadThread
+from catalog.pub.exceptions import CatalogException
+from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -144,15 +147,26 @@ class upload_from_uri(APIView):
         return None
 
     @swagger_auto_schema(
-        # request_body=CreateVnfReqSerializer(),
+        request_body=UploadVnfPackageFromUriRequestSerializer(),
         responses={
-            #     status.HTTP_201_CREATED: CreateVnfRespSerializer(),
+            status.HTTP_202_ACCEPTED: "Successfully",
             status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
         }
     )
-    def post(self, request):
-        # TODO
-        return None
+    def post(self, request, vnfPkgId):
+        try:
+            req_serializer = UploadVnfPackageFromUriRequestSerializer(data=request.data)
+            if not req_serializer.is_valid():
+                raise CatalogException
+            VnfpkgUploadThread(req_serializer.data, vnfPkgId).start()
+            return Response(None, status=status.HTTP_202_ACCEPTED)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Upload vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class artifacts(APIView):
