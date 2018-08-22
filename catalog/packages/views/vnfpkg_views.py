@@ -23,6 +23,9 @@ from rest_framework.response import Response
 from catalog.packages.biz.nf_package import VnfpkgUploadThread
 from catalog.pub.exceptions import CatalogException
 from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
+from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
+from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
+from catalog.packages.biz.nf_package import create_vnf_pkg
 
 logger = logging.getLogger(__name__)
 
@@ -39,15 +42,26 @@ class vnf_packages(APIView):
         return None
 
     @swagger_auto_schema(
-        # request_body=CreateVnfReqSerializer(),
+        request_body=CreateVnfPkgInfoRequestSerializer(),
         responses={
-            #     status.HTTP_201_CREATED: CreateVnfRespSerializer(),
+            status.HTTP_201_CREATED: VnfPkgInfoSerializer(),
             status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
         }
     )
     def post(self, request):
-        # TODO
-        return None
+        logger.debug("CreateVnfPkg> %s" % request.data)
+        try:
+            req_serializer = CreateVnfPkgInfoRequestSerializer(data=request.data)
+            if not req_serializer.is_valid():
+                raise CatalogException
+            res = create_vnf_pkg(req_serializer.data)
+            create_vnf_pkg_resp_serializer = VnfPkgInfoSerializer(data=res)
+            if not create_vnf_pkg_resp_serializer.is_valid():
+                raise CatalogException
+            return Response(data=create_vnf_pkg_resp_serializer.data, status=status.HTTP_201_CREATED)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Creating vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class vnf_package(APIView):
