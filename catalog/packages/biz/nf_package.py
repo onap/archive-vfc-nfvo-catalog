@@ -19,6 +19,7 @@ import sys
 import threading
 import traceback
 import urllib2
+import uuid
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH, CATALOG_URL_PATH, MSB_SERVICE_IP
 from catalog.pub.config.config import REG_TO_MSB_REG_PARAM
@@ -76,6 +77,23 @@ def parse_vnfd(csar_id, inputs):
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return [0, ret]
+
+
+def create_vnf_pkg(data):
+    user_defined_data = ignore_case_get(data, "userDefinedData")
+    vnfPkgId = str(uuid.uuid4())
+    VnfPackageModel.objects.create(
+        vnfPackageId=vnfPkgId
+    )
+    data = {
+        "id": vnfPkgId,
+        "onboardingState": "CREATED",
+        "operationalState": "DISABLED",
+        "usageState": "NOT_IN_USE",
+        "userDefinedData": user_defined_data,
+        "_links": None
+    }
+    return data
 
 
 class NfDistributeThread(threading.Thread):

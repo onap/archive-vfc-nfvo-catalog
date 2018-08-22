@@ -103,5 +103,5 @@ class VnfPkgInfoSerializer(serializers.Serializer):
     _links = _LinkSerializer(
         help_text='Links to resources related to this resource.',
         required=True,
-        allow_null=False
+        allow_null=True  # TODO supposed to be False
     )
