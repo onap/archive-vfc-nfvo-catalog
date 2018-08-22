@@ -83,7 +83,11 @@ def create_vnf_pkg(data):
     user_defined_data = ignore_case_get(data, "userDefinedData")
     vnfPkgId = str(uuid.uuid4())
     VnfPackageModel.objects.create(
-        vnfPackageId=vnfPkgId
+        vnfPackageId=vnfPkgId,
+        onboardingState="CREATED",
+        operationalState="DISABLED",
+        usageState="NOT_IN_USE",
+        userDefinedData=user_defined_data
     )
     data = {
         "id": vnfPkgId,
@@ -91,6 +95,19 @@ def create_vnf_pkg(data):
         "operationalState": "DISABLED",
         "usageState": "NOT_IN_USE",
         "userDefinedData": user_defined_data,
+        "_links": None
+    }
+    return data
+
+
+def query_multiple():
+    # TODO
+    data = {
+        "id": "1",
+        "onboardingState": "CREATED",
+        "operationalState": "DISABLED",
+        "usageState": "NOT_IN_USE",
+        "userDefinedData": "1",
         "_links": None
     }
     return data
