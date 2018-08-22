@@ -20,12 +20,12 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from catalog.packages.biz.nf_package import VnfpkgUploadThread
+from catalog.packages.biz.nfpackage import VnfpkgUploadThread
 from catalog.pub.exceptions import CatalogException
 from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
-from catalog.packages.biz.nf_package import create_vnf_pkg, query_multiple
+from catalog.packages.biz.nfpackage import create_vnf_pkg, query_multiple
 
 logger = logging.getLogger(__name__)
 

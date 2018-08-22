@@ -13,11 +13,13 @@
 # limitations under the License.
 
 
+import json
 import os
 
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
+from catalog.pub.database.models import NSPackageModel
 
 
 class TestNsDescriptor(TestCase):
@@ -55,6 +57,15 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(expected_reponse_data, response.data)
 
+    def test_query_multiple_nsds_normal(self):
+        pass
+
+    def test_query_single_nsd_normal(self):
+        pass
+
+    def test_delete_single_nsd_normal(self):
+        pass
+
     def test_nsd_content_upload_normal(self):
         with open('nsd_content.txt', 'wb') as fp:
             fp.write('test')
@@ -68,6 +79,28 @@ class TestNsDescriptor(TestCase):
         self.assertEqual({}, resp.data)
 
         os.remove('nsd_content.txt')
+
+    def test_nsd_content_upload_normal(self):
+        user_defined_data = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': 'value3',
+        }
+        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        NSPackageModel(
+            nsPackageId='22',
+            operationalState='DISABLED',
+            usageState='NOT_IN_USE',
+            userDefinedData=user_defined_data,
+        ).save()
+
+        with open('D:\\onap\\src\\catalog\\catalog\\packages\\tests\\data\\vIMS_v2.csar', 'rb') as fp:
+            resp = self.client.put(
+                "/api/nsd/v1/ns_descriptors/22/nsd_content",
+                {'file': fp},
+            )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual({}, resp.data)
 
     def test_nsd_content_upload_failure(self):
         pass
