@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import json
 import logging
 import os
 import uuid
@@ -20,6 +20,8 @@ import uuid
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import fileutil
 from catalog.pub.utils.values import ignore_case_get
+from catalog.pub.database.models import NSPackageModel, VnfPackageModel
+from catalog.pub.exceptions import CatalogException
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +36,67 @@ def create(data):
         'userDefinedData': user_defined_data,
         '_links': None  # TODO
     }
+    NSPackageModel(
+        nsPackageId=data['id'],
+        operationalState=data['nsdOperationalState'],
+        usageState=data['nsdUsageState'],
+        userDefinedData=data['userDefinedData']
+    ).save()
     return data
+
+
+def query_multiple():
+    ns_packages = NSPackageModel.objects.all()
+    if not ns_packages:
+        raise CatalogException('NS descriptors do not exist.')
+    response_data = []
+    for ns_pkg in ns_packages:
+        data = {
+            'id': ns_pkg.nsPackageId,
+            'nsdId': ns_pkg.nsdId,
+            'nsdName': ns_pkg.nsdName,
+            'nsdVersion': ns_pkg.nsdVersion,
+            'nsdDesigner': ns_pkg.nsdDesginer,
+            'nsdInvariantId': None,  # TODO
+            'vnfPkgIds': [],
+            'pnfdInfoIds': [],  # TODO
+            'nestedNsdInfoIds': [],  # TODO
+            'nsdOnboardingState': 'CREATED',
+            'onboardingFailureDetails': None,  # TODO
+            'nsdOperationalState': ns_pkg.operationalState,
+            'nsdUsageState': ns_pkg.usageState,
+            'userDefinedData': {},
+            '_links': None  # TODO
+        }
+
+        if ns_pkg.nsdModel:
+            data['nsdOnboardingState'] = 'ONBOARDED'
+        elif ns_pkg.localFilePath:  # TODO: strip()
+            data['nsdOnboardingState'] = 'PROCESSING'
+        elif ns_pkg.nsdId:
+            data['nsdOnboardingState'] = 'UPLOADING'
+            data['nsdOnboardingState'] = 'CREATED'
+
+        if ns_pkg.nsdModel:
+            nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
+            vnf_pkg_ids = []
+            for vnf in nsd_model['vnfs']:
+                vnfd_id = vnf["properties"]["id"]
+                pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
+                for pkg in pkgs:
+                    vnf_pkg_ids.append(pkg.vnfPackageId)
+            data['vnfPkgIds'] = vnf_pkg_ids
+
+        if ns_pkg.userDefinedData:
+            user_defined_data = json.JSONDecoder().decode(ns_pkg.userDefinedData)
+            data['userDefinedData'] = user_defined_data
+
+        response_data.append(data)
+    return response_data
+
+
+def query_single(nsd_info_id):
+    pass
 
 
 def upload(files, nsd_info_id):
@@ -52,3 +114,7 @@ def upload(files, nsd_info_id):
             else:
                 data = remote_file.read()
                 local_file.write(data)
+
+
+def fill_resp_data(ns_pkg):
+    pass
