@@ -29,8 +29,8 @@ urlpatterns = [
     url(r'^api/catalog/v1/parservnfd$', catalog_views.vnf_model_parser, name='vnfmodelparser_rc'),
 
     # NSD
-    url(r'^api/nsd/v1/ns_descriptors$', ns_descriptor_views.create_ns_descriptors, name='ns_descriptors_rc'),
-    url(r'^api/nsd/v1/ns_descriptors$', ns_descriptor_views.query_ns_descriptors, name='ns_info_rd'),
+    url(r'^api/nsd/v1/ns_descriptors$', ns_descriptor_views.ns_descriptors_rc, name='ns_descriptors_rc'),
+    url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)$', ns_descriptor_views.ns_info_rd, name='ns_info_rd'),
     url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)/nsd_content$', nsd_content_views.upload_nsd_content, name='nsd_content_ru'),
 
     # PNF
