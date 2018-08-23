@@ -21,7 +21,7 @@ from rest_framework.test import APIClient
 from django.test import TestCase
 from rest_framework import status
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.packages.biz.vnfpackage import VnfpkgUploadThread
+from catalog.packages.biz.vnf_package import VnfpkgUploadThread
 
 
 class MockReq():
