@@ -43,7 +43,7 @@ urlpatterns = [
     # url(r'^api/nsd/v1/subscriptions', nsd_subscriptions.as_view(), name='subscriptions_rc'),
     # url(r'^api/nsd/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', nsd_subscription.as_view(), name='subscription_rd'),
     url(r'^api/vnfpkgm/v1/vnf_packages$', vnf_package_views.vnf_packages_rc, name='vnf_packages_rc'),
-    # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)$', vnf_package.as_view(), name='vnf_package_rd'),
+    url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)$', vnf_package_views.vnf_package_rd, name='vnf_package_rd'),
     # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/vnfd$', vnfd.as_view(), name='vnfd_r'),
     url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/package_content$',
         vnf_package_views.upload_vnf_pkg_content, name='package_content_ru'),

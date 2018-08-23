@@ -62,6 +62,23 @@ def query_multiple():
     return data
 
 
+def query_single(vnfPkgId):
+    # TODO
+    data = {
+        "id": "1",
+        "onboardingState": "CREATED",
+        "operationalState": "DISABLED",
+        "usageState": "NOT_IN_USE",
+        "userDefinedData": "1",
+        "_links": None
+    }
+    return data
+
+
+def delete_single(vnfPkgId):
+    return None
+
+
 class VnfpkgUploadThread(threading.Thread):
     def __init__(self, data, vnfPkgId):
         threading.Thread.__init__(self)
