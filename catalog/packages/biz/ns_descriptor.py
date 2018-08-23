@@ -38,6 +38,7 @@ def create(data):
     }
     NSPackageModel(
         nsPackageId=data['id'],
+        onboardingState=data['nsdOnboardingState'],
         operationalState=data['nsdOperationalState'],
         usageState=data['nsdUsageState'],
         userDefinedData=data['userDefinedData']
@@ -61,21 +62,13 @@ def query_multiple():
             'vnfPkgIds': [],
             'pnfdInfoIds': [],  # TODO
             'nestedNsdInfoIds': [],  # TODO
-            'nsdOnboardingState': 'CREATED',
+            'nsdOnboardingState': ns_pkg.onboardingState,
             'onboardingFailureDetails': None,  # TODO
             'nsdOperationalState': ns_pkg.operationalState,
             'nsdUsageState': ns_pkg.usageState,
             'userDefinedData': {},
             '_links': None  # TODO
         }
-
-        if ns_pkg.nsdModel:
-            data['nsdOnboardingState'] = 'ONBOARDED'
-        elif ns_pkg.localFilePath:  # TODO: strip()
-            data['nsdOnboardingState'] = 'PROCESSING'
-        elif ns_pkg.nsdId:
-            data['nsdOnboardingState'] = 'UPLOADING'
-            data['nsdOnboardingState'] = 'CREATED'
 
         if ns_pkg.nsdModel:
             nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
