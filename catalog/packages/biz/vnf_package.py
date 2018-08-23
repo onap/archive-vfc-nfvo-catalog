@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 import os
 import sys
@@ -24,7 +25,8 @@ from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils.values import ignore_case_get
-from catalog.pub.utils import fileutil
+from catalog.pub.utils import fileutil, toscaparser
+
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +99,30 @@ def delete_vnf_pkg(vnfPkgId):
     vnf_pkg.delete()
     vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
     fileutil.delete_dirs(vnf_pkg_path)
+
+
+def parse_vnfd_and_save(vnfPkgId, vnf_pkg_path):
+    vnfd_json = toscaparser.parse_vnfd(vnf_pkg_path)
+    vnfd = json.JSONDecoder().decode(vnfd_json)
+
+    vnfd_id = vnfd["metadata"]["id"]
+    if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
+        raise CatalogException("VNFD(%s) already exists." % vnfd_id)
+
+    vnfd_ver = vnfd["metadata"].get("vnfd_version")
+    if not vnfd_ver:
+        vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
+    VnfPackageModel(
+        vnfPackageId=vnfPkgId,
+        vnfdId=vnfd_id,
+        vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
+        vnfdVersion=vnfd_ver,
+        vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
+        vnfdModel=vnfd_json,
+        onboardingState="ONBOARDED",
+        operationalState="ENABLED",
+        usageState="NOT_IN_USE"
+    ).save()
 
 
 class VnfpkgUploadThread(threading.Thread):
