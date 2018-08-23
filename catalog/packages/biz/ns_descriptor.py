@@ -22,6 +22,7 @@ from catalog.pub.utils import fileutil
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.database.models import NSPackageModel, VnfPackageModel
 from catalog.pub.exceptions import CatalogException
+from catalog.pub.utils import toscaparser
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +146,7 @@ def upload(remote_file, nsd_info_id):
     local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
     local_file_name = os.path.join(local_file_dir, local_file_name)
     if not os.path.exists(local_file_dir):
-        fileutil.make_dirs(local_file_dir)
+        fileutil.make_dirs(local_file_dir, 0o777)
     with open(local_file_name, 'wb') as local_file:
         if remote_file.multiple_chunks(chunk_size=None):
             for chunk in remote_file.chunks():
@@ -153,6 +154,36 @@ def upload(remote_file, nsd_info_id):
         else:
             data = remote_file.read()
             local_file.write(data)
+
+
+def process(nsd_info_id, local_file_name):
+    nsd_json = toscaparser.parse_nsd(local_file_name)
+    nsd = json.JSONDecoder().decode(nsd_json)
+
+    nsd_id = nsd["metadata"]["id"]
+    if nsd_id and NSPackageModel.objects.filter(nsdId=nsd_id):  # nsd_id may not exist
+        raise CatalogException("NS Descriptor (%s) already exists." % nsd_id)
+
+    for vnf in nsd["vnfs"]:
+        vnfd_id = vnf["properties"]["id"]
+        pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
+        if not pkg:
+            vnfd_name = vnf.get("vnf_id", "undefined")
+            logger.error("[%s] is not distributed.", vnfd_name)
+            raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
+
+    NSPackageModel(
+        nsPackageId=nsd_info_id,
+        nsdId=nsd_id,
+        nsdName=nsd["metadata"].get("name", nsd_id),
+        nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
+        nsdDescription=nsd["metadata"].get("description", ""),
+        nsdVersion=nsd["metadata"].get("version", "undefined"),
+        nsPackageUri=local_file_name,  # TODO
+        sdcCsarId=nsd_info_id,
+        localFilePath=local_file_name,
+        nsdModel=nsd_json
+    ).save()
 
 
 def download(nsd_info_id):
