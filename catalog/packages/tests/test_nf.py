@@ -13,28 +13,15 @@
 # limitations under the License.
 
 import json
-import os
 import mock
-import urllib2
 from rest_framework.test import APIClient
 from django.test import TestCase
 from rest_framework import status
-
 from catalog.packages.biz.vnfpackage import NfDistributeThread, NfPkgDeleteThread
 from catalog.pub.database.models import JobStatusModel, JobModel
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import restcall, toscaparser
-from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.packages.biz.vnfpackage import VnfpkgUploadThread
-
-
-class MockReq():
-    def read(self):
-        return "1"
-
-    def close(self):
-        pass
 
 
 class TestNfPackage(TestCase):
@@ -406,32 +393,3 @@ class TestNfPackage(TestCase):
         resp = self.client.post("/api/catalog/v1/parservnfd", req_data, format='json')
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(resp.data, {"error": "VNF CSAR(1) does not exist."})
-
-    def test_upload_vnfPkg(self):
-        data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "empty.txt"), "rb")}
-        response = self.client.put("/api/vnfpkgm/v1/vnf_packages/222/package_content", data=data)
-        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
-
-    @mock.patch.object(urllib2, 'urlopen')
-    def test_upload_nf_pkg(self, mock_urlopen):
-        req_data = {"addressInformation": "https://127.0.0.1:1234/sdc/v1/hss.csar"}
-        mock_urlopen.return_value = MockReq()
-        vnfPkgId = "222"
-        VnfpkgUploadThread(req_data, vnfPkgId).run()
-
-    def test_create_vnf_pkg(self):
-        req_data = {
-            "userDefinedData": {"a": "A"}
-        }
-        response = self.client.post("/api/vnfpkgm/v1/vnf_packages", data=req_data, format="json")
-        resp_data = json.loads(response.content)
-        expect_resp_data = {
-            "id": resp_data.get("id"),
-            "onboardingState": "CREATED",
-            "operationalState": "DISABLED",
-            "usageState": "NOT_IN_USE",
-            "userDefinedData": {"a": "A"},
-            "_links": None  # TODO
-        }
-        self.assertEqual(expect_resp_data, resp_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
