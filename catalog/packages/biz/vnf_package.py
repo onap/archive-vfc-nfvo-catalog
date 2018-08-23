@@ -50,16 +50,14 @@ def create_vnf_pkg(data):
 
 
 def query_multiple():
-    # TODO
-    data = {
-        "id": "1",
-        "onboardingState": "CREATED",
-        "operationalState": "DISABLED",
-        "usageState": "NOT_IN_USE",
-        "userDefinedData": "1",
-        "_links": None
-    }
-    return data
+    pkgs_info = []
+    nf_pkgs = VnfPackageModel.objects.filter()
+    if not nf_pkgs.exists():
+        raise CatalogException('VNF packages do not exist.')
+    for nf_pkg in nf_pkgs:
+        ret = query_single(nf_pkg.vnfPackageId)
+        pkgs_info.append(ret)
+    return pkgs_info
 
 
 def query_single(vnfPkgId):
