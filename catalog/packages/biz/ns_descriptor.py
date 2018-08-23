@@ -102,21 +102,13 @@ def query_single(nsd_info_id):
         'vnfPkgIds': [],
         'pnfdInfoIds': [],  # TODO
         'nestedNsdInfoIds': [],  # TODO
-        'nsdOnboardingState': 'CREATED',
+        'nsdOnboardingState': ns_pkgs[0].onboardingState,
         'onboardingFailureDetails': None,  # TODO
         'nsdOperationalState': ns_pkgs[0].operationalState,
         'nsdUsageState': ns_pkgs[0].usageState,
         'userDefinedData': {},
         '_links': None  # TODO
     }
-
-    if ns_pkgs[0].nsdModel:
-        ns_pkgs[0]['nsdOnboardingState'] = 'ONBOARDED'
-    elif ns_pkgs[0].localFilePath:  # TODO: strip()
-        ns_pkgs[0]['nsdOnboardingState'] = 'PROCESSING'
-    elif ns_pkgs[0].nsdId:
-        ns_pkgs[0]['nsdOnboardingState'] = 'UPLOADING'
-        ns_pkgs[0]['nsdOnboardingState'] = 'CREATED'
 
     if ns_pkgs[0].nsdModel:
         nsd_model = json.JSONDecoder().decode(ns_pkgs[0].nsdModel)
@@ -138,8 +130,8 @@ def query_single(nsd_info_id):
 def delete_single(nsd_info_id):
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
-        raise CatalogException('The NS descriptor (%s) does not exist.' % nsd_info_id)
-    if not ns_pkgs[0].nsdModel:
+        return
+    if ns_pkgs[0].onboardingState != 'ONBOARDED':
         raise CatalogException('The NS descriptor (%s) is not ONBOARDED.' % nsd_info_id)
     if ns_pkgs[0].operationalState != 'DISABLED':
         raise CatalogException('The NS descriptor (%s) is not DISABLED.' % nsd_info_id)
