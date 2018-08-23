@@ -48,7 +48,7 @@ def create(data):
 
 def query_multiple():
     ns_pkgs = NSPackageModel.objects.all()
-    if not ns_pkgs:
+    if not ns_pkgs.exists():
         raise CatalogException('NS descriptors do not exist.')
     response_data = []
     for ns_pkg in ns_pkgs:
