@@ -20,8 +20,7 @@ from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-from catalog.packages.biz import vnfpackage, ns_package
+from catalog.packages.biz import vnfpackage, nspackage
 from catalog.packages.serializers.catalog_serializers import InternalErrorRequestSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackageDistributeRequestSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackageSerializer
@@ -60,7 +59,7 @@ def nspackages_rc(request, *args, **kwargs):
 
     if request.method == 'GET':
         # Gets ns package list
-        ret = ns_package.ns_get_csars()
+        ret = nspackage.ns_get_csars()
         normal_status = status.HTTP_200_OK
 
         if ret[0] == 0:
@@ -78,7 +77,7 @@ def nspackages_rc(request, *args, **kwargs):
 
         csar_id = ignore_case_get(request.data, "csarId")
         logger.debug("csar_id is %s", csar_id)
-        ret = ns_package.ns_on_distribute(csar_id)
+        ret = nspackage.ns_on_distribute(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
 
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
@@ -190,7 +189,7 @@ def ns_rd_csar(request, *args, **kwargs):
                 fun_name(), request.method, csar_id)
     ret, normal_status, response_serializer, validation_error = None, None, None, None
     if request.method == 'GET':
-        ret = ns_package.ns_get_csar(csar_id)
+        ret = nspackage.ns_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
         if ret[0] == 0:
             response_serializer = NsPackageSerializer(data=ret[1])
@@ -198,7 +197,7 @@ def ns_rd_csar(request, *args, **kwargs):
             if validation_error:
                 return validation_error
     elif request.method == 'DELETE':
-        ret = ns_package.ns_delete_csar(csar_id)
+        ret = nspackage.ns_delete_csar(csar_id)
         normal_status = status.HTTP_200_OK
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
@@ -291,7 +290,7 @@ def ns_model_parser(request, *args, **kwargs):
         fun_name(),
         csar_id,
         inputs)
-    ret = ns_package.parse_nsd(csar_id, inputs)
+    ret = nspackage.parse_nsd(csar_id, inputs)
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
