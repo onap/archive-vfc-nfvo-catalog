@@ -25,6 +25,7 @@ from catalog.pub.exceptions import CatalogException
 from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
+from catalog.packages.serializers.vnf_pkg_infos import VnfPkgInfosSerializer
 from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfpkgUploadThread, \
     query_single, delete_single
 
@@ -55,7 +56,7 @@ def vnf_packages_rc(request):
         logger.debug("Query VNF Packages> %s" % request.data)
         try:
             res = query_multiple()
-            query_serializer = VnfPkgInfoSerializer(data=res)
+            query_serializer = VnfPkgInfosSerializer(data=res)
             if not query_serializer.is_valid():
                 raise CatalogException
             return Response(data=query_serializer.data, status=status.HTTP_200_OK)
