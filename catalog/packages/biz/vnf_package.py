@@ -24,6 +24,7 @@ from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils.values import ignore_case_get
+from catalog.pub.utils import fileutil
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +83,20 @@ def query_single(vnfPkgId):
     return pkg_info
 
 
-def delete_single(vnfPkgId):
-    return None
+def delete_vnf_pkg(vnfPkgId):
+    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId)
+    if not vnf_pkg.exists():
+        logger.debug('VNF package(%s) is deleted.' % vnfPkgId)
+        return
+    if vnf_pkg[0].onboardingState != "CREATED":
+        raise CatalogException("The VNF package (%s) is not on-boarded" % vnfPkgId)
+    if vnf_pkg[0].operationalState != "DISABLED":
+        raise CatalogException("The VNF package (%s) is not disabled" % vnfPkgId)
+    if vnf_pkg[0].usageState != "NOT_IN_USE":
+        raise CatalogException("The VNF package (%s) is in use" % vnfPkgId)
+    vnf_pkg.delete()
+    vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
+    fileutil.delete_dirs(vnf_pkg_path)
 
 
 class VnfpkgUploadThread(threading.Thread):

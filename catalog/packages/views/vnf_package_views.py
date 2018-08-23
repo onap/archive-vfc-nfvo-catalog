@@ -27,7 +27,7 @@ from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInf
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
 from catalog.packages.serializers.vnf_pkg_infos import VnfPkgInfosSerializer
 from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfpkgUploadThread, \
-    query_single, delete_single
+    query_single, delete_vnf_pkg
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +181,7 @@ def vnf_package_rd(request, vnfPkgId):
     if request.method == 'DELETE':
         logger.debug("Delete an individual VNF package> %s" % request.data)
         try:
-            delete_single(vnfPkgId)
+            delete_vnf_pkg(vnfPkgId)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException:
             logger.error(traceback.format_exc())
