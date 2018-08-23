@@ -25,7 +25,8 @@ from catalog.pub.exceptions import CatalogException
 from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
-from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfpkgUploadThread
+from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfpkgUploadThread, \
+    query_single, delete_single
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ def vnf_packages_rc(request):
             return Response(data=query_serializer.data, status=status.HTTP_200_OK)
         except CatalogException:
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'Querying vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={'error': 'Query vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -79,7 +80,7 @@ def vnf_packages_rc(request):
             return Response(data=create_vnf_pkg_resp_serializer.data, status=status.HTTP_201_CREATED)
         except CatalogException:
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'Creating vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={'error': 'Create vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -137,3 +138,55 @@ def upload_vnf_pkg_from_uri(request, vnfPkgId):
         logger.error(e.message)
         logger.error(traceback.format_exc())
         return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query an individual VNF package resource",
+    request_body=no_body,
+    responses={
+        status.HTTP_200_OK: VnfPkgInfoSerializer(),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@swagger_auto_schema(
+    method='DELETE',
+    operation_description="Delete an individual VNF package resource",
+    request_body=no_body,
+    responses={
+        status.HTTP_204_NO_CONTENT: None,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['GET', 'DELETE'])
+def vnf_package_rd(request, vnfPkgId):
+    if request.method == 'GET':
+        logger.debug("Query an individual VNF package> %s" % request.data)
+        try:
+            res = query_single(vnfPkgId)
+            query_serializer = VnfPkgInfoSerializer(data=res)
+            if not query_serializer.is_valid():
+                raise CatalogException
+            return Response(data=query_serializer.data, status=status.HTTP_200_OK)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Query an individual VNF package failed.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if request.method == 'DELETE':
+        logger.debug("Delete an individual VNF package> %s" % request.data)
+        try:
+            delete_single(vnfPkgId)
+            return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Delete an individual VNF package failed.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
