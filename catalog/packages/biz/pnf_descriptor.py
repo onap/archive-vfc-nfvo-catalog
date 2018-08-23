@@ -20,6 +20,7 @@ import uuid
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import fileutil
 from catalog.pub.utils.values import ignore_case_get
+from catalog.pub.database.models import PnfPackageModel
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,12 @@ def create(data):
         'userDefinedData': user_defined_data,
         '_links': None  # TODO
     }
+    PnfPackageModel(
+        pnfPackageId=data['id'],
+        onboardingState=data['pnfdOnboardingState'],
+        usageState=data['pnfdUsageState'],
+        userDefinedData=data['userDefinedData']
+    ).save()
     return data
 
 

@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)/nsd_content$', ns_descriptor_views.nsd_content_ru, name='nsd_content_ru'),
 
     # PNF
-    url(r'^api/nsd/v1/pnf_descriptors$', pnf_descriptor_views.create_pnf_descriptors, name='pnf_descriptors_rc'),
+    url(r'^api/nsd/v1/pnf_descriptors$', pnf_descriptor_views.pnf_descriptors_rc, name='pnf_descriptors_rc'),
     url(r'^api/nsd/v1/pnf_descriptors/(?P<pnfdInfoId>[0-9a-zA-Z\-\_]+)/pnfd_content$', pnf_descriptor_views.pnfd_content_ru, name='pnfd_content_ru'),
     # TODO SOL005 & SOL003
 

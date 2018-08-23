@@ -63,7 +63,7 @@ def query_single_pnfd(self, request):
     }
 )
 @api_view(http_method_names=['POST'])
-def create_pnf_descriptors(request, *args, **kwargs):
+def pnf_descriptors_rc(request, *args, **kwargs):
     try:
         create_pnfd_info_request = CreatePnfdInfoRequestSerializer(data=request.data)
         if not create_pnfd_info_request.is_valid():
