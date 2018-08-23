@@ -19,8 +19,9 @@ from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.http import FileResponse
 
-from catalog.packages.biz.ns_descriptor import create, query_multiple, query_single, delete_single, upload
+from catalog.packages.biz.ns_descriptor import create, query_multiple, query_single, delete_single, upload, download
 from catalog.packages.serializers.create_nsd_info_request import \
     CreateNsdInfoRequestSerializer
 from catalog.packages.serializers.nsd_info import NsdInfoSerializer
@@ -134,14 +135,38 @@ def ns_descriptors_rc(request, *args, **kwargs):
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
-@api_view(http_method_names=['PUT'])
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Fetch NSD content",
+    request_body=no_body,
+    responses={
+        status.HTTP_204_NO_CONTENT: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['PUT', 'GET'])
 def nsd_content_ru(request, *args, **kwargs):
     nsd_info_id = kwargs.get("nsdInfoId")
-    files = request.FILES.getlist('file')
-    try:
-        upload(files[0], nsd_info_id)
-        return Response(data={}, status=status.HTTP_204_NO_CONTENT)
-    except IOError:
-        logger.error(traceback.format_exc())
-        raise CatalogException
-        return Response(data={'error': 'Uploading nsd content failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if request.method == 'PUT':
+        files = request.FILES.getlist('file')
+        try:
+            upload(files[0], nsd_info_id)
+            return Response(data={}, status=status.HTTP_204_NO_CONTENT)
+        except IOError:
+            logger.error(traceback.format_exc())
+            raise CatalogException
+            return Response(data={'error': 'Uploading nsd content failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if request.method == 'GET':
+        try:
+            file_path = download(nsd_info_id)
+            file_name = file_path.split('/')[-1]
+            file_name = file_name.split('\\')[-1]
+            response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
+            response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
+            return response
+        except IOError:
+            logger.error(traceback.format_exc())
+            raise CatalogException
+            return Response(data={'error': 'Downloading nsd content failed.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
