@@ -79,7 +79,7 @@ def upload(files, pnfd_info_id):
         local_file_dir = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
         local_file_name = os.path.join(local_file_dir, local_file_name)
         if not os.path.exists(local_file_dir):
-            fileutil.make_dirs(local_file_dir)
+            fileutil.make_dirs(local_file_dir, 0o777)
         with open(local_file_name, 'wb') as local_file:
             if remote_file.multiple_chunks(chunk_size=None):  # TODO: chunk_size
                 for chunk in remote_file.chunks():
@@ -87,3 +87,13 @@ def upload(files, pnfd_info_id):
             else:
                 data = remote_file.read()
                 local_file.write(data)
+
+
+def download(pnfd_info_id):
+    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+    if not pnf_pkgs.exists():
+        raise CatalogException('The PNF Descriptor (%s) does not exist.' % pnfd_info_id)
+    if pnf_pkgs[0].onboardingState != 'ONBOARDED':
+        raise CatalogException('The PNF Descriptor (%s) is not ONBOARDED.' % pnfd_info_id)
+    local_file_path = pnf_pkgs[0].localFilePath
+    return local_file_path
