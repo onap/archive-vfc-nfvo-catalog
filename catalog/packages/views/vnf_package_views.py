@@ -14,14 +14,18 @@
 
 import traceback
 import logging
+import os
+
+from catalog.pub.config.config import CATALOG_ROOT_PATH
 from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from catalog.pub.exceptions import CatalogException
+from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
-from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple
+from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfpkgUploadThread
 
 logger = logging.getLogger(__name__)
 
@@ -80,3 +84,56 @@ def vnf_packages_rc(request):
             logger.error(e.message)
             logger.error(traceback.format_exc())
             return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@swagger_auto_schema(
+    method='PUT',
+    operation_description="Upload VNF package content",
+    request_body=no_body,
+    responses={
+        status.HTTP_202_ACCEPTED: "Successfully",
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['PUT'])
+def upload_vnf_pkg_content(request, vnfPkgId):
+    logger.debug("UploadVnf %s" % vnfPkgId)
+    file_object = request.FILES.get('file')
+    upload_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
+    if not os.path.exists(upload_path):
+        os.makedirs(upload_path, 0o777)
+    try:
+        upload_file_name = os.path.join(upload_path, file_object.name)
+        with open(upload_file_name, 'wb+') as dest_file:
+            for chunk in file_object.chunks():
+                dest_file.write(chunk)
+    except Exception as e:
+        logger.error("File upload exception.[%s:%s]" % (type(e), str(e)))
+        logger.error("%s", traceback.format_exc())
+    return Response(None, status.HTTP_202_ACCEPTED)
+
+
+@swagger_auto_schema(
+    method='POST',
+    operation_description="Upload VNF package content from uri",
+    request_body=UploadVnfPackageFromUriRequestSerializer,
+    responses={
+        status.HTTP_202_ACCEPTED: "Successfully",
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['POST'])
+def upload_vnf_pkg_from_uri(request, vnfPkgId):
+    try:
+        req_serializer = UploadVnfPackageFromUriRequestSerializer(data=request.data)
+        if not req_serializer.is_valid():
+            raise CatalogException
+        VnfpkgUploadThread(req_serializer.data, vnfPkgId).start()
+        return Response(None, status=status.HTTP_202_ACCEPTED)
+    except CatalogException:
+        logger.error(traceback.format_exc())
+        return Response(data={'error': 'Upload vnfPkg failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        logger.error(e.message)
+        logger.error(traceback.format_exc())
+        return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

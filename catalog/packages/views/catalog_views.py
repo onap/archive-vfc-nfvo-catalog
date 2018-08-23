@@ -21,7 +21,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from catalog.packages.biz import nf_package, ns_package
+from catalog.packages.biz import vnfpackage, ns_package
 from catalog.packages.serializers.catalog_serializers import InternalErrorRequestSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackageDistributeRequestSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackageSerializer
@@ -114,7 +114,7 @@ def nfpackages_rc(request, *args, **kwargs):
         request.method)
     ret, normal_status, response_serializer, validation_error = None, None, None, None
     if request.method == 'GET':
-        ret = nf_package.nf_get_csars()
+        ret = vnfpackage.nf_get_csars()
         normal_status = status.HTTP_200_OK
         response_serializer = NfPackagesSerializer(data=ret[1])
     elif request.method == 'POST':
@@ -129,7 +129,7 @@ def nfpackages_rc(request, *args, **kwargs):
         vim_ids = ignore_case_get(request_serivalizer.data, "vimIds")
         lab_vim_id = ignore_case_get(request_serivalizer.data, "labVimId")
         job_id = str(uuid.uuid4())
-        nf_package.NfDistributeThread(
+        vnfpackage.NfDistributeThread(
             csar_id, vim_ids, lab_vim_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
@@ -249,13 +249,13 @@ def nf_rd_csar(request, *args, **kwargs):
     ret, normal_status, response_serializer, validation_error = None, None, None, None
 
     if request.method == 'GET':
-        ret = nf_package.nf_get_csar(csar_id)
+        ret = vnfpackage.nf_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
         response_serializer = NfPackageSerializer(data=ret[1])
 
     elif request.method == 'DELETE':
         job_id = str(uuid.uuid4())
-        nf_package.NfPkgDeleteThread(csar_id, job_id).start()
+        vnfpackage.NfPkgDeleteThread(csar_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
         response_serializer = PostJobResponseSerializer(data=ret[1])
@@ -324,7 +324,7 @@ def vnf_model_parser(request, *args, **kwargs):
         fun_name(),
         csar_id,
         inputs)
-    ret = nf_package.parse_vnfd(csar_id, inputs)
+    ret = vnfpackage.parse_vnfd(csar_id, inputs)
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
