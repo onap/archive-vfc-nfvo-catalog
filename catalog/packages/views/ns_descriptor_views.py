@@ -20,7 +20,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from catalog.packages.biz.ns_descriptor import create, query_multiple, query_single
+from catalog.packages.biz.ns_descriptor import create, query_multiple, query_single, delete_single
 from catalog.packages.serializers.create_nsd_info_request import \
     CreateNsdInfoRequestSerializer
 from catalog.packages.serializers.nsd_info import NsdInfoSerializer
@@ -28,15 +28,6 @@ from catalog.packages.serializers.nsd_infos import NsdInfosSerializer
 from catalog.pub.exceptions import CatalogException
 
 logger = logging.getLogger(__name__)
-
-"""
-@swagger_auto_schema(
-    responses={
-        # status.HTTP_200_OK: Serializer(),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
-    }
-)
-"""
 
 
 @swagger_auto_schema(
@@ -48,7 +39,16 @@ logger = logging.getLogger(__name__)
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
-@api_view(http_method_names=['GET'])
+@swagger_auto_schema(
+    method='DELETE',
+    operation_description="Delete an individual NS descriptor resource",
+    request_body=no_body,
+    responses={
+        status.HTTP_204_NO_CONTENT: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['GET', 'DELETE'])
 def ns_info_rd(request, nsdInfoId):
     if request.method == 'GET':
         try:
@@ -61,6 +61,17 @@ def ns_info_rd(request, nsdInfoId):
             logger.error(traceback.format_exc())
             return Response(
                 data={'error': 'Query of an individual NS descriptor resource failed.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    if request.method == 'DELETE':
+        try:
+            data = delete_single(nsdInfoId)
+            return Response(data={}, status=status.HTTP_204_NO_CONTENT)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(
+                data={'error': 'Deletion of an individual NS descriptor resource failed.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
