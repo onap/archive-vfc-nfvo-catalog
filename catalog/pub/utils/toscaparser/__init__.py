@@ -30,3 +30,7 @@ def parse_vnfd(path, input_parameters=[]):
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')
     return strResponse
+
+
+def parse_pnfd(path, input_parameters=[]):
+    pass

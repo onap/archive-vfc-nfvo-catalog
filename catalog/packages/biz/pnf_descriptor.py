@@ -23,6 +23,7 @@ from catalog.pub.utils import fileutil
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.database.models import PnfPackageModel
 from catalog.pub.exceptions import CatalogException
+from catalog.pub.utils import toscaparser
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +71,28 @@ def query_multiple():
         response_data.append(data)
 
     return response_data
+
+
+def process(pnfd_info_id, local_file_name):  # TODO: onboardingState changes
+    pnfd_json = toscaparser.parse_pnfd(local_file_name)
+    pnfd = json.JSONDecoder().decode(pnfd_json)
+
+    pnfd_id = pnfd["metadata"]["id"]
+    if pnfd_id and PnfPackageModel.objects.filter(pnfdId=pnfd_id):  # pnfd_id may not exist
+        raise CatalogException("NS Descriptor (%s) already exists." % pnfd_id)
+
+    PnfPackageModel(
+        pnfPackageId=pnfd_info_id,
+        pnfdId=pnfd_id,
+        pnfdName=pnfd["metadata"].get("name", pnfd_id),
+        pnfdDesginer=pnfd["metadata"].get("vendor", "undefined"),
+        pnfdDescription=pnfd["metadata"].get("description", ""),
+        pnfdVersion=pnfd["metadata"].get("version", "undefined"),
+        nsPackageUri=local_file_name,  # TODO
+        sdcCsarId=pnfd_info_id,
+        localFilePath=local_file_name,
+        pnfdModel=pnfd_json
+    ).save()
 
 
 def upload(files, pnfd_info_id):
