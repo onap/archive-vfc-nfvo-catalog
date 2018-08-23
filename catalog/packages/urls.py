@@ -15,8 +15,7 @@
 from django.conf.urls import url
 
 from catalog.packages.views import vnf_package_views
-from catalog.packages.views import (catalog_views, ns_descriptor_views, pnf_descriptor_views,
-                                    pnfd_content_views)
+from catalog.packages.views import catalog_views, ns_descriptor_views, pnf_descriptor_views
 
 
 urlpatterns = [
@@ -34,7 +33,7 @@ urlpatterns = [
 
     # PNF
     url(r'^api/nsd/v1/pnf_descriptors$', pnf_descriptor_views.create_pnf_descriptors, name='pnf_descriptors_rc'),
-    url(r'^api/nsd/v1/pnf_descriptors/(?P<pnfdInfoId>[0-9a-zA-Z\-\_]+)/pnfd_content$', pnfd_content_views.upload_pnfd_content, name='pnfd_content_ru'),
+    url(r'^api/nsd/v1/pnf_descriptors/(?P<pnfdInfoId>[0-9a-zA-Z\-\_]+)/pnfd_content$', pnf_descriptor_views.pnfd_content_ru, name='pnfd_content_ru'),
     # TODO SOL005 & SOL003
 
     # url(r'^api/nsd/v1/pnf_descriptors/(?P<pnfdInfoId>[0-9a-zA-Z\-\_]+)$', pnfd_info.as_view(), name='pnfd_info_rd'),
