@@ -60,6 +60,28 @@ class VnfPackageModel(models.Model):
         db_table = 'CATALOG_VNFPACKAGE'
 
 
+class PnfPackageModel(models.Model):
+    # uuid = models.CharField(db_column='UUID', primary_key=True, max_length=255)
+    pnfPackageId = models.CharField(db_column='PNFPACKAGEID', primary_key=True, max_length=50)   # onboardedPnfPkgInfoId
+    pnfPackageUri = models.CharField(db_column='PNFPACKAGEURI', max_length=300, null=True, blank=True)  # downloadUri
+    SdcCSARUri = models.CharField(db_column='SDCCSARURI', max_length=300, null=True, blank=True)  # SdcCSARUri
+    checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
+    onboardingState = models.CharField(db_column='ONBOARDINGSTATE', max_length=20, blank=True, null=True)
+    usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
+    deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
+    pnfdId = models.CharField(db_column='PNFDID', max_length=50, blank=True, null=True)                # pnfdId
+    pnfVendor = models.CharField(db_column='VENDOR', max_length=50, blank=True, null=True)  # pnfProvider
+    pnfdProductName = models.CharField(db_column='PNFDPRODUCTNAME', max_length=50, blank=True, null=True)  # pnfProductName
+    pnfdVersion = models.CharField(db_column='PNFDVERSION', max_length=20, blank=True, null=True)     # pnfdVersion
+    pnfSoftwareVersion = models.CharField(db_column='PNFSOFTWAREVERSION', max_length=20, blank=True, null=True)   # pnfSoftwareVersion
+    userDefinedData = models.TextField(db_column='USERDEFINEDDATA', max_length=1024, blank=True, null=True)  # userDefinedData
+    localFilePath = models.CharField(db_column='LOCALFILEPATH', max_length=300, null=True, blank=True)
+    pnfdModel = models.TextField(db_column='PNFDMODEL', max_length=65535, blank=True, null=True)  # pnfd
+
+    class Meta:
+        db_table = 'CATALOG_PNFPACKAGE'
+
+
 class SoftwareImageModel(models.Model):
     imageid = models.CharField(db_column='IMAGEID', primary_key=True, max_length=50)
     containerFormat = models.CharField(db_column='CONTAINERFORMAT', max_length=20)
