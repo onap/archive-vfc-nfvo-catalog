@@ -55,6 +55,15 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(expected_reponse_data, response.data)
 
+        def test_query_multiple_nsds_normal(self):
+            pass
+
+        def test_query_single_nsd_normal(self):
+            pass
+
+        def test_delete_single_nsd_normal(self):
+            pass
+
     def test_nsd_content_upload_normal(self):
         with open('nsd_content.txt', 'wb') as fp:
             fp.write('test')
