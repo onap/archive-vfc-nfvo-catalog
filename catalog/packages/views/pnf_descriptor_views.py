@@ -15,12 +15,12 @@
 import logging
 import traceback
 
-from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from catalog.packages.biz.pnf_descriptor import create
+from catalog.packages.biz.pnf_descriptor import create, upload
 from catalog.packages.serializers.create_pnfd_info_request import \
     CreatePnfdInfoRequestSerializer
 from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
@@ -76,3 +76,25 @@ def create_pnf_descriptors(request, *args, **kwargs):
     except CatalogException:
         logger.error(traceback.format_exc())
         return Response(data={'error': 'Creating pnfd info failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@swagger_auto_schema(
+    method='PUT',
+    operation_description="Upload PNFD content",
+    request_body=no_body,
+    responses={
+        status.HTTP_204_NO_CONTENT: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['PUT'])
+def pnfd_content_ru(request, *args, **kwargs):
+    pnfd_info_id = kwargs.get("pnfdInfoId")
+    files = request.FILES.getlist('file')
+    try:
+        upload(files, pnfd_info_id)
+        return Response(data={}, status=status.HTTP_204_NO_CONTENT)
+    except IOError:
+        logger.error(traceback.format_exc())
+        raise CatalogException
+        return Response(data={'error': 'Uploading pnfd content failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
