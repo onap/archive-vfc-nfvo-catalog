@@ -155,5 +155,15 @@ def upload(remote_file, nsd_info_id):
             local_file.write(data)
 
 
+def download(nsd_info_id):
+    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+    if not ns_pkgs.exists():
+        raise CatalogException('The PNF Descriptor (%s) does not exist.' % nsd_info_id)
+    if ns_pkgs[0].onboardingState != 'ONBOARDED':
+        raise CatalogException('The PNF Descriptor (%s) is not ONBOARDED.' % nsd_info_id)
+    local_file_path = ns_pkgs[0].localFilePath
+    return local_file_path
+
+
 def fill_resp_data(ns_pkg):
     pass
