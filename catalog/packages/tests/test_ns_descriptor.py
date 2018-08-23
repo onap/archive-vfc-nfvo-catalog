@@ -1,4 +1,4 @@
-# Copyright 2017 ZTE Corporation.
+# Copyright 2018 ZTE Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,37 +13,36 @@
 # limitations under the License.
 
 
+import json
 import os
 
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
+from catalog.pub.database.models import NSPackageModel
 
 
 class TestNsDescriptor(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.user_defined_data = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': 'value3',
+        }
 
     def tearDown(self):
         pass
 
     def test_nsd_create_normal(self):
         reqest_data = {
-            'userDefinedData': {
-                'key1': 'value1',
-                'key2': 'value2',
-                'key3': 'value3',
-            }
+            'userDefinedData': self.user_defined_data
         }
         expected_reponse_data = {
             'nsdOnboardingState': 'CREATED',
             'nsdOperationalState': 'DISABLED',
             'nsdUsageState': 'NOT_IN_USE',
-            'userDefinedData': {
-                'key1': 'value1',
-                'key2': 'value2',
-                'key3': 'value3',
-            },
+            'userDefinedData': self.user_defined_data,
             '_links': None
         }
         response = self.client.post(
@@ -65,6 +64,13 @@ class TestNsDescriptor(TestCase):
             pass
 
     def test_nsd_content_upload_normal(self):
+        user_defined_data_json = json.JSONEncoder().encode(self.user_defined_data)
+        NSPackageModel(
+            nsPackageId='22',
+            operationalState='DISABLED',
+            usageState='NOT_IN_USE',
+            userDefinedData=user_defined_data_json,
+        ).save()
         with open('nsd_content.txt', 'wb') as fp:
             fp.write('test')
 
