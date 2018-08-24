@@ -141,7 +141,21 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_delete_single_pnfd_normal(self):
-        pass
+        user_defined_data = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': 'value3',
+        }
+        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        PnfPackageModel(
+            pnfPackageId='22',
+            usageState='NOT_IN_USE',
+            userDefinedData=user_defined_data,
+            pnfdModel='test'
+        ).save()
+        resp = self.client.delete("/api/nsd/v1/pnf_descriptors/22", format='json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(None, resp.data)
 
     def test_pnfd_content_upload_normal(self):
         user_defined_data_json = json.JSONEncoder().encode(self.user_defined_data)
