@@ -295,3 +295,36 @@ class TestVnfPackage(TestCase):
         }
         self.assertEqual(expect_resp_data, resp_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_query_single_vnf(self):
+        VnfPackageModel.objects.create(
+            vnfPackageId="222",
+            vnfdId="zte-hss-1.0",
+            vnfVendor="zte",
+            vnfdProductName="hss",
+            vnfSoftwareVersion="1.0.0",
+            vnfdVersion="1.0.0",
+            checksum='{"algorithm":"111", "hash": "11"}',
+            onboardingState="CREATED",
+            operationalState="DISABLED",
+            usageState="NOT_IN_USE",
+            userDefinedData='{"a": "A"}'
+        )
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222")
+        expect_data = {
+            "id": "222",
+            "vnfdId": "zte-hss-1.0",
+            "vnfProductName": "hss",
+            "vnfSoftwareVersion": "1.0.0",
+            "vnfdVersion": "1.0.0",
+            "checksum": {"algorithm":"111", "hash": "11"},
+            "softwareImages": None,
+            "additionalArtifacts": None,
+            "onboardingState": "CREATED",
+            "operationalState": "DISABLED",
+            "usageState": "NOT_IN_USE",
+            "userDefinedData": {"a": "A"},
+            "_links": None
+        }
+        self.assertEqual(response.data, expect_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
