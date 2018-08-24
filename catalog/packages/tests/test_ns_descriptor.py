@@ -158,7 +158,22 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_delete_single_nsd_normal(self):
-        pass
+        user_defined_data = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': 'value3',
+        }
+        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        NSPackageModel(
+            nsPackageId='22',
+            operationalState='DISABLED',
+            usageState='NOT_IN_USE',
+            userDefinedData=user_defined_data,
+            nsdModel='test'
+        ).save()
+        resp = self.client.delete("/api/nsd/v1/ns_descriptors/22", format='json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual({}, resp.data)
 
     def test_nsd_content_upload_normal(self):
         user_defined_data_json = json.JSONEncoder().encode(self.user_defined_data)
