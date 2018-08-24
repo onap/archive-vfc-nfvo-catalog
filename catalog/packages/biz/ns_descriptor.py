@@ -68,6 +68,7 @@ def query_single(nsd_info_id):
 def delete_single(nsd_info_id):
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
+        logger.debug('NS descriptor (%s) is deleted.' % nsd_info_id)
         return
     if ns_pkgs[0].onboardingState == 'ONBOARDED':
         raise CatalogException('The NS descriptor (%s) shall be non-ONBOARDED.' % nsd_info_id)
@@ -76,6 +77,9 @@ def delete_single(nsd_info_id):
     if ns_pkgs[0].usageState != 'NOT_IN_USE':
         raise CatalogException('The NS descriptor (%s) shall be NOT_IN_USE.' % nsd_info_id)
     ns_pkgs.delete()
+    ns_pkg_path = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
+    fileutil.delete_dirs(ns_pkg_path)
+    logger.debug('NS descriptor (%s) is deleted.' % nsd_info_id)
 
 
 def process(nsd_info_id, local_file_name):

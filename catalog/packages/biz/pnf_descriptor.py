@@ -21,7 +21,7 @@ import uuid
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import fileutil
 from catalog.pub.utils.values import ignore_case_get
-from catalog.pub.database.models import PnfPackageModel
+from catalog.pub.database.models import NSPackageModel, PnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils import toscaparser
 
@@ -119,13 +119,21 @@ def download(pnfd_info_id):
 
 def delete_pnf(pnfd_info_id):
     # TODO
-    pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    if not pnf_pkg.exists():
-        logger.debug('PNF resource(%s) is deleted.' % pnfd_info_id)
+    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+    if not pnf_pkgs.exists():
+        logger.debug('PNF descriptor (%s) is deleted.' % pnfd_info_id)
         return
-    pnf_pkg.delete()
+    if pnf_pkgs[0].usageState != 'NOT_IN_USE':
+        raise CatalogException('The PNF descriptor (%s) shall be NOT_IN_USE.' % pnfd_info_id)
+    ns_pkgs = NSPackageModel.objects.all()
+    for ns_pkg in ns_pkgs:
+        if pnfd_info_id in ns_pkg.pnfdInfoIds:
+            raise CatalogException('The PNF descriptor (%s) is referenced.' % pnfd_info_id)
+            break
+    pnf_pkgs.delete()
     vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
     fileutil.delete_dirs(vnf_pkg_path)
+    logger.debug('PNF descriptor (%s) is deleted.' % pnfd_info_id)
 
 
 def fill_response_data(pnf_pkg):
