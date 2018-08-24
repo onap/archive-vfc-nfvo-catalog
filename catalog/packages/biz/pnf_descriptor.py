@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+import json
 import logging
 import os
 import uuid
@@ -21,6 +22,7 @@ from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import fileutil
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.database.models import PnfPackageModel
+from catalog.pub.exceptions import CatalogException
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +43,33 @@ def create(data):
         userDefinedData=data['userDefinedData']
     ).save()
     return data
+
+
+def query_multiple():
+    pnf_pkgs = PnfPackageModel.objects.all()
+    if not pnf_pkgs.exists():
+        raise CatalogException('PNF descriptors do not exist.')
+    response_data = []
+    for pnf_pkg in pnf_pkgs:
+        data = {
+            'id': pnf_pkg.pnfPackageId,
+            'pnfdId': pnf_pkg.pnfdId,
+            'pnfdName': pnf_pkg.pnfdProductName,  # TODO: check
+            'pnfdVersion': pnf_pkg.pnfdVersion,
+            'pnfdProvider': pnf_pkg.pnfVendor,  # TODO: check
+            'pnfdInvariantId': None,  # TODO
+            'pnfdOnboardingState': pnf_pkg.onboardingState,
+            'onboardingFailureDetails': None,  # TODO
+            'pnfdUsageState': pnf_pkg.usageState,
+            'userDefinedData': {},
+            '_links': None  # TODO
+        }
+        if pnf_pkg.userDefinedData:
+            user_defined_data = json.JSONDecoder().decode(pnf_pkg.userDefinedData)
+            data['userDefinedData'] = user_defined_data
+        response_data.append(data)
+
+    return response_data
 
 
 def upload(files, pnfd_info_id):
