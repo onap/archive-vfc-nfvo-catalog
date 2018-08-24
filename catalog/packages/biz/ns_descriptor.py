@@ -53,7 +53,7 @@ def query_multiple():
         raise CatalogException('NS descriptors do not exist.')
     response_data = []
     for ns_pkg in ns_pkgs:
-        data = fill_resp_data()
+        data = fill_resp_data(ns_pkg)
         response_data.append(data)
     return response_data
 
