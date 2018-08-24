@@ -27,7 +27,7 @@ from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInf
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
 from catalog.packages.serializers.vnf_pkg_infos import VnfPkgInfosSerializer
 from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfPkgUploadThread, \
-    query_single, delete_vnf_pkg
+    query_single, delete_vnf_pkg, parse_vnfd_and_save
 from catalog.pub.database.models import VnfPackageModel
 
 logger = logging.getLogger(__name__)
@@ -101,18 +101,21 @@ def vnf_packages_rc(request):
 @api_view(http_method_names=['PUT'])
 def upload_vnf_pkg_content(request, vnfPkgId):
     logger.debug("Upload VNF package %s" % vnfPkgId)
-    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId)
-    if vnf_pkg[0].onboardingState != "CREATED":
-        raise CatalogException("VNF package (%s) is not created" % vnfPkgId)
-    file_object = request.FILES.get('file')
-    upload_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
-    if not os.path.exists(upload_path):
-        os.makedirs(upload_path, 0o777)
     try:
+        vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId)
+        if vnf_pkg[0].onboardingState != "CREATED":
+            raise CatalogException("VNF package (%s) is not created" % vnfPkgId)
+        file_object = request.FILES.get('file')
+        upload_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
+        if not os.path.exists(upload_path):
+            os.makedirs(upload_path, 0o777)
+
         upload_file_name = os.path.join(upload_path, file_object.name)
         with open(upload_file_name, 'wb+') as dest_file:
             for chunk in file_object.chunks():
                 dest_file.write(chunk)
+
+        parse_vnfd_and_save(vnfPkgId, upload_file_name)
         return Response(None, status=status.HTTP_202_ACCEPTED)
     except CatalogException:
             logger.error(traceback.format_exc())
