@@ -52,25 +52,16 @@ def query_multiple():
         raise CatalogException('PNF descriptors do not exist.')
     response_data = []
     for pnf_pkg in pnf_pkgs:
-        data = {
-            'id': pnf_pkg.pnfPackageId,
-            'pnfdId': pnf_pkg.pnfdId,
-            'pnfdName': pnf_pkg.pnfdProductName,  # TODO: check
-            'pnfdVersion': pnf_pkg.pnfdVersion,
-            'pnfdProvider': pnf_pkg.pnfVendor,  # TODO: check
-            'pnfdInvariantId': None,  # TODO
-            'pnfdOnboardingState': pnf_pkg.onboardingState,
-            'onboardingFailureDetails': None,  # TODO
-            'pnfdUsageState': pnf_pkg.usageState,
-            'userDefinedData': {},
-            '_links': None  # TODO
-        }
-        if pnf_pkg.userDefinedData:
-            user_defined_data = json.JSONDecoder().decode(pnf_pkg.userDefinedData)
-            data['userDefinedData'] = user_defined_data
+        data = fill_response_data(pnf_pkg)
         response_data.append(data)
-
     return response_data
+
+
+def query_single(pnfd_info_id):
+    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+    if not pnf_pkgs.exists():
+        raise CatalogException('PNF descriptor (%s) does not exist.' % pnfd_info_id)
+    return fill_response_data(pnf_pkgs[0])
 
 
 def process(pnfd_info_id, local_file_name):  # TODO: onboardingState changes
@@ -126,25 +117,6 @@ def download(pnfd_info_id):
     return local_file_path
 
 
-def query_single(pnfd_info_id):
-    pkg_info = {}
-    pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    if not pnf_pkg.exists():
-        raise CatalogException('PNF descriptor (%s) does not exist.' % pnfd_info_id)
-    pkg_info["id"] = pnf_pkg[0].pnfPackageId
-    pkg_info["pnfdId"] = pkg_info[0].pnfdId
-    pkg_info["pnfdName"] = pnf_pkg[0].pnfdProductName
-    pkg_info["pnfdVersion"] = pnf_pkg[0].pnfdVersion
-    pkg_info["pnfdProvider"] = pnf_pkg[0].pnfVendor
-    pkg_info["pnfdInvariantId"] = ""  # TODO
-    pkg_info["pnfdOnboardingState"] = pnf_pkg[0].onboardingState
-    pkg_info["onboardingFailureDetails"] = ""  # TODO
-    pkg_info["pnfdUsageState"] = pnf_pkg[0].usageState
-    pkg_info["userDefinedData"] = pnf_pkg[0].userDefinedData
-    pkg_info["_links"] = ""  # TODO
-    return pkg_info
-
-
 def delete_pnf(pnfd_info_id):
     # TODO
     pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
@@ -154,3 +126,24 @@ def delete_pnf(pnfd_info_id):
     pnf_pkg.delete()
     vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
     fileutil.delete_dirs(vnf_pkg_path)
+
+
+def fill_response_data(pnf_pkg):
+    data = {
+        'id': pnf_pkg.pnfPackageId,
+        'pnfdId': pnf_pkg.pnfdId,
+        'pnfdName': pnf_pkg.pnfdProductName,  # TODO: check
+        'pnfdVersion': pnf_pkg.pnfdVersion,
+        'pnfdProvider': pnf_pkg.pnfVendor,  # TODO: check
+        'pnfdInvariantId': None,  # TODO
+        'pnfdOnboardingState': pnf_pkg.onboardingState,
+        'onboardingFailureDetails': None,  # TODO
+        'pnfdUsageState': pnf_pkg.usageState,
+        'userDefinedData': {},
+        '_links': None  # TODO
+    }
+    if pnf_pkg.userDefinedData:
+        user_defined_data = json.JSONDecoder().decode(pnf_pkg.userDefinedData)
+        data['userDefinedData'] = user_defined_data
+
+    return data
