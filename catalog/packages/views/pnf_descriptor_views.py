@@ -20,10 +20,11 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from catalog.packages.biz.pnf_descriptor import create, upload
+from catalog.packages.biz.pnf_descriptor import create, query_multiple, upload
 from catalog.packages.serializers.create_pnfd_info_request import \
     CreatePnfdInfoRequestSerializer
 from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
+from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
 from catalog.pub.exceptions import CatalogException
 
 logger = logging.getLogger(__name__)
@@ -62,20 +63,44 @@ def query_single_pnfd(self, request):
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
-@api_view(http_method_names=['POST'])
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query multiple PNF descriptor resources",
+    request_body=no_body,
+    responses={
+        status.HTTP_200_OK: PnfdInfosSerializer(),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['POST', 'GET'])
 def pnf_descriptors_rc(request, *args, **kwargs):
-    try:
-        create_pnfd_info_request = CreatePnfdInfoRequestSerializer(data=request.data)
-        if not create_pnfd_info_request.is_valid():
-            raise CatalogException
-        data = create(create_pnfd_info_request.data)
-        pnfd_info = PnfdInfoSerializer(data=data)
-        if not pnfd_info.is_valid():
-            raise CatalogException
-        return Response(data=pnfd_info.data, status=status.HTTP_201_CREATED)
-    except CatalogException:
-        logger.error(traceback.format_exc())
-        return Response(data={'error': 'Creating pnfd info failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if request.method == 'POST':
+        try:
+            create_pnfd_info_request = CreatePnfdInfoRequestSerializer(data=request.data)
+            if not create_pnfd_info_request.is_valid():
+                raise CatalogException
+            data = create(create_pnfd_info_request.data)
+            pnfd_info = PnfdInfoSerializer(data=data)
+            if not pnfd_info.is_valid():
+                raise CatalogException
+            return Response(data=pnfd_info.data, status=status.HTTP_201_CREATED)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Creating pnfd info failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if request.method == 'GET':
+        try:
+            data = query_multiple()
+            pnfd_infos = PnfdInfosSerializer(data=data)
+            if not pnfd_infos.is_valid():
+                raise CatalogException
+            return Response(data=pnfd_infos.data, status=status.HTTP_200_OK)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(
+                data={'error': 'Query of multiple PNF descriptor resources failed.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @swagger_auto_schema(
