@@ -52,7 +52,58 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_query_multiple_pnfds_normal(self):
-        pass
+        expected_reponse_data = [
+            {
+                'id': '0',
+                'pnfdId': None,
+                'pnfdName': None,
+                'pnfdVersion': None,
+                'pnfdProvider': None,
+                'pnfdInvariantId': None,
+                'pnfdOnboardingState': 'CREATED',
+                'onboardingFailureDetails': None,
+                'pnfdUsageState': 'NOT_IN_USE',
+                'userDefinedData': {
+                    'key1': 'value1',
+                    'key2': 'value2',
+                    'key3': 'value3',
+                },
+                '_links': None
+            },
+            {
+                'id': '1',
+                'pnfdId': None,
+                'pnfdName': None,
+                'pnfdVersion': None,
+                'pnfdProvider': None,
+                'pnfdInvariantId': None,
+                'pnfdOnboardingState': 'CREATED',
+                'onboardingFailureDetails': None,
+                'pnfdUsageState': 'NOT_IN_USE',
+                'userDefinedData': {
+                    'key1': 'value1',
+                    'key2': 'value2',
+                    'key3': 'value3',
+                },
+                '_links': None
+            }
+        ]
+        user_defined_data = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': 'value3',
+        }
+        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        for i in range(2):
+            PnfPackageModel(
+                pnfPackageId=str(i),
+                onboardingState='CREATED',
+                usageState='NOT_IN_USE',
+                userDefinedData=user_defined_data
+            ).save()
+        response = self.client.get('/api/nsd/v1/pnf_descriptors', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(expected_reponse_data, response.data)
 
     def test_query_single_pnfd_normal(self):
         expected_reponse_data = {
