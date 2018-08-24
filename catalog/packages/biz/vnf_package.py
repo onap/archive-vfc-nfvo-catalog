@@ -121,7 +121,8 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
         vnfdModel=vnfd_json,
         onboardingState="ONBOARDED",
         operationalState="ENABLED",
-        usageState="NOT_IN_USE"
+        usageState="NOT_IN_USE",
+        localFilePath=vnf_pkg_path
     ).save()
 
 
@@ -130,10 +131,12 @@ class VnfPkgUploadThread(threading.Thread):
         threading.Thread.__init__(self)
         self.vnf_pkg_id = vnf_pkg_id
         self.data = data
+        self.upload_file_name = None
 
     def run(self):
         try:
             self.upload_vnf_pkg_from_uri()
+            parse_vnfd_and_save(self.vnf_pkg_id, self.upload_file_name)
         except CatalogException as e:
             logger.error(e.message)
         except Exception as e:
@@ -153,8 +156,8 @@ class VnfPkgUploadThread(threading.Thread):
         r = urllib2.Request(uri)
         req = urllib2.urlopen(r)
 
-        upload_file_name = os.path.join(upload_path, os.path.basename(uri))
-        save_file = open(upload_file_name, "wb")
+        self.upload_file_name = os.path.join(upload_path, os.path.basename(uri))
+        save_file = open(self.upload_file_name, "wb")
         save_file.write(req.read())
         save_file.close()
         req.close()
