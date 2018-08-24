@@ -26,8 +26,9 @@ from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPa
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
 from catalog.packages.serializers.vnf_pkg_infos import VnfPkgInfosSerializer
-from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfpkgUploadThread, \
+from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfPkgUploadThread, \
     query_single, delete_vnf_pkg
+from catalog.pub.database.models import VnfPackageModel
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +101,9 @@ def vnf_packages_rc(request):
 @api_view(http_method_names=['PUT'])
 def upload_vnf_pkg_content(request, vnfPkgId):
     logger.debug("Upload VNF package %s" % vnfPkgId)
+    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId)
+    if vnf_pkg[0].onboardingState != "CREATED":
+        raise CatalogException("VNF package (%s) is not created" % vnfPkgId)
     file_object = request.FILES.get('file')
     upload_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
     if not os.path.exists(upload_path):
@@ -109,10 +113,14 @@ def upload_vnf_pkg_content(request, vnfPkgId):
         with open(upload_file_name, 'wb+') as dest_file:
             for chunk in file_object.chunks():
                 dest_file.write(chunk)
+        return Response(None, status=status.HTTP_202_ACCEPTED)
+    except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Upload VNF package failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
-        logger.error("File upload exception.[%s:%s]" % (type(e), str(e)))
-        logger.error("%s", traceback.format_exc())
-    return Response(None, status.HTTP_202_ACCEPTED)
+        logger.error(e.message)
+        logger.error(traceback.format_exc())
+        return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
@@ -130,7 +138,7 @@ def upload_vnf_pkg_from_uri(request, vnfPkgId):
         req_serializer = UploadVnfPackageFromUriRequestSerializer(data=request.data)
         if not req_serializer.is_valid():
             raise CatalogException
-        VnfpkgUploadThread(req_serializer.data, vnfPkgId).start()
+        VnfPkgUploadThread(req_serializer.data, vnfPkgId).start()
         return Response(None, status=status.HTTP_202_ACCEPTED)
     except CatalogException:
         logger.error(traceback.format_exc())

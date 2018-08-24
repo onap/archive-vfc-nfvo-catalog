@@ -33,16 +33,16 @@ logger = logging.getLogger(__name__)
 
 def create_vnf_pkg(data):
     user_defined_data = ignore_case_get(data, "userDefinedData")
-    vnfPkgId = str(uuid.uuid4())
+    vnf_pkg_id = str(uuid.uuid4())
     VnfPackageModel.objects.create(
-        vnfPackageId=vnfPkgId,
+        vnfPackageId=vnf_pkg_id,
         onboardingState="CREATED",
         operationalState="DISABLED",
         usageState="NOT_IN_USE",
         userDefinedData=user_defined_data
     )
     data = {
-        "id": vnfPkgId,
+        "id": vnf_pkg_id,
         "onboardingState": "CREATED",
         "operationalState": "DISABLED",
         "usageState": "NOT_IN_USE",
@@ -63,11 +63,11 @@ def query_multiple():
     return pkgs_info
 
 
-def query_single(vnfPkgId):
+def query_single(vnf_pkg_id):
     pkg_info = {}
-    nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId)
+    nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not nf_pkg.exists():
-        raise CatalogException('VNF package(%s) does not exist.' % vnfPkgId)
+        raise CatalogException('VNF package(%s) does not exist.' % vnf_pkg_id)
     pkg_info["id"] = nf_pkg[0].vnfPackageId
     pkg_info["vnfdId"] = nf_pkg[0].vnfdId
     pkg_info["vnfdProvider"] = nf_pkg[0].vnfVendor
@@ -85,23 +85,23 @@ def query_single(vnfPkgId):
     return pkg_info
 
 
-def delete_vnf_pkg(vnfPkgId):
-    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId)
+def delete_vnf_pkg(vnf_pkg_id):
+    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not vnf_pkg.exists():
-        logger.debug('VNF package(%s) is deleted.' % vnfPkgId)
+        logger.debug('VNF package(%s) is deleted.' % vnf_pkg_id)
         return
     if vnf_pkg[0].onboardingState != "CREATED":
-        raise CatalogException("The VNF package (%s) is not on-boarded" % vnfPkgId)
+        raise CatalogException("The VNF package (%s) is not on-boarded" % vnf_pkg_id)
     if vnf_pkg[0].operationalState != "DISABLED":
-        raise CatalogException("The VNF package (%s) is not disabled" % vnfPkgId)
+        raise CatalogException("The VNF package (%s) is not disabled" % vnf_pkg_id)
     if vnf_pkg[0].usageState != "NOT_IN_USE":
-        raise CatalogException("The VNF package (%s) is in use" % vnfPkgId)
+        raise CatalogException("The VNF package (%s) is in use" % vnf_pkg_id)
     vnf_pkg.delete()
-    vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
+    vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnf_pkg_id)
     fileutil.delete_dirs(vnf_pkg_path)
 
 
-def parse_vnfd_and_save(vnfPkgId, vnf_pkg_path):
+def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
     vnfd_json = toscaparser.parse_vnfd(vnf_pkg_path)
     vnfd = json.JSONDecoder().decode(vnfd_json)
 
@@ -113,7 +113,7 @@ def parse_vnfd_and_save(vnfPkgId, vnf_pkg_path):
     if not vnfd_ver:
         vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
     VnfPackageModel(
-        vnfPackageId=vnfPkgId,
+        vnfPackageId=vnf_pkg_id,
         vnfdId=vnfd_id,
         vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
         vnfdVersion=vnfd_ver,
@@ -125,15 +125,15 @@ def parse_vnfd_and_save(vnfPkgId, vnf_pkg_path):
     ).save()
 
 
-class VnfpkgUploadThread(threading.Thread):
-    def __init__(self, data, vnfPkgId):
+class VnfPkgUploadThread(threading.Thread):
+    def __init__(self, data, vnf_pkg_id):
         threading.Thread.__init__(self)
-        self.vnfPkgId = vnfPkgId
+        self.vnf_pkg_id = vnf_pkg_id
         self.data = data
 
     def run(self):
         try:
-            self.upload_vnfPkg_from_uri()
+            self.upload_vnf_pkg_from_uri()
         except CatalogException as e:
             logger.error(e.message)
         except Exception as e:
@@ -141,10 +141,13 @@ class VnfpkgUploadThread(threading.Thread):
             logger.error(traceback.format_exc())
             logger.error(str(sys.exc_info()))
 
-    def upload_vnfPkg_from_uri(self):
-        logger.debug("UploadVnf %s" % self.vnfPkgId)
+    def upload_vnf_pkg_from_uri(self):
+        logger.debug("UploadVnf %s" % self.vnf_pkg_id)
+        vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=self.vnf_pkg_id)
+        if vnf_pkg[0].onboardingState != "CREATED":
+            raise CatalogException("VNF package (%s) is not created" % self.vnf_pkg_id)
         uri = ignore_case_get(self.data, "addressInformation")
-        upload_path = os.path.join(CATALOG_ROOT_PATH, self.vnfPkgId)
+        upload_path = os.path.join(CATALOG_ROOT_PATH, self.vnf_pkg_id)
         if not os.path.exists(upload_path):
             os.makedirs(upload_path, 0o777)
         r = urllib2.Request(uri)
