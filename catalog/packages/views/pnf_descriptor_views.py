@@ -150,4 +150,3 @@ def pnfd_content_ru(request, *args, **kwargs):
     except IOError:
         logger.error(traceback.format_exc())
         raise CatalogException
-        return Response(data={'error': 'Uploading pnfd content failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
