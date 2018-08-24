@@ -20,7 +20,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from catalog.packages.biz.pnf_descriptor import create, query_multiple, upload, query_single
+from catalog.packages.biz.pnf_descriptor import create, query_multiple, upload, query_single, delete_pnf
 from catalog.packages.serializers.create_pnfd_info_request import \
     CreatePnfdInfoRequestSerializer
 from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
@@ -61,6 +61,20 @@ def pnfd_info_rd(request, pnfdInfoId):
         except CatalogException:
             logger.error(traceback.format_exc())
             return Response(data={'error': 'Query an individual PNF descriptor failed.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if request.method == 'DELETE':
+        logger.debug("Delete an individual PNFD resource> %s" % request.data)
+        try:
+            delete_pnf(pnfdInfoId)
+            return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Delete an individual PNFD resource failed.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.error(e.message)

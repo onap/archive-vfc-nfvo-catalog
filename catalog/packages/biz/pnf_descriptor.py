@@ -112,11 +112,11 @@ def upload(files, pnfd_info_id):
                 local_file.write(data)
 
 
-def query_single(pnfdInfoId):
+def query_single(pnfd_info_id):
     pkg_info = {}
-    pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfdInfoId)
+    pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
     if not pnf_pkg.exists():
-        raise CatalogException('PNF descriptor (%s) does not exist.' % pnfdInfoId)
+        raise CatalogException('PNF descriptor (%s) does not exist.' % pnfd_info_id)
     pkg_info["id"] = pnf_pkg[0].pnfPackageId
     pkg_info["pnfdId"] = pkg_info[0].pnfdId
     pkg_info["pnfdName"] = pnf_pkg[0].pnfdProductName
@@ -129,3 +129,14 @@ def query_single(pnfdInfoId):
     pkg_info["userDefinedData"] = pnf_pkg[0].userDefinedData
     pkg_info["_links"] = ""  # TODO
     return pkg_info
+
+
+def delete_pnf(pnfd_info_id):
+    # TODO
+    pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+    if not pnf_pkg.exists():
+        logger.debug('PNF resource(%s) is deleted.' % pnfd_info_id)
+        return
+    pnf_pkg.delete()
+    vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
+    fileutil.delete_dirs(vnf_pkg_path)
