@@ -55,7 +55,39 @@ class TestPnfDescriptor(TestCase):
         pass
 
     def test_query_single_pnfd_normal(self):
-        pass
+        expected_reponse_data = {
+            'id': '22',
+            'pnfdId': None,
+            'pnfdName': None,
+            'pnfdVersion': None,
+            'pnfdProvider': None,
+            'pnfdInvariantId': None,
+            'pnfdOnboardingState': 'CREATED',
+            'onboardingFailureDetails': None,
+            'pnfdUsageState': 'NOT_IN_USE',
+            'userDefinedData': {
+                'key1': 'value1',
+                'key2': 'value2',
+                'key3': 'value3',
+            },
+            '_links': None
+        }
+        user_defined_data = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': 'value3',
+        }
+        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        PnfPackageModel(
+            pnfPackageId='22',
+            onboardingState='CREATED',
+            usageState='NOT_IN_USE',
+            userDefinedData=user_defined_data
+        ).save()
+
+        response = self.client.get('/api/nsd/v1/pnf_descriptors/22', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(expected_reponse_data, response.data)
 
     def test_delete_single_pnfd_normal(self):
         pass
