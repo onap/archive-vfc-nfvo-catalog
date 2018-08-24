@@ -141,21 +141,6 @@ def delete_single(nsd_info_id):
     ns_pkgs.delete()
 
 
-def upload(remote_file, nsd_info_id):
-    local_file_name = remote_file.name
-    local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
-    local_file_name = os.path.join(local_file_dir, local_file_name)
-    if not os.path.exists(local_file_dir):
-        fileutil.make_dirs(local_file_dir)
-    with open(local_file_name, 'wb') as local_file:
-        if remote_file.multiple_chunks(chunk_size=None):
-            for chunk in remote_file.chunks():
-                local_file.write(chunk)
-        else:
-            data = remote_file.read()
-            local_file.write(data)
-
-
 def process(nsd_info_id, local_file_name):
     nsd_json = toscaparser.parse_nsd(local_file_name)
     nsd = json.JSONDecoder().decode(nsd_json)
@@ -184,6 +169,25 @@ def process(nsd_info_id, local_file_name):
         localFilePath=local_file_name,
         nsdModel=nsd_json
     ).save()
+
+
+def upload(remote_file, nsd_info_id):
+    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+    if not ns_pkgs.exists():
+        raise CatalogException('The NS descriptor (%s) does not exist.' % nsd_info_id)
+
+    local_file_name = remote_file.name
+    local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
+    local_file_name = os.path.join(local_file_dir, local_file_name)
+    if not os.path.exists(local_file_dir):
+        fileutil.make_dirs(local_file_dir)
+    with open(local_file_name, 'wb') as local_file:
+        if remote_file.multiple_chunks(chunk_size=None):
+            for chunk in remote_file.chunks():
+                local_file.write(chunk)
+        else:
+            data = remote_file.read()
+            local_file.write(data)
 
 
 def download(nsd_info_id):
