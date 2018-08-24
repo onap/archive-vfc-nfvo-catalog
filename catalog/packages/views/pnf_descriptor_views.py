@@ -20,7 +20,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from catalog.packages.biz.pnf_descriptor import create, query_multiple, upload
+from catalog.packages.biz.pnf_descriptor import create, query_multiple, upload, query_single
 from catalog.packages.serializers.create_pnfd_info_request import \
     CreatePnfdInfoRequestSerializer
 from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
@@ -31,27 +31,41 @@ logger = logging.getLogger(__name__)
 
 
 @swagger_auto_schema(
+    method='GET',
+    operation_description="Query an individual PNF descriptor resource",
+    request_body=no_body,
     responses={
-        # status.HTTP_200_OK: Serializer(),
+        status.HTTP_200_OK: PnfdInfoSerializer(),
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
-# @api_view(http_method_names=['GET'])
-def query_multiple_pnfds(self, request):
-    # TODO
-    return None
-
-
 @swagger_auto_schema(
+    method='DELETE',
+    operation_description="Delete an individual PNF descriptor resource",
+    request_body=no_body,
     responses={
-        # status.HTTP_200_OK: Serializer(),
+        status.HTTP_204_NO_CONTENT: None,
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
-# @api_view(http_method_names=['GET'])
-def query_single_pnfd(self, request):
-    # TODO
-    return None
+@api_view(http_method_names=['GET', 'DELETE'])
+def pnfd_info_rd(request, pnfdInfoId):
+    if request.method == 'GET':
+        logger.debug("Query an individual PNF descriptor> %s" % request.data)
+        try:
+            res = query_single(pnfdInfoId)
+            query_serializer = PnfdInfoSerializer(data=res)
+            if not query_serializer.is_valid():
+                raise CatalogException
+            return Response(data=query_serializer.data, status=status.HTTP_200_OK)
+        except CatalogException:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'Query an individual PNF descriptor failed.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(

@@ -87,3 +87,22 @@ def upload(files, pnfd_info_id):
             else:
                 data = remote_file.read()
                 local_file.write(data)
+
+
+def query_single(pnfdInfoId):
+    pkg_info = {}
+    pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfdInfoId)
+    if not pnf_pkg.exists():
+        raise CatalogException('PNF descriptor (%s) does not exist.' % pnfdInfoId)
+    pkg_info["id"] = pnf_pkg[0].pnfPackageId
+    pkg_info["pnfdId"] = pkg_info[0].pnfdId
+    pkg_info["pnfdName"] = pnf_pkg[0].pnfdProductName
+    pkg_info["pnfdVersion"] = pnf_pkg[0].pnfdVersion
+    pkg_info["pnfdProvider"] = pnf_pkg[0].pnfVendor
+    pkg_info["pnfdInvariantId"] = ""  # TODO
+    pkg_info["pnfdOnboardingState"] = pnf_pkg[0].onboardingState
+    pkg_info["onboardingFailureDetails"] = ""  # TODO
+    pkg_info["pnfdUsageState"] = pnf_pkg[0].usageState
+    pkg_info["userDefinedData"] = pnf_pkg[0].userDefinedData
+    pkg_info["_links"] = ""  # TODO
+    return pkg_info
