@@ -96,6 +96,10 @@ def process(pnfd_info_id, local_file_name):  # TODO: onboardingState changes
 
 
 def upload(files, pnfd_info_id):
+    ns_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+    if not ns_pkgs.exists():
+        raise CatalogException('The NS descriptor (%s) does not exist.' % pnfd_info_id)
+
     remote_files = files
     for remote_file in remote_files:
         local_file_name = remote_file.name
