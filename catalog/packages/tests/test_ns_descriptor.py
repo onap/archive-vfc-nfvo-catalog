@@ -20,6 +20,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 from catalog.pub.database.models import NSPackageModel
+from catalog.pub.config.config import CATALOG_ROOT_PATH
 
 
 class TestNsDescriptor(TestCase):
@@ -70,11 +71,7 @@ class TestNsDescriptor(TestCase):
                 'onboardingFailureDetails': None,
                 'nsdOperationalState': 'DISABLED',
                 'nsdUsageState': 'NOT_IN_USE',
-                'userDefinedData': {
-                    'key1': 'value1',
-                    'key2': 'value2',
-                    'key3': 'value3',
-                },
+                'userDefinedData': self.user_defined_data,
                 '_links': None
             },
             {
@@ -91,20 +88,11 @@ class TestNsDescriptor(TestCase):
                 'onboardingFailureDetails': None,
                 'nsdOperationalState': 'DISABLED',
                 'nsdUsageState': 'NOT_IN_USE',
-                'userDefinedData': {
-                    'key1': 'value1',
-                    'key2': 'value2',
-                    'key3': 'value3',
-                },
+                'userDefinedData': self.user_defined_data,
                 '_links': None
             }
         ]
-        user_defined_data = {
-            'key1': 'value1',
-            'key2': 'value2',
-            'key3': 'value3',
-        }
-        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
         for i in range(2):
             NSPackageModel(
                 nsPackageId=str(i),
@@ -132,19 +120,10 @@ class TestNsDescriptor(TestCase):
             'onboardingFailureDetails': None,
             'nsdOperationalState': 'DISABLED',
             'nsdUsageState': 'NOT_IN_USE',
-            'userDefinedData': {
-                'key1': 'value1',
-                'key2': 'value2',
-                'key3': 'value3',
-            },
+            'userDefinedData': self.user_defined_data,
             '_links': None
         }
-        user_defined_data = {
-            'key1': 'value1',
-            'key2': 'value2',
-            'key3': 'value3',
-        }
-        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
         NSPackageModel(
             nsPackageId='22',
             onboardingState='CREATED',
@@ -158,20 +137,15 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_delete_single_nsd_normal(self):
-        user_defined_data = {
-            'key1': 'value1',
-            'key2': 'value2',
-            'key3': 'value3',
-        }
-        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
         NSPackageModel(
-            nsPackageId='22',
+            nsPackageId='21',
             operationalState='DISABLED',
             usageState='NOT_IN_USE',
             userDefinedData=user_defined_data,
             nsdModel='test'
         ).save()
-        resp = self.client.delete("/api/nsd/v1/ns_descriptors/22", format='json')
+        resp = self.client.delete("/api/nsd/v1/ns_descriptors/21", format='json')
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual({}, resp.data)
 
@@ -185,16 +159,43 @@ class TestNsDescriptor(TestCase):
         ).save()
         with open('nsd_content.txt', 'wb') as fp:
             fp.write('test')
-
         with open('nsd_content.txt', 'rb') as fp:
             resp = self.client.put(
                 "/api/nsd/v1/ns_descriptors/22/nsd_content",
                 {'file': fp},
             )
+        file_content = ''
+        with open(os.path.join(CATALOG_ROOT_PATH, '22\\nsd_content.txt')) as fp:
+            data = fp.read()
+            file_content = '%s%s' % (file_content, data)
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual({}, resp.data)
-
+        self.assertEqual(file_content, 'test')
         os.remove('nsd_content.txt')
 
     def test_nsd_content_upload_failure(self):
         pass
+
+    def test_nsd_content_download_normal(self):
+        pass
+
+    def test_nsd_content_partial_download_normal(self):
+        with open('nsd_content.txt', 'wb') as fp:
+            fp.writelines('test1')
+            fp.writelines('test2')
+        NSPackageModel(
+            nsPackageId='23',
+            onboardingState='ONBOARDED',
+            localFilePath='nsd_content.txt'
+        ).save()
+        response = self.client.get(
+            "/api/nsd/v1/ns_descriptors/23/nsd_content",
+            RANGE='5-10',
+            format='json'
+        )
+        partial_file_content = ''
+        for data in response.streaming_content:
+            partial_file_content = '%s%s' % (partial_file_content, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('test2', partial_file_content)
+        os.remove('nsd_content.txt')
