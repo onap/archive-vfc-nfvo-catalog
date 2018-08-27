@@ -58,30 +58,16 @@ def query_multiple():
     if not nf_pkgs.exists():
         raise CatalogException('VNF packages do not exist.')
     for nf_pkg in nf_pkgs:
-        ret = query_single(nf_pkg.vnfPackageId)
+        ret = fill_response_data(nf_pkg)
         pkgs_info.append(ret)
     return pkgs_info
 
 
 def query_single(vnf_pkg_id):
-    pkg_info = {}
     nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not nf_pkg.exists():
         raise CatalogException('VNF package(%s) does not exist.' % vnf_pkg_id)
-    pkg_info["id"] = nf_pkg[0].vnfPackageId
-    pkg_info["vnfdId"] = nf_pkg[0].vnfdId
-    pkg_info["vnfProductName"] = nf_pkg[0].vnfdProductName
-    pkg_info["vnfSoftwareVersion"] = nf_pkg[0].vnfSoftwareVersion
-    pkg_info["vnfdVersion"] = nf_pkg[0].vnfdVersion
-    pkg_info["checksum"] = json.JSONDecoder().decode(nf_pkg[0].checksum)
-    pkg_info["softwareImages"] = None  # TODO
-    pkg_info["additionalArtifacts"] = None  # TODO
-    pkg_info["onboardingState"] = nf_pkg[0].onboardingState
-    pkg_info["operationalState"] = nf_pkg[0].operationalState
-    pkg_info["usageState"] = nf_pkg[0].usageState
-    pkg_info["userDefinedData"] = json.JSONDecoder().decode(nf_pkg[0].userDefinedData)
-    pkg_info["_links"] = None  # TODO
-    return pkg_info
+    return fill_response_data(nf_pkg)
 
 
 def delete_vnf_pkg(vnf_pkg_id):
@@ -160,3 +146,21 @@ class VnfPkgUploadThread(threading.Thread):
         save_file.write(req.read())
         save_file.close()
         req.close()
+
+
+def fill_response_data(nf_pkg):
+    pkg_info = {}
+    pkg_info["id"] = nf_pkg[0].vnfPackageId
+    pkg_info["vnfdId"] = nf_pkg[0].vnfdId
+    pkg_info["vnfProductName"] = nf_pkg[0].vnfdProductName
+    pkg_info["vnfSoftwareVersion"] = nf_pkg[0].vnfSoftwareVersion
+    pkg_info["vnfdVersion"] = nf_pkg[0].vnfdVersion
+    pkg_info["checksum"] = json.JSONDecoder().decode(nf_pkg[0].checksum)
+    pkg_info["softwareImages"] = None  # TODO
+    pkg_info["additionalArtifacts"] = None  # TODO
+    pkg_info["onboardingState"] = nf_pkg[0].onboardingState
+    pkg_info["operationalState"] = nf_pkg[0].operationalState
+    pkg_info["usageState"] = nf_pkg[0].usageState
+    pkg_info["userDefinedData"] = json.JSONDecoder().decode(nf_pkg[0].userDefinedData)
+    pkg_info["_links"] = None  # TODO
+    return pkg_info
