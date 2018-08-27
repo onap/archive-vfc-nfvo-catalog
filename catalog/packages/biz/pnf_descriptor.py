@@ -112,6 +112,16 @@ def upload(files, pnfd_info_id):
                 local_file.write(data)
 
 
+def download(pnfd_info_id):
+    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+    if not pnf_pkgs.exists():
+        raise CatalogException('The PNF Descriptor (%s) does not exist.' % pnfd_info_id)
+    if pnf_pkgs[0].onboardingState != 'ONBOARDED':
+        raise CatalogException('The PNF Descriptor (%s) is not ONBOARDED.' % pnfd_info_id)
+    local_file_path = pnf_pkgs[0].localFilePath
+    return local_file_path
+
+
 def query_single(pnfd_info_id):
     pkg_info = {}
     pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
