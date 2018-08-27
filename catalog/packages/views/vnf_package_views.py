@@ -138,7 +138,7 @@ def upload_vnf_pkg_content(request, vnfPkgId):
 
     if request.method == "GET":
         try:
-            response = fetch_vnf_pkg(vnfPkgId)
+            response = fetch_vnf_pkg(request, vnfPkgId)
             return response
         except CatalogException:
             logger.error(traceback.format_exc())

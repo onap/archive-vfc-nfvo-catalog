@@ -22,7 +22,7 @@ import urllib2
 import uuid
 
 from rest_framework import status
-from django.http import FileResponse
+from django.http import FileResponse, StreamingHttpResponse
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
@@ -170,15 +170,27 @@ def fill_response_data(nf_pkg):
     return pkg_info
 
 
-def fetch_vnf_pkg(vnf_pkg_id):
+def fetch_vnf_pkg(request, vnf_pkg_id):
     nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not nf_pkg.exists():
         raise CatalogException("VNF package (%s) does not exist" % vnf_pkg_id)
-    if nf_pkg[0].localFilePath != "ONBOARDED":
+    if nf_pkg[0].onboardingState != "ONBOARDED":
         raise CatalogException("VNF package (%s) is not on-boarded" % vnf_pkg_id)
     file_path = nf_pkg[0].localFilePath
     file_name = file_path.split('/')[-1]
     file_name = file_name.split('\\')[-1]
-    response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
+    file_range = request.META.get('RANGE')
+    if file_range:
+        start_end = file_range.split('-')
+        start = int(start_end[0])
+        end = int(start_end[1])
+        f = open(file_path, "rb")
+        f.seek(start, 0)
+        fs = f.read(end - start + 1)
+        response = StreamingHttpResponse(fs, status=status.HTTP_200_OK)
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Range'] = file_range
+    else:
+        response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
     response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
     return response
