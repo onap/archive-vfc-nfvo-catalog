@@ -54,14 +54,51 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(expected_reponse_data, response.data)
 
-        def test_query_multiple_nsds_normal(self):
-            pass
+    def test_query_multiple_nsds_normal(self):
+        pass
 
-        def test_query_single_nsd_normal(self):
-            pass
+    def test_query_single_nsd_normal(self):
+        expected_reponse_data = {
+            'id': '22',
+            'nsdId': None,
+            'nsdName': None,
+            'nsdVersion': None,
+            'nsdDesigner': None,
+            'nsdInvariantId': None,
+            'vnfPkgIds': [],
+            'pnfdInfoIds': [],
+            'nestedNsdInfoIds': [],
+            'nsdOnboardingState': 'CREATED',
+            'onboardingFailureDetails': None,
+            'nsdOperationalState': 'DISABLED',
+            'nsdUsageState': 'NOT_IN_USE',
+            'userDefinedData': {
+                'key1': 'value1',
+                'key2': 'value2',
+                'key3': 'value3',
+            },
+            '_links': None
+        }
+        user_defined_data = {
+            'key1': 'value1',
+            'key2': 'value2',
+            'key3': 'value3',
+        }
+        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        NSPackageModel(
+            nsPackageId='22',
+            onboardingState='CREATED',
+            operationalState='DISABLED',
+            usageState='NOT_IN_USE',
+            userDefinedData=user_defined_data
+        ).save()
 
-        def test_delete_single_nsd_normal(self):
-            pass
+        response = self.client.get('/api/nsd/v1/ns_descriptors/22', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(expected_reponse_data, response.data)
+
+    def test_delete_single_nsd_normal(self):
+        pass
 
     def test_nsd_content_upload_normal(self):
         user_defined_data_json = json.JSONEncoder().encode(self.user_defined_data)
