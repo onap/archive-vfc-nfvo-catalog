@@ -53,38 +53,7 @@ def query_multiple():
         raise CatalogException('NS descriptors do not exist.')
     response_data = []
     for ns_pkg in ns_pkgs:
-        data = {
-            'id': ns_pkg.nsPackageId,
-            'nsdId': ns_pkg.nsdId,
-            'nsdName': ns_pkg.nsdName,
-            'nsdVersion': ns_pkg.nsdVersion,
-            'nsdDesigner': ns_pkg.nsdDesginer,
-            'nsdInvariantId': None,  # TODO
-            'vnfPkgIds': [],
-            'pnfdInfoIds': [],  # TODO
-            'nestedNsdInfoIds': [],  # TODO
-            'nsdOnboardingState': ns_pkg.onboardingState,
-            'onboardingFailureDetails': None,  # TODO
-            'nsdOperationalState': ns_pkg.operationalState,
-            'nsdUsageState': ns_pkg.usageState,
-            'userDefinedData': {},
-            '_links': None  # TODO
-        }
-
-        if ns_pkg.nsdModel:
-            nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
-            vnf_pkg_ids = []
-            for vnf in nsd_model['vnfs']:
-                vnfd_id = vnf["properties"]["id"]
-                pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
-                for pkg in pkgs:
-                    vnf_pkg_ids.append(pkg.vnfPackageId)
-            data['vnfPkgIds'] = vnf_pkg_ids
-
-        if ns_pkg.userDefinedData:
-            user_defined_data = json.JSONDecoder().decode(ns_pkg.userDefinedData)
-            data['userDefinedData'] = user_defined_data
-
+        data = fill_resp_data()
         response_data.append(data)
     return response_data
 
@@ -93,39 +62,7 @@ def query_single(nsd_info_id):
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
         raise CatalogException('NS descriptors(%s) does not exist.' % nsd_info_id)
-    data = {
-        'id': ns_pkgs[0].nsPackageId,
-        'nsdId': ns_pkgs[0].nsdId,
-        'nsdName': ns_pkgs[0].nsdName,
-        'nsdVersion': ns_pkgs[0].nsdVersion,
-        'nsdDesigner': ns_pkgs[0].nsdDesginer,
-        'nsdInvariantId': None,  # TODO
-        'vnfPkgIds': [],
-        'pnfdInfoIds': [],  # TODO
-        'nestedNsdInfoIds': [],  # TODO
-        'nsdOnboardingState': ns_pkgs[0].onboardingState,
-        'onboardingFailureDetails': None,  # TODO
-        'nsdOperationalState': ns_pkgs[0].operationalState,
-        'nsdUsageState': ns_pkgs[0].usageState,
-        'userDefinedData': {},
-        '_links': None  # TODO
-    }
-
-    if ns_pkgs[0].nsdModel:
-        nsd_model = json.JSONDecoder().decode(ns_pkgs[0].nsdModel)
-        vnf_pkg_ids = []
-        for vnf in nsd_model['vnfs']:
-            vnfd_id = vnf["properties"]["id"]
-            pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
-            for pkg in pkgs:
-                vnf_pkg_ids.append(pkg.vnfPackageId)
-        data['vnfPkgIds'] = vnf_pkg_ids
-
-    if ns_pkgs[0].userDefinedData:
-        user_defined_data = json.JSONDecoder().decode(ns_pkgs[0].userDefinedData)
-        data['userDefinedData'] = user_defined_data
-
-    return data
+    return fill_resp_data(ns_pkgs[0])
 
 
 def delete_single(nsd_info_id):
@@ -201,4 +138,36 @@ def download(nsd_info_id):
 
 
 def fill_resp_data(ns_pkg):
-    pass
+    data = {
+        'id': ns_pkg.nsPackageId,
+        'nsdId': ns_pkg.nsdId,
+        'nsdName': ns_pkg.nsdName,
+        'nsdVersion': ns_pkg.nsdVersion,
+        'nsdDesigner': ns_pkg.nsdDesginer,
+        'nsdInvariantId': None,  # TODO
+        'vnfPkgIds': [],
+        'pnfdInfoIds': [],  # TODO
+        'nestedNsdInfoIds': [],  # TODO
+        'nsdOnboardingState': ns_pkg.onboardingState,
+        'onboardingFailureDetails': None,  # TODO
+        'nsdOperationalState': ns_pkg.operationalState,
+        'nsdUsageState': ns_pkg.usageState,
+        'userDefinedData': {},
+        '_links': None  # TODO
+    }
+
+    if ns_pkg.nsdModel:
+        nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
+        vnf_pkg_ids = []
+        for vnf in nsd_model['vnfs']:
+            vnfd_id = vnf["properties"]["id"]
+            pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
+            for pkg in pkgs:
+                vnf_pkg_ids.append(pkg.vnfPackageId)
+        data['vnfPkgIds'] = vnf_pkg_ids
+
+    if ns_pkg.userDefinedData:
+        user_defined_data = json.JSONDecoder().decode(ns_pkg.userDefinedData)
+        data['userDefinedData'] = user_defined_data
+
+    return data
