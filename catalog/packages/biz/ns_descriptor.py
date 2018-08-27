@@ -12,22 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import json
 import logging
 import os
 import uuid
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.utils import fileutil
-from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.database.models import NSPackageModel, PnfPackageModel, VnfPackageModel
 from catalog.pub.exceptions import CatalogException
-from catalog.pub.utils import toscaparser
+from catalog.pub.utils import fileutil, toscaparser
+from catalog.pub.utils.values import ignore_case_get
 
 logger = logging.getLogger(__name__)
 
 
 def create(data):
+    logger.info('Start to create a NSD...')
     user_defined_data = ignore_case_get(data, 'userDefinedData')
     data = {
         'id': str(uuid.uuid4()),
@@ -44,13 +45,15 @@ def create(data):
         usageState=data['nsdUsageState'],
         userDefinedData=data['userDefinedData']
     ).save()
+    logger.info('A NSD(%s) has been created.' % data['id'])
     return data
 
 
 def query_multiple():
     ns_pkgs = NSPackageModel.objects.all()
     if not ns_pkgs.exists():
-        raise CatalogException('NS descriptors do not exist.')
+        logger.error('NSDs do not exist.')
+        raise CatalogException('NSDs do not exist.')
     response_data = []
     for ns_pkg in ns_pkgs:
         data = fill_resp_data(ns_pkg)
@@ -61,41 +64,70 @@ def query_multiple():
 def query_single(nsd_info_id):
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
-        raise CatalogException('NS descriptors(%s) does not exist.' % nsd_info_id)
+        logger.error('NSD(%s) does not exist.' % nsd_info_id)
+        raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
     return fill_resp_data(ns_pkgs[0])
 
 
 def delete_single(nsd_info_id):
+    logger.info('Start to delete NSD(%s)...' % nsd_info_id)
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
-        logger.debug('NS descriptor (%s) is deleted.' % nsd_info_id)
+        logger.info('NSD(%s) is deleted.' % nsd_info_id)
         return
+
     if ns_pkgs[0].onboardingState == 'ONBOARDED':
-        raise CatalogException('The NS descriptor (%s) shall be non-ONBOARDED.' % nsd_info_id)
+        logger.error('NSD(%s) shall be non-ONBOARDED.' % nsd_info_id)
+        raise CatalogException('NSD(%s) shall be non-ONBOARDED.' % nsd_info_id)
     if ns_pkgs[0].operationalState != 'DISABLED':
-        raise CatalogException('The NS descriptor (%s) shall be DISABLED.' % nsd_info_id)
+        logger.error('NSD(%s) shall be DISABLED.' % nsd_info_id)
+        raise CatalogException('NSD(%s) shall be DISABLED.' % nsd_info_id)
     if ns_pkgs[0].usageState != 'NOT_IN_USE':
-        raise CatalogException('The NS descriptor (%s) shall be NOT_IN_USE.' % nsd_info_id)
+        logger.error('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
+        raise CatalogException('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
+
     ns_pkgs.delete()
     ns_pkg_path = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
     fileutil.delete_dirs(ns_pkg_path)
-    logger.debug('NS descriptor (%s) is deleted.' % nsd_info_id)
+    logger.info('NSD(%s) has been deleted.' % nsd_info_id)
+
+
+def upload(remote_file, nsd_info_id):
+    logger.info('Start to upload NSD(%s)...' % nsd_info_id)
+    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+    if not ns_pkgs.exists():
+        logger.info('NSD(%s) does not exist.' % nsd_info_id)
+        raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
+
+    ns_pkgs[0].onboardingState = 'UPLOADING'  # TODO: if failed, should be set to created
+    local_file_name = remote_file.name
+    local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
+    local_file_name = os.path.join(local_file_dir, local_file_name)
+    if not os.path.exists(local_file_dir):
+        fileutil.make_dirs(local_file_dir)
+    with open(local_file_name, 'wb') as local_file:
+        for chunk in remote_file.chunks(chunk_size=1024 * 8):
+            local_file.write(chunk)
+    logger.info('NSD(%s) content has been uploaded.' % nsd_info_id)
 
 
 def process(nsd_info_id, local_file_name):
+    logger.info('Start to process NSD(%s)...' % nsd_info_id)
+    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+    ns_pkgs[0].onboardingState = 'PROCESSING'  # TODO: if failed, should be set to created
     nsd_json = toscaparser.parse_nsd(local_file_name)
     nsd = json.JSONDecoder().decode(nsd_json)
 
     nsd_id = nsd["metadata"]["id"]
-    if nsd_id and NSPackageModel.objects.filter(nsdId=nsd_id):  # nsd_id may not exist
-        raise CatalogException("NS Descriptor (%s) already exists." % nsd_id)
+    if nsd_id and NSPackageModel.objects.filter(nsdId=nsd_id):
+        logger.info('"NSD(%s) already exists." % nsd_id')
+        raise CatalogException("NSD(%s) already exists." % nsd_id)
 
     for vnf in nsd["vnfs"]:
         vnfd_id = vnf["properties"]["id"]
         pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
         if not pkg:
-            vnfd_name = vnf.get("vnf_id", "undefined")
-            logger.error("[%s] is not distributed.", vnfd_name)
+            logger.error("VNFD is not distributed.")
             raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
     NSPackageModel(
@@ -110,34 +142,18 @@ def process(nsd_info_id, local_file_name):
         localFilePath=local_file_name,
         nsdModel=nsd_json
     ).save()
-
-
-def upload(remote_file, nsd_info_id):
-    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    if not ns_pkgs.exists():
-        raise CatalogException('The NS descriptor (%s) does not exist.' % nsd_info_id)
-
-    local_file_name = remote_file.name
-    local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
-    local_file_name = os.path.join(local_file_dir, local_file_name)
-    if not os.path.exists(local_file_dir):
-        fileutil.make_dirs(local_file_dir)
-    with open(local_file_name, 'wb') as local_file:
-        if remote_file.multiple_chunks(chunk_size=None):
-            for chunk in remote_file.chunks():
-                local_file.write(chunk)
-        else:
-            data = remote_file.read()
-            local_file.write(data)
+    logger.info('NSD(%s) has been processed.' % nsd_info_id)
 
 
 def download(nsd_info_id):
+    logger.info('Start to download NSD(%s)...' % nsd_info_id)
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
         raise CatalogException('The NS Descriptor (%s) does not exist.' % nsd_info_id)
     if ns_pkgs[0].onboardingState != 'ONBOARDED':
         raise CatalogException('The NS Descriptor (%s) is not ONBOARDED.' % nsd_info_id)
     local_file_path = ns_pkgs[0].localFilePath
+    logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
     return local_file_path
 
 
