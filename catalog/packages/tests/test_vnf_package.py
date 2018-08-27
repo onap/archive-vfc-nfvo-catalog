@@ -328,3 +328,66 @@ class TestVnfPackage(TestCase):
         }
         self.assertEqual(response.data, expect_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_query_multiple_vnf(self):
+        VnfPackageModel.objects.create(
+            vnfPackageId="111",
+            vnfdId="zte-hss-1.0",
+            vnfVendor="zte",
+            vnfdProductName="hss",
+            vnfSoftwareVersion="1.0.0",
+            vnfdVersion="1.0.0",
+            checksum='{"algorithm":"111", "hash": "11"}',
+            onboardingState="CREATED",
+            operationalState="DISABLED",
+            usageState="NOT_IN_USE",
+            userDefinedData='{"a": "A"}'
+        )
+        VnfPackageModel.objects.create(
+            vnfPackageId="222",
+            vnfdId="zte-hss-1.0",
+            vnfVendor="zte",
+            vnfdProductName="hss",
+            vnfSoftwareVersion="1.0.0",
+            vnfdVersion="1.0.0",
+            checksum='{"algorithm":"111", "hash": "11"}',
+            onboardingState="CREATED",
+            operationalState="DISABLED",
+            usageState="NOT_IN_USE",
+            userDefinedData='{"a": "A"}'
+        )
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages")
+        expect_data = [
+            {
+                "id": "111",
+                "vnfdId": "zte-hss-1.0",
+                "vnfProductName": "hss",
+                "vnfSoftwareVersion": "1.0.0",
+                "vnfdVersion": "1.0.0",
+                "checksum": {"algorithm": "111", "hash": "11"},
+                "softwareImages": None,
+                "additionalArtifacts": None,
+                "onboardingState": "CREATED",
+                "operationalState": "DISABLED",
+                "usageState": "NOT_IN_USE",
+                "userDefinedData": {"a": "A"},
+                "_links": None
+            },
+            {
+                "id": "222",
+                "vnfdId": "zte-hss-1.0",
+                "vnfProductName": "hss",
+                "vnfSoftwareVersion": "1.0.0",
+                "vnfdVersion": "1.0.0",
+                "checksum": {"algorithm": "111", "hash": "11"},
+                "softwareImages": None,
+                "additionalArtifacts": None,
+                "onboardingState": "CREATED",
+                "operationalState": "DISABLED",
+                "usageState": "NOT_IN_USE",
+                "userDefinedData": {"a": "A"},
+                "_links": None
+            }
+        ]
+        self.assertEqual(response.data, expect_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
