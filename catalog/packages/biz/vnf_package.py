@@ -21,6 +21,8 @@ import traceback
 import urllib2
 import uuid
 
+from rest_framework import status
+from django.http import FileResponse
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
@@ -164,3 +166,17 @@ def fill_response_data(nf_pkg):
     pkg_info["userDefinedData"] = json.JSONDecoder().decode(nf_pkg[0].userDefinedData)
     pkg_info["_links"] = None  # TODO
     return pkg_info
+
+
+def fetch_vnf_pkg(vnf_pkg_id):
+    nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
+    if not nf_pkg.exists():
+        raise CatalogException("VNF package (%s) does not exist" % vnf_pkg_id)
+    if nf_pkg[0].localFilePath != "ONBOARDED":
+        raise CatalogException("VNF package (%s) is not on-boarded" % vnf_pkg_id)
+    file_path = nf_pkg[0].localFilePath
+    file_name = file_path.split('/')[-1]
+    file_name = file_name.split('\\')[-1]
+    response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
+    response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
+    return response
