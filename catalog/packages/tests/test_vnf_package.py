@@ -411,7 +411,20 @@ class TestVnfPackage(TestCase):
         self.assertEqual(response.data, None)
 
     def test_fetch_vnf_pkg(self):
-        pass
+        with open("vnfPackage.csar", "wb") as fp:
+            fp.writelines("AAAABBBBCCCCDDDD")
+        VnfPackageModel.objects.create(
+            vnfPackageId="222",
+            onboardingState="ONBOARDED",
+            localFilePath="vnfPackage.csar"
+        )
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content")
+        partial_file_content = ''
+        for data in response.streaming_content:
+            partial_file_content = partial_file_content + data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('AAAABBBBCCCCDDDD', partial_file_content)
+        os.remove("vnfPackage.csar")
 
     def test_fetch_partical_vnf_pkg(self):
         with open("vnfPackage.csar", "wb") as fp:
