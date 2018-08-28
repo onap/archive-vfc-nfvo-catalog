@@ -118,7 +118,6 @@ def download(pnfd_info_id):
 
 
 def delete_pnf(pnfd_info_id):
-    # TODO
     pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
     if not pnf_pkgs.exists():
         logger.debug('PNF descriptor (%s) is deleted.' % pnfd_info_id)
@@ -127,7 +126,13 @@ def delete_pnf(pnfd_info_id):
         raise CatalogException('The PNF descriptor (%s) shall be NOT_IN_USE.' % pnfd_info_id)
     ns_pkgs = NSPackageModel.objects.all()
     for ns_pkg in ns_pkgs:
-        if pnfd_info_id in ns_pkg.pnfdInfoIds:
+        pnf_info_ids = []
+        for pnf in ns_pkg.nsd_model['pnfs']:
+            pnfd_id = pnf["properties"]["id"]
+            pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
+            for pkg in pkgs:
+                pnf_info_ids.append(pkg.pnfPackageId)
+        if pnfd_info_id in pnf_info_ids:
             raise CatalogException('The PNF descriptor (%s) is referenced.' % pnfd_info_id)
             break
     pnf_pkgs.delete()

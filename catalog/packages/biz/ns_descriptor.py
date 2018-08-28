@@ -1,4 +1,4 @@
-# Copyright 2017 ZTE Corporation.
+# Copyright 2018 ZTE Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import uuid
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import fileutil
 from catalog.pub.utils.values import ignore_case_get
-from catalog.pub.database.models import NSPackageModel, VnfPackageModel
+from catalog.pub.database.models import NSPackageModel, PnfPackageModel, VnfPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils import toscaparser
 
@@ -134,9 +134,9 @@ def upload(remote_file, nsd_info_id):
 def download(nsd_info_id):
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
-        raise CatalogException('The PNF Descriptor (%s) does not exist.' % nsd_info_id)
+        raise CatalogException('The NS Descriptor (%s) does not exist.' % nsd_info_id)
     if ns_pkgs[0].onboardingState != 'ONBOARDED':
-        raise CatalogException('The PNF Descriptor (%s) is not ONBOARDED.' % nsd_info_id)
+        raise CatalogException('The NS Descriptor (%s) is not ONBOARDED.' % nsd_info_id)
     local_file_path = ns_pkgs[0].localFilePath
     return local_file_path
 
@@ -169,6 +169,14 @@ def fill_resp_data(ns_pkg):
             for pkg in pkgs:
                 vnf_pkg_ids.append(pkg.vnfPackageId)
         data['vnfPkgIds'] = vnf_pkg_ids
+
+        pnf_info_ids = []
+        for pnf in nsd_model['pnfs']:
+            pnfd_id = pnf["properties"]["id"]
+            pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
+            for pkg in pkgs:
+                pnf_info_ids.append(pkg.pnfPackageId)
+        data['pnfInfoIds'] = pnf_info_ids  # TODO: need reconfirming
 
     if ns_pkg.userDefinedData:
         user_defined_data = json.JSONDecoder().decode(ns_pkg.userDefinedData)
