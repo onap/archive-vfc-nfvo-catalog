@@ -1,4 +1,4 @@
-# Copyright 2017 ZTE Corporation.
+# Copyright 2018 ZTE Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ def upload(remote_file, pnfd_info_id):
         logger.info('PNFD(%s) does not exist.' % pnfd_info_id)
         raise CatalogException('PNFD (%s) does not exist.' % pnfd_info_id)
 
-    pnf_pkgs[0].onboardingState = 'UPLOADING'
+    pnf_pkgs.update(onboardingState='UPLOADING')
     local_file_name = remote_file.name  # TODO: common method
     local_file_dir = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
     local_file_name = os.path.join(local_file_dir, local_file_name)
@@ -86,10 +86,11 @@ def upload(remote_file, pnfd_info_id):
     logger.info('PNFD(%s) content has been uploaded.' % pnfd_info_id)
 
 
-def process(pnfd_info_id, local_file_name):  # TODO: onboardingState changes
+def process(pnfd_info_id, local_file_name):
     logger.info('Start to process PNFD(%s)...' % pnfd_info_id)
     pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    pnf_pkgs[0].onboardingState = 'PROCESSING'  # TODO: if failed, should be set to created
+    pnf_pkgs.update(onboardingState='PROCESSING')
+
     pnfd_json = toscaparser.parse_pnfd(local_file_name)
     pnfd = json.JSONDecoder().decode(pnfd_json)
 
@@ -98,18 +99,17 @@ def process(pnfd_info_id, local_file_name):  # TODO: onboardingState changes
         logger.info('PNFD(%s) already exists.' % pnfd_id)
         raise CatalogException("PNFD(%s) already exists." % pnfd_id)
 
-    PnfPackageModel(
-        pnfPackageId=pnfd_info_id,
+    pnf_pkgs.update(
         pnfdId=pnfd_id,
         pnfdName=pnfd["metadata"].get("name", pnfd_id),
         pnfdDesginer=pnfd["metadata"].get("vendor", "undefined"),
         pnfdDescription=pnfd["metadata"].get("description", ""),
         pnfdVersion=pnfd["metadata"].get("version", "undefined"),
-        nsPackageUri=local_file_name,  # TODO
+        pnfPackageUri=local_file_name,  # TODO
         sdcCsarId=pnfd_info_id,
         localFilePath=local_file_name,
         pnfdModel=pnfd_json
-    ).save()
+    )
     logger.info('PNFD(%s) has been processed.' % pnfd_info_id)
 
 
@@ -123,15 +123,17 @@ def download(pnfd_info_id):
         logger.error('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
         raise CatalogException('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
     local_file_path = pnf_pkgs[0].localFilePath
+    local_file_name = local_file_path.split('/')[-1]
+    local_file_name = local_file_name.split('\\')[-1]
     logger.info('PNFD(%s) has been downloaded.' % pnfd_info_id)
-    return local_file_path
+    return local_file_path, local_file_name, os.path.getsize(local_file_path)
 
 
 def delete_single(pnfd_info_id):
     logger.info('Start to delete PNFD(%s)...' % pnfd_info_id)
     pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
     if not pnf_pkgs.exists():
-        logger.info('PNFD(%s) is deleted.' % pnfd_info_id)
+        logger.info('PNFD(%s) has been deleted.' % pnfd_info_id)
         return
 
     if pnf_pkgs[0].usageState != 'NOT_IN_USE':
@@ -150,8 +152,8 @@ def delete_single(pnfd_info_id):
             raise CatalogException('PNFD(%s) is referenced.' % pnfd_info_id)
 
     pnf_pkgs.delete()
-    vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
-    fileutil.delete_dirs(vnf_pkg_path)
+    pnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
+    fileutil.delete_dirs(pnf_pkg_path)
     logger.debug('PNFD(%s) has been deleted.' % pnfd_info_id)
 
 

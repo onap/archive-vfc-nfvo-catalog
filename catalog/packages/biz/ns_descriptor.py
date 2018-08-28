@@ -73,7 +73,7 @@ def delete_single(nsd_info_id):
     logger.info('Start to delete NSD(%s)...' % nsd_info_id)
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
-        logger.info('NSD(%s) is deleted.' % nsd_info_id)
+        logger.info('NSD(%s) has been deleted.' % nsd_info_id)
         return
 
     if ns_pkgs[0].onboardingState == 'ONBOARDED':
@@ -99,7 +99,7 @@ def upload(remote_file, nsd_info_id):
         logger.info('NSD(%s) does not exist.' % nsd_info_id)
         raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
 
-    ns_pkgs[0].onboardingState = 'UPLOADING'  # TODO: if failed, should be set to created
+    ns_pkgs.update(onboardingState='UPLOADING')
     local_file_name = remote_file.name
     local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
     local_file_name = os.path.join(local_file_dir, local_file_name)
@@ -114,7 +114,7 @@ def upload(remote_file, nsd_info_id):
 def process(nsd_info_id, local_file_name):
     logger.info('Start to process NSD(%s)...' % nsd_info_id)
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    ns_pkgs[0].onboardingState = 'PROCESSING'  # TODO: if failed, should be set to created
+    ns_pkgs.update(onboardingState='PROCESSING')
     nsd_json = toscaparser.parse_nsd(local_file_name)
     nsd = json.JSONDecoder().decode(nsd_json)
 
@@ -130,8 +130,7 @@ def process(nsd_info_id, local_file_name):
             logger.error("VNFD is not distributed.")
             raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
-    NSPackageModel(
-        nsPackageId=nsd_info_id,
+    ns_pkgs.update(
         nsdId=nsd_id,
         nsdName=nsd["metadata"].get("name", nsd_id),
         nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
@@ -141,7 +140,7 @@ def process(nsd_info_id, local_file_name):
         sdcCsarId=nsd_info_id,
         localFilePath=local_file_name,
         nsdModel=nsd_json
-    ).save()
+    )
     logger.info('NSD(%s) has been processed.' % nsd_info_id)
 
 
@@ -155,8 +154,10 @@ def download(nsd_info_id):
         logger.error('NSD(%s) is not ONBOARDED.' % nsd_info_id)
         raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)
     local_file_path = ns_pkgs[0].localFilePath
+    local_file_name = local_file_path.split('/')[-1]
+    local_file_name = local_file_name.split('\\')[-1]
     logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
-    return local_file_path
+    return local_file_path, local_file_name, os.path.getsize(local_file_path)
 
 
 def fill_resp_data(ns_pkg):

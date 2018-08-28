@@ -1,4 +1,4 @@
-# Copyright 2016 ZTE Corporation.
+# Copyright 2016-2018 ZTE Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ class PnfPackageModel(models.Model):
     # uuid = models.CharField(db_column='UUID', primary_key=True, max_length=255)
     pnfPackageId = models.CharField(db_column='PNFPACKAGEID', primary_key=True, max_length=50)   # onboardedPnfPkgInfoId
     pnfPackageUri = models.CharField(db_column='PNFPACKAGEURI', max_length=300, null=True, blank=True)  # downloadUri
-    SdcCSARUri = models.CharField(db_column='SDCCSARURI', max_length=300, null=True, blank=True)  # SdcCSARUri
+    sdcCSARUri = models.CharField(db_column='SDCCSARURI', max_length=300, null=True, blank=True)  # SdcCSARUri
     checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
     onboardingState = models.CharField(db_column='ONBOARDINGSTATE', max_length=20, blank=True, null=True)
     usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState

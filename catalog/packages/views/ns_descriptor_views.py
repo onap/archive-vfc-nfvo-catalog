@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import os
 import traceback
 
 from django.http import StreamingHttpResponse
@@ -162,11 +161,8 @@ def nsd_content_ru(request, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            file_path = download(nsd_info_id)
-            file_name = file_path.split('/')[-1]
-            file_name = file_name.split('\\')[-1]
-
-            start, end = 0, os.path.getsize(file_path)
+            file_path, file_name, file_size = download(nsd_info_id)
+            start, end = 0, file_size
             file_range = request.META.get('RANGE')
             if file_range:
                 [start, end] = file_range.split('-')
