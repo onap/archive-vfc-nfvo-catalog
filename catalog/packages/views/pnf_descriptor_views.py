@@ -1,4 +1,4 @@
-# Copyright 2017 ZTE Corporation.
+# Copyright 2018 ZTE Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import os
 import traceback
 
 from django.http import FileResponse
@@ -165,12 +164,10 @@ def pnfd_content_ru(request, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            file_path = download(pnfd_info_id)
-            file_name = file_path.split('/')[-1]
-            file_name = file_name.split('\\')[-1]
+            file_path, file_name, file_size = download(pnfd_info_id)
             response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
             response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
-            response['Content-Length'] = os.path.getsize(file_path)
+            response['Content-Length'] = file_size
             return response
         except Exception as e:
             logger.error(e.message)
