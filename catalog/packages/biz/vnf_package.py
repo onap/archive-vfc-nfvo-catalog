@@ -22,7 +22,7 @@ import urllib2
 import uuid
 
 from rest_framework import status
-from django.http import FileResponse, StreamingHttpResponse
+from django.http import StreamingHttpResponse
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException
@@ -188,9 +188,9 @@ def fetch_vnf_pkg(request, vnf_pkg_id):
         f.seek(start, 0)
         fs = f.read(end - start + 1)
         response = StreamingHttpResponse(fs, status=status.HTTP_200_OK)
-        response['Content-Type'] = 'application/octet-stream'
         response['Content-Range'] = file_range
     else:
-        response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
+        response = StreamingHttpResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
+    response['Content-Type'] = 'application/octet-stream'
     response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
     return response
