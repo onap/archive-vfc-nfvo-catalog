@@ -173,7 +173,7 @@ class TestPnfDescriptor(TestCase):
                 {'file': fp},
             )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual({}, resp.data)
+        self.assertEqual(None, resp.data)
 
         os.remove('pnfd_content.txt')
 

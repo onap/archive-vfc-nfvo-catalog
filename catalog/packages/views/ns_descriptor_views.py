@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
     }
 )
 @api_view(http_method_names=['GET', 'DELETE'])
-def ns_info_rd(request, nsdInfoId):
+def ns_info_rd(request, nsdInfoId):   # TODO
     if request.method == 'GET':
         try:
             data = query_single(nsdInfoId)
@@ -133,7 +133,7 @@ def ns_descriptors_rc(request, *args, **kwargs):
     operation_description="Upload NSD content",
     request_body=no_body,
     responses={
-        status.HTTP_204_NO_CONTENT: {},
+        status.HTTP_204_NO_CONTENT: 'PNFD file',
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
