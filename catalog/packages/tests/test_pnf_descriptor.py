@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+import copy
 import json
 import os
 
@@ -30,6 +31,19 @@ class TestPnfDescriptor(TestCase):
             'key2': 'value2',
             'key3': 'value3',
         }
+        self.expected_pnfd_info = {
+            'id': None,
+            'pnfdId': None,
+            'pnfdName': None,
+            'pnfdVersion': None,
+            'pnfdProvider': None,
+            'pnfdInvariantId': None,
+            'pnfdOnboardingState': 'CREATED',
+            'onboardingFailureDetails': None,
+            'pnfdUsageState': 'NOT_IN_USE',
+            'userDefinedData': self.user_defined_data,
+            '_links': None
+        }
 
     def tearDown(self):
         pass
@@ -42,6 +56,7 @@ class TestPnfDescriptor(TestCase):
             'userDefinedData': self.user_defined_data,
             '_links': None
         }
+
         response = self.client.post(
             '/api/nsd/v1/pnf_descriptors',
             data=request_data,
@@ -53,47 +68,13 @@ class TestPnfDescriptor(TestCase):
 
     def test_query_multiple_pnfds_normal(self):
         expected_reponse_data = [
-            {
-                'id': '0',
-                'pnfdId': None,
-                'pnfdName': None,
-                'pnfdVersion': None,
-                'pnfdProvider': None,
-                'pnfdInvariantId': None,
-                'pnfdOnboardingState': 'CREATED',
-                'onboardingFailureDetails': None,
-                'pnfdUsageState': 'NOT_IN_USE',
-                'userDefinedData': {
-                    'key1': 'value1',
-                    'key2': 'value2',
-                    'key3': 'value3',
-                },
-                '_links': None
-            },
-            {
-                'id': '1',
-                'pnfdId': None,
-                'pnfdName': None,
-                'pnfdVersion': None,
-                'pnfdProvider': None,
-                'pnfdInvariantId': None,
-                'pnfdOnboardingState': 'CREATED',
-                'onboardingFailureDetails': None,
-                'pnfdUsageState': 'NOT_IN_USE',
-                'userDefinedData': {
-                    'key1': 'value1',
-                    'key2': 'value2',
-                    'key3': 'value3',
-                },
-                '_links': None
-            }
+            copy.deepcopy(self.expected_pnfd_info),
+            copy.deepcopy(self.expected_pnfd_info)
         ]
-        user_defined_data = {
-            'key1': 'value1',
-            'key2': 'value2',
-            'key3': 'value3',
-        }
-        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        expected_reponse_data[0]['id'] = '0'
+        expected_reponse_data[1]['id'] = '1'
+
+        user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
         for i in range(2):
             PnfPackageModel(
                 pnfPackageId=str(i),
@@ -106,29 +87,10 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_query_single_pnfd_normal(self):
-        expected_reponse_data = {
-            'id': '22',
-            'pnfdId': None,
-            'pnfdName': None,
-            'pnfdVersion': None,
-            'pnfdProvider': None,
-            'pnfdInvariantId': None,
-            'pnfdOnboardingState': 'CREATED',
-            'onboardingFailureDetails': None,
-            'pnfdUsageState': 'NOT_IN_USE',
-            'userDefinedData': {
-                'key1': 'value1',
-                'key2': 'value2',
-                'key3': 'value3',
-            },
-            '_links': None
-        }
-        user_defined_data = {
-            'key1': 'value1',
-            'key2': 'value2',
-            'key3': 'value3',
-        }
-        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        expected_reponse_data = copy.deepcopy(self.expected_pnfd_info)
+        expected_reponse_data['id'] = '22'
+
+        user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
         PnfPackageModel(
             pnfPackageId='22',
             onboardingState='CREATED',
@@ -141,18 +103,14 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(expected_reponse_data, response.data)
 
     def test_delete_single_pnfd_normal(self):
-        user_defined_data = {
-            'key1': 'value1',
-            'key2': 'value2',
-            'key3': 'value3',
-        }
-        user_defined_data = json.JSONEncoder().encode(user_defined_data)
+        user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
         PnfPackageModel(
             pnfPackageId='22',
             usageState='NOT_IN_USE',
             userDefinedData=user_defined_data,
             pnfdModel='test'
         ).save()
+
         resp = self.client.delete("/api/nsd/v1/pnf_descriptors/22", format='json')
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)
@@ -164,6 +122,7 @@ class TestPnfDescriptor(TestCase):
             usageState='NOT_IN_USE',
             userDefinedData=user_defined_data_json,
         ).save()
+
         with open('pnfd_content.txt', 'wb') as fp:
             fp.write('test')
 
@@ -174,7 +133,6 @@ class TestPnfDescriptor(TestCase):
             )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)
-
         os.remove('pnfd_content.txt')
 
     def test_pnfd_content_upload_failure(self):
