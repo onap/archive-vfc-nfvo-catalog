@@ -120,7 +120,7 @@ def process(nsd_info_id, local_file_name):
 
     nsd_id = nsd["metadata"]["id"]
     if nsd_id and NSPackageModel.objects.filter(nsdId=nsd_id):
-        logger.info('"NSD(%s) already exists." % nsd_id')
+        logger.info('NSD(%s) already exists.' % nsd_id)
         raise CatalogException("NSD(%s) already exists." % nsd_id)
 
     for vnf in nsd["vnfs"]:
@@ -149,9 +149,11 @@ def download(nsd_info_id):
     logger.info('Start to download NSD(%s)...' % nsd_info_id)
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
-        raise CatalogException('The NS Descriptor (%s) does not exist.' % nsd_info_id)
+        logger.error('NSD(%s) does not exist.' % nsd_info_id)
+        raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
     if ns_pkgs[0].onboardingState != 'ONBOARDED':
-        raise CatalogException('The NS Descriptor (%s) is not ONBOARDED.' % nsd_info_id)
+        logger.error('NSD(%s) is not ONBOARDED.' % nsd_info_id)
+        raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)
     local_file_path = ns_pkgs[0].localFilePath
     logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
     return local_file_path

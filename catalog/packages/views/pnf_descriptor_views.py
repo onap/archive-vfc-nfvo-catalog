@@ -13,28 +13,27 @@
 # limitations under the License.
 
 import logging
+import os
 import traceback
 
+from django.http import FileResponse
+
+from catalog.packages.biz.pnf_descriptor import create, delete_single, download, query_multiple, query_single, upload
+from catalog.packages.serializers.create_pnfd_info_request import CreatePnfdInfoRequestSerializer
+from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
+from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
+from catalog.pub.exceptions import CatalogException
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.http import FileResponse
-
-
-from catalog.packages.biz.pnf_descriptor import create, query_multiple, query_single, upload, download, delete_pnf
-from catalog.packages.serializers.create_pnfd_info_request import \
-    CreatePnfdInfoRequestSerializer
-from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
-from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
-from catalog.pub.exceptions import CatalogException
 
 logger = logging.getLogger(__name__)
 
 
 @swagger_auto_schema(
     method='GET',
-    operation_description="Query an individual PNF descriptor resource",
+    operation_description="Query a PNFD",
     request_body=no_body,
     responses={
         status.HTTP_200_OK: PnfdInfoSerializer(),
@@ -43,7 +42,7 @@ logger = logging.getLogger(__name__)
 )
 @swagger_auto_schema(
     method='DELETE',
-    operation_description="Delete an individual PNF descriptor resource",
+    operation_description="Delete a PNFD",
     request_body=no_body,
     responses={
         status.HTTP_204_NO_CONTENT: None,
@@ -51,42 +50,40 @@ logger = logging.getLogger(__name__)
     }
 )
 @api_view(http_method_names=['GET', 'DELETE'])
-def pnfd_info_rd(request, pnfdInfoId):
+def pnfd_info_rd(request, pnfdInfoId):  # TODO
     if request.method == 'GET':
         logger.debug("Query an individual PNF descriptor> %s" % request.data)
         try:
-            res = query_single(pnfdInfoId)
-            query_serializer = PnfdInfoSerializer(data=res)
-            if not query_serializer.is_valid():
-                raise CatalogException
-            return Response(data=query_serializer.data, status=status.HTTP_200_OK)
-        except CatalogException:
-            logger.error(traceback.format_exc())
-            return Response(data={'error': 'Query an individual PNF descriptor failed.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            data = query_single(pnfdInfoId)
+            pnfd_info = validate_data(data, PnfdInfoSerializer)
+            return Response(data=pnfd_info.data, status=status.HTTP_200_OK)
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Query of a PNFD failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_msg = {'error': 'Query of a PNFD failed.'}
+        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'DELETE':
         logger.debug("Delete an individual PNFD resource> %s" % request.data)
         try:
-            delete_pnf(pnfdInfoId)
+            delete_single(pnfdInfoId)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
-        except CatalogException:
-            logger.error(traceback.format_exc())
-            return Response(data={'error': 'Delete an individual PNFD resource failed.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Deletion of a PNFD failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_msg = {'error': 'Deletion of a PNFD failed.'}
+        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
     method='POST',
-    operation_description="Create an individual PNF descriptor resource",
+    operation_description="Create a  PNFD",
     request_body=CreatePnfdInfoRequestSerializer(),
     responses={
         status.HTTP_201_CREATED: PnfdInfoSerializer(),
@@ -95,7 +92,7 @@ def pnfd_info_rd(request, pnfdInfoId):
 )
 @swagger_auto_schema(
     method='GET',
-    operation_description="Query multiple PNF descriptor resources",
+    operation_description="Query multiple PNFDs",
     request_body=no_body,
     responses={
         status.HTTP_200_OK: PnfdInfosSerializer(),
@@ -106,31 +103,32 @@ def pnfd_info_rd(request, pnfdInfoId):
 def pnf_descriptors_rc(request, *args, **kwargs):
     if request.method == 'POST':
         try:
-            create_pnfd_info_request = CreatePnfdInfoRequestSerializer(data=request.data)
-            if not create_pnfd_info_request.is_valid():
-                raise CatalogException
+            create_pnfd_info_request = validate_data(request.data, CreatePnfdInfoRequestSerializer)
             data = create(create_pnfd_info_request.data)
-            pnfd_info = PnfdInfoSerializer(data=data)
-            if not pnfd_info.is_valid():
-                raise CatalogException
+            pnfd_info = validate_data(data, PnfdInfoSerializer)
             return Response(data=pnfd_info.data, status=status.HTTP_201_CREATED)
-        except CatalogException:
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Creating a pnfd failed.'}
+        except Exception as e:
+            logger.error(e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'Creating pnfd info failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_msg = {'error': 'Creating a pnfd failed.'}
+        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         try:
             data = query_multiple()
-            pnfd_infos = PnfdInfosSerializer(data=data)
-            if not pnfd_infos.is_valid():
-                raise CatalogException
+            pnfd_infos = validate_data(data, PnfdInfosSerializer)
             return Response(data=pnfd_infos.data, status=status.HTTP_200_OK)
-        except CatalogException:
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Query of multiple PNFDs failed.'}
+        except Exception as e:
+            logger.error(e.message)
             logger.error(traceback.format_exc())
-            return Response(
-                data={'error': 'Query of multiple PNF descriptor resources failed.'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            error_msg = {'error': 'Query of multiple PNFDs failed.'}
+        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
@@ -138,7 +136,7 @@ def pnf_descriptors_rc(request, *args, **kwargs):
     operation_description="Upload PNFD content",
     request_body=no_body,
     responses={
-        status.HTTP_204_NO_CONTENT: {},
+        status.HTTP_204_NO_CONTENT: None,
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -147,7 +145,7 @@ def pnf_descriptors_rc(request, *args, **kwargs):
     operation_description="Fetch PNFD content",
     request_body=no_body,
     responses={
-        status.HTTP_204_NO_CONTENT: {},
+        status.HTTP_204_NO_CONTENT: 'PNFD file',
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -157,12 +155,13 @@ def pnfd_content_ru(request, *args, **kwargs):
     if request.method == 'PUT':
         files = request.FILES.getlist('file')
         try:
-            upload(files, pnfd_info_id)
-            return Response(data={}, status=status.HTTP_204_NO_CONTENT)
-        except IOError:
+            upload(files[0], pnfd_info_id)
+            return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            logger.error(e.message)
             logger.error(traceback.format_exc())
-            raise CatalogException
-            return Response(data={'error': 'Uploading pnfd content failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_msg = {'error': 'Uploading PNFD content failed.'}
+        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         try:
@@ -171,9 +170,18 @@ def pnfd_content_ru(request, *args, **kwargs):
             file_name = file_name.split('\\')[-1]
             response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
             response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
+            response['Content-Length'] = os.path.getsize(file_path)
             return response
-        except IOError:
+        except Exception as e:
+            logger.error(e.message)
             logger.error(traceback.format_exc())
-            raise CatalogException
-            return Response(data={'error': 'Downloading pnfd content failed.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_msg = {'error': 'Downloading PNFD content failed.'}
+        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def validate_data(data, serializer):
+    serialized_data = serializer(data=data)
+    if not serialized_data.is_valid():
+        logger.error('Data validation failed.')
+        raise CatalogException(serialized_data.error)
+    return serialized_data
