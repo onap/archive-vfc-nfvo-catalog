@@ -1,4 +1,4 @@
-# Copyright 2017 ZTE Corporation.
+# Copyright 2018 ZTE Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import os
 import traceback
 
 from drf_yasg.utils import no_body, swagger_auto_schema
@@ -20,6 +21,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import FileResponse
+from django.http import StreamingHttpResponse
 
 from catalog.packages.biz.ns_descriptor import create, query_multiple, query_single, delete_single, upload, download
 from catalog.packages.serializers.create_nsd_info_request import \
@@ -162,11 +164,35 @@ def nsd_content_ru(request, *args, **kwargs):
             file_path = download(nsd_info_id)
             file_name = file_path.split('/')[-1]
             file_name = file_name.split('\\')[-1]
-            response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
+
+            file_range = request.META.get('RANGE')
+            if file_range:
+                [start, end] = file_range.split('-')
+                start, end = start.strip(), end.strip()
+                start, end = int(start), int(end)
+                response = StreamingHttpResponse(
+                    read_partial_file(file_path, start, end),
+                    status=status.HTTP_200_OK
+                )
+                response['Content-Range'] = file_range
+            else:
+                response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
             response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
+            response['Content-Length'] = os.path.getsize(file_path)
             return response
         except IOError:
             logger.error(traceback.format_exc())
             raise CatalogException
             return Response(data={'error': 'Downloading nsd content failed.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def read_partial_file(file_path, start, end):
+    fp = open(file_path, 'rb')
+    fp.seek(start)
+    pos = start
+    CHUNK_SIZE = 1024 * 8
+    while pos + CHUNK_SIZE < end:
+        yield fp.read(CHUNK_SIZE)
+        pos = fp.tell()
+    yield fp.read(end - pos)
