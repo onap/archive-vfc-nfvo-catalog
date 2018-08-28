@@ -27,7 +27,7 @@ from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInf
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
 from catalog.packages.serializers.vnf_pkg_infos import VnfPkgInfosSerializer
 from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfPkgUploadThread, \
-    query_single, delete_vnf_pkg, parse_vnfd_and_save, fetch_vnf_pkg
+    query_single, delete_vnf_pkg, parse_vnfd_and_save, fetch_vnf_pkg, handle_upload_failed
 from catalog.pub.database.models import VnfPackageModel
 
 logger = logging.getLogger(__name__)
@@ -128,10 +128,12 @@ def upload_vnf_pkg_content(request, vnfPkgId):
             parse_vnfd_and_save(vnfPkgId, upload_file_name)
             return Response(None, status=status.HTTP_202_ACCEPTED)
         except CatalogException:
+                handle_upload_failed(vnfPkgId)
                 logger.error(traceback.format_exc())
                 return Response(data={'error': 'Upload VNF package failed.'},
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
+            handle_upload_failed(vnfPkgId)
             logger.error(e.message)
             logger.error(traceback.format_exc())
             return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -168,9 +170,11 @@ def upload_vnf_pkg_from_uri(request, vnfPkgId):
         VnfPkgUploadThread(req_serializer.data, vnfPkgId).start()
         return Response(None, status=status.HTTP_202_ACCEPTED)
     except CatalogException:
+        handle_upload_failed(vnfPkgId)
         logger.error(traceback.format_exc())
         return Response(data={'error': 'Upload VNF package failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
+        handle_upload_failed(vnfPkgId)
         logger.error(e.message)
         logger.error(traceback.format_exc())
         return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

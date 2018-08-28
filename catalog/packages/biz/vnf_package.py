@@ -89,6 +89,8 @@ def delete_vnf_pkg(vnf_pkg_id):
 
 
 def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
+    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
+    vnf_pkg.update(onboardingState="PROCESSING")
     vnfd_json = toscaparser.parse_vnfd(vnf_pkg_path)
     vnfd = json.JSONDecoder().decode(vnfd_json)
 
@@ -136,6 +138,7 @@ class VnfPkgUploadThread(threading.Thread):
         vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=self.vnf_pkg_id)
         if vnf_pkg[0].onboardingState != "CREATED":
             raise CatalogException("VNF package (%s) is not created" % self.vnf_pkg_id)
+        vnf_pkg.update(onboardingState="UPLOADING")
         uri = ignore_case_get(self.data, "addressInformation")
         upload_path = os.path.join(CATALOG_ROOT_PATH, self.vnf_pkg_id)
         if not os.path.exists(upload_path):
@@ -194,3 +197,8 @@ def fetch_vnf_pkg(request, vnf_pkg_id):
     response['Content-Type'] = 'application/octet-stream'
     response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
     return response
+
+
+def handle_upload_failed(vnf_pkg_id):
+    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
+    vnf_pkg.update(onboardingState="CREATED")
