@@ -188,9 +188,9 @@ def fetch_vnf_pkg(request, vnf_pkg_id):
         f.seek(start, 0)
         fs = f.read(end - start + 1)
         response = StreamingHttpResponse(fs, status=status.HTTP_200_OK)
-        response['Content-Type'] = 'application/octet-stream'
         response['Content-Range'] = file_range
     else:
         response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
+    response['Content-Type'] = 'application/octet-stream'
     response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
     return response
