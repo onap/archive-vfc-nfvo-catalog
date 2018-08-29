@@ -174,7 +174,7 @@ def fill_response_data(nf_pkg):
 def fetch_vnf_pkg(request, vnf_pkg_id):
     nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not nf_pkg.exists():
-        raise CatalogException("VNF package (%s) does not exist" % vnf_pkg_id)
+        raise VnfPkgNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
     if nf_pkg[0].onboardingState != "ONBOARDED":
         raise CatalogException("VNF package (%s) is not on-boarded" % vnf_pkg_id)
     file_path = nf_pkg[0].localFilePath
