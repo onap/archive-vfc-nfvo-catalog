@@ -18,7 +18,7 @@ from link import LinkSerializer
 
 
 class _LinkSerializer(serializers.Serializer):
-    this = LinkSerializer(
+    self = LinkSerializer(
         help_text='URI of this resource.',
         required=True,
         allow_null=False

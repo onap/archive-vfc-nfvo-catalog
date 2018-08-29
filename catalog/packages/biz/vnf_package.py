@@ -25,7 +25,7 @@ from rest_framework import status
 from django.http import StreamingHttpResponse
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
-from catalog.pub.exceptions import CatalogException, VnfPkgNotFoundException
+from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.utils import fileutil, toscaparser
 
@@ -66,7 +66,7 @@ def query_multiple():
 def query_single(vnf_pkg_id):
     nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not nf_pkg.exists():
-        raise VnfPkgNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
+        raise ResourceNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
     return fill_response_data(nf_pkg[0])
 
 
@@ -174,7 +174,7 @@ def fill_response_data(nf_pkg):
 def fetch_vnf_pkg(request, vnf_pkg_id):
     nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not nf_pkg.exists():
-        raise VnfPkgNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
+        raise ResourceNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
     if nf_pkg[0].onboardingState != "ONBOARDED":
         raise CatalogException("VNF package (%s) is not on-boarded" % vnf_pkg_id)
     file_path = nf_pkg[0].localFilePath
