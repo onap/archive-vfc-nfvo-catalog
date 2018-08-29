@@ -20,7 +20,7 @@ from catalog.packages.biz.ns_descriptor import create, delete_single, download, 
 from catalog.packages.serializers.create_nsd_info_request import CreateNsdInfoRequestSerializer
 from catalog.packages.serializers.nsd_info import NsdInfoSerializer
 from catalog.packages.serializers.nsd_infos import NsdInfosSerializer
-from catalog.pub.exceptions import CatalogException
+from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
     request_body=no_body,
     responses={
         status.HTTP_200_OK: NsdInfoSerializer(),
+        status.HTTP_404_NOT_FOUND: 'NSDs do not exist.',
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -54,6 +55,9 @@ def ns_info_rd(request, nsdInfoId):   # TODO
             data = query_single(nsdInfoId)
             nsd_info = validate_data(data, NsdInfoSerializer)
             return Response(data=nsd_info.data, status=status.HTTP_200_OK)
+        except ResourceNotFoundException as e:
+            logger.error(e.message)
+            return Response(data={'error': 'NSDs do not exist.'}, status=status.HTTP_404_NOT_FOUND)
         except CatalogException as e:
             logger.error(e.message)
             error_msg = {'error': 'Query of a NSD failed.'}
@@ -142,6 +146,7 @@ def ns_descriptors_rc(request, *args, **kwargs):
     request_body=no_body,
     responses={
         status.HTTP_204_NO_CONTENT: None,
+        status.HTTP_404_NOT_FOUND: 'NSD does not exist.',
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -153,6 +158,9 @@ def nsd_content_ru(request, *args, **kwargs):
         try:
             upload(files[0], nsd_info_id)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Uploading NSD content failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -176,6 +184,12 @@ def nsd_content_ru(request, *args, **kwargs):
             response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
             response['Content-Length'] = end - start
             return response
+        except ResourceNotFoundException as e:
+            logger.error(e.message)
+            return Response(data={'error': 'NSD does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Downloading NSD content failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())

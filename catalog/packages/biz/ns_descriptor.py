@@ -20,7 +20,7 @@ import uuid
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import NSPackageModel, PnfPackageModel, VnfPackageModel
-from catalog.pub.exceptions import CatalogException
+from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
 
@@ -51,9 +51,6 @@ def create(data):
 
 def query_multiple():
     ns_pkgs = NSPackageModel.objects.all()
-    if not ns_pkgs.exists():
-        logger.error('NSDs do not exist.')
-        raise CatalogException('NSDs do not exist.')
     response_data = []
     for ns_pkg in ns_pkgs:
         data = fill_resp_data(ns_pkg)
@@ -65,7 +62,7 @@ def query_single(nsd_info_id):
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
         logger.error('NSD(%s) does not exist.' % nsd_info_id)
-        raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
+        raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
     return fill_resp_data(ns_pkgs[0])
 
 
@@ -75,17 +72,14 @@ def delete_single(nsd_info_id):
     if not ns_pkgs.exists():
         logger.info('NSD(%s) has been deleted.' % nsd_info_id)
         return
-
-    if ns_pkgs[0].onboardingState == 'ONBOARDED':
-        logger.error('NSD(%s) shall be non-ONBOARDED.' % nsd_info_id)
-        raise CatalogException('NSD(%s) shall be non-ONBOARDED.' % nsd_info_id)
+    '''
     if ns_pkgs[0].operationalState != 'DISABLED':
         logger.error('NSD(%s) shall be DISABLED.' % nsd_info_id)
         raise CatalogException('NSD(%s) shall be DISABLED.' % nsd_info_id)
     if ns_pkgs[0].usageState != 'NOT_IN_USE':
         logger.error('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
         raise CatalogException('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
-
+    '''
     ns_pkgs.delete()
     ns_pkg_path = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
     fileutil.delete_dirs(ns_pkg_path)
@@ -149,7 +143,7 @@ def download(nsd_info_id):
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     if not ns_pkgs.exists():
         logger.error('NSD(%s) does not exist.' % nsd_info_id)
-        raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
+        raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
     if ns_pkgs[0].onboardingState != 'ONBOARDED':
         logger.error('NSD(%s) is not ONBOARDED.' % nsd_info_id)
         raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)

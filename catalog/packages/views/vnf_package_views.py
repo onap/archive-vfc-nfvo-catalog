@@ -21,7 +21,7 @@ from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from catalog.pub.exceptions import CatalogException, VnfPkgNotFoundException
+from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
@@ -127,7 +127,7 @@ def upload_vnf_pkg_content(request, vnfPkgId):
             return Response(None, status=status.HTTP_202_ACCEPTED)
         except CatalogException as e:
                 handle_upload_failed(vnfPkgId)
-                logger.debug(e.message)
+                logger.error(e.message)
                 error_msg = {'error': 'Upload VNF package failed.'}
         except Exception as e:
             handle_upload_failed(vnfPkgId)
@@ -140,7 +140,7 @@ def upload_vnf_pkg_content(request, vnfPkgId):
         try:
             response = fetch_vnf_pkg(request, vnfPkgId)
             return response
-        except VnfPkgNotFoundException as e:
+        except ResourceNotFoundException as e:
             logger.error(e.message)
             return Response(data={'error': "VNF package does not exist"}, status=status.HTTP_404_NOT_FOUND)
         except CatalogException as e:
@@ -170,7 +170,7 @@ def upload_vnf_pkg_from_uri(request, vnfPkgId):
         return Response(None, status=status.HTTP_202_ACCEPTED)
     except CatalogException as e:
         handle_upload_failed(vnfPkgId)
-        logger.debug(e.message)
+        logger.error(e.message)
         error_msg = {'error': 'Upload VNF package failed.'}
     except Exception as e:
         handle_upload_failed(vnfPkgId)
@@ -207,7 +207,7 @@ def vnf_package_rd(request, vnfPkgId):
             res = query_single(vnfPkgId)
             query_serializer = validate_data(res, VnfPkgInfoSerializer)
             return Response(data=query_serializer.data, status=status.HTTP_200_OK)
-        except VnfPkgNotFoundException as e:
+        except ResourceNotFoundException as e:
             logger.error(e.message)
             return Response(data={'error': "VNF package does not exist"}, status=status.HTTP_404_NOT_FOUND)
         except CatalogException as e:

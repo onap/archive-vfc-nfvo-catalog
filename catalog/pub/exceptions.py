@@ -17,5 +17,5 @@ class CatalogException(Exception):
     pass
 
 
-class VnfPkgNotFoundException(CatalogException):
+class ResourceNotFoundException(CatalogException):
     pass
