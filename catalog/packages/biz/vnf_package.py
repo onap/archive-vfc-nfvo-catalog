@@ -25,7 +25,7 @@ from rest_framework import status
 from django.http import StreamingHttpResponse
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
-from catalog.pub.exceptions import CatalogException
+from catalog.pub.exceptions import CatalogException, VnfPkgNotFoundException
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.utils import fileutil, toscaparser
 
@@ -57,8 +57,6 @@ def create_vnf_pkg(data):
 def query_multiple():
     pkgs_info = []
     nf_pkgs = VnfPackageModel.objects.filter()
-    if not nf_pkgs.exists():
-        raise CatalogException('VNF packages do not exist.')
     for nf_pkg in nf_pkgs:
         ret = fill_response_data(nf_pkg)
         pkgs_info.append(ret)
@@ -68,7 +66,7 @@ def query_multiple():
 def query_single(vnf_pkg_id):
     nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not nf_pkg.exists():
-        raise CatalogException('VNF package(%s) does not exist.' % vnf_pkg_id)
+        raise VnfPkgNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
     return fill_response_data(nf_pkg[0])
 
 
@@ -77,12 +75,12 @@ def delete_vnf_pkg(vnf_pkg_id):
     if not vnf_pkg.exists():
         logger.debug('VNF package(%s) is deleted.' % vnf_pkg_id)
         return
-    if vnf_pkg[0].onboardingState != "CREATED":
-        raise CatalogException("The VNF package (%s) is not on-boarded" % vnf_pkg_id)
+    '''
     if vnf_pkg[0].operationalState != "DISABLED":
         raise CatalogException("The VNF package (%s) is not disabled" % vnf_pkg_id)
     if vnf_pkg[0].usageState != "NOT_IN_USE":
         raise CatalogException("The VNF package (%s) is in use" % vnf_pkg_id)
+    '''
     vnf_pkg.delete()
     vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnf_pkg_id)
     fileutil.delete_dirs(vnf_pkg_path)

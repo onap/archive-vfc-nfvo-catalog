@@ -410,6 +410,11 @@ class TestVnfPackage(TestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(response.data, None)
 
+    def test_delete_when_vnf_pkg_not_exist(self):
+        response = self.client.delete("/api/vnfpkgm/v1/vnf_packages/222")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data, None)
+
     def test_fetch_vnf_pkg(self):
         with open("vnfPackage.csar", "wb") as fp:
             fp.writelines("AAAABBBBCCCCDDDD")
