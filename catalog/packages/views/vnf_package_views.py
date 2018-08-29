@@ -21,7 +21,7 @@ from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from catalog.pub.exceptions import CatalogException
+from catalog.pub.exceptions import CatalogException, VnfPkgNotFoundException
 from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPackageFromUriRequestSerializer
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
@@ -206,16 +206,20 @@ def vnf_package_rd(request, vnfPkgId):
             res = query_single(vnfPkgId)
             query_serializer = VnfPkgInfoSerializer(data=res)
             if not query_serializer.is_valid():
-                raise CatalogException
+                logger.debug("Data validation failed.")
+                raise CatalogException(query_serializer.error)
             return Response(data=query_serializer.data, status=status.HTTP_200_OK)
-        except CatalogException:
-            logger.error(traceback.format_exc())
-            return Response(data={'error': 'Query an individual VNF package failed.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except VnfPkgNotFoundException as e:
+            logger.error(e.message)
+            return Response(data={'error': 'Query an individual VNF package failed.'}, status=status.HTTP_404_NOT_FOUND)
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Query an individual VNF package failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            return Response(data={'error': 'unexpected exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_msg = {'error': 'unexpected exception'}
+        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'DELETE':
         logger.debug("Delete an individual VNF package> %s" % request.data)
