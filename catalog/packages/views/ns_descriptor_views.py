@@ -16,7 +16,8 @@ import logging
 import traceback
 
 from django.http import StreamingHttpResponse
-from catalog.packages.biz.ns_descriptor import create, delete_single, download, query_multiple, query_single, upload
+from catalog.packages.biz.ns_descriptor import create, delete_single, download, query_multiple, query_single, upload, \
+    parse_nsd_and_save, handle_upload_failed
 from catalog.packages.serializers.create_nsd_info_request import CreateNsdInfoRequestSerializer
 from catalog.packages.serializers.nsd_info import NsdInfoSerializer
 from catalog.packages.serializers.nsd_infos import NsdInfosSerializer
@@ -156,12 +157,15 @@ def nsd_content_ru(request, *args, **kwargs):
     if request.method == 'PUT':
         files = request.FILES.getlist('file')
         try:
-            upload(files[0], nsd_info_id)
+            local_file_name = upload(files[0], nsd_info_id)
+            parse_nsd_and_save(nsd_info_id, local_file_name)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
+            handle_upload_failed(nsd_info_id)
             logger.error(e.message)
             error_msg = {'error': 'Uploading NSD content failed.'}
         except Exception as e:
+            handle_upload_failed(nsd_info_id)
             logger.error(e.message)
             logger.error(traceback.format_exc())
             error_msg = {'error': 'Uploading NSD content failed.'}
