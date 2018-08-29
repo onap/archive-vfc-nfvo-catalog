@@ -22,7 +22,7 @@ from catalog.packages.biz.pnf_descriptor import create, delete_single, download,
 from catalog.packages.serializers.create_pnfd_info_request import CreatePnfdInfoRequestSerializer
 from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
 from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
-from catalog.pub.exceptions import CatalogException
+from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
     request_body=no_body,
     responses={
         status.HTTP_200_OK: PnfdInfoSerializer(),
+        status.HTTP_404_NOT_FOUND: "PNFD does not exist.",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -57,6 +58,9 @@ def pnfd_info_rd(request, pnfdInfoId):  # TODO
             data = query_single(pnfdInfoId)
             pnfd_info = validate_data(data, PnfdInfoSerializer)
             return Response(data=pnfd_info.data, status=status.HTTP_200_OK)
+        except ResourceNotFoundException as e:
+            logger.error(e.message)
+            return Response(data={'error': "PNFD does not exist."}, status=status.HTTP_404_NOT_FOUND)
         except CatalogException as e:
             logger.error(e.message)
             error_msg = {'error': 'Query of a PNFD failed.'}
@@ -146,6 +150,7 @@ def pnf_descriptors_rc(request, *args, **kwargs):
     request_body=no_body,
     responses={
         status.HTTP_204_NO_CONTENT: 'PNFD file',
+        status.HTTP_404_NOT_FOUND: "PNFD does not exist.",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -157,6 +162,9 @@ def pnfd_content_ru(request, *args, **kwargs):
         try:
             upload(files[0], pnfd_info_id)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Uploading PNFD content failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -172,6 +180,12 @@ def pnfd_content_ru(request, *args, **kwargs):
             response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
             response['Content-Length'] = os.path.getsize(file_path)
             return response
+        except ResourceNotFoundException as e:
+            logger.error(e.message)
+            return Response(data={'error': "PNFD does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        except CatalogException as e:
+            logger.error(e.message)
+            error_msg = {'error': 'Downloading PNFD content failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())

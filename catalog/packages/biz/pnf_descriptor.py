@@ -20,7 +20,7 @@ import uuid
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import NSPackageModel, PnfPackageModel
-from catalog.pub.exceptions import CatalogException
+from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
 
@@ -49,9 +49,6 @@ def create(data):
 
 def query_multiple():
     pnf_pkgs = PnfPackageModel.objects.all()
-    if not pnf_pkgs.exists():
-        logger.error('PNFDs do not exist.')
-        raise CatalogException('PNFDs do not exist.')
     response_data = []
     for pnf_pkg in pnf_pkgs:
         data = fill_response_data(pnf_pkg)
@@ -63,7 +60,7 @@ def query_single(pnfd_info_id):
     pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
     if not pnf_pkgs.exists():
         logger.error('PNFD(%s) does not exist.' % pnfd_info_id)
-        raise CatalogException('PNFD(%s) does not exist.' % pnfd_info_id)
+        raise ResourceNotFoundException('PNFD(%s) does not exist.' % pnfd_info_id)
     return fill_response_data(pnf_pkgs[0])
 
 
@@ -118,7 +115,7 @@ def download(pnfd_info_id):
     pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
     if not pnf_pkgs.exists():
         logger.error('PNFD(%s) does not exist.' % pnfd_info_id)
-        raise CatalogException('PNFD(%s) does not exist.' % pnfd_info_id)
+        raise ResourceNotFoundException('PNFD(%s) does not exist.' % pnfd_info_id)
     if pnf_pkgs[0].onboardingState != 'ONBOARDED':
         logger.error('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
         raise CatalogException('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
@@ -133,10 +130,11 @@ def delete_single(pnfd_info_id):
     if not pnf_pkgs.exists():
         logger.info('PNFD(%s) is deleted.' % pnfd_info_id)
         return
-
+    '''
     if pnf_pkgs[0].usageState != 'NOT_IN_USE':
         logger.info('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
         raise CatalogException('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
+    '''
     ns_pkgs = NSPackageModel.objects.all()
     for ns_pkg in ns_pkgs:
         pnf_info_ids = []
