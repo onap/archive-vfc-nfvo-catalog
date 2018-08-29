@@ -103,9 +103,10 @@ def upload(remote_file, nsd_info_id):
         for chunk in remote_file.chunks(chunk_size=1024 * 8):
             local_file.write(chunk)
     logger.info('NSD(%s) content has been uploaded.' % nsd_info_id)
+    return local_file_name
 
 
-def process(nsd_info_id, local_file_name):
+def parse_nsd_and_save(nsd_info_id, local_file_name):
     logger.info('Start to process NSD(%s)...' % nsd_info_id)
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
     ns_pkgs.update(onboardingState='PROCESSING')
@@ -130,7 +131,10 @@ def process(nsd_info_id, local_file_name):
         nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
         nsdDescription=nsd["metadata"].get("description", ""),
         nsdVersion=nsd["metadata"].get("version", "undefined"),
-        nsPackageUri=local_file_name,  # TODO
+        onboardingState="ONBOARDED",
+        operationalState="ENABLED",
+        usageState="NOT_IN_USE",
+        nsPackageUri=local_file_name,
         sdcCsarId=nsd_info_id,
         localFilePath=local_file_name,
         nsdModel=nsd_json
@@ -144,6 +148,7 @@ def download(nsd_info_id):
     if not ns_pkgs.exists():
         logger.error('NSD(%s) does not exist.' % nsd_info_id)
         raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
+    
     if ns_pkgs[0].onboardingState != 'ONBOARDED':
         logger.error('NSD(%s) is not ONBOARDED.' % nsd_info_id)
         raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)
@@ -196,3 +201,8 @@ def fill_resp_data(ns_pkg):
         data['userDefinedData'] = user_defined_data
 
     return data
+
+
+def handle_upload_failed(nsd_info_id):
+    ns_pkg = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+    ns_pkg.update(onboardingState="CREATED")
