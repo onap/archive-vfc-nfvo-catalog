@@ -93,7 +93,7 @@ def upload(remote_file, nsd_info_id):
         logger.info('NSD(%s) does not exist.' % nsd_info_id)
         raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
 
-    ns_pkgs[0].onboardingState = 'UPLOADING'  # TODO: if failed, should be set to created
+    ns_pkgs[0].onboardingState = 'UPLOADING'
     local_file_name = remote_file.name
     local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
     local_file_name = os.path.join(local_file_dir, local_file_name)
@@ -103,12 +103,13 @@ def upload(remote_file, nsd_info_id):
         for chunk in remote_file.chunks(chunk_size=1024 * 8):
             local_file.write(chunk)
     logger.info('NSD(%s) content has been uploaded.' % nsd_info_id)
+    return local_file_name
 
 
-def process(nsd_info_id, local_file_name):
+def parse_nsd_and_save(nsd_info_id, local_file_name):
     logger.info('Start to process NSD(%s)...' % nsd_info_id)
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    ns_pkgs[0].onboardingState = 'PROCESSING'  # TODO: if failed, should be set to created
+    ns_pkgs[0].onboardingState = 'PROCESSING'
     nsd_json = toscaparser.parse_nsd(local_file_name)
     nsd = json.JSONDecoder().decode(nsd_json)
 
@@ -131,7 +132,10 @@ def process(nsd_info_id, local_file_name):
         nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
         nsdDescription=nsd["metadata"].get("description", ""),
         nsdVersion=nsd["metadata"].get("version", "undefined"),
-        nsPackageUri=local_file_name,  # TODO
+        onboardingState="ONBOARDED",
+        operationalState="ENABLED",
+        usageState="NOT_IN_USE",
+        nsPackageUri=local_file_name,
         sdcCsarId=nsd_info_id,
         localFilePath=local_file_name,
         nsdModel=nsd_json
@@ -195,3 +199,8 @@ def fill_resp_data(ns_pkg):
         data['userDefinedData'] = user_defined_data
 
     return data
+
+
+def handle_upload_failed(nsd_info_id):
+    ns_pkg = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+    ns_pkg.update(onboardingState="CREATED")
