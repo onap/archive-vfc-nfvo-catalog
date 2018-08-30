@@ -22,7 +22,7 @@ import mock
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
-from catalog.pub.database.models import PnfPackageModel
+from catalog.pub.database.models import PnfPackageModel, NSPackageModel
 from catalog.pub.utils import toscaparser
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import pnfd_data
@@ -49,6 +49,15 @@ class TestPnfDescriptor(TestCase):
             'pnfdUsageState': 'NOT_IN_USE',
             'userDefinedData': self.user_defined_data,
             '_links': None
+        }
+        self.nsdModel = {
+            "pnfs": [
+                {
+                 "properties": {
+                     "id": "m6000_s"
+                 }
+                }
+            ]
         }
 
     def tearDown(self):
@@ -108,15 +117,22 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(expected_reponse_data, response.data)
 
+    def test_query_single_pnfd_failed(self):
+        response = self.client.get('/api/nsd/v1/pnf_descriptors/22', format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_delete_single_pnfd_normal(self):
         user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
         PnfPackageModel(
             pnfPackageId='22',
-            usageState='NOT_IN_USE',
+            usageState=PKG_STATUS.NOT_IN_USE,
             userDefinedData=user_defined_data,
             pnfdModel='test'
         ).save()
-
+        NSPackageModel.objects.create(
+            nsPackageId="111",
+            nsdModel=json.JSONEncoder().encode(self.nsdModel)
+        )
         resp = self.client.delete("/api/nsd/v1/pnf_descriptors/22", format='json')
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)
@@ -126,7 +142,7 @@ class TestPnfDescriptor(TestCase):
         user_defined_data_json = json.JSONEncoder().encode(self.user_defined_data)
         PnfPackageModel(
             pnfPackageId='22',
-            usageState='NOT_IN_USE',
+            usageState=PKG_STATUS.NOT_IN_USE,
             userDefinedData=user_defined_data_json,
         ).save()
         mock_parse_pnfd.return_value = json.JSONEncoder().encode(pnfd_data)
@@ -147,5 +163,51 @@ class TestPnfDescriptor(TestCase):
         os.remove(pnf_pkg[0].localFilePath)
         os.removedirs(os.path.join(CATALOG_ROOT_PATH, pnf_pkg[0].pnfPackageId))
 
-    def test_pnfd_content_upload_failure(self):
-        pass
+    def test_pnfd_content_upload_when_pnf_not_exist(self):
+        with open('pnfd_content.txt', 'wb') as fp:
+            fp.write('test')
+
+        with open('pnfd_content.txt', 'rb') as fp:
+            resp = self.client.put(
+                "/api/nsd/v1/pnf_descriptors/22/pnfd_content",
+                {'file': fp},
+            )
+        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(toscaparser, "parse_pnfd")
+    def test_pnfd_content_upload_when_pnfd_exist(self, mock_parse_pnfd):
+        with open('pnfd_content.txt', 'wb') as fp:
+            fp.write('test')
+        PnfPackageModel(
+            pnfPackageId='22',
+            usageState=PKG_STATUS.NOT_IN_USE,
+            pnfdId="zte-1.0"
+        ).save()
+        mock_parse_pnfd.return_value = json.JSONEncoder().encode(pnfd_data)
+        with open('pnfd_content.txt', 'rb') as fp:
+            resp = self.client.put(
+                "/api/nsd/v1/pnf_descriptors/22/pnfd_content",
+                {'file': fp},
+            )
+        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_pnfd_download_normal(self):
+        with open('pnfd_content.txt', 'wb') as fp:
+            fp.writelines('test1')
+            fp.writelines('test2')
+        user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
+        PnfPackageModel(
+            pnfPackageId='22',
+            usageState=PKG_STATUS.NOT_IN_USE,
+            onboardingState=PKG_STATUS.ONBOARDED,
+            userDefinedData=user_defined_data,
+            localFilePath="pnfd_content.txt",
+            pnfdModel='test'
+        ).save()
+        resp = self.client.get("/api/nsd/v1/pnf_descriptors/22/pnfd_content")
+        file_content = ""
+        for data in resp.streaming_content:
+            file_content = '%s%s' % (file_content, data)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual('test1test2', file_content)
+        os.remove('pnfd_content.txt')
