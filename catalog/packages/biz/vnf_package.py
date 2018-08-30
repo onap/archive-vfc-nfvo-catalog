@@ -28,6 +28,7 @@ from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.utils import fileutil, toscaparser
+from catalog.packages.const import PKG_STATUS
 
 
 logger = logging.getLogger(__name__)
@@ -38,16 +39,16 @@ def create_vnf_pkg(data):
     vnf_pkg_id = str(uuid.uuid4())
     VnfPackageModel.objects.create(
         vnfPackageId=vnf_pkg_id,
-        onboardingState="CREATED",
-        operationalState="DISABLED",
-        usageState="NOT_IN_USE",
+        onboardingState=PKG_STATUS.CREATED,
+        operationalState=PKG_STATUS.DISABLED,
+        usageState=PKG_STATUS.NOT_IN_USE,
         userDefinedData=user_defined_data
     )
     data = {
         "id": vnf_pkg_id,
-        "onboardingState": "CREATED",
-        "operationalState": "DISABLED",
-        "usageState": "NOT_IN_USE",
+        "onboardingState": PKG_STATUS.CREATED,
+        "operationalState": PKG_STATUS.DISABLED,
+        "usageState": PKG_STATUS.NOT_IN_USE,
         "userDefinedData": user_defined_data,
         "_links": None
     }
@@ -76,9 +77,9 @@ def delete_vnf_pkg(vnf_pkg_id):
         logger.debug('VNF package(%s) is deleted.' % vnf_pkg_id)
         return
     '''
-    if vnf_pkg[0].operationalState != "DISABLED":
+    if vnf_pkg[0].operationalState != PKG_STATUS.DISABLED:
         raise CatalogException("The VNF package (%s) is not disabled" % vnf_pkg_id)
-    if vnf_pkg[0].usageState != "NOT_IN_USE":
+    if vnf_pkg[0].usageState != PKG_STATUS.NOT_IN_USE:
         raise CatalogException("The VNF package (%s) is in use" % vnf_pkg_id)
     '''
     vnf_pkg.delete()
@@ -88,7 +89,7 @@ def delete_vnf_pkg(vnf_pkg_id):
 
 def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
     vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
-    vnf_pkg.update(onboardingState="PROCESSING")
+    vnf_pkg.update(onboardingState=PKG_STATUS.PROCESSING)
     vnfd_json = toscaparser.parse_vnfd(vnf_pkg_path)
     vnfd = json.JSONDecoder().decode(vnfd_json)
 
@@ -99,18 +100,18 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
     vnfd_ver = vnfd["metadata"].get("vnfd_version")
     if not vnfd_ver:
         vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
-    VnfPackageModel(
+    vnf_pkg.update(
         vnfPackageId=vnf_pkg_id,
         vnfdId=vnfd_id,
         vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
         vnfdVersion=vnfd_ver,
         vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
         vnfdModel=vnfd_json,
-        onboardingState="ONBOARDED",
-        operationalState="ENABLED",
-        usageState="NOT_IN_USE",
+        onboardingState=PKG_STATUS.ONBOARDED,
+        operationalState=PKG_STATUS.ENABLED,
+        usageState=PKG_STATUS.NOT_IN_USE,
         localFilePath=vnf_pkg_path
-    ).save()
+    )
 
 
 class VnfPkgUploadThread(threading.Thread):
@@ -134,9 +135,9 @@ class VnfPkgUploadThread(threading.Thread):
     def upload_vnf_pkg_from_uri(self):
         logger.debug("UploadVnf %s" % self.vnf_pkg_id)
         vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=self.vnf_pkg_id)
-        if vnf_pkg[0].onboardingState != "CREATED":
+        if vnf_pkg[0].onboardingState != PKG_STATUS.CREATED:
             raise CatalogException("VNF package (%s) is not created" % self.vnf_pkg_id)
-        vnf_pkg.update(onboardingState="UPLOADING")
+        vnf_pkg.update(onboardingState=PKG_STATUS.UPLOADING)
         uri = ignore_case_get(self.data, "addressInformation")
         upload_path = os.path.join(CATALOG_ROOT_PATH, self.vnf_pkg_id)
         if not os.path.exists(upload_path):
@@ -175,7 +176,7 @@ def fetch_vnf_pkg(request, vnf_pkg_id):
     nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
     if not nf_pkg.exists():
         raise ResourceNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
-    if nf_pkg[0].onboardingState != "ONBOARDED":
+    if nf_pkg[0].onboardingState != PKG_STATUS.ONBOARDED:
         raise CatalogException("VNF package (%s) is not on-boarded" % vnf_pkg_id)
     file_path = nf_pkg[0].localFilePath
     file_name = file_path.split('/')[-1]
@@ -199,4 +200,4 @@ def fetch_vnf_pkg(request, vnf_pkg_id):
 
 def handle_upload_failed(vnf_pkg_id):
     vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
-    vnf_pkg.update(onboardingState="CREATED")
+    vnf_pkg.update(onboardingState=PKG_STATUS.CREATED)

@@ -23,6 +23,7 @@ from catalog.pub.database.models import NSPackageModel, PnfPackageModel, VnfPack
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
+from catalog.packages.const import PKG_STATUS
 
 logger = logging.getLogger(__name__)
 
@@ -32,19 +33,19 @@ def create(data):
     user_defined_data = ignore_case_get(data, 'userDefinedData')
     data = {
         'id': str(uuid.uuid4()),
-        'nsdOnboardingState': 'CREATED',
-        'nsdOperationalState': 'DISABLED',
-        'nsdUsageState': 'NOT_IN_USE',
+        'nsdOnboardingState': PKG_STATUS.CREATED,
+        'nsdOperationalState': PKG_STATUS.DISABLED,
+        'nsdUsageState': PKG_STATUS.NOT_IN_USE,
         'userDefinedData': user_defined_data,
         '_links': None  # TODO
     }
-    NSPackageModel(
+    NSPackageModel.objects.create(
         nsPackageId=data['id'],
         onboardingState=data['nsdOnboardingState'],
         operationalState=data['nsdOperationalState'],
         usageState=data['nsdUsageState'],
         userDefinedData=data['userDefinedData']
-    ).save()
+    )
     logger.info('A NSD(%s) has been created.' % data['id'])
     return data
 
@@ -73,10 +74,10 @@ def delete_single(nsd_info_id):
         logger.info('NSD(%s) has been deleted.' % nsd_info_id)
         return
     '''
-    if ns_pkgs[0].operationalState != 'DISABLED':
+    if ns_pkgs[0].operationalState != PKG_STATUS.DISABLED:
         logger.error('NSD(%s) shall be DISABLED.' % nsd_info_id)
         raise CatalogException('NSD(%s) shall be DISABLED.' % nsd_info_id)
-    if ns_pkgs[0].usageState != 'NOT_IN_USE':
+    if ns_pkgs[0].usageState != PKG_STATUS.NOT_IN_USE:
         logger.error('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
         raise CatalogException('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
     '''
@@ -93,7 +94,7 @@ def upload(remote_file, nsd_info_id):
         logger.info('NSD(%s) does not exist.' % nsd_info_id)
         raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
 
-    ns_pkgs.update(onboardingState='UPLOADING')
+    ns_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
     local_file_name = remote_file.name
     local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
     local_file_name = os.path.join(local_file_dir, local_file_name)
@@ -109,7 +110,7 @@ def upload(remote_file, nsd_info_id):
 def parse_nsd_and_save(nsd_info_id, local_file_name):
     logger.info('Start to process NSD(%s)...' % nsd_info_id)
     ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    ns_pkgs.update(onboardingState='PROCESSING')
+    ns_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
     nsd_json = toscaparser.parse_nsd(local_file_name)
     nsd = json.JSONDecoder().decode(nsd_json)
 
@@ -131,9 +132,9 @@ def parse_nsd_and_save(nsd_info_id, local_file_name):
         nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
         nsdDescription=nsd["metadata"].get("description", ""),
         nsdVersion=nsd["metadata"].get("version", "undefined"),
-        onboardingState="ONBOARDED",
-        operationalState="ENABLED",
-        usageState="NOT_IN_USE",
+        onboardingState=PKG_STATUS.ONBOARDED,
+        operationalState=PKG_STATUS.ENABLED,
+        usageState=PKG_STATUS.NOT_IN_USE,
         nsPackageUri=local_file_name,
         sdcCsarId=nsd_info_id,
         localFilePath=local_file_name,
@@ -148,7 +149,7 @@ def download(nsd_info_id):
     if not ns_pkgs.exists():
         logger.error('NSD(%s) does not exist.' % nsd_info_id)
         raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
-    if ns_pkgs[0].onboardingState != 'ONBOARDED':
+    if ns_pkgs[0].onboardingState != PKG_STATUS.ONBOARDED:
         logger.error('NSD(%s) is not ONBOARDED.' % nsd_info_id)
         raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)
     local_file_path = ns_pkgs[0].localFilePath
@@ -204,4 +205,4 @@ def fill_resp_data(ns_pkg):
 
 def handle_upload_failed(nsd_info_id):
     ns_pkg = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    ns_pkg.update(onboardingState="CREATED")
+    ns_pkg.update(onboardingState=PKG_STATUS.CREATED)

@@ -23,6 +23,7 @@ from catalog.pub.database.models import NSPackageModel, PnfPackageModel
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
+from catalog.packages.const import PKG_STATUS
 
 logger = logging.getLogger(__name__)
 
@@ -32,17 +33,17 @@ def create(data):
     user_defined_data = ignore_case_get(data, 'userDefinedData')
     data = {
         'id': str(uuid.uuid4()),
-        'pnfdOnboardingState': 'CREATED',
-        'pnfdUsageState': 'NOT_IN_USE',
+        'pnfdOnboardingState': PKG_STATUS.CREATED,
+        'pnfdUsageState': PKG_STATUS.NOT_IN_USE,
         'userDefinedData': user_defined_data,
         '_links': None  # TODO
     }
-    PnfPackageModel(
+    PnfPackageModel.objects.create(
         pnfPackageId=data['id'],
         onboardingState=data['pnfdOnboardingState'],
         usageState=data['pnfdUsageState'],
         userDefinedData=data['userDefinedData']
-    ).save()
+    )
     logger.info('A PNFD(%s) has been created.' % data['id'])
     return data
 
@@ -71,7 +72,7 @@ def upload(remote_file, pnfd_info_id):
         logger.info('PNFD(%s) does not exist.' % pnfd_info_id)
         raise CatalogException('PNFD (%s) does not exist.' % pnfd_info_id)
 
-    pnf_pkgs.update(onboardingState='UPLOADING')
+    pnf_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
     local_file_name = remote_file.name
     local_file_dir = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
     local_file_name = os.path.join(local_file_dir, local_file_name)
@@ -87,7 +88,7 @@ def upload(remote_file, pnfd_info_id):
 def parse_pnfd_and_save(pnfd_info_id, local_file_name):
     logger.info('Start to process PNFD(%s)...' % pnfd_info_id)
     pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    pnf_pkgs.update(onboardingState='PROCESSING')
+    pnf_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
 
     pnfd_json = toscaparser.parse_pnfd(local_file_name)
     pnfd = json.JSONDecoder().decode(pnfd_json)
@@ -101,8 +102,8 @@ def parse_pnfd_and_save(pnfd_info_id, local_file_name):
         pnfdId=pnfd_id,
         pnfdVersion=pnfd["metadata"].get("version", "undefined"),
         pnfPackageUri=local_file_name,
-        onboardingState="ONBOARDED",
-        usageState="NOT_IN_USE",
+        onboardingState=PKG_STATUS.ONBOARDED,
+        usageState=PKG_STATUS.NOT_IN_USE,
         localFilePath=local_file_name,
         pnfdModel=pnfd_json
     )
@@ -115,7 +116,7 @@ def download(pnfd_info_id):
     if not pnf_pkgs.exists():
         logger.error('PNFD(%s) does not exist.' % pnfd_info_id)
         raise ResourceNotFoundException('PNFD(%s) does not exist.' % pnfd_info_id)
-    if pnf_pkgs[0].onboardingState != 'ONBOARDED':
+    if pnf_pkgs[0].onboardingState != PKG_STATUS.ONBOARDED:
         logger.error('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
         raise CatalogException('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
     local_file_path = pnf_pkgs[0].localFilePath
@@ -132,7 +133,7 @@ def delete_single(pnfd_info_id):
         logger.info('PNFD(%s) has been deleted.' % pnfd_info_id)
         return
     '''
-    if pnf_pkgs[0].usageState != 'NOT_IN_USE':
+    if pnf_pkgs[0].usageState != PKG_STATUS.NOT_IN_USE:
         logger.info('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
         raise CatalogException('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
     '''
@@ -177,4 +178,4 @@ def fill_response_data(pnf_pkg):
 
 def handle_upload_failed(pnf_pkg_id):
     pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnf_pkg_id)
-    pnf_pkg.update(onboardingState="CREATED")
+    pnf_pkg.update(onboardingState=PKG_STATUS.CREATED)

@@ -24,6 +24,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from catalog.pub.database.models import PnfPackageModel
 from catalog.pub.utils import toscaparser
+from catalog.packages.const import PKG_STATUS
 
 
 class TestPnfDescriptor(TestCase):
@@ -142,7 +143,7 @@ class TestPnfDescriptor(TestCase):
             )
         pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId="22")
         self.assertEqual(pnf_pkg[0].pnfdId, "zte-1.0")
-        self.assertEqual(pnf_pkg[0].onboardingState, "ONBOARDED")
+        self.assertEqual(pnf_pkg[0].onboardingState, PKG_STATUS.ONBOARDED)
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)
         os.remove('pnfd_content.txt')

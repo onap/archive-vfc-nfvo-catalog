@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from rest_framework import serializers
-from pnfd_info import PnfdInfoSerializer
+from catalog.pub.utils.jobutil import enum
 
-
-class PnfdInfosSerializer(serializers.ListSerializer):
-    child = PnfdInfoSerializer()
+PKG_STATUS = enum(CREATED="CREATED", UPLOADING="UPLOADING", PROCESSING="PROCESSING", ONBOARDED="ONBOARDED",
+                  IN_USE="IN_USE", NOT_IN_USE="NOT_IN_USE", ENABLED="ENABLED", DISABLED="DISABLED")

@@ -23,6 +23,7 @@ from rest_framework.test import APIClient
 from catalog.pub.database.models import NSPackageModel, VnfPackageModel
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import toscaparser
+from catalog.packages.const import PKG_STATUS
 
 
 class TestNsDescriptor(TestCase):
@@ -366,7 +367,7 @@ class TestNsDescriptor(TestCase):
             file_content = '%s%s' % (file_content, data)
         ns_pkg = NSPackageModel.objects.filter(nsPackageId="22")
         self.assertEqual("VCPE_NS", ns_pkg[0].nsdId)
-        self.assertEqual("ONBOARDED", ns_pkg[0].onboardingState)
+        self.assertEqual(PKG_STATUS.ONBOARDED, ns_pkg[0].onboardingState)
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)
         self.assertEqual(file_content, 'test')
