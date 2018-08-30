@@ -139,8 +139,10 @@ def delete_single(pnfd_info_id):
     '''
     ns_pkgs = NSPackageModel.objects.all()
     for ns_pkg in ns_pkgs:
+        if ns_pkg.nsdModel:
+            nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
         pnf_info_ids = []
-        for pnf in ns_pkg.nsd_model['pnfs']:
+        for pnf in nsd_model['pnfs']:
             pnfd_id = pnf["properties"]["id"]
             pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
             for pkg in pkgs:
