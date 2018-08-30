@@ -223,11 +223,11 @@ class TestVnfPackage(TestCase):
             localFilePath="vnfPackage.csar"
         )
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content")
-        partial_file_content = ''
+        file_content = ''
         for data in response.streaming_content:
-            partial_file_content = partial_file_content + data
+            file_content = file_content + data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('AAAABBBBCCCCDDDD', partial_file_content)
+        self.assertEqual('AAAABBBBCCCCDDDD', file_content)
         os.remove("vnfPackage.csar")
 
     def test_fetch_partical_vnf_pkg(self):

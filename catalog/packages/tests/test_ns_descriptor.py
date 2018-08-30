@@ -161,12 +161,30 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(None, resp.data)
         self.assertEqual(file_content, 'test')
         os.remove('nsd_content.txt')
+        os.remove(ns_pkg[0].localFilePath)
+        os.removedirs(os.path.join(CATALOG_ROOT_PATH, ns_pkg[0].nsPackageId))
 
     def test_nsd_content_upload_failure(self):
         pass
 
     def test_nsd_content_download_normal(self):
-        pass
+        with open('nsd_content.txt', 'wb') as fp:
+            fp.writelines('test1')
+            fp.writelines('test2')
+        NSPackageModel.objects.create(
+            nsPackageId='23',
+            onboardingState='ONBOARDED',
+            localFilePath='nsd_content.txt'
+        )
+        response = self.client.get(
+            "/api/nsd/v1/ns_descriptors/23/nsd_content", format='json'
+        )
+        file_content = ""
+        for data in response.streaming_content:
+            file_content = '%s%s' % (file_content, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('test1test2', file_content)
+        os.remove('nsd_content.txt')
 
     def test_nsd_content_partial_download_normal(self):
         with open('nsd_content.txt', 'wb') as fp:

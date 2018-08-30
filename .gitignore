@@ -3,3 +3,5 @@ logs/*.log
 .idea
 .tox
 target
+htmlcov
+.coverage
