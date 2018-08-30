@@ -25,6 +25,7 @@ from rest_framework.test import APIClient
 from catalog.pub.database.models import PnfPackageModel
 from catalog.pub.utils import toscaparser
 from catalog.packages.const import PKG_STATUS
+from catalog.packages.tests.const import pnfd_data
 
 
 class TestPnfDescriptor(TestCase):
@@ -47,11 +48,6 @@ class TestPnfDescriptor(TestCase):
             'pnfdUsageState': 'NOT_IN_USE',
             'userDefinedData': self.user_defined_data,
             '_links': None
-        }
-        self.pnfd_data = {
-            "metadata": {
-                "id": "zte-1.0",
-            }
         }
 
     def tearDown(self):
@@ -132,7 +128,7 @@ class TestPnfDescriptor(TestCase):
             usageState='NOT_IN_USE',
             userDefinedData=user_defined_data_json,
         ).save()
-        mock_parse_pnfd.return_value = json.JSONEncoder().encode(self.pnfd_data)
+        mock_parse_pnfd.return_value = json.JSONEncoder().encode(pnfd_data)
         with open('pnfd_content.txt', 'wb') as fp:
             fp.write('test')
 
