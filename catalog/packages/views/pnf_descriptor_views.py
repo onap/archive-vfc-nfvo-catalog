@@ -17,8 +17,7 @@ import traceback
 
 from django.http import FileResponse
 
-from catalog.packages.biz.pnf_descriptor import create, delete_single, download, query_multiple, query_single, upload, \
-    parse_pnfd_and_save, handle_upload_failed
+from catalog.packages.biz.pnf_descriptor import PnfPackage, parse_pnfd_and_save, handle_upload_failed
 from catalog.packages.serializers.create_pnfd_info_request import CreatePnfdInfoRequestSerializer
 from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
 from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
@@ -55,7 +54,7 @@ def pnfd_info_rd(request, pnfdInfoId):  # TODO
     if request.method == 'GET':
         logger.debug("Query an individual PNF descriptor> %s" % request.data)
         try:
-            data = query_single(pnfdInfoId)
+            data = PnfPackage().query_single(pnfdInfoId)
             pnfd_info = validate_data(data, PnfdInfoSerializer)
             return Response(data=pnfd_info.data, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
@@ -73,7 +72,7 @@ def pnfd_info_rd(request, pnfdInfoId):  # TODO
     if request.method == 'DELETE':
         logger.debug("Delete an individual PNFD resource> %s" % request.data)
         try:
-            delete_single(pnfdInfoId)
+            PnfPackage().delete_single(pnfdInfoId)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
             logger.error(e.message)
@@ -108,7 +107,7 @@ def pnf_descriptors_rc(request, *args, **kwargs):
     if request.method == 'POST':
         try:
             create_pnfd_info_request = validate_data(request.data, CreatePnfdInfoRequestSerializer)
-            data = create(create_pnfd_info_request.data)
+            data = PnfPackage().create(create_pnfd_info_request.data)
             pnfd_info = validate_data(data, PnfdInfoSerializer)
             return Response(data=pnfd_info.data, status=status.HTTP_201_CREATED)
         except CatalogException as e:
@@ -122,7 +121,7 @@ def pnf_descriptors_rc(request, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            data = query_multiple()
+            data = PnfPackage().query_multiple()
             pnfd_infos = validate_data(data, PnfdInfosSerializer)
             return Response(data=pnfd_infos.data, status=status.HTTP_200_OK)
         except CatalogException as e:
@@ -160,7 +159,7 @@ def pnfd_content_ru(request, *args, **kwargs):
     if request.method == 'PUT':
         files = request.FILES.getlist('file')
         try:
-            local_file_name = upload(files[0], pnfd_info_id)
+            local_file_name = PnfPackage().upload(files[0], pnfd_info_id)
             parse_pnfd_and_save(pnfd_info_id, local_file_name)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
@@ -176,7 +175,7 @@ def pnfd_content_ru(request, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            file_path, file_name, file_size = download(pnfd_info_id)
+            file_path, file_name, file_size = PnfPackage().download(pnfd_info_id)
             response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
             response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
             response['Content-Length'] = file_size

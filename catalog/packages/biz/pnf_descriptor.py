@@ -28,61 +28,109 @@ from catalog.packages.const import PKG_STATUS
 logger = logging.getLogger(__name__)
 
 
-def create(data):
-    logger.info('Start to create a PNFD...')
-    user_defined_data = ignore_case_get(data, 'userDefinedData')
-    data = {
-        'id': str(uuid.uuid4()),
-        'pnfdOnboardingState': PKG_STATUS.CREATED,
-        'pnfdUsageState': PKG_STATUS.NOT_IN_USE,
-        'userDefinedData': user_defined_data,
-        '_links': None  # TODO
-    }
-    PnfPackageModel.objects.create(
-        pnfPackageId=data['id'],
-        onboardingState=data['pnfdOnboardingState'],
-        usageState=data['pnfdUsageState'],
-        userDefinedData=data['userDefinedData']
-    )
-    logger.info('A PNFD(%s) has been created.' % data['id'])
-    return data
+class PnfPackage(object):
 
+    def __init__(self):
+        pass
 
-def query_multiple():
-    pnf_pkgs = PnfPackageModel.objects.all()
-    response_data = []
-    for pnf_pkg in pnf_pkgs:
-        data = fill_response_data(pnf_pkg)
-        response_data.append(data)
-    return response_data
+    def create(self, data):
+        logger.info('Start to create a PNFD...')
+        user_defined_data = ignore_case_get(data, 'userDefinedData')
+        data = {
+            'id': str(uuid.uuid4()),
+            'pnfdOnboardingState': PKG_STATUS.CREATED,
+            'pnfdUsageState': PKG_STATUS.NOT_IN_USE,
+            'userDefinedData': user_defined_data,
+            '_links': None  # TODO
+        }
+        PnfPackageModel.objects.create(
+            pnfPackageId=data['id'],
+            onboardingState=data['pnfdOnboardingState'],
+            usageState=data['pnfdUsageState'],
+            userDefinedData=data['userDefinedData']
+        )
+        logger.info('A PNFD(%s) has been created.' % data['id'])
+        return data
 
+    def query_multiple(self):
+        pnf_pkgs = PnfPackageModel.objects.all()
+        response_data = []
+        for pnf_pkg in pnf_pkgs:
+            data = fill_response_data(pnf_pkg)
+            response_data.append(data)
+        return response_data
 
-def query_single(pnfd_info_id):
-    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    if not pnf_pkgs.exists():
-        logger.error('PNFD(%s) does not exist.' % pnfd_info_id)
-        raise ResourceNotFoundException('PNFD(%s) does not exist.' % pnfd_info_id)
-    return fill_response_data(pnf_pkgs[0])
+    def query_single(self, pnfd_info_id):
+        pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+        if not pnf_pkgs.exists():
+            logger.error('PNFD(%s) does not exist.' % pnfd_info_id)
+            raise ResourceNotFoundException('PNFD(%s) does not exist.' % pnfd_info_id)
+        return fill_response_data(pnf_pkgs[0])
 
+    def upload(self, remote_file, pnfd_info_id):
+        logger.info('Start to upload PNFD(%s)...' % pnfd_info_id)
+        pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+        if not pnf_pkgs.exists():
+            logger.info('PNFD(%s) does not exist.' % pnfd_info_id)
+            raise CatalogException('PNFD (%s) does not exist.' % pnfd_info_id)
 
-def upload(remote_file, pnfd_info_id):
-    logger.info('Start to upload PNFD(%s)...' % pnfd_info_id)
-    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    if not pnf_pkgs.exists():
-        logger.info('PNFD(%s) does not exist.' % pnfd_info_id)
-        raise CatalogException('PNFD (%s) does not exist.' % pnfd_info_id)
+        pnf_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
+        local_file_name = remote_file.name
+        local_file_dir = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
+        local_file_name = os.path.join(local_file_dir, local_file_name)
+        if not os.path.exists(local_file_dir):
+            fileutil.make_dirs(local_file_dir)
+        with open(local_file_name, 'wb') as local_file:
+            for chunk in remote_file.chunks(chunk_size=1024 * 8):
+                local_file.write(chunk)
+        logger.info('PNFD(%s) content has been uploaded.' % pnfd_info_id)
+        return local_file_name
 
-    pnf_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
-    local_file_name = remote_file.name
-    local_file_dir = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
-    local_file_name = os.path.join(local_file_dir, local_file_name)
-    if not os.path.exists(local_file_dir):
-        fileutil.make_dirs(local_file_dir)
-    with open(local_file_name, 'wb') as local_file:
-        for chunk in remote_file.chunks(chunk_size=1024 * 8):
-            local_file.write(chunk)
-    logger.info('PNFD(%s) content has been uploaded.' % pnfd_info_id)
-    return local_file_name
+    def delete_single(self, pnfd_info_id):
+        logger.info('Start to delete PNFD(%s)...' % pnfd_info_id)
+        pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+        if not pnf_pkgs.exists():
+            logger.info('PNFD(%s) has been deleted.' % pnfd_info_id)
+            return
+        '''
+        if pnf_pkgs[0].usageState != PKG_STATUS.NOT_IN_USE:
+            logger.info('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
+            raise CatalogException('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
+        '''
+        ns_pkgs = NSPackageModel.objects.all()
+        for ns_pkg in ns_pkgs:
+            nsd_model = None
+            if ns_pkg.nsdModel:
+                nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
+            pnf_info_ids = []
+            for pnf in nsd_model['pnfs']:
+                pnfd_id = pnf["properties"]["id"]
+                pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
+                for pkg in pkgs:
+                    pnf_info_ids.append(pkg.pnfPackageId)
+            if pnfd_info_id in pnf_info_ids:
+                logger.info('PNFD(%s) is referenced.' % pnfd_info_id)
+                raise CatalogException('PNFD(%s) is referenced.' % pnfd_info_id)
+
+        pnf_pkgs.delete()
+        pnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
+        fileutil.delete_dirs(pnf_pkg_path)
+        logger.debug('PNFD(%s) has been deleted.' % pnfd_info_id)
+
+    def download(self, pnfd_info_id):
+        logger.info('Start to download PNFD(%s)...' % pnfd_info_id)
+        pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+        if not pnf_pkgs.exists():
+            logger.error('PNFD(%s) does not exist.' % pnfd_info_id)
+            raise ResourceNotFoundException('PNFD(%s) does not exist.' % pnfd_info_id)
+        if pnf_pkgs[0].onboardingState != PKG_STATUS.ONBOARDED:
+            logger.error('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
+            raise CatalogException('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
+        local_file_path = pnf_pkgs[0].localFilePath
+        local_file_name = local_file_path.split('/')[-1]
+        local_file_name = local_file_name.split('\\')[-1]
+        logger.info('PNFD(%s) has been downloaded.' % pnfd_info_id)
+        return local_file_path, local_file_name, os.path.getsize(local_file_path)
 
 
 def parse_pnfd_and_save(pnfd_info_id, local_file_name):
@@ -108,53 +156,6 @@ def parse_pnfd_and_save(pnfd_info_id, local_file_name):
         pnfdModel=pnfd_json
     )
     logger.info('PNFD(%s) has been processed.' % pnfd_info_id)
-
-
-def download(pnfd_info_id):
-    logger.info('Start to download PNFD(%s)...' % pnfd_info_id)
-    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    if not pnf_pkgs.exists():
-        logger.error('PNFD(%s) does not exist.' % pnfd_info_id)
-        raise ResourceNotFoundException('PNFD(%s) does not exist.' % pnfd_info_id)
-    if pnf_pkgs[0].onboardingState != PKG_STATUS.ONBOARDED:
-        logger.error('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
-        raise CatalogException('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
-    local_file_path = pnf_pkgs[0].localFilePath
-    local_file_name = local_file_path.split('/')[-1]
-    local_file_name = local_file_name.split('\\')[-1]
-    logger.info('PNFD(%s) has been downloaded.' % pnfd_info_id)
-    return local_file_path, local_file_name, os.path.getsize(local_file_path)
-
-
-def delete_single(pnfd_info_id):
-    logger.info('Start to delete PNFD(%s)...' % pnfd_info_id)
-    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    if not pnf_pkgs.exists():
-        logger.info('PNFD(%s) has been deleted.' % pnfd_info_id)
-        return
-    '''
-    if pnf_pkgs[0].usageState != PKG_STATUS.NOT_IN_USE:
-        logger.info('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
-        raise CatalogException('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
-    '''
-    ns_pkgs = NSPackageModel.objects.all()
-    for ns_pkg in ns_pkgs:
-        if ns_pkg.nsdModel:
-            nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
-        pnf_info_ids = []
-        for pnf in nsd_model['pnfs']:
-            pnfd_id = pnf["properties"]["id"]
-            pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
-            for pkg in pkgs:
-                pnf_info_ids.append(pkg.pnfPackageId)
-        if pnfd_info_id in pnf_info_ids:
-            logger.info('PNFD(%s) is referenced.' % pnfd_info_id)
-            raise CatalogException('PNFD(%s) is referenced.' % pnfd_info_id)
-
-    pnf_pkgs.delete()
-    pnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
-    fileutil.delete_dirs(pnf_pkg_path)
-    logger.debug('PNFD(%s) has been deleted.' % pnfd_info_id)
 
 
 def fill_response_data(pnf_pkg):
