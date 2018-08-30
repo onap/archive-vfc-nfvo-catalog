@@ -72,7 +72,7 @@ def upload(remote_file, pnfd_info_id):
         raise CatalogException('PNFD (%s) does not exist.' % pnfd_info_id)
 
     pnf_pkgs.update(onboardingState='UPLOADING')
-    local_file_name = remote_file.name  # TODO: common method
+    local_file_name = remote_file.name
     local_file_dir = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
     local_file_name = os.path.join(local_file_dir, local_file_name)
     if not os.path.exists(local_file_dir):
@@ -81,9 +81,10 @@ def upload(remote_file, pnfd_info_id):
         for chunk in remote_file.chunks(chunk_size=1024 * 8):
             local_file.write(chunk)
     logger.info('PNFD(%s) content has been uploaded.' % pnfd_info_id)
+    return local_file_name
 
 
-def process(pnfd_info_id, local_file_name):
+def parse_pnfd_and_save(pnfd_info_id, local_file_name):
     logger.info('Start to process PNFD(%s)...' % pnfd_info_id)
     pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
     pnf_pkgs.update(onboardingState='PROCESSING')
@@ -98,12 +99,10 @@ def process(pnfd_info_id, local_file_name):
 
     pnf_pkgs.update(
         pnfdId=pnfd_id,
-        pnfdName=pnfd["metadata"].get("name", pnfd_id),
-        pnfdDesginer=pnfd["metadata"].get("vendor", "undefined"),
-        pnfdDescription=pnfd["metadata"].get("description", ""),
         pnfdVersion=pnfd["metadata"].get("version", "undefined"),
-        pnfPackageUri=local_file_name,  # TODO
-        sdcCsarId=pnfd_info_id,
+        pnfPackageUri=local_file_name,
+        onboardingState="ONBOARDED",
+        usageState="NOT_IN_USE",
         localFilePath=local_file_name,
         pnfdModel=pnfd_json
     )
@@ -174,3 +173,8 @@ def fill_response_data(pnf_pkg):
         data['userDefinedData'] = user_defined_data
 
     return data
+
+
+def handle_upload_failed(pnf_pkg_id):
+    pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnf_pkg_id)
+    pnf_pkg.update(onboardingState="CREATED")

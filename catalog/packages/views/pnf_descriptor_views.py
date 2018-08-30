@@ -17,7 +17,8 @@ import traceback
 
 from django.http import FileResponse
 
-from catalog.packages.biz.pnf_descriptor import create, delete_single, download, query_multiple, query_single, upload
+from catalog.packages.biz.pnf_descriptor import create, delete_single, download, query_multiple, query_single, upload, \
+    parse_pnfd_and_save, handle_upload_failed
 from catalog.packages.serializers.create_pnfd_info_request import CreatePnfdInfoRequestSerializer
 from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
 from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
@@ -159,12 +160,15 @@ def pnfd_content_ru(request, *args, **kwargs):
     if request.method == 'PUT':
         files = request.FILES.getlist('file')
         try:
-            upload(files[0], pnfd_info_id)
+            local_file_name = upload(files[0], pnfd_info_id)
+            parse_pnfd_and_save(pnfd_info_id, local_file_name)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
+            handle_upload_failed(pnfd_info_id)
             logger.error(e.message)
             error_msg = {'error': 'Uploading PNFD content failed.'}
         except Exception as e:
+            handle_upload_failed(pnfd_info_id)
             logger.error(e.message)
             logger.error(traceback.format_exc())
             error_msg = {'error': 'Uploading PNFD content failed.'}

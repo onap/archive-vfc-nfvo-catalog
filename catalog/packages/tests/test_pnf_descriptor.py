@@ -16,11 +16,14 @@
 import copy
 import json
 import os
+import mock
+
 
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 from catalog.pub.database.models import PnfPackageModel
+from catalog.pub.utils import toscaparser
 
 
 class TestPnfDescriptor(TestCase):
@@ -43,6 +46,11 @@ class TestPnfDescriptor(TestCase):
             'pnfdUsageState': 'NOT_IN_USE',
             'userDefinedData': self.user_defined_data,
             '_links': None
+        }
+        self.pnfd_data = {
+            "metadata": {
+                "id": "zte-1.0",
+            }
         }
 
     def tearDown(self):
@@ -115,14 +123,15 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)
 
-    def test_pnfd_content_upload_normal(self):
+    @mock.patch.object(toscaparser, "parse_pnfd")
+    def test_pnfd_content_upload_normal(self, mock_parse_pnfd):
         user_defined_data_json = json.JSONEncoder().encode(self.user_defined_data)
         PnfPackageModel(
             pnfPackageId='22',
             usageState='NOT_IN_USE',
             userDefinedData=user_defined_data_json,
         ).save()
-
+        mock_parse_pnfd.return_value = json.JSONEncoder().encode(self.pnfd_data)
         with open('pnfd_content.txt', 'wb') as fp:
             fp.write('test')
 
@@ -131,6 +140,9 @@ class TestPnfDescriptor(TestCase):
                 "/api/nsd/v1/pnf_descriptors/22/pnfd_content",
                 {'file': fp},
             )
+        pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId="22")
+        self.assertEqual(pnf_pkg[0].pnfdId, "zte-1.0")
+        self.assertEqual(pnf_pkg[0].onboardingState, "ONBOARDED")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)
         os.remove('pnfd_content.txt')
