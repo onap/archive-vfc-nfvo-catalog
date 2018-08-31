@@ -24,6 +24,7 @@ from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
 from catalog.packages.const import PKG_STATUS
+from catalog.packages.biz.common import save
 
 logger = logging.getLogger(__name__)
 
@@ -94,16 +95,9 @@ class NsDescriptor(object):
         if not ns_pkgs.exists():
             logger.info('NSD(%s) does not exist.' % nsd_info_id)
             raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
-
         ns_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
-        local_file_name = remote_file.name
-        local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
-        local_file_name = os.path.join(local_file_dir, local_file_name)
-        if not os.path.exists(local_file_dir):
-            fileutil.make_dirs(local_file_dir)
-        with open(local_file_name, 'wb') as local_file:
-            for chunk in remote_file.chunks(chunk_size=1024 * 8):
-                local_file.write(chunk)
+
+        local_file_name = save(remote_file, nsd_info_id)
         logger.info('NSD(%s) content has been uploaded.' % nsd_info_id)
         return local_file_name
 

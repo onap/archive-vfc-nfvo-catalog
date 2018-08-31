@@ -15,18 +15,19 @@
 
 import copy
 import json
-import os
 import mock
+import os
 
 
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
-from catalog.pub.database.models import PnfPackageModel, NSPackageModel
-from catalog.pub.utils import toscaparser
+
+from catalog.packages.biz.pnf_descriptor import PnfPackage
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import pnfd_data
-from catalog.packages.biz.pnf_descriptor import PnfPackage
+from catalog.pub.database.models import PnfPackageModel, NSPackageModel
+from catalog.pub.utils import toscaparser
 
 
 class TestPnfDescriptor(TestCase):
@@ -132,6 +133,11 @@ class TestPnfDescriptor(TestCase):
             nsPackageId="111",
             nsdModel=json.JSONEncoder().encode(self.nsdModel)
         )
+        resp = self.client.delete("/api/nsd/v1/pnf_descriptors/22", format='json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(None, resp.data)
+
+    def test_delete_single_pnfd_when_not_exist(self):
         resp = self.client.delete("/api/nsd/v1/pnf_descriptors/22", format='json')
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)

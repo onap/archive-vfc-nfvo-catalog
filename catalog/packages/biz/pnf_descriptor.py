@@ -24,6 +24,7 @@ from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
 from catalog.packages.const import PKG_STATUS
+from catalog.packages.biz.common import save
 
 logger = logging.getLogger(__name__)
 
@@ -73,16 +74,9 @@ class PnfPackage(object):
         if not pnf_pkgs.exists():
             logger.info('PNFD(%s) does not exist.' % pnfd_info_id)
             raise CatalogException('PNFD (%s) does not exist.' % pnfd_info_id)
-
         pnf_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
-        local_file_name = remote_file.name
-        local_file_dir = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
-        local_file_name = os.path.join(local_file_dir, local_file_name)
-        if not os.path.exists(local_file_dir):
-            fileutil.make_dirs(local_file_dir)
-        with open(local_file_name, 'wb') as local_file:
-            for chunk in remote_file.chunks(chunk_size=1024 * 8):
-                local_file.write(chunk)
+
+        local_file_name = save(remote_file, pnfd_info_id)
         logger.info('PNFD(%s) content has been uploaded.' % pnfd_info_id)
         return local_file_name
 
@@ -137,7 +131,7 @@ def parse_pnfd_and_save(pnfd_info_id, local_file_name):
     logger.info('Start to process PNFD(%s)...' % pnfd_info_id)
     pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
     pnf_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
-
+    PnfPackageModel
     pnfd_json = toscaparser.parse_pnfd(local_file_name)
     pnfd = json.JSONDecoder().decode(pnfd_json)
 
