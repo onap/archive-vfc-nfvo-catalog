@@ -155,8 +155,6 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, resp.data)
         os.remove('pnfd_content.txt')
-        os.remove(pnf_pkg[0].localFilePath)
-        os.removedirs(os.path.join(CATALOG_ROOT_PATH, pnf_pkg[0].pnfPackageId))
 
     def test_pnfd_content_upload_when_pnf_not_exist(self):
         with open('pnfd_content.txt', 'wb') as fp:

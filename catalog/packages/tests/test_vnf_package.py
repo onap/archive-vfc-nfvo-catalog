@@ -58,9 +58,6 @@ class TestVnfPackage(TestCase):
         self.assertEqual(PKG_STATUS.ONBOARDED, vnf_pkg[0].onboardingState)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
 
-        os.remove(vnf_pkg[0].localFilePath)
-        os.removedirs(os.path.join(CATALOG_ROOT_PATH, vnf_pkg[0].vnfPackageId))
-
     def test_upload_vnf_pkg_failed(self):
         data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "empty.txt"), "rb")}
         VnfPackageModel.objects.create(
@@ -84,8 +81,10 @@ class TestVnfPackage(TestCase):
         vnf_pkg1 = VnfPackageModel.objects.filter(vnfPackageId="222")
         self.assertEqual("zte-hss-1.0", vnf_pkg1[0].vnfdId)
 
-        os.remove(vnf_pkg1[0].localFilePath)
-        os.removedirs(os.path.join(CATALOG_ROOT_PATH, vnf_pkg1[0].vnfPackageId))
+    def test_upload_from_uri_failed(self):
+        req_data = {"username": "123"}
+        response = self.client.post("/api/vnfpkgm/v1/vnf_packages/111/package_content/upload_from_uri", data=req_data)
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_create_vnf_pkg(self):
         req_data = {
@@ -263,6 +262,15 @@ class TestVnfPackage(TestCase):
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_fetch_vnf_pkg_when_catch_cataloge_exception(self):
+        VnfPackageModel.objects.create(
+            vnfPackageId="222",
+            onboardingState="CREATED",
+            localFilePath="vnfPackage.csar"
+        )
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content")
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @mock.patch.object(VnfPackage, "create_vnf_pkg")
     def test_create_vnf_pkg_when_catch_exception(self, mock_create_vnf_pkg):
         mock_create_vnf_pkg.side_effect = TypeError('integer type')
@@ -299,4 +307,17 @@ class TestVnfPackage(TestCase):
         )
         mock_parse_vnfd.side_effect = TypeError("integer type")
         response = self.client.put("/api/vnfpkgm/v1/vnf_packages/222/package_content", data=data)
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(VnfPkgUploadThread, 'start')
+    def test_upload_from_uri_when_catch_exception(self, mock_start):
+        req_data = {"addressInformation": "https://127.0.0.1:1234/sdc/v1/hss.csar"}
+        mock_start.side_effect = TypeError("integer type")
+        response = self.client.post("/api/vnfpkgm/v1/vnf_packages/111/package_content/upload_from_uri", data=req_data)
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(VnfPackage, 'fetch_vnf_pkg')
+    def test_fetch_vnf_pkg_when_catch_exception(self, mock_fetch_vnf_pkg):
+        mock_fetch_vnf_pkg.side_effect = TypeError("integer type")
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
