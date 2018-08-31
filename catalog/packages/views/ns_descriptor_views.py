@@ -216,5 +216,5 @@ def validate_data(data, serializer):
     serialized_data = serializer(data=data)
     if not serialized_data.is_valid():
         logger.error('Data validation failed.')
-        raise CatalogException(serialized_data.error)
+        raise CatalogException(serialized_data.errors)
     return serialized_data
