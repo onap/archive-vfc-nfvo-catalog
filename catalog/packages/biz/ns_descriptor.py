@@ -28,83 +28,99 @@ from catalog.packages.const import PKG_STATUS
 logger = logging.getLogger(__name__)
 
 
-def create(data):
-    logger.info('Start to create a NSD...')
-    user_defined_data = ignore_case_get(data, 'userDefinedData')
-    data = {
-        'id': str(uuid.uuid4()),
-        'nsdOnboardingState': PKG_STATUS.CREATED,
-        'nsdOperationalState': PKG_STATUS.DISABLED,
-        'nsdUsageState': PKG_STATUS.NOT_IN_USE,
-        'userDefinedData': user_defined_data,
-        '_links': None  # TODO
-    }
-    NSPackageModel.objects.create(
-        nsPackageId=data['id'],
-        onboardingState=data['nsdOnboardingState'],
-        operationalState=data['nsdOperationalState'],
-        usageState=data['nsdUsageState'],
-        userDefinedData=data['userDefinedData']
-    )
-    logger.info('A NSD(%s) has been created.' % data['id'])
-    return data
+class NsDescriptor(object):
 
+    def __init__(self):
+        pass
 
-def query_multiple():
-    ns_pkgs = NSPackageModel.objects.all()
-    response_data = []
-    for ns_pkg in ns_pkgs:
-        data = fill_resp_data(ns_pkg)
-        response_data.append(data)
-    return response_data
+    def create(self, data):
+        logger.info('Start to create a NSD...')
+        user_defined_data = ignore_case_get(data, 'userDefinedData')
+        data = {
+            'id': str(uuid.uuid4()),
+            'nsdOnboardingState': PKG_STATUS.CREATED,
+            'nsdOperationalState': PKG_STATUS.DISABLED,
+            'nsdUsageState': PKG_STATUS.NOT_IN_USE,
+            'userDefinedData': user_defined_data,
+            '_links': None  # TODO
+        }
+        NSPackageModel.objects.create(
+            nsPackageId=data['id'],
+            onboardingState=data['nsdOnboardingState'],
+            operationalState=data['nsdOperationalState'],
+            usageState=data['nsdUsageState'],
+            userDefinedData=data['userDefinedData']
+        )
+        logger.info('A NSD(%s) has been created.' % data['id'])
+        return data
 
+    def query_multiple(self):
+        ns_pkgs = NSPackageModel.objects.all()
+        response_data = []
+        for ns_pkg in ns_pkgs:
+            data = fill_resp_data(ns_pkg)
+            response_data.append(data)
+        return response_data
 
-def query_single(nsd_info_id):
-    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    if not ns_pkgs.exists():
-        logger.error('NSD(%s) does not exist.' % nsd_info_id)
-        raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
-    return fill_resp_data(ns_pkgs[0])
+    def query_single(self, nsd_info_id):
+        ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+        if not ns_pkgs.exists():
+            logger.error('NSD(%s) does not exist.' % nsd_info_id)
+            raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
+        return fill_resp_data(ns_pkgs[0])
 
-
-def delete_single(nsd_info_id):
-    logger.info('Start to delete NSD(%s)...' % nsd_info_id)
-    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    if not ns_pkgs.exists():
+    def delete_single(self, nsd_info_id):
+        logger.info('Start to delete NSD(%s)...' % nsd_info_id)
+        ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+        if not ns_pkgs.exists():
+            logger.info('NSD(%s) has been deleted.' % nsd_info_id)
+            return
+        '''
+        if ns_pkgs[0].operationalState != PKG_STATUS.DISABLED:
+            logger.error('NSD(%s) shall be DISABLED.' % nsd_info_id)
+            raise CatalogException('NSD(%s) shall be DISABLED.' % nsd_info_id)
+        if ns_pkgs[0].usageState != PKG_STATUS.NOT_IN_USE:
+            logger.error('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
+            raise CatalogException('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
+        '''
+        ns_pkgs.delete()
+        ns_pkg_path = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
+        fileutil.delete_dirs(ns_pkg_path)
         logger.info('NSD(%s) has been deleted.' % nsd_info_id)
-        return
-    '''
-    if ns_pkgs[0].operationalState != PKG_STATUS.DISABLED:
-        logger.error('NSD(%s) shall be DISABLED.' % nsd_info_id)
-        raise CatalogException('NSD(%s) shall be DISABLED.' % nsd_info_id)
-    if ns_pkgs[0].usageState != PKG_STATUS.NOT_IN_USE:
-        logger.error('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
-        raise CatalogException('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
-    '''
-    ns_pkgs.delete()
-    ns_pkg_path = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
-    fileutil.delete_dirs(ns_pkg_path)
-    logger.info('NSD(%s) has been deleted.' % nsd_info_id)
 
+    def upload(self, remote_file, nsd_info_id):
+        logger.info('Start to upload NSD(%s)...' % nsd_info_id)
+        ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+        if not ns_pkgs.exists():
+            logger.info('NSD(%s) does not exist.' % nsd_info_id)
+            raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
 
-def upload(remote_file, nsd_info_id):
-    logger.info('Start to upload NSD(%s)...' % nsd_info_id)
-    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    if not ns_pkgs.exists():
-        logger.info('NSD(%s) does not exist.' % nsd_info_id)
-        raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
+        ns_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
+        local_file_name = remote_file.name
+        local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
+        local_file_name = os.path.join(local_file_dir, local_file_name)
+        if not os.path.exists(local_file_dir):
+            fileutil.make_dirs(local_file_dir)
+        with open(local_file_name, 'wb') as local_file:
+            for chunk in remote_file.chunks(chunk_size=1024 * 8):
+                local_file.write(chunk)
+        logger.info('NSD(%s) content has been uploaded.' % nsd_info_id)
+        return local_file_name
 
-    ns_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
-    local_file_name = remote_file.name
-    local_file_dir = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
-    local_file_name = os.path.join(local_file_dir, local_file_name)
-    if not os.path.exists(local_file_dir):
-        fileutil.make_dirs(local_file_dir)
-    with open(local_file_name, 'wb') as local_file:
-        for chunk in remote_file.chunks(chunk_size=1024 * 8):
-            local_file.write(chunk)
-    logger.info('NSD(%s) content has been uploaded.' % nsd_info_id)
-    return local_file_name
+    def download(self, nsd_info_id):
+        logger.info('Start to download NSD(%s)...' % nsd_info_id)
+        ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+        if not ns_pkgs.exists():
+            logger.error('NSD(%s) does not exist.' % nsd_info_id)
+            raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
+        if ns_pkgs[0].onboardingState != PKG_STATUS.ONBOARDED:
+            logger.error('NSD(%s) is not ONBOARDED.' % nsd_info_id)
+            raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)
+        local_file_path = ns_pkgs[0].localFilePath
+        local_file_name = local_file_path.split('/')[-1]
+        local_file_name = local_file_name.split('\\')[-1]
+        logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
+        return local_file_path, local_file_name, os.path.getsize(local_file_path)
 
 
 def parse_nsd_and_save(nsd_info_id, local_file_name):
@@ -141,22 +157,6 @@ def parse_nsd_and_save(nsd_info_id, local_file_name):
         nsdModel=nsd_json
     )
     logger.info('NSD(%s) has been processed.' % nsd_info_id)
-
-
-def download(nsd_info_id):
-    logger.info('Start to download NSD(%s)...' % nsd_info_id)
-    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    if not ns_pkgs.exists():
-        logger.error('NSD(%s) does not exist.' % nsd_info_id)
-        raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
-    if ns_pkgs[0].onboardingState != PKG_STATUS.ONBOARDED:
-        logger.error('NSD(%s) is not ONBOARDED.' % nsd_info_id)
-        raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)
-    local_file_path = ns_pkgs[0].localFilePath
-    local_file_name = local_file_path.split('/')[-1]
-    local_file_name = local_file_name.split('\\')[-1]
-    logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
-    return local_file_path, local_file_name, os.path.getsize(local_file_path)
 
 
 def fill_resp_data(ns_pkg):

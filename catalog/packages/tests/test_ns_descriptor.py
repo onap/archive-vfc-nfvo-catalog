@@ -52,6 +52,10 @@ class TestNsDescriptor(TestCase):
             'userDefinedData': self.user_defined_data,
             '_links': None
         }
+        self.nsdModel = {
+            "pnfs": [{"properties": {"id": "m6000_s"}}],
+            "vnfs": [{"properties": {"id": "123"}}]
+        }
 
     def tearDown(self):
         pass
@@ -107,12 +111,17 @@ class TestNsDescriptor(TestCase):
             onboardingState='CREATED',
             operationalState='DISABLED',
             usageState='NOT_IN_USE',
-            userDefinedData=user_defined_data
+            userDefinedData=user_defined_data,
+            nsdModel=json.JSONEncoder().encode(self.nsdModel)
         ).save()
 
         response = self.client.get('/api/nsd/v1/ns_descriptors/22', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(expected_reponse_data, response.data)
+
+    def test_query_single_when_ns_not_exist(self):
+        response = self.client.get('/api/nsd/v1/ns_descriptors/22', format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_single_nsd_normal(self):
         user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
@@ -127,6 +136,10 @@ class TestNsDescriptor(TestCase):
         response = self.client.delete("/api/nsd/v1/ns_descriptors/21", format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(None, response.data)
+
+    def test_delete_when_ns_not_exist(self):
+        response = self.client.delete("/api/nsd/v1/ns_descriptors/21", format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     @mock.patch.object(toscaparser, 'parse_nsd')
     def test_nsd_content_upload_normal(self, mock_parse_nsd):
@@ -161,11 +174,16 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(None, resp.data)
         self.assertEqual(file_content, 'test')
         os.remove('nsd_content.txt')
-        os.remove(ns_pkg[0].localFilePath)
-        os.removedirs(os.path.join(CATALOG_ROOT_PATH, ns_pkg[0].nsPackageId))
 
     def test_nsd_content_upload_failure(self):
-        pass
+        with open('nsd_content.txt', 'wb') as fp:
+            fp.write('test')
+        with open('nsd_content.txt', 'rb') as fp:
+            response = self.client.put(
+                "/api/nsd/v1/ns_descriptors/22/nsd_content",
+                {'file': fp},
+            )
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_nsd_content_download_normal(self):
         with open('nsd_content.txt', 'wb') as fp:
@@ -185,6 +203,19 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('test1test2', file_content)
         os.remove('nsd_content.txt')
+
+    def test_nsd_content_download_when_ns_not_exist(self):
+        response = self.client.get("/api/nsd/v1/ns_descriptors/23/nsd_content", format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_nsd_content_download_failed(self):
+        NSPackageModel.objects.create(
+            nsPackageId='23',
+            onboardingState='CREATED',
+            localFilePath='nsd_content.txt'
+        )
+        response = self.client.get("/api/nsd/v1/ns_descriptors/23/nsd_content", format='json')
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_nsd_content_partial_download_normal(self):
         with open('nsd_content.txt', 'wb') as fp:

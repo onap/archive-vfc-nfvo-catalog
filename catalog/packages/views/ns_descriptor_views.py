@@ -16,8 +16,7 @@ import logging
 import traceback
 
 from django.http import StreamingHttpResponse
-from catalog.packages.biz.ns_descriptor import create, delete_single, download, query_multiple, query_single, upload, \
-    parse_nsd_and_save, handle_upload_failed
+from catalog.packages.biz.ns_descriptor import NsDescriptor, parse_nsd_and_save, handle_upload_failed
 from catalog.packages.serializers.create_nsd_info_request import CreateNsdInfoRequestSerializer
 from catalog.packages.serializers.nsd_info import NsdInfoSerializer
 from catalog.packages.serializers.nsd_infos import NsdInfosSerializer
@@ -53,7 +52,7 @@ logger = logging.getLogger(__name__)
 def ns_info_rd(request, nsdInfoId):   # TODO
     if request.method == 'GET':
         try:
-            data = query_single(nsdInfoId)
+            data = NsDescriptor().query_single(nsdInfoId)
             nsd_info = validate_data(data, NsdInfoSerializer)
             return Response(data=nsd_info.data, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
@@ -70,7 +69,7 @@ def ns_info_rd(request, nsdInfoId):   # TODO
 
     if request.method == 'DELETE':
         try:
-            delete_single(nsdInfoId)
+            NsDescriptor().delete_single(nsdInfoId)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
             logger.error(e.message)
@@ -105,7 +104,7 @@ def ns_descriptors_rc(request, *args, **kwargs):
     if request.method == 'POST':
         try:
             create_nsd_info_requst = validate_data(request.data, CreateNsdInfoRequestSerializer)
-            data = create(create_nsd_info_requst.data)
+            data = NsDescriptor().create(create_nsd_info_requst.data)
             nsd_info = validate_data(data, NsdInfoSerializer)
             return Response(data=nsd_info.data, status=status.HTTP_201_CREATED)
         except CatalogException as e:
@@ -119,7 +118,7 @@ def ns_descriptors_rc(request, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            data = query_multiple()
+            data = NsDescriptor().query_multiple()
             nsd_infos = validate_data(data, NsdInfosSerializer)
             return Response(data=nsd_infos.data, status=status.HTTP_200_OK)
         except CatalogException as e:
@@ -157,7 +156,7 @@ def nsd_content_ru(request, *args, **kwargs):
     if request.method == 'PUT':
         files = request.FILES.getlist('file')
         try:
-            local_file_name = upload(files[0], nsd_info_id)
+            local_file_name = NsDescriptor().upload(files[0], nsd_info_id)
             parse_nsd_and_save(nsd_info_id, local_file_name)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
@@ -173,7 +172,7 @@ def nsd_content_ru(request, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            file_path, file_name, file_size = download(nsd_info_id)
+            file_path, file_name, file_size = NsDescriptor().download(nsd_info_id)
             start, end = 0, file_size
             file_range = request.META.get('RANGE')
             if file_range:

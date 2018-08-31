@@ -35,6 +35,10 @@ logger = logging.getLogger(__name__)
 
 
 class VnfPackage(object):
+
+    def __init__(self):
+        pass
+
     def create_vnf_pkg(self, data):
         user_defined_data = ignore_case_get(data, "userDefinedData")
         vnf_pkg_id = str(uuid.uuid4())
