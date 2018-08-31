@@ -25,6 +25,7 @@ from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import toscaparser
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import nsd_data
+from catalog.packages.biz.ns_descriptor import NsDescriptor
 
 
 class TestNsDescriptor(TestCase):
@@ -78,6 +79,11 @@ class TestNsDescriptor(TestCase):
         response.data.pop('id')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(expected_reponse_data, response.data)
+
+    def test_nsd_create_failed(self):
+        reqest_data = {'username': "111"}
+        response = self.client.post('/api/nsd/v1/ns_descriptors', data=reqest_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_query_multiple_nsds_normal(self):
         expected_reponse_data = [
@@ -238,3 +244,44 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('test2', partial_file_content)
         os.remove('nsd_content.txt')
+
+    @mock.patch.object(NsDescriptor, 'create')
+    def test_nsd_create_when_catch_exception(self, mock_create):
+        reqest_data = {'userDefinedData': self.user_defined_data}
+        mock_create.side_effect = TypeError("integer type")
+        response = self.client.post('/api/nsd/v1/ns_descriptors', data=reqest_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(NsDescriptor, 'query_single')
+    def test_query_single_when_catch_exception(self, mock_query_single):
+        mock_query_single.side_effect = TypeError("integer type")
+        response = self.client.get('/api/nsd/v1/ns_descriptors/22', format='json')
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(NsDescriptor, 'query_multiple')
+    def test_query_multiple_when_catch_exception(self, mock_query_multipe):
+        mock_query_multipe.side_effect = TypeError("integer type")
+        response = self.client.get('/api/nsd/v1/ns_descriptors', format='json')
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(NsDescriptor, 'delete_single')
+    def test_delete_when_catch_exception(self, mock_delete_single):
+        mock_delete_single.side_effect = TypeError("integer type")
+        response = self.client.delete("/api/nsd/v1/ns_descriptors/21", format='json')
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(NsDescriptor, 'upload')
+    def test_upload_when_catch_exception(self, mock_upload):
+        mock_upload.side_effect = TypeError("integer type")
+        with open('nsd_content.txt', 'wb') as fp:
+            fp.write('test')
+        with open('nsd_content.txt', 'rb') as fp:
+            response = self.client.put("/api/nsd/v1/ns_descriptors/22/nsd_content", {'file': fp})
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        os.remove('nsd_content.txt')
+
+    @mock.patch.object(NsDescriptor, 'download')
+    def test_download_when_catch_exception(self, mock_download):
+        mock_download.side_effect = TypeError("integer type")
+        response = self.client.get("/api/nsd/v1/ns_descriptors/23/nsd_content", format='json')
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -60,9 +60,6 @@ def vnf_packages_rc(request):
             res = VnfPackage().query_multiple()
             query_serializer = validate_data(res, VnfPkgInfosSerializer)
             return Response(data=query_serializer.data, status=status.HTTP_200_OK)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Query VNF package failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -76,9 +73,6 @@ def vnf_packages_rc(request):
             res = VnfPackage().create_vnf_pkg(req_serializer.data)
             create_vnf_pkg_resp_serializer = validate_data(res, VnfPkgInfoSerializer)
             return Response(data=create_vnf_pkg_resp_serializer.data, status=status.HTTP_201_CREATED)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Create VNF package failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -210,9 +204,6 @@ def vnf_package_rd(request, vnfPkgId):
         except ResourceNotFoundException as e:
             logger.error(e.message)
             return Response(data={'error': "VNF package does not exist"}, status=status.HTTP_404_NOT_FOUND)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Query an individual VNF package failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())

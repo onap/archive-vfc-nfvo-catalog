@@ -26,6 +26,7 @@ from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from catalog.packages.views.ns_descriptor_views import validate_data
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +61,6 @@ def pnfd_info_rd(request, pnfdInfoId):  # TODO
         except ResourceNotFoundException as e:
             logger.error(e.message)
             return Response(data={'error': "PNFD does not exist."}, status=status.HTTP_404_NOT_FOUND)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Query of a PNFD failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -124,9 +122,6 @@ def pnf_descriptors_rc(request, *args, **kwargs):
             data = PnfPackage().query_multiple()
             pnfd_infos = validate_data(data, PnfdInfosSerializer)
             return Response(data=pnfd_infos.data, status=status.HTTP_200_OK)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Query of multiple PNFDs failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -191,11 +186,3 @@ def pnfd_content_ru(request, *args, **kwargs):
             logger.error(traceback.format_exc())
             error_msg = {'error': 'Downloading PNFD content failed.'}
         return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-def validate_data(data, serializer):
-    serialized_data = serializer(data=data)
-    if not serialized_data.is_valid():
-        logger.error('Data validation failed.')
-        raise CatalogException(serialized_data.error)
-    return serialized_data
