@@ -26,8 +26,7 @@ from catalog.packages.serializers.upload_vnf_pkg_from_uri_req import UploadVnfPa
 from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInfoRequestSerializer
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
 from catalog.packages.serializers.vnf_pkg_infos import VnfPkgInfosSerializer
-from catalog.packages.biz.vnf_package import create_vnf_pkg, query_multiple, VnfPkgUploadThread, \
-    query_single, delete_vnf_pkg, parse_vnfd_and_save, fetch_vnf_pkg, handle_upload_failed
+from catalog.packages.biz.vnf_package import VnfPackage, VnfPkgUploadThread, parse_vnfd_and_save, handle_upload_failed
 from catalog.pub.database.models import VnfPackageModel
 from catalog.packages.views.ns_descriptor_views import validate_data
 from catalog.packages.const import PKG_STATUS
@@ -58,7 +57,7 @@ def vnf_packages_rc(request):
     if request.method == 'GET':
         logger.debug("Query VNF packages> %s" % request.data)
         try:
-            res = query_multiple()
+            res = VnfPackage().query_multiple()
             query_serializer = validate_data(res, VnfPkgInfosSerializer)
             return Response(data=query_serializer.data, status=status.HTTP_200_OK)
         except CatalogException as e:
@@ -74,7 +73,7 @@ def vnf_packages_rc(request):
         logger.debug("Create VNF package> %s" % request.data)
         try:
             req_serializer = validate_data(request.data, CreateVnfPkgInfoRequestSerializer)
-            res = create_vnf_pkg(req_serializer.data)
+            res = VnfPackage().create_vnf_pkg(req_serializer.data)
             create_vnf_pkg_resp_serializer = validate_data(res, VnfPkgInfoSerializer)
             return Response(data=create_vnf_pkg_resp_serializer.data, status=status.HTTP_201_CREATED)
         except CatalogException as e:
@@ -139,7 +138,7 @@ def upload_vnf_pkg_content(request, vnfPkgId):
 
     if request.method == "GET":
         try:
-            response = fetch_vnf_pkg(request, vnfPkgId)
+            response = VnfPackage().fetch_vnf_pkg(request, vnfPkgId)
             return response
         except ResourceNotFoundException as e:
             logger.error(e.message)
@@ -205,7 +204,7 @@ def vnf_package_rd(request, vnfPkgId):
     if request.method == 'GET':
         logger.debug("Query an individual VNF package> %s" % request.data)
         try:
-            res = query_single(vnfPkgId)
+            res = VnfPackage().query_single(vnfPkgId)
             query_serializer = validate_data(res, VnfPkgInfoSerializer)
             return Response(data=query_serializer.data, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
@@ -223,7 +222,7 @@ def vnf_package_rd(request, vnfPkgId):
     if request.method == 'DELETE':
         logger.debug("Delete an individual VNF package> %s" % request.data)
         try:
-            delete_vnf_pkg(vnfPkgId)
+            VnfPackage().delete_vnf_pkg(vnfPkgId)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
             logger.error(e.message)

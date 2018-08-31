@@ -34,84 +34,80 @@ from catalog.packages.const import PKG_STATUS
 logger = logging.getLogger(__name__)
 
 
-def create_vnf_pkg(data):
-    user_defined_data = ignore_case_get(data, "userDefinedData")
-    vnf_pkg_id = str(uuid.uuid4())
-    VnfPackageModel.objects.create(
-        vnfPackageId=vnf_pkg_id,
-        onboardingState=PKG_STATUS.CREATED,
-        operationalState=PKG_STATUS.DISABLED,
-        usageState=PKG_STATUS.NOT_IN_USE,
-        userDefinedData=user_defined_data
-    )
-    data = {
-        "id": vnf_pkg_id,
-        "onboardingState": PKG_STATUS.CREATED,
-        "operationalState": PKG_STATUS.DISABLED,
-        "usageState": PKG_STATUS.NOT_IN_USE,
-        "userDefinedData": user_defined_data,
-        "_links": None
-    }
-    return data
+class VnfPackage(object):
+    def create_vnf_pkg(self, data):
+        user_defined_data = ignore_case_get(data, "userDefinedData")
+        vnf_pkg_id = str(uuid.uuid4())
+        VnfPackageModel.objects.create(
+            vnfPackageId=vnf_pkg_id,
+            onboardingState=PKG_STATUS.CREATED,
+            operationalState=PKG_STATUS.DISABLED,
+            usageState=PKG_STATUS.NOT_IN_USE,
+            userDefinedData=user_defined_data
+        )
+        data = {
+            "id": vnf_pkg_id,
+            "onboardingState": PKG_STATUS.CREATED,
+            "operationalState": PKG_STATUS.DISABLED,
+            "usageState": PKG_STATUS.NOT_IN_USE,
+            "userDefinedData": user_defined_data,
+            "_links": None
+        }
+        return data
 
+    def query_multiple(self):
+        pkgs_info = []
+        nf_pkgs = VnfPackageModel.objects.filter()
+        for nf_pkg in nf_pkgs:
+            ret = fill_response_data(nf_pkg)
+            pkgs_info.append(ret)
+        return pkgs_info
 
-def query_multiple():
-    pkgs_info = []
-    nf_pkgs = VnfPackageModel.objects.filter()
-    for nf_pkg in nf_pkgs:
-        ret = fill_response_data(nf_pkg)
-        pkgs_info.append(ret)
-    return pkgs_info
+    def query_single(self, vnf_pkg_id):
+        nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
+        if not nf_pkg.exists():
+            raise ResourceNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
+        return fill_response_data(nf_pkg[0])
 
+    def delete_vnf_pkg(self, vnf_pkg_id):
+        vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
+        if not vnf_pkg.exists():
+            logger.debug('VNF package(%s) is deleted.' % vnf_pkg_id)
+            return
+        '''
+        if vnf_pkg[0].operationalState != PKG_STATUS.DISABLED:
+            raise CatalogException("The VNF package (%s) is not disabled" % vnf_pkg_id)
+        if vnf_pkg[0].usageState != PKG_STATUS.NOT_IN_USE:
+            raise CatalogException("The VNF package (%s) is in use" % vnf_pkg_id)
+        '''
+        vnf_pkg.delete()
+        vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnf_pkg_id)
+        fileutil.delete_dirs(vnf_pkg_path)
 
-def query_single(vnf_pkg_id):
-    nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
-    if not nf_pkg.exists():
-        raise ResourceNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
-    return fill_response_data(nf_pkg[0])
-
-
-def delete_vnf_pkg(vnf_pkg_id):
-    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
-    if not vnf_pkg.exists():
-        logger.debug('VNF package(%s) is deleted.' % vnf_pkg_id)
-        return
-    '''
-    if vnf_pkg[0].operationalState != PKG_STATUS.DISABLED:
-        raise CatalogException("The VNF package (%s) is not disabled" % vnf_pkg_id)
-    if vnf_pkg[0].usageState != PKG_STATUS.NOT_IN_USE:
-        raise CatalogException("The VNF package (%s) is in use" % vnf_pkg_id)
-    '''
-    vnf_pkg.delete()
-    vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnf_pkg_id)
-    fileutil.delete_dirs(vnf_pkg_path)
-
-
-def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
-    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
-    vnf_pkg.update(onboardingState=PKG_STATUS.PROCESSING)
-    vnfd_json = toscaparser.parse_vnfd(vnf_pkg_path)
-    vnfd = json.JSONDecoder().decode(vnfd_json)
-
-    vnfd_id = vnfd["metadata"]["id"]
-    if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
-        raise CatalogException("VNFD(%s) already exists." % vnfd_id)
-
-    vnfd_ver = vnfd["metadata"].get("vnfd_version")
-    if not vnfd_ver:
-        vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
-    vnf_pkg.update(
-        vnfPackageId=vnf_pkg_id,
-        vnfdId=vnfd_id,
-        vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
-        vnfdVersion=vnfd_ver,
-        vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
-        vnfdModel=vnfd_json,
-        onboardingState=PKG_STATUS.ONBOARDED,
-        operationalState=PKG_STATUS.ENABLED,
-        usageState=PKG_STATUS.NOT_IN_USE,
-        localFilePath=vnf_pkg_path
-    )
+    def fetch_vnf_pkg(self, request, vnf_pkg_id):
+        nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
+        if not nf_pkg.exists():
+            raise ResourceNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
+        if nf_pkg[0].onboardingState != PKG_STATUS.ONBOARDED:
+            raise CatalogException("VNF package (%s) is not on-boarded" % vnf_pkg_id)
+        file_path = nf_pkg[0].localFilePath
+        file_name = file_path.split('/')[-1]
+        file_name = file_name.split('\\')[-1]
+        file_range = request.META.get('RANGE')
+        if file_range:
+            start_end = file_range.split('-')
+            start = int(start_end[0])
+            end = int(start_end[1])
+            f = open(file_path, "rb")
+            f.seek(start, 0)
+            fs = f.read(end - start + 1)
+            response = StreamingHttpResponse(fs, status=status.HTTP_200_OK)
+            response['Content-Range'] = file_range
+        else:
+            response = StreamingHttpResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
+        return response
 
 
 class VnfPkgUploadThread(threading.Thread):
@@ -172,30 +168,31 @@ def fill_response_data(nf_pkg):
     return pkg_info
 
 
-def fetch_vnf_pkg(request, vnf_pkg_id):
-    nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
-    if not nf_pkg.exists():
-        raise ResourceNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
-    if nf_pkg[0].onboardingState != PKG_STATUS.ONBOARDED:
-        raise CatalogException("VNF package (%s) is not on-boarded" % vnf_pkg_id)
-    file_path = nf_pkg[0].localFilePath
-    file_name = file_path.split('/')[-1]
-    file_name = file_name.split('\\')[-1]
-    file_range = request.META.get('RANGE')
-    if file_range:
-        start_end = file_range.split('-')
-        start = int(start_end[0])
-        end = int(start_end[1])
-        f = open(file_path, "rb")
-        f.seek(start, 0)
-        fs = f.read(end - start + 1)
-        response = StreamingHttpResponse(fs, status=status.HTTP_200_OK)
-        response['Content-Range'] = file_range
-    else:
-        response = StreamingHttpResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
-    response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
-    return response
+def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
+    vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
+    vnf_pkg.update(onboardingState=PKG_STATUS.PROCESSING)
+    vnfd_json = toscaparser.parse_vnfd(vnf_pkg_path)
+    vnfd = json.JSONDecoder().decode(vnfd_json)
+
+    vnfd_id = vnfd["metadata"]["id"]
+    if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
+        raise CatalogException("VNFD(%s) already exists." % vnfd_id)
+
+    vnfd_ver = vnfd["metadata"].get("vnfd_version")
+    if not vnfd_ver:
+        vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
+    vnf_pkg.update(
+        vnfPackageId=vnf_pkg_id,
+        vnfdId=vnfd_id,
+        vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
+        vnfdVersion=vnfd_ver,
+        vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
+        vnfdModel=vnfd_json,
+        onboardingState=PKG_STATUS.ONBOARDED,
+        operationalState=PKG_STATUS.ENABLED,
+        usageState=PKG_STATUS.NOT_IN_USE,
+        localFilePath=vnf_pkg_path
+    )
 
 
 def handle_upload_failed(vnf_pkg_id):
