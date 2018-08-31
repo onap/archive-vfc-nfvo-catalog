@@ -75,6 +75,11 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(expected_reponse_data, response.data)
 
+    def test_pnfd_create_failed(self):
+        request_data = {'username': "111"}
+        response = self.client.post('/api/nsd/v1/pnf_descriptors', data=request_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def test_query_multiple_pnfds_normal(self):
         expected_reponse_data = [
             copy.deepcopy(self.expected_pnfd_info),
@@ -207,6 +212,23 @@ class TestPnfDescriptor(TestCase):
     def test_pnfd_download_failed(self):
         response = self.client.get("/api/nsd/v1/pnf_descriptors/22/pnfd_content")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_pnfd_download_when_not_on_boarded(self):
+        with open('pnfd_content.txt', 'wb') as fp:
+            fp.writelines('test1')
+            fp.writelines('test2')
+        user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
+        PnfPackageModel(
+            pnfPackageId='22',
+            usageState=PKG_STATUS.NOT_IN_USE,
+            onboardingState=PKG_STATUS.CREATED,
+            userDefinedData=user_defined_data,
+            localFilePath="pnfd_content.txt",
+            pnfdModel='test'
+        ).save()
+        response = self.client.get("/api/nsd/v1/pnf_descriptors/22/pnfd_content")
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        os.remove('pnfd_content.txt')
 
     @mock.patch.object(PnfPackage, "create")
     def test_pnfd_create_when_catch_exception(self, mock_create):

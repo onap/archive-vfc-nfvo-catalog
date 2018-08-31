@@ -58,9 +58,6 @@ def ns_info_rd(request, nsdInfoId):   # TODO
         except ResourceNotFoundException as e:
             logger.error(e.message)
             return Response(data={'error': 'NSDs do not exist.'}, status=status.HTTP_404_NOT_FOUND)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Query of a NSD failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
@@ -121,9 +118,6 @@ def ns_descriptors_rc(request, *args, **kwargs):
             data = NsDescriptor().query_multiple()
             nsd_infos = validate_data(data, NsdInfosSerializer)
             return Response(data=nsd_infos.data, status=status.HTTP_200_OK)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Query of multiple NSDs failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
