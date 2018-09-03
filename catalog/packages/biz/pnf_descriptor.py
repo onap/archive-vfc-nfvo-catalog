@@ -29,7 +29,7 @@ from catalog.packages.biz.common import save
 logger = logging.getLogger(__name__)
 
 
-class PnfPackage(object):
+class PnfDescriptor(object):
 
     def __init__(self):
         pass
@@ -57,7 +57,7 @@ class PnfPackage(object):
         pnf_pkgs = PnfPackageModel.objects.all()
         response_data = []
         for pnf_pkg in pnf_pkgs:
-            data = fill_response_data(pnf_pkg)
+            data = self.fill_response_data(pnf_pkg)
             response_data.append(data)
         return response_data
 
@@ -66,7 +66,7 @@ class PnfPackage(object):
         if not pnf_pkgs.exists():
             logger.error('PNFD(%s) does not exist.' % pnfd_info_id)
             raise ResourceNotFoundException('PNFD(%s) does not exist.' % pnfd_info_id)
-        return fill_response_data(pnf_pkgs[0])
+        return self.fill_response_data(pnf_pkgs[0])
 
     def upload(self, remote_file, pnfd_info_id):
         logger.info('Start to upload PNFD(%s)...' % pnfd_info_id)
@@ -126,53 +126,50 @@ class PnfPackage(object):
         logger.info('PNFD(%s) has been downloaded.' % pnfd_info_id)
         return local_file_path, local_file_name, os.path.getsize(local_file_path)
 
+    def parse_pnfd_and_save(self, pnfd_info_id, local_file_name):
+        logger.info('Start to process PNFD(%s)...' % pnfd_info_id)
+        pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
+        pnf_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
+        PnfPackageModel
+        pnfd_json = toscaparser.parse_pnfd(local_file_name)
+        pnfd = json.JSONDecoder().decode(pnfd_json)
 
-def parse_pnfd_and_save(pnfd_info_id, local_file_name):
-    logger.info('Start to process PNFD(%s)...' % pnfd_info_id)
-    pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
-    pnf_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
-    PnfPackageModel
-    pnfd_json = toscaparser.parse_pnfd(local_file_name)
-    pnfd = json.JSONDecoder().decode(pnfd_json)
+        pnfd_id = pnfd["metadata"]["id"]
+        if pnfd_id and PnfPackageModel.objects.filter(pnfdId=pnfd_id):
+            logger.info('PNFD(%s) already exists.' % pnfd_id)
+            raise CatalogException("PNFD(%s) already exists." % pnfd_id)
 
-    pnfd_id = pnfd["metadata"]["id"]
-    if pnfd_id and PnfPackageModel.objects.filter(pnfdId=pnfd_id):
-        logger.info('PNFD(%s) already exists.' % pnfd_id)
-        raise CatalogException("PNFD(%s) already exists." % pnfd_id)
+        pnf_pkgs.update(
+            pnfdId=pnfd_id,
+            pnfdVersion=pnfd["metadata"].get("version", "undefined"),
+            pnfPackageUri=local_file_name,
+            onboardingState=PKG_STATUS.ONBOARDED,
+            usageState=PKG_STATUS.NOT_IN_USE,
+            localFilePath=local_file_name,
+            pnfdModel=pnfd_json
+        )
+        logger.info('PNFD(%s) has been processed.' % pnfd_info_id)
 
-    pnf_pkgs.update(
-        pnfdId=pnfd_id,
-        pnfdVersion=pnfd["metadata"].get("version", "undefined"),
-        pnfPackageUri=local_file_name,
-        onboardingState=PKG_STATUS.ONBOARDED,
-        usageState=PKG_STATUS.NOT_IN_USE,
-        localFilePath=local_file_name,
-        pnfdModel=pnfd_json
-    )
-    logger.info('PNFD(%s) has been processed.' % pnfd_info_id)
+    def fill_response_data(self, pnf_pkg):
+        data = {
+            'id': pnf_pkg.pnfPackageId,
+            'pnfdId': pnf_pkg.pnfdId,
+            'pnfdName': pnf_pkg.pnfdProductName,  # TODO: check
+            'pnfdVersion': pnf_pkg.pnfdVersion,
+            'pnfdProvider': pnf_pkg.pnfVendor,  # TODO: check
+            'pnfdInvariantId': None,  # TODO
+            'pnfdOnboardingState': pnf_pkg.onboardingState,
+            'onboardingFailureDetails': None,  # TODO
+            'pnfdUsageState': pnf_pkg.usageState,
+            'userDefinedData': {},
+            '_links': None  # TODO
+        }
+        if pnf_pkg.userDefinedData:
+            user_defined_data = json.JSONDecoder().decode(pnf_pkg.userDefinedData)
+            data['userDefinedData'] = user_defined_data
 
+        return data
 
-def fill_response_data(pnf_pkg):
-    data = {
-        'id': pnf_pkg.pnfPackageId,
-        'pnfdId': pnf_pkg.pnfdId,
-        'pnfdName': pnf_pkg.pnfdProductName,  # TODO: check
-        'pnfdVersion': pnf_pkg.pnfdVersion,
-        'pnfdProvider': pnf_pkg.pnfVendor,  # TODO: check
-        'pnfdInvariantId': None,  # TODO
-        'pnfdOnboardingState': pnf_pkg.onboardingState,
-        'onboardingFailureDetails': None,  # TODO
-        'pnfdUsageState': pnf_pkg.usageState,
-        'userDefinedData': {},
-        '_links': None  # TODO
-    }
-    if pnf_pkg.userDefinedData:
-        user_defined_data = json.JSONDecoder().decode(pnf_pkg.userDefinedData)
-        data['userDefinedData'] = user_defined_data
-
-    return data
-
-
-def handle_upload_failed(pnf_pkg_id):
-    pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnf_pkg_id)
-    pnf_pkg.update(onboardingState=PKG_STATUS.CREATED)
+    def handle_upload_failed(self, pnf_pkg_id):
+        pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnf_pkg_id)
+        pnf_pkg.update(onboardingState=PKG_STATUS.CREATED)

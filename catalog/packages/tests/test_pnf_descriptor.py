@@ -22,7 +22,6 @@ import os
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
-
 from catalog.packages.biz.pnf_descriptor import PnfPackage
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import pnfd_data

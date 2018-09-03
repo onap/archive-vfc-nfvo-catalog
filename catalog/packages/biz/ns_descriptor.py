@@ -18,13 +18,13 @@ import logging
 import os
 import uuid
 
+from catalog.packages.biz.common import read, save
+from catalog.packages.const import PKG_STATUS
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import NSPackageModel, PnfPackageModel, VnfPackageModel
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
-from catalog.packages.const import PKG_STATUS
-from catalog.packages.biz.common import save
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class NsDescriptor(object):
         ns_pkgs = NSPackageModel.objects.all()
         response_data = []
         for ns_pkg in ns_pkgs:
-            data = fill_resp_data(ns_pkg)
+            data = self.fill_resp_data(ns_pkg)
             response_data.append(data)
         return response_data
 
@@ -68,7 +68,7 @@ class NsDescriptor(object):
         if not ns_pkgs.exists():
             logger.error('NSD(%s) does not exist.' % nsd_info_id)
             raise ResourceNotFoundException('NSD(%s) does not exist.' % nsd_info_id)
-        return fill_resp_data(ns_pkgs[0])
+        return self.fill_resp_data(ns_pkgs[0])
 
     def delete_single(self, nsd_info_id):
         logger.info('Start to delete NSD(%s)...' % nsd_info_id)
@@ -89,7 +89,7 @@ class NsDescriptor(object):
         fileutil.delete_dirs(ns_pkg_path)
         logger.info('NSD(%s) has been deleted.' % nsd_info_id)
 
-    def upload(self, remote_file, nsd_info_id):
+    def upload(self, nsd_info_id, remote_file):
         logger.info('Start to upload NSD(%s)...' % nsd_info_id)
         ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
         if not ns_pkgs.exists():
@@ -101,7 +101,7 @@ class NsDescriptor(object):
         logger.info('NSD(%s) content has been uploaded.' % nsd_info_id)
         return local_file_name
 
-    def download(self, nsd_info_id):
+    def download(self, nsd_info_id, file_range):
         logger.info('Start to download NSD(%s)...' % nsd_info_id)
         ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
         if not ns_pkgs.exists():
@@ -110,93 +110,94 @@ class NsDescriptor(object):
         if ns_pkgs[0].onboardingState != PKG_STATUS.ONBOARDED:
             logger.error('NSD(%s) is not ONBOARDED.' % nsd_info_id)
             raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)
+
         local_file_path = ns_pkgs[0].localFilePath
-        local_file_name = local_file_path.split('/')[-1]
-        local_file_name = local_file_name.split('\\')[-1]
+        start, end = 0, os.path.getsize(local_file_path)
+        if file_range:
+            [start, end] = file_range.split('-')
+            start, end = start.strip(), end.strip()
+            start, end = int(start), int(end)
         logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
-        return local_file_path, local_file_name, os.path.getsize(local_file_path)
+        return read(local_file_path, start, end)
 
+    def parse_nsd_and_save(self, nsd_info_id, local_file_name):
+        logger.info('Start to process NSD(%s)...' % nsd_info_id)
+        ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+        ns_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
+        nsd_json = toscaparser.parse_nsd(local_file_name)
+        nsd = json.JSONDecoder().decode(nsd_json)
 
-def parse_nsd_and_save(nsd_info_id, local_file_name):
-    logger.info('Start to process NSD(%s)...' % nsd_info_id)
-    ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    ns_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
-    nsd_json = toscaparser.parse_nsd(local_file_name)
-    nsd = json.JSONDecoder().decode(nsd_json)
+        nsd_id = nsd["metadata"]["id"]
+        if nsd_id and NSPackageModel.objects.filter(nsdId=nsd_id):
+            logger.info('NSD(%s) already exists.' % nsd_id)
+            raise CatalogException("NSD(%s) already exists." % nsd_id)
 
-    nsd_id = nsd["metadata"]["id"]
-    if nsd_id and NSPackageModel.objects.filter(nsdId=nsd_id):
-        logger.info('NSD(%s) already exists.' % nsd_id)
-        raise CatalogException("NSD(%s) already exists." % nsd_id)
-
-    for vnf in nsd["vnfs"]:
-        vnfd_id = vnf["properties"]["id"]
-        pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
-        if not pkg:
-            logger.error("VNFD is not distributed.")
-            raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
-
-    ns_pkgs.update(
-        nsdId=nsd_id,
-        nsdName=nsd["metadata"].get("name", nsd_id),
-        nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
-        nsdDescription=nsd["metadata"].get("description", ""),
-        nsdVersion=nsd["metadata"].get("version", "undefined"),
-        onboardingState=PKG_STATUS.ONBOARDED,
-        operationalState=PKG_STATUS.ENABLED,
-        usageState=PKG_STATUS.NOT_IN_USE,
-        nsPackageUri=local_file_name,
-        sdcCsarId=nsd_info_id,
-        localFilePath=local_file_name,
-        nsdModel=nsd_json
-    )
-    logger.info('NSD(%s) has been processed.' % nsd_info_id)
-
-
-def fill_resp_data(ns_pkg):
-    data = {
-        'id': ns_pkg.nsPackageId,
-        'nsdId': ns_pkg.nsdId,
-        'nsdName': ns_pkg.nsdName,
-        'nsdVersion': ns_pkg.nsdVersion,
-        'nsdDesigner': ns_pkg.nsdDesginer,
-        'nsdInvariantId': None,  # TODO
-        'vnfPkgIds': [],
-        'pnfdInfoIds': [],  # TODO
-        'nestedNsdInfoIds': [],  # TODO
-        'nsdOnboardingState': ns_pkg.onboardingState,
-        'onboardingFailureDetails': None,  # TODO
-        'nsdOperationalState': ns_pkg.operationalState,
-        'nsdUsageState': ns_pkg.usageState,
-        'userDefinedData': {},
-        '_links': None  # TODO
-    }
-
-    if ns_pkg.nsdModel:
-        nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
-        vnf_pkg_ids = []
-        for vnf in nsd_model['vnfs']:
+        for vnf in nsd["vnfs"]:
             vnfd_id = vnf["properties"]["id"]
-            pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
-            for pkg in pkgs:
-                vnf_pkg_ids.append(pkg.vnfPackageId)
-        data['vnfPkgIds'] = vnf_pkg_ids
+            pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
+            if not pkg:
+                logger.error("VNFD is not distributed.")
+                raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
-        pnf_info_ids = []
-        for pnf in nsd_model['pnfs']:
-            pnfd_id = pnf["properties"]["id"]
-            pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
-            for pkg in pkgs:
-                pnf_info_ids.append(pkg.pnfPackageId)
-        data['pnfInfoIds'] = pnf_info_ids  # TODO: need reconfirming
+        ns_pkgs.update(
+            nsdId=nsd_id,
+            nsdName=nsd["metadata"].get("name", nsd_id),
+            nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
+            nsdDescription=nsd["metadata"].get("description", ""),
+            nsdVersion=nsd["metadata"].get("version", "undefined"),
+            onboardingState=PKG_STATUS.ONBOARDED,
+            operationalState=PKG_STATUS.ENABLED,
+            usageState=PKG_STATUS.NOT_IN_USE,
+            nsPackageUri=local_file_name,
+            sdcCsarId=nsd_info_id,
+            localFilePath=local_file_name,
+            nsdModel=nsd_json
+        )
+        logger.info('NSD(%s) has been processed.' % nsd_info_id)
 
-    if ns_pkg.userDefinedData:
-        user_defined_data = json.JSONDecoder().decode(ns_pkg.userDefinedData)
-        data['userDefinedData'] = user_defined_data
+    def fill_resp_data(self, ns_pkg):
+        data = {
+            'id': ns_pkg.nsPackageId,
+            'nsdId': ns_pkg.nsdId,
+            'nsdName': ns_pkg.nsdName,
+            'nsdVersion': ns_pkg.nsdVersion,
+            'nsdDesigner': ns_pkg.nsdDesginer,
+            'nsdInvariantId': None,  # TODO
+            'vnfPkgIds': [],
+            'pnfdInfoIds': [],  # TODO
+            'nestedNsdInfoIds': [],  # TODO
+            'nsdOnboardingState': ns_pkg.onboardingState,
+            'onboardingFailureDetails': None,  # TODO
+            'nsdOperationalState': ns_pkg.operationalState,
+            'nsdUsageState': ns_pkg.usageState,
+            'userDefinedData': {},
+            '_links': None  # TODO
+        }
 
-    return data
+        if ns_pkg.nsdModel:
+            nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
+            vnf_pkg_ids = []
+            for vnf in nsd_model['vnfs']:
+                vnfd_id = vnf["properties"]["id"]
+                pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
+                for pkg in pkgs:
+                    vnf_pkg_ids.append(pkg.vnfPackageId)
+            data['vnfPkgIds'] = vnf_pkg_ids
 
+            pnf_info_ids = []
+            for pnf in nsd_model['pnfs']:
+                pnfd_id = pnf["properties"]["id"]
+                pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
+                for pkg in pkgs:
+                    pnf_info_ids.append(pkg.pnfPackageId)
+            data['pnfInfoIds'] = pnf_info_ids  # TODO: need reconfirming
 
-def handle_upload_failed(nsd_info_id):
-    ns_pkg = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
-    ns_pkg.update(onboardingState=PKG_STATUS.CREATED)
+        if ns_pkg.userDefinedData:
+            user_defined_data = json.JSONDecoder().decode(ns_pkg.userDefinedData)
+            data['userDefinedData'] = user_defined_data
+
+        return data
+
+    def handle_upload_failed(self, nsd_info_id):
+        ns_pkg = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
+        ns_pkg.update(onboardingState=PKG_STATUS.CREATED)

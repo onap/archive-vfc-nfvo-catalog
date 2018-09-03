@@ -17,6 +17,8 @@ import os
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.utils import fileutil
 
+CHUNK_SIZE = 1024 * 8
+
 
 def save(remote_file, descriptor_id):
     local_file_name = remote_file.name
@@ -25,6 +27,16 @@ def save(remote_file, descriptor_id):
     if not os.path.exists(local_file_dir):
         fileutil.make_dirs(local_file_dir)
     with open(local_file_name, 'wb') as local_file:
-        for chunk in remote_file.chunks(chunk_size=1024 * 8):
+        for chunk in remote_file.chunks(chunk_size=CHUNK_SIZE):
             local_file.write(chunk)
     return local_file_name
+
+
+def read(file_path, start, end):
+    fp = open(file_path, 'rb')
+    fp.seek(start)
+    pos = start
+    while pos + CHUNK_SIZE < end:
+        yield fp.read(CHUNK_SIZE)
+        pos = fp.tell()
+    yield fp.read(end - pos)
