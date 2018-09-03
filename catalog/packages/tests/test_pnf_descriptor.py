@@ -22,8 +22,7 @@ import os
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
-
-from catalog.packages.biz.pnf_descriptor import PnfPackage
+from catalog.packages.biz.pnf_descriptor import PnfDescriptor
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import pnfd_data
 from catalog.pub.database.models import PnfPackageModel, NSPackageModel
@@ -236,38 +235,38 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         os.remove('pnfd_content.txt')
 
-    @mock.patch.object(PnfPackage, "create")
+    @mock.patch.object(PnfDescriptor, "create")
     def test_pnfd_create_when_catch_exception(self, mock_create):
         request_data = {'userDefinedData': self.user_defined_data}
         mock_create.side_effect = TypeError('integer type')
         response = self.client.post('/api/nsd/v1/pnf_descriptors', data=request_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @mock.patch.object(PnfPackage, "delete_single")
+    @mock.patch.object(PnfDescriptor, "delete_single")
     def test_delete_single_when_catch_exception(self, mock_delete_single):
         mock_delete_single.side_effect = TypeError("integer type")
         response = self.client.delete("/api/nsd/v1/pnf_descriptors/22", format='json')
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @mock.patch.object(PnfPackage, "query_single")
+    @mock.patch.object(PnfDescriptor, "query_single")
     def test_query_single_when_catch_exception(self, mock_query_single):
         mock_query_single.side_effect = TypeError("integer type")
         response = self.client.get('/api/nsd/v1/pnf_descriptors/22', format='json')
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @mock.patch.object(PnfPackage, "query_multiple")
+    @mock.patch.object(PnfDescriptor, "query_multiple")
     def test_query_multiple_when_catch_exception(self, mock_query_muitiple):
         mock_query_muitiple.side_effect = TypeError("integer type")
         response = self.client.get('/api/nsd/v1/pnf_descriptors', format='json')
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @mock.patch.object(PnfPackage, "upload")
+    @mock.patch.object(PnfDescriptor, "upload")
     def test_upload_when_catch_exception(self, mock_upload):
         mock_upload.side_effect = TypeError("integer type")
         response = self.client.put("/api/nsd/v1/pnf_descriptors/22/pnfd_content")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @mock.patch.object(PnfPackage, "download")
+    @mock.patch.object(PnfDescriptor, "download")
     def test_download_when_catch_exception(self, mock_download):
         mock_download.side_effect = TypeError("integer type")
         response = self.client.get("/api/nsd/v1/pnf_descriptors/22/pnfd_content")

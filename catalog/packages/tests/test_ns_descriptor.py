@@ -14,18 +14,18 @@
 
 import copy
 import json
-import os
 import mock
+import os
 
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
-from catalog.pub.database.models import NSPackageModel, VnfPackageModel
-from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.utils import toscaparser
+from catalog.packages.biz.ns_descriptor import NsDescriptor
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import nsd_data
-from catalog.packages.biz.ns_descriptor import NsDescriptor
+from catalog.pub.config.config import CATALOG_ROOT_PATH
+from catalog.pub.database.models import NSPackageModel, VnfPackageModel
+from catalog.pub.utils import toscaparser
 
 
 class TestNsDescriptor(TestCase):

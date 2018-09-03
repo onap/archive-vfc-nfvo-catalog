@@ -16,17 +16,16 @@ import logging
 import traceback
 
 from django.http import FileResponse
-
-from catalog.packages.biz.pnf_descriptor import PnfPackage, parse_pnfd_and_save, handle_upload_failed
-from catalog.packages.serializers.create_pnfd_info_request import CreatePnfdInfoRequestSerializer
-from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
-from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
-from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from catalog.packages.views.ns_descriptor_views import validate_data
+from catalog.packages.biz.pnf_descriptor import PnfDescriptor
+from catalog.packages.serializers.create_pnfd_info_request import CreatePnfdInfoRequestSerializer
+from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
+from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
+from catalog.packages.views.common import validate_data
+from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +54,7 @@ def pnfd_info_rd(request, pnfdInfoId):  # TODO
     if request.method == 'GET':
         logger.debug("Query an individual PNF descriptor> %s" % request.data)
         try:
-            data = PnfPackage().query_single(pnfdInfoId)
+            data = PnfDescriptor().query_single(pnfdInfoId)
             pnfd_info = validate_data(data, PnfdInfoSerializer)
             return Response(data=pnfd_info.data, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
@@ -70,7 +69,7 @@ def pnfd_info_rd(request, pnfdInfoId):  # TODO
     if request.method == 'DELETE':
         logger.debug("Delete an individual PNFD resource> %s" % request.data)
         try:
-            PnfPackage().delete_single(pnfdInfoId)
+            PnfDescriptor().delete_single(pnfdInfoId)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
             logger.error(e.message)
@@ -105,7 +104,7 @@ def pnf_descriptors_rc(request, *args, **kwargs):
     if request.method == 'POST':
         try:
             create_pnfd_info_request = validate_data(request.data, CreatePnfdInfoRequestSerializer)
-            data = PnfPackage().create(create_pnfd_info_request.data)
+            data = PnfDescriptor().create(create_pnfd_info_request.data)
             pnfd_info = validate_data(data, PnfdInfoSerializer)
             return Response(data=pnfd_info.data, status=status.HTTP_201_CREATED)
         except CatalogException as e:
@@ -119,7 +118,7 @@ def pnf_descriptors_rc(request, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            data = PnfPackage().query_multiple()
+            data = PnfDescriptor().query_multiple()
             pnfd_infos = validate_data(data, PnfdInfosSerializer)
             return Response(data=pnfd_infos.data, status=status.HTTP_200_OK)
         except Exception as e:
@@ -154,15 +153,15 @@ def pnfd_content_ru(request, *args, **kwargs):
     if request.method == 'PUT':
         files = request.FILES.getlist('file')
         try:
-            local_file_name = PnfPackage().upload(files[0], pnfd_info_id)
-            parse_pnfd_and_save(pnfd_info_id, local_file_name)
+            local_file_name = PnfDescriptor().upload(files[0], pnfd_info_id)
+            PnfDescriptor().parse_pnfd_and_save(pnfd_info_id, local_file_name)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
-            handle_upload_failed(pnfd_info_id)
+            PnfDescriptor().handle_upload_failed(pnfd_info_id)
             logger.error(e.message)
             error_msg = {'error': 'Uploading PNFD content failed.'}
         except Exception as e:
-            handle_upload_failed(pnfd_info_id)
+            PnfDescriptor().handle_upload_failed(pnfd_info_id)
             logger.error(e.message)
             logger.error(traceback.format_exc())
             error_msg = {'error': 'Uploading PNFD content failed.'}
@@ -170,7 +169,7 @@ def pnfd_content_ru(request, *args, **kwargs):
 
     if request.method == 'GET':
         try:
-            file_path, file_name, file_size = PnfPackage().download(pnfd_info_id)
+            file_path, file_name, file_size = PnfDescriptor().download(pnfd_info_id)
             response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
             response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
             response['Content-Length'] = file_size
