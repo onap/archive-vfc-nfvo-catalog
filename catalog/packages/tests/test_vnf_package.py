@@ -12,21 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import json
-import mock
+import os
 import urllib2
+import mock
 
-from rest_framework.test import APIClient
 from django.test import TestCase
 from rest_framework import status
-from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.packages.biz.vnf_package import VnfPkgUploadThread
-from catalog.pub.database.models import VnfPackageModel
-from catalog.pub.utils import toscaparser
+from rest_framework.test import APIClient
+
+from catalog.packages.biz.vnf_package import VnfPackage, VnfPkgUploadThread
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import vnfd_data
-from catalog.packages.biz.vnf_package import VnfPackage
+from catalog.pub.config.config import CATALOG_ROOT_PATH
+from catalog.pub.database.models import VnfPackageModel
+from catalog.pub.utils import toscaparser
 
 
 class MockReq():

@@ -167,8 +167,7 @@ def nsd_content_ru(request, **kwargs):
         try:
             file_range = request.META.get('RANGE')
             file_iterator = NsDescriptor().download(nsd_info_id, file_range)
-            response = StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
-            return response
+            return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
             logger.error(e.message)
             error_data = {'error': e.message}

@@ -18,13 +18,13 @@ import logging
 import os
 import uuid
 
+from catalog.packages.biz.common import read, save
+from catalog.packages.const import PKG_STATUS
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import NSPackageModel, PnfPackageModel
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
-from catalog.packages.const import PKG_STATUS
-from catalog.packages.biz.common import save
 
 logger = logging.getLogger(__name__)
 
@@ -120,17 +120,16 @@ class PnfDescriptor(object):
         if pnf_pkgs[0].onboardingState != PKG_STATUS.ONBOARDED:
             logger.error('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
             raise CatalogException('PNFD(%s) is not ONBOARDED.' % pnfd_info_id)
+
         local_file_path = pnf_pkgs[0].localFilePath
-        local_file_name = local_file_path.split('/')[-1]
-        local_file_name = local_file_name.split('\\')[-1]
+        start, end = 0, os.path.getsize(local_file_path)
         logger.info('PNFD(%s) has been downloaded.' % pnfd_info_id)
-        return local_file_path, local_file_name, os.path.getsize(local_file_path)
+        return read(local_file_path, start, end)
 
     def parse_pnfd_and_save(self, pnfd_info_id, local_file_name):
         logger.info('Start to process PNFD(%s)...' % pnfd_info_id)
         pnf_pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_info_id)
         pnf_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
-        PnfPackageModel
         pnfd_json = toscaparser.parse_pnfd(local_file_name)
         pnfd = json.JSONDecoder().decode(pnfd_json)
 

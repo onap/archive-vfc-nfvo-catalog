@@ -15,11 +15,12 @@
 import logging
 import traceback
 
-from django.http import FileResponse
+from django.http import StreamingHttpResponse
 from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
 from catalog.packages.biz.pnf_descriptor import PnfDescriptor
 from catalog.packages.serializers.create_pnfd_info_request import CreatePnfdInfoRequestSerializer
 from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
     request_body=no_body,
     responses={
         status.HTTP_200_OK: PnfdInfoSerializer(),
-        status.HTTP_404_NOT_FOUND: "PNFD does not exist.",
+        status.HTTP_404_NOT_FOUND: "PNFD does not exist",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -50,35 +51,38 @@ logger = logging.getLogger(__name__)
     }
 )
 @api_view(http_method_names=['GET', 'DELETE'])
-def pnfd_info_rd(request, pnfdInfoId):  # TODO
+def pnfd_info_rd(request, **kwargs):  # TODO
+    pnfd_info_id = kwargs.get('pnfdInfoId')
     if request.method == 'GET':
         logger.debug("Query an individual PNF descriptor> %s" % request.data)
         try:
-            data = PnfDescriptor().query_single(pnfdInfoId)
+            data = PnfDescriptor().query_single(pnfd_info_id)
             pnfd_info = validate_data(data, PnfdInfoSerializer)
             return Response(data=pnfd_info.data, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
             logger.error(e.message)
-            return Response(data={'error': "PNFD does not exist."}, status=status.HTTP_404_NOT_FOUND)
+            error_data = {'error': e.message}
+            error_code = status.HTTP_404_NOT_FOUND
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Query of a PNFD failed.'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Query of PNFD(%s) failed.' % pnfd_info_id}
+            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Response(data=error_data, status=error_code)
 
     if request.method == 'DELETE':
         logger.debug("Delete an individual PNFD resource> %s" % request.data)
         try:
-            PnfDescriptor().delete_single(pnfdInfoId)
+            PnfDescriptor().delete_single(pnfd_info_id)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
             logger.error(e.message)
-            error_msg = {'error': 'Deletion of a PNFD failed.'}
+            error_data = {'error': e.message}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Deletion of a PNFD failed.'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Deletion of a PNFD failed.'}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
@@ -100,21 +104,18 @@ def pnfd_info_rd(request, pnfdInfoId):  # TODO
     }
 )
 @api_view(http_method_names=['POST', 'GET'])
-def pnf_descriptors_rc(request, *args, **kwargs):
+def pnf_descriptors_rc(request):
     if request.method == 'POST':
         try:
             create_pnfd_info_request = validate_data(request.data, CreatePnfdInfoRequestSerializer)
             data = PnfDescriptor().create(create_pnfd_info_request.data)
             pnfd_info = validate_data(data, PnfdInfoSerializer)
             return Response(data=pnfd_info.data, status=status.HTTP_201_CREATED)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Creating a pnfd failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Creating a pnfd failed.'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Creating a pnfd failed.'}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         try:
@@ -124,8 +125,8 @@ def pnf_descriptors_rc(request, *args, **kwargs):
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Query of multiple PNFDs failed.'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Query of multiple PNFDs failed.'}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
@@ -143,12 +144,12 @@ def pnf_descriptors_rc(request, *args, **kwargs):
     request_body=no_body,
     responses={
         status.HTTP_204_NO_CONTENT: 'PNFD file',
-        status.HTTP_404_NOT_FOUND: "PNFD does not exist.",
+        status.HTTP_404_NOT_FOUND: "PNFD does not exist",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
 @api_view(http_method_names=['PUT', 'GET'])
-def pnfd_content_ru(request, *args, **kwargs):
+def pnfd_content_ru(request, **kwargs):
     pnfd_info_id = kwargs.get("pnfdInfoId")
     if request.method == 'PUT':
         files = request.FILES.getlist('file')
@@ -159,29 +160,29 @@ def pnfd_content_ru(request, *args, **kwargs):
         except CatalogException as e:
             PnfDescriptor().handle_upload_failed(pnfd_info_id)
             logger.error(e.message)
-            error_msg = {'error': 'Uploading PNFD content failed.'}
+            error_data = {'error': e.message}
         except Exception as e:
             PnfDescriptor().handle_upload_failed(pnfd_info_id)
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Uploading PNFD content failed.'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Uploading PNFD content failed.'}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         try:
-            file_path, file_name, file_size = PnfDescriptor().download(pnfd_info_id)
-            response = FileResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
-            response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
-            response['Content-Length'] = file_size
-            return response
+            file_iterator = PnfDescriptor().download(pnfd_info_id)
+            return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
             logger.error(e.message)
-            return Response(data={'error': "PNFD does not exist."}, status=status.HTTP_404_NOT_FOUND)
+            error_data = {'error': e.message}
+            error_code = status.HTTP_404_NOT_FOUND
         except CatalogException as e:
             logger.error(e.message)
-            error_msg = {'error': 'Downloading PNFD content failed.'}
+            error_data = {'error': e.message}
+            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Downloading PNFD content failed.'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            error_data = {'error': 'Downloading PNFD content failed.'}
+        return Response(data=error_data, status=error_code)
