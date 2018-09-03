@@ -40,3 +40,12 @@ def read(file_path, start, end):
         yield fp.read(CHUNK_SIZE)
         pos = fp.tell()
     yield fp.read(end - pos)
+
+
+def parse_file_range(file_path, file_range):
+    start, end = 0, os.path.getsize(file_path)
+    if file_range:
+        [start, end] = file_range.split('-')
+        start, end = start.strip(), end.strip()
+        start, end = int(start), int(end)
+    return start, end

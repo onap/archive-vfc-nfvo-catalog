@@ -255,7 +255,7 @@ class TestVnfPackage(TestCase):
         for data in response.streaming_content:
             partial_file_content = partial_file_content + data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('BBBB', partial_file_content)
+        self.assertEqual('BBB', partial_file_content)
         os.remove("vnfPackage.csar")
 
     def test_fetch_vnf_pkg_when_pkg_not_exist(self):
@@ -316,8 +316,8 @@ class TestVnfPackage(TestCase):
         response = self.client.post("/api/vnfpkgm/v1/vnf_packages/111/package_content/upload_from_uri", data=req_data)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @mock.patch.object(VnfPackage, 'fetch_vnf_pkg')
-    def test_fetch_vnf_pkg_when_catch_exception(self, mock_fetch_vnf_pkg):
-        mock_fetch_vnf_pkg.side_effect = TypeError("integer type")
+    @mock.patch.object(VnfPackage, 'download')
+    def test_fetch_vnf_pkg_when_catch_exception(self, mock_download):
+        mock_download.side_effect = TypeError("integer type")
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)

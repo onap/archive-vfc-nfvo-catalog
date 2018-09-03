@@ -21,8 +21,7 @@ import traceback
 import urllib2
 import uuid
 
-from rest_framework import status
-from django.http import StreamingHttpResponse
+from catalog.packages.biz.common import parse_file_range, read, save
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
@@ -88,30 +87,30 @@ class VnfPackage(object):
         vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnf_pkg_id)
         fileutil.delete_dirs(vnf_pkg_path)
 
-    def fetch_vnf_pkg(self, request, vnf_pkg_id):
+    def upload(self, vnf_pkg_id, remote_file):
+        logger.info('Start to upload VNF package(%s)...' % vnf_pkg_id)
+        vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
+        if vnf_pkg[0].onboardingState != PKG_STATUS.CREATED:
+            raise CatalogException("VNF package(%s) is not CREATED" % vnf_pkg_id)
+        vnf_pkg.update(onboardingState=PKG_STATUS.UPLOADING)
+
+        local_file_name = save(remote_file, vnf_pkg_id)
+        logger.info('VNF package(%s) has been uploaded.' % vnf_pkg_id)
+        return local_file_name
+
+    def download(self, vnf_pkg_id, file_range):
+        logger.info('Start to download VNF package(%s)...' % vnf_pkg_id)
         nf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
         if not nf_pkg.exists():
+            logger.error('VNF package(%s) does not exist.' % vnf_pkg_id)
             raise ResourceNotFoundException('VNF package(%s) does not exist.' % vnf_pkg_id)
         if nf_pkg[0].onboardingState != PKG_STATUS.ONBOARDED:
             raise CatalogException("VNF package (%s) is not on-boarded" % vnf_pkg_id)
-        file_path = nf_pkg[0].localFilePath
-        file_name = file_path.split('/')[-1]
-        file_name = file_name.split('\\')[-1]
-        file_range = request.META.get('RANGE')
-        if file_range:
-            start_end = file_range.split('-')
-            start = int(start_end[0])
-            end = int(start_end[1])
-            f = open(file_path, "rb")
-            f.seek(start, 0)
-            fs = f.read(end - start + 1)
-            response = StreamingHttpResponse(fs, status=status.HTTP_200_OK)
-            response['Content-Range'] = file_range
-        else:
-            response = StreamingHttpResponse(open(file_path, 'rb'), status=status.HTTP_200_OK)
-        response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = 'attachment; filename=%s' % file_name.encode('utf-8')
-        return response
+
+        local_file_path = nf_pkg[0].localFilePath
+        start, end = parse_file_range(local_file_path, file_range)
+        logger.info('VNF package (%s) has been downloaded.' % vnf_pkg_id)
+        return read(local_file_path, start, end)
 
 
 class VnfPkgUploadThread(threading.Thread):

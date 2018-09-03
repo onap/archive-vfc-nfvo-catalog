@@ -14,9 +14,8 @@
 
 import traceback
 import logging
-import os
 
-from catalog.pub.config.config import CATALOG_ROOT_PATH
+from django.http import StreamingHttpResponse
 from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -27,9 +26,7 @@ from catalog.packages.serializers.create_vnf_pkg_info_req import CreateVnfPkgInf
 from catalog.packages.serializers.vnf_pkg_info import VnfPkgInfoSerializer
 from catalog.packages.serializers.vnf_pkg_infos import VnfPkgInfosSerializer
 from catalog.packages.biz.vnf_package import VnfPackage, VnfPkgUploadThread, parse_vnfd_and_save, handle_upload_failed
-from catalog.pub.database.models import VnfPackageModel
-from catalog.packages.views.ns_descriptor_views import validate_data
-from catalog.packages.const import PKG_STATUS
+from catalog.packages.views.common import validate_data
 
 logger = logging.getLogger(__name__)
 
@@ -57,27 +54,27 @@ def vnf_packages_rc(request):
     if request.method == 'GET':
         logger.debug("Query VNF packages> %s" % request.data)
         try:
-            res = VnfPackage().query_multiple()
-            query_serializer = validate_data(res, VnfPkgInfosSerializer)
-            return Response(data=query_serializer.data, status=status.HTTP_200_OK)
+            data = VnfPackage().query_multiple()
+            vnf_pkg_infos = validate_data(data, VnfPkgInfosSerializer)
+            return Response(data=vnf_pkg_infos.data, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'unexpected exception'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Query of multiple VNF packages failed'}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'POST':
         logger.debug("Create VNF package> %s" % request.data)
         try:
-            req_serializer = validate_data(request.data, CreateVnfPkgInfoRequestSerializer)
-            res = VnfPackage().create_vnf_pkg(req_serializer.data)
-            create_vnf_pkg_resp_serializer = validate_data(res, VnfPkgInfoSerializer)
-            return Response(data=create_vnf_pkg_resp_serializer.data, status=status.HTTP_201_CREATED)
+            create_vnf_pkg_info_request = validate_data(request.data, CreateVnfPkgInfoRequestSerializer)
+            data = VnfPackage().create_vnf_pkg(create_vnf_pkg_info_request.data)
+            vnf_pkg_info = validate_data(data, VnfPkgInfoSerializer)
+            return Response(data=vnf_pkg_info.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'unexpected exception'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Creating a VNF Package failed'}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
@@ -100,51 +97,45 @@ def vnf_packages_rc(request):
     }
 )
 @api_view(http_method_names=["PUT", "GET"])
-def upload_vnf_pkg_content(request, vnfPkgId):
+def package_content_ru(request, **kwargs):
+    vnf_pkg_id = kwargs.get("vnfPkgId")
     if request.method == "PUT":
-        logger.debug("Upload VNF package %s" % vnfPkgId)
+        logger.debug("Upload VNF package %s" % vnf_pkg_id)
+        files = request.FILES.getlist('file')
         try:
-            vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId)
-            if vnf_pkg[0].onboardingState != PKG_STATUS.CREATED:
-                raise CatalogException("VNF package (%s) is not created" % vnfPkgId)
-            file_object = request.FILES.get('file')
-            upload_path = os.path.join(CATALOG_ROOT_PATH, vnfPkgId)
-            if not os.path.exists(upload_path):
-                os.makedirs(upload_path, 0o777)
-
-            upload_file_name = os.path.join(upload_path, file_object.name)
-            with open(upload_file_name, 'wb+') as dest_file:
-                for chunk in file_object.chunks():
-                    dest_file.write(chunk)
-
-            parse_vnfd_and_save(vnfPkgId, upload_file_name)
+            local_file_name = VnfPackage().upload(vnf_pkg_id, files[0])
+            parse_vnfd_and_save(vnf_pkg_id, local_file_name)
             return Response(None, status=status.HTTP_202_ACCEPTED)
         except CatalogException as e:
-                handle_upload_failed(vnfPkgId)
-                logger.error(e.message)
-                error_msg = {'error': 'Upload VNF package failed.'}
+            handle_upload_failed(vnf_pkg_id)
+            logger.error(e.message)
+            error_data = {'error': e.message}
         except Exception as e:
-            handle_upload_failed(vnfPkgId)
+            handle_upload_failed(vnf_pkg_id)
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'unexpected exception'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Uploading VNF package(%s) failed.' % vnf_pkg_id}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == "GET":
         try:
-            response = VnfPackage().fetch_vnf_pkg(request, vnfPkgId)
-            return response
+            file_range = request.META.get('RANGE')
+            file_iterator = VnfPackage().download(vnf_pkg_id, file_range)
+            return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
             logger.error(e.message)
-            return Response(data={'error': "VNF package does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            error_data = {'error': e.message}
+            error_code = status.HTTP_404_NOT_FOUND
         except CatalogException as e:
             logger.error(e.message)
-            error_msg = {'error': 'Fetch VNF package failed.'}
+            error_data = {'error': e.message}
+            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'unexpected exception'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Downloading VNF package(%s) failed.' % vnf_pkg_id}
+            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Response(data=error_data, status=error_code)
 
 
 @swagger_auto_schema(
@@ -157,21 +148,22 @@ def upload_vnf_pkg_content(request, vnfPkgId):
     }
 )
 @api_view(http_method_names=['POST'])
-def upload_vnf_pkg_from_uri(request, vnfPkgId):
+def upload_from_uri_c(request, **kwargs):
+    vnf_pkg_id = kwargs.get("vnfPkgId")
     try:
-        req_serializer = validate_data(request.data, UploadVnfPackageFromUriRequestSerializer)
-        VnfPkgUploadThread(req_serializer.data, vnfPkgId).start()
+        upload_vnf_from_uri_request = validate_data(request.data, UploadVnfPackageFromUriRequestSerializer)
+        VnfPkgUploadThread(upload_vnf_from_uri_request.data, vnf_pkg_id).start()
         return Response(None, status=status.HTTP_202_ACCEPTED)
     except CatalogException as e:
-        handle_upload_failed(vnfPkgId)
+        handle_upload_failed(vnf_pkg_id)
         logger.error(e.message)
-        error_msg = {'error': 'Upload VNF package failed.'}
+        error_data = {'error': e.message}
     except Exception as e:
-        handle_upload_failed(vnfPkgId)
+        handle_upload_failed(vnf_pkg_id)
         logger.error(e.message)
         logger.error(traceback.format_exc())
-        error_msg = {'error': 'unexpected exception'}
-    return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        error_data = {'error': 'Uploading VNF package(%s) from URI failed.' % vnf_pkg_id}
+    return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
@@ -194,32 +186,32 @@ def upload_vnf_pkg_from_uri(request, vnfPkgId):
     }
 )
 @api_view(http_method_names=['GET', 'DELETE'])
-def vnf_package_rd(request, vnfPkgId):
+def vnf_package_rd(request, **kwargs):
+    vnf_pkg_id = kwargs.get("vnfPkgId")
     if request.method == 'GET':
         logger.debug("Query an individual VNF package> %s" % request.data)
         try:
-            res = VnfPackage().query_single(vnfPkgId)
-            query_serializer = validate_data(res, VnfPkgInfoSerializer)
-            return Response(data=query_serializer.data, status=status.HTTP_200_OK)
+            data = VnfPackage().query_single(vnf_pkg_id)
+            vnf_pkg_info = validate_data(data, VnfPkgInfoSerializer)
+            return Response(data=vnf_pkg_info.data, status=status.HTTP_200_OK)
         except ResourceNotFoundException as e:
             logger.error(e.message)
-            return Response(data={'error': "VNF package does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            error_data = {'error': e.message}
+            error_code = status.HTTP_404_NOT_FOUND
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'unexpected exception'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Query of VNF package(%s) failed.' % vnf_pkg_id}
+            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Response(data=error_data, status=error_code)
 
     if request.method == 'DELETE':
         logger.debug("Delete an individual VNF package> %s" % request.data)
         try:
-            VnfPackage().delete_vnf_pkg(vnfPkgId)
+            VnfPackage().delete_vnf_pkg(vnf_pkg_id)
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
-        except CatalogException as e:
-            logger.error(e.message)
-            error_msg = {'error': 'Delete an individual VNF package failed.'}
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'unexpected exception'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Deletion of VNF package(%s) failed.' % vnf_pkg_id}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

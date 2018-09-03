@@ -18,7 +18,7 @@ import logging
 import os
 import uuid
 
-from catalog.packages.biz.common import read, save
+from catalog.packages.biz.common import parse_file_range, read, save
 from catalog.packages.const import PKG_STATUS
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import NSPackageModel, PnfPackageModel, VnfPackageModel
@@ -112,11 +112,7 @@ class NsDescriptor(object):
             raise CatalogException('NSD(%s) is not ONBOARDED.' % nsd_info_id)
 
         local_file_path = ns_pkgs[0].localFilePath
-        start, end = 0, os.path.getsize(local_file_path)
-        if file_range:
-            [start, end] = file_range.split('-')
-            start, end = start.strip(), end.strip()
-            start, end = int(start), int(end)
+        start, end = parse_file_range(local_file_path, file_range)
         logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
         return read(local_file_path, start, end)
 

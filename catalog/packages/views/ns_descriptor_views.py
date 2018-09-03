@@ -76,8 +76,8 @@ def ns_info_rd(request, **kwargs):
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Deletion of NSD(%s) failed.' % nsd_info_id}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Deletion of NSD(%s) failed.' % nsd_info_id}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
@@ -102,15 +102,15 @@ def ns_info_rd(request, **kwargs):
 def ns_descriptors_rc(request):
     if request.method == 'POST':
         try:
-            create_nsd_info_requst = validate_data(request.data, CreateNsdInfoRequestSerializer)
-            data = NsDescriptor().create(create_nsd_info_requst.data)
+            create_nsd_info_request = validate_data(request.data, CreateNsdInfoRequestSerializer)
+            data = NsDescriptor().create(create_nsd_info_request.data)
             nsd_info = validate_data(data, NsdInfoSerializer)
             return Response(data=nsd_info.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Creating a NSD failed.'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Creating a NSD failed.'}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
         try:
@@ -120,8 +120,8 @@ def ns_descriptors_rc(request):
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_msg = {'error': 'Query of multiple NSDs failed.'}
-        return Response(data=error_msg, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_data = {'error': 'Query of multiple NSDs failed.'}
+        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
