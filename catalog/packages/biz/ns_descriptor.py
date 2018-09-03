@@ -93,7 +93,7 @@ class NsDescriptor(object):
         logger.info('Start to upload NSD(%s)...' % nsd_info_id)
         ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
         if not ns_pkgs.exists():
-            logger.info('NSD(%s) does not exist.' % nsd_info_id)
+            logger.error('NSD(%s) does not exist.' % nsd_info_id)
             raise CatalogException('NSD(%s) does not exist.' % nsd_info_id)
         ns_pkgs.update(onboardingState=PKG_STATUS.UPLOADING)
 
