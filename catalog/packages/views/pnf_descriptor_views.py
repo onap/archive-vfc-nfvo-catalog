@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
     operation_description="Delete a PNFD",
     request_body=no_body,
     responses={
-        status.HTTP_204_NO_CONTENT: None,
+        status.HTTP_204_NO_CONTENT: "No content",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -134,7 +134,7 @@ def pnf_descriptors_rc(request):
     operation_description="Upload PNFD content",
     request_body=no_body,
     responses={
-        status.HTTP_204_NO_CONTENT: None,
+        status.HTTP_204_NO_CONTENT: "No content",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )

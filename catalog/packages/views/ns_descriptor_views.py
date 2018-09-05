@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
     operation_description="Delete a NSD",
     request_body=no_body,
     responses={
-        status.HTTP_204_NO_CONTENT: None,
+        status.HTTP_204_NO_CONTENT: "No content",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
@@ -138,7 +138,7 @@ def ns_descriptors_rc(request):
     operation_description="Download NSD content",
     request_body=no_body,
     responses={
-        status.HTTP_204_NO_CONTENT: None,
+        status.HTTP_204_NO_CONTENT: "No content",
         status.HTTP_404_NOT_FOUND: 'NSD does not exist.',
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }

@@ -181,7 +181,7 @@ def upload_from_uri_c(request, **kwargs):
     operation_description="Delete an individual VNF package resource",
     request_body=no_body,
     responses={
-        status.HTTP_204_NO_CONTENT: None,
+        status.HTTP_204_NO_CONTENT: "No content",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
     }
 )
