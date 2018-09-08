@@ -17,7 +17,7 @@ import logging
 
 from django.test import TestCase
 
-from catalog.pub.utils.toscaparser import parse_vnfd
+from catalog.pub.utils.toscaparser import parse_vnfd, parse_pnfd
 
 logger = logging.getLogger(__name__)
 
@@ -50,3 +50,10 @@ class TestToscaparser(TestCase):
             metadata = json.loads(vnfd_json).get("metadata")
             logger.debug("metadata:%s", metadata)
             self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
+
+    def test_pnfd_parse(self):
+        csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/pnf/ran-du.csar"
+        pnfd_json = parse_pnfd(csar_path)
+        print pnfd_json
+        metadata = json.loads(pnfd_json).get("metadata")
+        self.assertEqual("RAN_DU", metadata.get("template_name", ""))

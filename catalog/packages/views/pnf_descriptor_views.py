@@ -27,6 +27,11 @@ from catalog.packages.serializers.pnfd_info import PnfdInfoSerializer
 from catalog.packages.serializers.pnfd_infos import PnfdInfosSerializer
 from catalog.packages.views.common import validate_data
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
+from catalog.packages.serializers.catalog_serializers import ParseModelRequestSerializer
+from catalog.packages.serializers.catalog_serializers import ParseModelResponseSerializer
+from catalog.packages.serializers.catalog_serializers import InternalErrorRequestSerializer
+from catalog.pub.utils.syscomm import fun_name
+from catalog.pub.utils.values import ignore_case_get
 
 logger = logging.getLogger(__name__)
 
@@ -186,3 +191,27 @@ def pnfd_content_ru(request, **kwargs):
             error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             error_data = {'error': 'Downloading PNFD content failed.'}
         return Response(data=error_data, status=error_code)
+
+
+@swagger_auto_schema(
+    method='POST',
+    operation_description="Parse PNF model",
+    request_body=ParseModelRequestSerializer,
+    responses={
+        status.HTTP_202_ACCEPTED: ParseModelResponseSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
+@api_view(http_method_names=['POST'])
+def pnf_model_parser(request, *args, **kwargs):
+    csar_id = ignore_case_get(request.data, "csarId")
+    inputs = ignore_case_get(request.data, "inputs")
+    logger.debug(
+        "Enter %s, csar_id=%s, inputs=%s",
+        fun_name(),
+        csar_id,
+        inputs)
+    ret = PnfDescriptor().parse_pnfd(csar_id, inputs)
+    logger.info("Leave %s, Return value is %s", fun_name(), ret)
+    if ret[0] != 0:
+        return Response(data={'error': ret[1]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    response = validate_data(ret[1], ParseModelResponseSerializer)
+    return Response(data=response.data, status=status.HTTP_202_ACCEPTED)

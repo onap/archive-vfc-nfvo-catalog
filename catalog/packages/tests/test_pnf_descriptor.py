@@ -271,3 +271,12 @@ class TestPnfDescriptor(TestCase):
         mock_download.side_effect = TypeError("integer type")
         response = self.client.get("/api/nsd/v1/pnf_descriptors/22/pnfd_content")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(toscaparser, 'parse_pnfd')
+    def test_pnfd_parse_normal(self, mock_parse_pnfd):
+        PnfPackageModel(pnfPackageId="8", pnfdId="10").save()
+        mock_parse_pnfd.return_value = json.JSONEncoder().encode({"c": "d"})
+        req_data = {"csarId": "8", "inputs": []}
+        resp = self.client.post("/api/catalog/v1/parserpnfd", req_data, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual({"model": '{"c": "d"}'}, resp.data)

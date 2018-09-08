@@ -16,6 +16,7 @@ import json
 
 from catalog.pub.utils.toscaparser.nsdmodel import EtsiNsdInfoModel
 from catalog.pub.utils.toscaparser.vnfdmodel import EtsiVnfdInfoModel
+from catalog.pub.utils.toscaparser.pnfmodel import PnfdInfoModel
 
 
 def parse_nsd(path, input_parameters=[]):
@@ -33,4 +34,7 @@ def parse_vnfd(path, input_parameters=[]):
 
 
 def parse_pnfd(path, input_parameters=[]):
-    pass
+    tosca_obj = PnfdInfoModel(path, input_parameters)
+    strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
+    strResponse = strResponse.replace(': null', ': ""')
+    return strResponse

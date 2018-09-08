@@ -37,6 +37,24 @@ SECTIONS = (VDU_TYPE, VL_TYPE, CP_TYPE) = \
 
 class BaseInfoModel(object):
 
+    def __init__(self, path, params):
+        tosca = self.buildToscaTemplate(path, params)
+        self.parseModel(tosca)
+
+    def parseModel(self, tosca):
+        pass
+
+    def buildInputs(self, top_inputs):
+        ret = {}
+        for tmpinput in top_inputs:
+            tmp = {}
+            tmp['type'] = tmpinput.type
+            tmp['description'] = tmpinput.description
+            tmp['default'] = tmpinput.default
+
+            ret[tmpinput.name] = tmp
+        return ret
+
     def buildToscaTemplate(self, path, params):
         file_name = None
         try:
@@ -168,6 +186,30 @@ class BaseInfoModel(object):
             self.metadata = copy.deepcopy(tosca.tpl['metadata'])
             if tosca.tpl['metadata'].get('UUID', ''):
                 self.metadata['id'] = tosca.tpl['metadata']['UUID']
+
+    def buildNode(self, nodeTemplate, tosca):
+        inputs = tosca.inputs
+        parsed_params = tosca.parsed_params
+        ret = {}
+        ret['name'] = nodeTemplate.name
+        ret['nodeType'] = nodeTemplate.type
+        if 'description' in nodeTemplate.entity_tpl:
+            ret['description'] = nodeTemplate.entity_tpl['description']
+        else:
+            ret['description'] = ''
+        if 'metadata' in nodeTemplate.entity_tpl:
+            ret['metadata'] = nodeTemplate.entity_tpl['metadata']
+        else:
+            ret['metadata'] = ''
+        props = self.buildProperties_ex(nodeTemplate, tosca.topology_template)
+        ret['properties'] = self.verify_properties(props, inputs, parsed_params)
+        ret['requirements'] = self.build_requirements(nodeTemplate)
+        self.buildCapabilities(nodeTemplate, inputs, ret)
+        self.buildArtifacts(nodeTemplate, inputs, ret)
+        interfaces = self.build_interfaces(nodeTemplate)
+        if interfaces:
+            ret['interfaces'] = interfaces
+        return ret
 
     def buildProperties(self, nodeTemplate, parsed_params):
         properties = {}

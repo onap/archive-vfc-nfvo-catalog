@@ -172,3 +172,18 @@ class PnfDescriptor(object):
     def handle_upload_failed(self, pnf_pkg_id):
         pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=pnf_pkg_id)
         pnf_pkg.update(onboardingState=PKG_STATUS.CREATED)
+
+    def parse_pnfd(self, csar_id, inputs):
+        ret = None
+        try:
+            pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=csar_id)
+            if not pnf_pkg:
+                raise CatalogException("PNF CSAR(%s) does not exist." % csar_id)
+            csar_path = pnf_pkg[0].localFilePath
+            ret = {"model": toscaparser.parse_pnfd(csar_path, inputs)}
+        except CatalogException as e:
+            return [1, e.message]
+        except Exception as e:
+            logger.error(e.message)
+            return [1, e.message]
+        return [0, ret]
