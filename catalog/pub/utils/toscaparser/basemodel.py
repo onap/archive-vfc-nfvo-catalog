@@ -30,10 +30,6 @@ from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 
 logger = logging.getLogger(__name__)
 
-# TOSCA template key names
-SECTIONS = (VDU_TYPE, VL_TYPE, CP_TYPE) = \
-           ('tosca.nodes.nfv.Vdu.Compute', 'tosca.nodes.nfv.VnfVirtualLink', 'tosca.nodes.nfv.Cp')
-
 
 class BaseInfoModel(object):
 
@@ -354,22 +350,6 @@ class BaseInfoModel(object):
                 return False
         return True
 
-    def isVnf(self, node):
-        # return node['nodeType'].upper().find('.VNF.') >= 0 or node['nodeType'].upper().endswith('.VNF')
-        return node['nodeType'].upper().find('.VF.') >= 0 or node['nodeType'].upper().endswith('.VF')
-
-    def isPnf(self, node):
-        return node['nodeType'].upper().find('.PNF.') >= 0 or node['nodeType'].upper().endswith('.PNF')
-
-    def isCp(self, node, node_types):
-        return node['nodeType'].upper().find('TOSCA.NODES.NFV.VDUCP') >= 0
-
-    def isVl(self, node, node_types):
-        return node['nodeType'].upper().find('TOSCA.NODES.NFV.VNFVIRTUALLINK') >= 0
-
-    def isService(self, node):
-        return node['nodeType'].upper().find('.SERVICE.') >= 0 or node['nodeType'].upper().endswith('.SERVICE')
-
     def get_requirement_node_name(self, req_value):
         return self.get_prop_from_obj(req_value, 'node')
 
@@ -389,12 +369,6 @@ class BaseInfoModel(object):
     def getNodeDependencys(self, node):
         return self.getRequirementByName(node, 'dependency')
 
-    def getVirtualLinks(self, node):
-        return self.getRequirementByName(node, 'virtual_link')
-
-    def getVirtualbindings(self, node):
-        return self.getRequirementByName(node, 'virtual_binding')
-
     def getRequirementByName(self, node, requirementName):
         requirements = []
         if 'requirements' in node:
@@ -403,15 +377,6 @@ class BaseInfoModel(object):
                     if key == requirementName:
                         requirements.append(value)
         return requirements
-
-    def get_networks(self, node):
-        rets = []
-        if 'requirements' in node:
-            for item in node['requirements']:
-                for key, value in item.items():
-                    if key.upper().find('VIRTUAL_LINK') >= 0 or key.upper().find('VIRTUALLINK') >= 0:
-                        rets.append({"key_name": key, "vl_id": self.get_requirement_node_name(value)})
-        return rets
 
     def _verify_value(self, value, inputs, parsed_params):
         if value == '{}':
@@ -443,44 +408,51 @@ class BaseInfoModel(object):
                         value = value.replace(getInput, json.dumps(input_def.default))
         return value
 
-    def get_node_vl_id(self, node):
-        vl_ids = map(lambda x: self.get_requirement_node_name(x), self.getVirtualLinks(node))
-        if len(vl_ids) > 0:
-            return vl_ids[0]
-        return ""
-
     def get_node_by_name(self, node_templates, name):
         for node in node_templates:
             if node['name'] == name:
                 return node
         return None
 
-    def get_all_nested_ns(self, nodes):
-        nss = []
-        for node in nodes:
-            if self.is_nested_ns(node):
-                ns = {}
-                ns['ns_id'] = node['name']
-                ns['description'] = node['description']
-                ns['properties'] = node['properties']
-                ns['networks'] = self.get_networks(node)
-
-                nss.append(ns)
-        return nss
-
-    def is_nested_ns(self, node):
-        return node['nodeType'].upper().find('.NS.') >= 0 or node['nodeType'].upper().endswith('.NS')
-
-    def isVdu(self, node, node_types):
-        return node['nodeType'].upper().find('TOSCA.NODES.NFV.VDU.COMPUTE') >= 0
-
     def getCapabilityByName(self, node, capabilityName):
         if 'capabilities' in node and capabilityName in node['capabilities']:
             return node['capabilities'][capabilityName]
         return None
 
-    def get_node_vdu_id(self, node):
-        vdu_ids = map(lambda x: self.get_requirement_node_name(x), self.getVirtualbindings(node))
-        if len(vdu_ids) > 0:
-            return vdu_ids[0]
-        return ""
+    def get_base_path(self, tosca):
+        fpath, fname = os.path.split(tosca.path)
+        return fpath
+
+    def build_artifacts(self, node):
+        rets = []
+        if 'artifacts' in node and len(node['artifacts']) > 0:
+            artifacts = node['artifacts']
+            for name, value in artifacts.items():
+                ret = {}
+                if isinstance(value, dict):
+                    ret['artifact_name'] = name
+                    ret['type'] = value.get('type', '')
+                    ret['file'] = value.get('file', '')
+                    ret['repository'] = value.get('repository', '')
+                    ret['deploy_path'] = value.get('deploy_path', '')
+                else:
+                    ret['artifact_name'] = name
+                    ret['type'] = ''
+                    ret['file'] = value
+                    ret['repository'] = ''
+                    ret['deploy_path'] = ''
+                rets.append(ret)
+        return rets
+
+    def get_node_by_req(self, node_templates, req):
+        req_node_name = self.get_requirement_node_name(req)
+        return self.get_node_by_name(node_templates, req_node_name)
+
+    def isGroupTypeX(self, group, groupTypes, x):
+        group_type = group['groupType']
+        while group_type != x:
+            group_type_derived = group_type
+            group_type = groupTypes[group_type]['derived_from']
+            if group_type == "tosca.groups.Root" or group_type == group_type_derived:
+                return False
+        return True

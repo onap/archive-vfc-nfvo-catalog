@@ -15,11 +15,14 @@
 import functools
 import logging
 import os
-from catalog.pub.utils.toscaparser import EtsiNsdInfoModel
+from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
 logger = logging.getLogger(__name__)
 
+SECTIONS = (VDU_COMPUTE_TYPE, VNF_VL_TYPE, VDU_CP_TYPE, VDU_STORAGE_TYPE) = \
+           ('tosca.nodes.nfv.Vdu.Compute', 'tosca.nodes.nfv.VnfVirtualLink', 'tosca.nodes.nfv.VduCp', 'tosca.nodes.nfv.Vdu.VirtualStorage')
 
-class EtsiVnfdInfoModel(EtsiNsdInfoModel):
+
+class EtsiVnfdInfoModel(BaseInfoModel):
 
     def __init__(self, path, params):
         super(EtsiVnfdInfoModel, self).__init__(path, params)
@@ -32,148 +35,33 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
                             tosca.nodetemplates)
         node_types = tosca.topology_template.custom_defs
-        logger.error("customdefs:%s", node_types)
-        self.basepath = self._get_base_path(tosca)
-        self.services = self._get_all_services(nodeTemplates)
-        self.vcloud = self._get_all_vcloud(nodeTemplates)
-        self.vcenter = self._get_all_vcenter(nodeTemplates)
-        self.image_files = self._get_all_image_file(nodeTemplates)
-        self.local_storages = self._get_all_local_storage(nodeTemplates)
-        self.volume_storages = self._get_all_volume_storage(nodeTemplates)
+        self.basepath = self.get_base_path(tosca)
+        self.volume_storages = self._get_all_volume_storage(nodeTemplates, node_types)
         self.vdus = self._get_all_vdu(nodeTemplates, node_types)
-        self.vls = self.get_all_vl(nodeTemplates, node_types)
-        logger.debug("vls:%s", self.vls)
-        self.cps = self.get_all_cp(nodeTemplates, node_types)
-        self.plugins = self.get_all_plugin(nodeTemplates)
-        self.routers = self.get_all_router(nodeTemplates)
-        self.server_groups = self.get_all_server_group(tosca.topology_template.groups)
-        self.element_groups = self._get_all_element_group(tosca.topology_template.groups)
-        self.policies = self._get_policies(tosca.topology_template.policies)
-        self.vnf_exposed = self.get_all_endpoint_exposed(tosca.topology_template)
-        self.vnf_flavours = self.get_all_flavour(tosca.topology_template.groups)
+        self.vls = self._get_all_vl(nodeTemplates, node_types)
+        self.cps = self._get_all_cp(nodeTemplates, node_types)
+        self.vnf_exposed = self._get_all_endpoint_exposed(tosca.topology_template)
 
-    def _get_base_path(self, tosca):
-        fpath, fname = os.path.split(tosca.path)
-        return fpath
-
-    def _get_all_services(self, nodeTemplates):
-        ret = []
-        for node in nodeTemplates:
-            if self.isService(node):
-                service = {}
-                service['serviceId'] = node['name']
-                if 'description' in node:
-                    service['description'] = node['description']
-                service['properties'] = node['properties']
-                service['dependencies'] = map(lambda x: self.get_requirement_node_name(x),
-                                              self.getNodeDependencys(node))
-                service['networks'] = map(lambda x: self.get_requirement_node_name(x), self.getVirtualLinks(node))
-
-                ret.append(service)
-        return ret
-
-    def _get_all_vcloud(self, nodeTemplates):
+    def _get_all_volume_storage(self, nodeTemplates, node_types):
         rets = []
         for node in nodeTemplates:
-            if self._isVcloud(node):
-                ret = {}
-                if 'vdc_name' in node['properties']:
-                    ret['vdc_name'] = node['properties']['vdc_name']
-                else:
-                    ret['vdc_name'] = ""
-                if 'storage_clusters' in node['properties']:
-                    ret['storage_clusters'] = node['properties']['storage_clusters']
-                else:
-                    ret['storage_clusters'] = []
-
-                rets.append(ret)
-        return rets
-
-    def _isVcloud(self, node):
-        return node['nodeType'].upper().find('.VCLOUD.') >= 0 or node['nodeType'].upper().endswith('.VCLOUD')
-
-    def _get_all_vcenter(self, nodeTemplates):
-        rets = []
-        for node in nodeTemplates:
-            if self._isVcenter(node):
-                ret = {}
-                if 'compute_clusters' in node['properties']:
-                    ret['compute_clusters'] = node['properties']['compute_clusters']
-                else:
-                    ret['compute_clusters'] = []
-                if 'storage_clusters' in node['properties']:
-                    ret['storage_clusters'] = node['properties']['storage_clusters']
-                else:
-                    ret['storage_clusters'] = []
-                if 'network_clusters' in node['properties']:
-                    ret['network_clusters'] = node['properties']['network_clusters']
-                else:
-                    ret['network_clusters'] = []
-
-                rets.append(ret)
-        return rets
-
-    def _isVcenter(self, node):
-        return node['nodeType'].upper().find('.VCENTER.') >= 0 or node['nodeType'].upper().endswith('.VCENTER')
-
-    def _get_all_image_file(self, nodeTemplates):
-        rets = []
-        for node in nodeTemplates:
-            if self._isImageFile(node):
-                ret = {}
-                ret['image_file_id'] = node['name']
-                if 'description' in node:
-                    ret['description'] = node['description']
-                ret['properties'] = node['properties']
-
-                rets.append(ret)
-        return rets
-
-    def _isImageFile(self, node):
-        return node['nodeType'].upper().find('.IMAGEFILE.') >= 0 or node['nodeType'].upper().endswith('.IMAGEFILE')
-
-    def _get_all_local_storage(self, nodeTemplates):
-        rets = []
-        for node in nodeTemplates:
-            if self._isLocalStorage(node):
-                ret = {}
-                ret['local_storage_id'] = node['name']
-                if 'description' in node:
-                    ret['description'] = node['description']
-                ret['properties'] = node['properties']
-
-                rets.append(ret)
-        return rets
-
-    def _isLocalStorage(self, node):
-        return node['nodeType'].upper().find('.LOCALSTORAGE.') >= 0 or node['nodeType'].upper().endswith(
-            '.LOCALSTORAGE')
-
-    def _get_all_volume_storage(self, nodeTemplates):
-        rets = []
-        for node in nodeTemplates:
-            if self._isVolumeStorage(node):
+            if self.isNodeTypeX(node, node_types, VDU_STORAGE_TYPE):
                 ret = {}
                 ret['volume_storage_id'] = node['name']
                 if 'description' in node:
                     ret['description'] = node['description']
                 ret['properties'] = node['properties']
-                ret['image_file'] = map(lambda x: self.get_requirement_node_name(x),
-                                        self.getRequirementByName(node, 'image_file'))
-
+                # image_file should be gotten form artifacts TODO
+                # ret['artifacts'] = self._build_artifacts(node)
                 rets.append(ret)
         return rets
-
-    def _isVolumeStorage(self, node):
-        return node['nodeType'].upper().find('.VOLUMESTORAGE.') >= 0 or node['nodeType'].upper().endswith(
-            '.VOLUMESTORAGE')
 
     def _get_all_vdu(self, nodeTemplates, node_types):
         rets = []
         inject_files = []
         for node in nodeTemplates:
             logger.error("nodeTemplates :%s", node)
-            if self.isVdu(node, node_types):
+            if self.isNodeTypeX(node, node_types, VDU_COMPUTE_TYPE):
                 ret = {}
                 ret['vdu_id'] = node['name']
                 ret['type'] = node['nodeType']
@@ -189,136 +77,128 @@ class EtsiVnfdInfoModel(EtsiNsdInfoModel):
                             source_data = f.read()
                             source_data_base64 = source_data.encode("base64")
                             inject_file["source_data_base64"] = source_data_base64
-
-                local_storages = self.getRequirementByName(node, 'local_storage')
-                ret['local_storages'] = map(lambda x: self.get_requirement_node_name(x), local_storages)
-                volume_storages = self.getRequirementByName(node, 'volume_storage')
-                ret['volume_storages'] = map(functools.partial(self._trans_volume_storage), volume_storages)
+                virtual_storages = self.getRequirementByName(node, 'virtual_storage')
+                ret['virtual_storages'] = map(functools.partial(self._trans_virtual_storage), virtual_storages)
                 ret['dependencies'] = map(lambda x: self.get_requirement_node_name(x), self.getNodeDependencys(node))
-
                 virtual_compute = self.getCapabilityByName(node, 'virtual_compute')
                 if virtual_compute is not None and 'properties' in virtual_compute:
                     ret['virtual_compute'] = virtual_compute['properties']
-
-                ret['vls'] = self.get_linked_vl_ids(node, nodeTemplates)
-
-                scalable = self.getCapabilityByName(node, 'scalable')
-                if scalable is not None and 'properties' in scalable:
-                    ret['scalable'] = scalable['properties']
-
-                ret['cps'] = self.getVirtalBindingCpIds(node, nodeTemplates)
-                ret['artifacts'] = self._build_artifacts(node)
-
+                ret['vls'] = self._get_linked_vl_ids(node, nodeTemplates)
+                ret['cps'] = self._get_virtal_binding_cp_ids(node, nodeTemplates)
+                ret['artifacts'] = self.build_artifacts(node)
                 rets.append(ret)
         logger.debug("rets:%s", rets)
         return rets
 
-    def get_node_image_file(self, node):
-        rets = map(lambda x: self.get_requirement_node_name(x), self.getRequirementByName(node, 'guest_os'))
-        if len(rets) > 0:
-            return rets[0]
-        return ""
-
-    def _trans_volume_storage(self, volume_storage):
-        if isinstance(volume_storage, str):
-            return {"volume_storage_id": volume_storage}
+    def _trans_virtual_storage(self, virtual_storage):
+        if isinstance(virtual_storage, str):
+            return {"vitual_storage_id": virtual_storage}
         else:
             ret = {}
-            ret['volume_storage_id'] = self.get_requirement_node_name(volume_storage)
-            if 'relationship' in volume_storage and 'properties' in volume_storage['relationship']:
-                if 'location' in volume_storage['relationship']['properties']:
-                    ret['location'] = volume_storage['relationship']['properties']['location']
-                if 'device' in volume_storage['relationship']['properties']:
-                    ret['device'] = volume_storage['relationship']['properties']['device']
-
+            ret['vitual_storage_id'] = self.get_requirement_node_name(virtual_storage)
             return ret
 
-    def get_linked_vl_ids(self, node, node_templates):
+    def _get_linked_vl_ids(self, node, node_templates):
         vl_ids = []
-        cps = self.getVirtalBindingCps(node, node_templates)
+        cps = self._get_virtal_binding_cps(node, node_templates)
         for cp in cps:
-            vl_reqs = self.getVirtualLinks(cp)
+            vl_reqs = self.getRequirementByName(cp, 'virtual_link')
             for vl_req in vl_reqs:
                 vl_ids.append(self.get_requirement_node_name(vl_req))
         return vl_ids
 
-    def _build_artifacts(self, node):
-        rets = []
-        if 'artifacts' in node and len(node['artifacts']) > 0:
-            artifacts = node['artifacts']
-            for name, value in artifacts.items():
-                ret = {}
-                if isinstance(value, dict):
-                    ret['artifact_name'] = name
-                    ret['type'] = value.get('type', '')
-                    ret['file'] = value.get('file', '')
-                    ret['repository'] = value.get('repository', '')
-                    ret['deploy_path'] = value.get('deploy_path', '')
-                else:
-                    ret['artifact_name'] = name
-                    ret['type'] = ''
-                    ret['file'] = value
-                    ret['repository'] = ''
-                    ret['deploy_path'] = ''
-                rets.append(ret)
-        return rets
+    def _get_virtal_binding_cp_ids(self, node, nodeTemplates):
+        return map(lambda x: x['name'], self._get_virtal_binding_cps(node, nodeTemplates))
 
-    def get_all_cp(self, nodeTemplates, node_types):
+    def _get_virtal_binding_cps(self, node, nodeTemplates):
+        cps = []
+        for tmpnode in nodeTemplates:
+            if 'requirements' in tmpnode:
+                for item in tmpnode['requirements']:
+                    for key, value in item.items():
+                        if key.upper().startswith('VIRTUAL_BINDING'):
+                            req_node_name = self.get_requirement_node_name(value)
+                            if req_node_name is not None and req_node_name == node['name']:
+                                cps.append(tmpnode)
+        return cps
+
+    def _get_all_vl(self, nodeTemplates, node_types):
+        vls = []
+        for node in nodeTemplates:
+            if self.isNodeTypeX(node, node_types, VNF_VL_TYPE):
+                vl = dict()
+                vl['vl_id'] = node['name']
+                vl['description'] = node['description']
+                vl['properties'] = node['properties']
+                vls.append(vl)
+        return vls
+
+    def _get_all_cp(self, nodeTemplates, node_types):
         cps = []
         for node in nodeTemplates:
-            if self.isCp(node, node_types):
+            if self.isNodeTypeX(node, node_types, VDU_CP_TYPE):
                 cp = {}
                 cp['cp_id'] = node['name']
                 cp['cpd_id'] = node['name']
                 cp['description'] = node['description']
                 cp['properties'] = node['properties']
-                cp['vl_id'] = self.get_node_vl_id(node)
-                cp['vdu_id'] = self.get_node_vdu_id(node)
-                vls = self.buil_cp_vls(node)
+                cp['vl_id'] = self._get_node_vl_id(node)
+                cp['vdu_id'] = self._get_node_vdu_id(node)
+                vls = self._buil_cp_vls(node)
                 if len(vls) > 1:
                     cp['vls'] = vls
                 cps.append(cp)
         return cps
 
-    def get_all_plugin(self, node_templates):
-        plugins = []
-        for node in node_templates:
-            if self._isPlugin(node):
-                plugin = {}
-                plugin['plugin_id'] = node['name']
-                plugin['description'] = node['description']
-                plugin['properties'] = node['properties']
-                if 'interfaces' in node:
-                    plugin['interfaces'] = node['interfaces']
+    def _get_node_vdu_id(self, node):
+        vdu_ids = map(lambda x: self.get_requirement_node_name(x), self.getRequirementByName(node, 'virtual_binding'))
+        if len(vdu_ids) > 0:
+            return vdu_ids[0]
+        return ""
 
-                plugins.append(plugin)
-        return plugins
+    def _get_node_vl_id(self, node):
+        vl_ids = map(lambda x: self.get_requirement_node_name(x), self.getRequirementByName(node, 'virtual_link'))
+        if len(vl_ids) > 0:
+            return vl_ids[0]
+        return ""
 
-    def _isPlugin(self, node):
-        return node['nodeType'].lower().find('.plugin.') >= 0 or node['nodeType'].lower().endswith('.plugin')
+    def _buil_cp_vls(self, node):
+        return map(lambda x: self._build_cp_vl(x), self.getRequirementByName(node, 'virtual_link'))
 
-    def _get_all_element_group(self, groups):
-        rets = []
-        for group in groups:
-            if self._isVnfdElementGroup(group):
-                ret = {}
-                ret['group_id'] = group.name
-                ret['description'] = group.description
-                if 'properties' in group.tpl:
-                    ret['properties'] = group.tpl['properties']
-                ret['members'] = group.members
-                rets.append(ret)
-        return rets
+    def _build_cp_vl(self, req):
+        cp_vl = {}
+        cp_vl['vl_id'] = self.get_prop_from_obj(req, 'node')
+        relationship = self.get_prop_from_obj(req, 'relationship')
+        if relationship is not None:
+            properties = self.get_prop_from_obj(relationship, 'properties')
+            if properties is not None and isinstance(properties, dict):
+                for key, value in properties.items():
+                    cp_vl[key] = value
+        return cp_vl
 
-    def _isVnfdElementGroup(self, group):
-        return group.type.upper().find('.VNFDELEMENTGROUP.') >= 0 or group.type.upper().endswith('.VNFDELEMENTGROUP')
+    def _get_all_endpoint_exposed(self, topo_tpl):
+        if 'substitution_mappings' in topo_tpl.tpl:
+            external_cps = self._get_external_cps(topo_tpl.tpl['substitution_mappings'])
+            forward_cps = self._get_forward_cps(topo_tpl.tpl['substitution_mappings'])
+            return {"external_cps": external_cps, "forward_cps": forward_cps}
+        return {}
 
-    def _get_policies(self, top_policies):
-        policies = []
-        scaling_policies = self.get_scaling_policies(top_policies)
-        healing_policies = self.get_healing_policies(top_policies)
-        policies.append({"scaling": scaling_policies, 'healing': healing_policies})
-        return policies
+    def _get_external_cps(self, subs_mappings):
+        external_cps = []
+        if 'requirements' in subs_mappings:
+            for key, value in subs_mappings['requirements'].items():
+                if isinstance(value, list) and len(value) > 0:
+                    external_cps.append({"key_name": key, "cpd_id": value[0]})
+                else:
+                    external_cps.append({"key_name": key, "cpd_id": value})
+        return external_cps
 
-    def get_healing_policies(self, top_policies):
-        return self.get_policies_by_keyword(top_policies, '.HEALING')
+    def _get_forward_cps(self, subs_mappings):
+        forward_cps = []
+        if 'capabilities' in subs_mappings:
+            for key, value in subs_mappings['capabilities'].items():
+                if isinstance(value, list) and len(value) > 0:
+                    forward_cps.append({"key_name": key, "cpd_id": value[0]})
+                else:
+                    forward_cps.append({"key_name": key, "cpd_id": value})
+        return forward_cps
