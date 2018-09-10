@@ -17,7 +17,7 @@ import logging
 
 from django.test import TestCase
 
-from catalog.pub.utils.toscaparser import parse_vnfd, parse_pnfd
+from catalog.pub.utils.toscaparser import parse_vnfd, parse_pnfd, parse_nsd
 
 logger = logging.getLogger(__name__)
 
@@ -30,17 +30,23 @@ class TestToscaparser(TestCase):
         pass
 
     def test_nsd_parse(self):
-        # csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/resource-ZteMmeFixVl-csar.csar"
-        # input_parameters = [{"value": "111111", "key": "sdncontroller"}]
-        # logger.debug("csar_path:%s", csar_path)
-        # vnfd_json = parse_vnfd(csar_path, input_parameters)
-        # metadata = json.loads(vnfd_json).get("metadata")
-        # self.assertEqual("ZTE-MME-FIX-VL", metadata.get("name", ""))
-        # TODO
-        pass
+        ran_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/ns/ran.csar"
+        nsd_json = parse_nsd(ran_csar)
+        metadata = json.loads(nsd_json).get("metadata")
+        self.assertEqual("RAN-NS", metadata.get("template_name", ""))
 
-    def test_vcpe_parse(self):
-        csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vcpe"
+        pnf_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/pnf/ran-du.csar"
+        nsd_json = parse_nsd(pnf_csar)
+        metadata = json.loads(nsd_json).get("metadata")
+        self.assertNotEqual("RAN-NS", metadata.get("template_name", ""))
+
+        pnf_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf/vgw.csar"
+        nsd_json = parse_nsd(pnf_csar)
+        metadata = json.loads(nsd_json).get("metadata")
+        self.assertNotEqual("RAN-NS", metadata.get("template_name", ""))
+
+    def test_vnf_parse(self):
+        csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf"
         input_parameters = [{"value": "222222", "key": "sdncontroller"}]
         vcpe = ["infra", "vbng", "vbrgemu", "vgmux", "vgw"]
         for vcpe_part in vcpe:
@@ -54,6 +60,5 @@ class TestToscaparser(TestCase):
     def test_pnfd_parse(self):
         csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/pnf/ran-du.csar"
         pnfd_json = parse_pnfd(csar_path)
-        print pnfd_json
         metadata = json.loads(pnfd_json).get("metadata")
         self.assertEqual("RAN_DU", metadata.get("template_name", ""))
