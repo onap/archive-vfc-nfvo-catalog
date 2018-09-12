@@ -25,8 +25,11 @@ from catalog.pub.database.models import NSPackageModel, PnfPackageModel, VnfPack
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils import fileutil, toscaparser
 from catalog.pub.utils.values import ignore_case_get
+from catalog.pub.utils.toscaparser.const import NS_UUID, NS_INVARIANTUUID, NS_NAME, NS_VERSION, NS_DESIGNER, NS_DESCRIPTION
 
 logger = logging.getLogger(__name__)
+
+METADATA = "metadata"
 
 
 class NsDescriptor(object):
@@ -116,31 +119,35 @@ class NsDescriptor(object):
         logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
         return read(local_file_path, start, end)
 
-    def parse_nsd_and_save(self, nsd_info_id, local_file_name):
+    def parse_nsd_and_save(self, nsd_info_id, local_file_name, isETSI=True):
         logger.info('Start to process NSD(%s)...' % nsd_info_id)
         ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
         ns_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
-        nsd_json = toscaparser.parse_nsd(local_file_name)
+
+        nsd_json = toscaparser.parse_nsd(local_file_name, isETSI)
         nsd = json.JSONDecoder().decode(nsd_json)
 
-        nsd_id = nsd["metadata"]["id"]
-        if nsd_id and NSPackageModel.objects.filter(nsdId=nsd_id):
-            logger.info('NSD(%s) already exists.' % nsd_id)
+        nsd_id = nsd[METADATA].get(NS_UUID, "undefined")
+        if nsd_id == "undefined":
+            raise CatalogException("Service UUID(%s) does not exist in metadata." % nsd_id)
+        if NSPackageModel.objects.filter(nsdId=nsd_id):
             raise CatalogException("NSD(%s) already exists." % nsd_id)
 
         for vnf in nsd["vnfs"]:
             vnfd_id = vnf["properties"]["id"]
             pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
             if not pkg:
-                logger.error("VNFD is not distributed.")
+                vnfd_name = vnf.get("vnf_id", "undefined")
+                logger.error("[%s] is not distributed.", vnfd_name)
                 raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
         ns_pkgs.update(
-            nsdId=nsd_id,
-            nsdName=nsd["metadata"].get("name", nsd_id),
-            nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
-            nsdDescription=nsd["metadata"].get("description", ""),
-            nsdVersion=nsd["metadata"].get("version", "undefined"),
+            nsdId=nsd[METADATA].get(NS_UUID, "undefined"),
+            nsdName=nsd[METADATA].get(NS_NAME, "undefined"),
+            nsdDesginer=nsd[METADATA].get(NS_DESIGNER, "undefined"),
+            nsdDescription=nsd[METADATA].get(NS_DESCRIPTION, ""),
+            nsdVersion=nsd[METADATA].get(NS_VERSION, "undefined"),
+            invariantId=nsd[METADATA].get(NS_INVARIANTUUID, "undefined"),
             onboardingState=PKG_STATUS.ONBOARDED,
             operationalState=PKG_STATUS.ENABLED,
             usageState=PKG_STATUS.NOT_IN_USE,

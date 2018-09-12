@@ -14,6 +14,8 @@
 import json
 import os
 import logging
+import tempfile
+import shutil
 
 from django.test import TestCase
 
@@ -24,10 +26,10 @@ logger = logging.getLogger(__name__)
 
 class TestToscaparser(TestCase):
     def setUp(self):
-        pass
+        self.remove_temp_dir()
 
     def tearDown(self):
-        pass
+        self.remove_temp_dir()
 
     def test_nsd_parse(self):
         ran_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/ns/ran.csar"
@@ -53,6 +55,7 @@ class TestToscaparser(TestCase):
             csar_file = ("%s/%s.csar" % (csar_path, vcpe_part))
             logger.debug("csar_file:%s", csar_file)
             vnfd_json = parse_vnfd(csar_file, input_parameters)
+            print vcpe_part
             metadata = json.loads(vnfd_json).get("metadata")
             logger.debug("metadata:%s", metadata)
             self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
@@ -62,3 +65,11 @@ class TestToscaparser(TestCase):
         pnfd_json = parse_pnfd(csar_path)
         metadata = json.loads(pnfd_json).get("metadata")
         self.assertEqual("RAN_DU", metadata.get("template_name", ""))
+
+    def remove_temp_dir(self):
+        tempdir = tempfile.gettempdir()
+        for dir in os.listdir(tempdir):
+            if dir.startswith("tmp"):
+                path = tempfile.tempdir + "/" + dir
+                if (not os.path.isfile(path)) and os.path.exists(path):
+                    shutil.rmtree(tempfile.tempdir + "/" + dir)
