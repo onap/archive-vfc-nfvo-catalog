@@ -25,6 +25,7 @@ class NSPackageModel(models.Model):
     usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
     deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
     nsdId = models.CharField(db_column='NSDID', max_length=50, blank=True, null=True)
+    invariantId = models.CharField(db_column='INVARIANTID', max_length=50, blank=True, null=True)  # nsdInvariantId
     nsdName = models.CharField(db_column='NSDNAME', max_length=50, blank=True, null=True)
     nsdDesginer = models.CharField(db_column='NSDDESIGNER', max_length=50, null=True, blank=True)
     nsdDescription = models.CharField(db_column='NSDDESCRIPTION', max_length=100, null=True, blank=True)

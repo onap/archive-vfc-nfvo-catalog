@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 import os
 import sys
@@ -20,15 +19,18 @@ import traceback
 
 from catalog.pub.config.config import CATALOG_ROOT_PATH, CATALOG_URL_PATH, MSB_SERVICE_IP
 from catalog.pub.config.config import REG_TO_MSB_REG_PARAM
-from catalog.pub.database.models import NSPackageModel, VnfPackageModel
+from catalog.pub.database.models import NSPackageModel
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import sdc
-from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
+from catalog.packages.biz.ns_descriptor import NsDescriptor
+from catalog.packages.const import PKG_STATUS
 
 logger = logging.getLogger(__name__)
 
 STATUS_SUCCESS, STATUS_FAILED = "success", "failed"
+
+METADATA = "metadata"
 
 
 def fmt_ns_pkg_rsp(status, desc, error_code="500"):
@@ -40,11 +42,11 @@ def ns_on_distribute(csar_id):
     try:
         ret = NsPackage().on_distribute(csar_id)
     except CatalogException as e:
-        NsPackage().delete_catalog(csar_id)
+        NsPackage().delete_csar(csar_id)
         return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
     except:
         logger.error(traceback.format_exc())
-        NsPackage().delete_catalog(csar_id)
+        NsPackage().delete_csar(csar_id)
         return fmt_ns_pkg_rsp(STATUS_FAILED, str(sys.exc_info()))
     if ret[0]:
         return fmt_ns_pkg_rsp(STATUS_FAILED, ret[1])
@@ -95,7 +97,7 @@ def parse_nsd(csar_id, inputs):
         if not ns_pkg:
             raise CatalogException("NS CSAR(%s) does not exist." % csar_id)
         csar_path = ns_pkg[0].localFilePath
-        ret = {"model": toscaparser.parse_nsd(csar_path, inputs)}
+        ret = {"model": toscaparser.parse_nsd(csar_path, inputs, False)}
     except CatalogException as e:
         return [1, e.message]
     except Exception as e:
@@ -122,39 +124,22 @@ class NsPackage(object):
         csar_name = "%s.csar" % artifact.get("name", csar_id)
         local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path, csar_name)
 
-        nsd_json = toscaparser.parse_nsd(local_file_name)
-        nsd = json.JSONDecoder().decode(nsd_json)
-
-        nsd_id = nsd["metadata"]["id"]
-        if NSPackageModel.objects.filter(nsdId=nsd_id):
-            raise CatalogException("NSD(%s) already exists." % nsd_id)
-
-        for vnf in nsd["vnfs"]:
-            vnfd_id = vnf["properties"]["id"]
-            pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
-            if not pkg:
-                vnfd_name = vnf.get("vnf_id", "undefined")
-                logger.error("[%s] is not distributed.", vnfd_name)
-                raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
-
-        NSPackageModel(
-            nsPackageId=csar_id,
-            nsdId=nsd_id,
-            nsdName=nsd["metadata"].get("name", nsd_id),
-            nsdDesginer=nsd["metadata"].get("vendor", "undefined"),
-            nsdDescription=nsd["metadata"].get("description", ""),
-            nsdVersion=nsd["metadata"].get("version", "undefined"),
-            nsPackageUri=csar_name,
-            sdcCsarId=csar_id,
-            localFilePath=local_file_name,
-            nsdModel=nsd_json
-        ).save()
-
+        data = {
+            'id': str(csar_id),
+            'nsdOnboardingState': PKG_STATUS.CREATED,
+            'nsdOperationalState': PKG_STATUS.DISABLED,
+            'nsdUsageState': PKG_STATUS.NOT_IN_USE,
+            'userDefinedData': "",
+            '_links': ""  # TODO
+        }
+        nsd = NsDescriptor()
+        nsd.create(data)
+        nsd.parse_nsd_and_save(csar_id, local_file_name, False)
         return [0, "CSAR(%s) distributed successfully." % csar_id]
 
     def delete_csar(self, csar_id):
-        NSPackageModel.objects.filter(nsPackageId=csar_id).delete()
-        self.delete_catalog(csar_id)
+        nsd = NsDescriptor()
+        nsd.delete_single(csar_id)
         return [0, "Delete CSAR(%s) successfully." % csar_id]
 
     def get_csars(self):
@@ -175,6 +160,7 @@ class NsPackage(object):
             package_info["nsdVersion"] = csars[0].nsdVersion
             package_info["csarName"] = csars[0].nsPackageUri
             package_info["nsdModel"] = csars[0].nsdModel
+            package_info["nsdInvariantId"] = csars[0].invariantId
             package_info["downloadUrl"] = "http://%s:%s/%s/%s/%s" % (
                 MSB_SERVICE_IP,
                 REG_TO_MSB_REG_PARAM["nodes"][0]["port"],
@@ -185,7 +171,3 @@ class NsPackage(object):
             raise CatalogException("Ns package[%s] not Found." % csar_id)
 
         return [0, {"csarId": csar_id, "packageInfo": package_info}]
-
-    def delete_catalog(self, csar_id):
-        local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
-        fileutil.delete_dirs(local_path)
