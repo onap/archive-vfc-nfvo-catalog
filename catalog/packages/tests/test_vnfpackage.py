@@ -17,7 +17,7 @@ import mock
 from rest_framework.test import APIClient
 from django.test import TestCase
 from rest_framework import status
-from catalog.packages.biz.vnfpackage import NfDistributeThread, NfPkgDeleteThread
+from catalog.packages.biz.sdc_vnf_package import NfDistributeThread, NfPkgDeleteThread
 from catalog.pub.database.models import JobStatusModel, JobModel
 from catalog.pub.database.models import VnfPackageModel
 from catalog.pub.msapi import sdc

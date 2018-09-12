@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 import ftplib
 import json
 import logging
@@ -30,6 +29,24 @@ from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 
 logger = logging.getLogger(__name__)
 
+METADATA = "metadata"
+PROPERTIES = "properties"
+DESCRIPTION = "description"
+REQUIREMENTS = "requirements"
+INTERFACES = "interfaces"
+TOPOLOGY_TEMPLATE = "topology_template"
+INPUTS = "inputs"
+CAPABILITIES = "capabilities"
+ATTRIBUTES = "attributes"
+ARTIFACTS = "artifacts"
+DERIVED_FROM = "derived_from"
+
+NODE_NAME = "name"
+NODE_TYPE = "nodeType"
+NODE_ROOT = "tosca.nodes.Root"
+GROUP_TYPE = "groupType"
+GROUPS_ROOT = "tosca.groups.Root"
+
 
 class BaseInfoModel(object):
 
@@ -40,16 +57,8 @@ class BaseInfoModel(object):
     def parseModel(self, tosca):
         pass
 
-    def buildInputs(self, top_inputs):
-        ret = {}
-        for tmpinput in top_inputs:
-            tmp = {}
-            tmp['type'] = tmpinput.type
-            tmp['description'] = tmpinput.description
-            tmp['default'] = tmpinput.default
-
-            ret[tmpinput.name] = tmp
-        return ret
+    def buildInputs(self, tosca):
+        return tosca.tpl.get(TOPOLOGY_TEMPLATE, '').get(INPUTS, {})
 
     def buildToscaTemplate(self, path, params):
         file_name = None
@@ -177,34 +186,31 @@ class BaseInfoModel(object):
             if f is not None:
                 f.close()
 
-    def buidMetadata(self, tosca):
-        if 'metadata' in tosca.tpl:
-            self.metadata = copy.deepcopy(tosca.tpl['metadata'])
-            if tosca.tpl['metadata'].get('UUID', ''):
-                self.metadata['id'] = tosca.tpl['metadata']['UUID']
+    def buildMetadata(self, tosca):
+        return tosca.tpl.get(METADATA, {})
 
     def buildNode(self, nodeTemplate, tosca):
         inputs = tosca.inputs
         parsed_params = tosca.parsed_params
         ret = {}
-        ret['name'] = nodeTemplate.name
-        ret['nodeType'] = nodeTemplate.type
-        if 'description' in nodeTemplate.entity_tpl:
-            ret['description'] = nodeTemplate.entity_tpl['description']
+        ret[NODE_NAME] = nodeTemplate.name
+        ret[NODE_TYPE] = nodeTemplate.type
+        if DESCRIPTION in nodeTemplate.entity_tpl:
+            ret[DESCRIPTION] = nodeTemplate.entity_tpl[DESCRIPTION]
         else:
-            ret['description'] = ''
-        if 'metadata' in nodeTemplate.entity_tpl:
-            ret['metadata'] = nodeTemplate.entity_tpl['metadata']
+            ret[DESCRIPTION] = ''
+        if METADATA in nodeTemplate.entity_tpl:
+            ret[METADATA] = nodeTemplate.entity_tpl[METADATA]
         else:
-            ret['metadata'] = ''
+            ret[METADATA] = ''
         props = self.buildProperties_ex(nodeTemplate, tosca.topology_template)
-        ret['properties'] = self.verify_properties(props, inputs, parsed_params)
-        ret['requirements'] = self.build_requirements(nodeTemplate)
+        ret[PROPERTIES] = self.verify_properties(props, inputs, parsed_params)
+        ret[REQUIREMENTS] = self.build_requirements(nodeTemplate)
         self.buildCapabilities(nodeTemplate, inputs, ret)
         self.buildArtifacts(nodeTemplate, inputs, ret)
         interfaces = self.build_interfaces(nodeTemplate)
         if interfaces:
-            ret['interfaces'] = interfaces
+            ret[INTERFACES] = interfaces
         return ret
 
     def buildProperties(self, nodeTemplate, parsed_params):
@@ -219,8 +225,8 @@ class BaseInfoModel(object):
                     tmp = {}
                     tmp[item.value.name] = item.value.input_name
                     properties[k] = tmp
-        if 'attributes' in nodeTemplate.entity_tpl:
-            for k, item in nodeTemplate.entity_tpl['attributes'].items():
+        if ATTRIBUTES in nodeTemplate.entity_tpl:
+            for k, item in nodeTemplate.entity_tpl[ATTRIBUTES].items():
                 properties[k] = str(item)
         return properties
 
@@ -319,13 +325,13 @@ class BaseInfoModel(object):
         return rets
 
     def buildCapabilities(self, nodeTemplate, inputs, ret):
-        capabilities = json.dumps(nodeTemplate.entity_tpl.get('capabilities', None))
+        capabilities = json.dumps(nodeTemplate.entity_tpl.get(CAPABILITIES, None))
         match = re.findall(r'\{"get_input":\s*"([\w|\-]+)"\}', capabilities)
         for m in match:
             aa = [input_def for input_def in inputs if m == input_def.name][0]
             capabilities = re.sub(r'\{"get_input":\s*"([\w|\-]+)"\}', json.dumps(aa.default), capabilities, 1)
         if capabilities != 'null':
-            ret['capabilities'] = json.loads(capabilities)
+            ret[CAPABILITIES] = json.loads(capabilities)
 
     def buildArtifacts(self, nodeTemplate, inputs, ret):
         artifacts = json.dumps(nodeTemplate.entity_tpl.get('artifacts', None))
@@ -334,19 +340,19 @@ class BaseInfoModel(object):
             aa = [input_def for input_def in inputs if m == input_def.name][0]
             artifacts = re.sub(r'\{"get_input":\s*"([\w|\-]+)"\}', json.dumps(aa.default), artifacts, 1)
         if artifacts != 'null':
-            ret['artifacts'] = json.loads(artifacts)
+            ret[ARTIFACTS] = json.loads(artifacts)
 
     def build_interfaces(self, node_template):
-        if 'interfaces' in node_template.entity_tpl:
-            return node_template.entity_tpl['interfaces']
+        if INTERFACES in node_template.entity_tpl:
+            return node_template.entity_tpl[INTERFACES]
         return None
 
     def isNodeTypeX(self, node, nodeTypes, x):
-        node_type = node['nodeType']
+        node_type = node[NODE_TYPE]
         while node_type != x:
             node_type_derived = node_type
-            node_type = nodeTypes[node_type]['derived_from']
-            if node_type == "tosca.nodes.Root" or node_type == node_type_derived:
+            node_type = nodeTypes[node_type][DERIVED_FROM]
+            if node_type == NODE_ROOT or node_type == node_type_derived:
                 return False
         return True
 
@@ -355,7 +361,7 @@ class BaseInfoModel(object):
 
     def getRequirementByNodeName(self, nodeTemplates, storage_name, prop):
         for node in nodeTemplates:
-            if node['name'] == storage_name:
+            if node[NODE_NAME] == storage_name:
                 if prop in node:
                     return node[prop]
 
@@ -371,8 +377,8 @@ class BaseInfoModel(object):
 
     def getRequirementByName(self, node, requirementName):
         requirements = []
-        if 'requirements' in node:
-            for item in node['requirements']:
+        if REQUIREMENTS in node:
+            for item in node[REQUIREMENTS]:
                 for key, value in item.items():
                     if key == requirementName:
                         requirements.append(value)
@@ -410,13 +416,13 @@ class BaseInfoModel(object):
 
     def get_node_by_name(self, node_templates, name):
         for node in node_templates:
-            if node['name'] == name:
+            if node[NODE_NAME] == name:
                 return node
         return None
 
     def getCapabilityByName(self, node, capabilityName):
-        if 'capabilities' in node and capabilityName in node['capabilities']:
-            return node['capabilities'][capabilityName]
+        if CAPABILITIES in node and capabilityName in node[CAPABILITIES]:
+            return node[CAPABILITIES][capabilityName]
         return None
 
     def get_base_path(self, tosca):
@@ -425,22 +431,14 @@ class BaseInfoModel(object):
 
     def build_artifacts(self, node):
         rets = []
-        if 'artifacts' in node and len(node['artifacts']) > 0:
-            artifacts = node['artifacts']
+        if ARTIFACTS in node and len(node[ARTIFACTS]) > 0:
+            artifacts = node[ARTIFACTS]
             for name, value in artifacts.items():
                 ret = {}
+                ret['artifact_name'] = name
+                ret['file'] = value
                 if isinstance(value, dict):
-                    ret['artifact_name'] = name
-                    ret['type'] = value.get('type', '')
-                    ret['file'] = value.get('file', '')
-                    ret['repository'] = value.get('repository', '')
-                    ret['deploy_path'] = value.get('deploy_path', '')
-                else:
-                    ret['artifact_name'] = name
-                    ret['type'] = ''
-                    ret['file'] = value
-                    ret['repository'] = ''
-                    ret['deploy_path'] = ''
+                    ret.update(value)
                 rets.append(ret)
         return rets
 
@@ -449,10 +447,17 @@ class BaseInfoModel(object):
         return self.get_node_by_name(node_templates, req_node_name)
 
     def isGroupTypeX(self, group, groupTypes, x):
-        group_type = group['groupType']
+        group_type = group[GROUP_TYPE]
         while group_type != x:
             group_type_derived = group_type
-            group_type = groupTypes[group_type]['derived_from']
-            if group_type == "tosca.groups.Root" or group_type == group_type_derived:
+            group_type = groupTypes[group_type][DERIVED_FROM]
+            if group_type == GROUPS_ROOT or group_type == group_type_derived:
                 return False
         return True
+
+    def setTargetValues(dict_target, target_keys, dict_source, source_keys):
+        i = 0
+        for item in source_keys:
+            dict_target[target_keys[i]] = dict_source.get(item, "")
+            i += 1
+        return dict_target
