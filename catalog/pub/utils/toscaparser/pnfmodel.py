@@ -24,10 +24,8 @@ class PnfdInfoModel(BaseInfoModel):
         super(PnfdInfoModel, self).__init__(path, params)
 
     def parseModel(self, tosca):
-        self.buidMetadata(tosca)
-        if hasattr(tosca, 'topology_template') and hasattr(tosca.topology_template, 'inputs'):
-            self.inputs = self.buildInputs(tosca.topology_template.inputs)
-
+        self.metadata = self.buidMetadata(tosca)
+        self.inputs = self.buildInputs(tosca)
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
                             tosca.nodetemplates)
         self.basepath = self.get_base_path(tosca)
