@@ -20,7 +20,7 @@ from drf_yasg.utils import no_body, swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from catalog.packages.biz import vnfpackage, nspackage
+from catalog.packages.biz import sdc_vnf_package, sdc_ns_package
 from catalog.packages.serializers.catalog_serializers import InternalErrorRequestSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackageDistributeRequestSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackageSerializer
@@ -59,7 +59,7 @@ def nspackages_rc(request, *args, **kwargs):
 
     if request.method == 'GET':
         # Gets ns package list
-        ret = nspackage.ns_get_csars()
+        ret = sdc_ns_package.ns_get_csars()
         normal_status = status.HTTP_200_OK
 
         if ret[0] == 0:
@@ -77,7 +77,7 @@ def nspackages_rc(request, *args, **kwargs):
 
         csar_id = ignore_case_get(request.data, "csarId")
         logger.debug("csar_id is %s", csar_id)
-        ret = nspackage.ns_on_distribute(csar_id)
+        ret = sdc_ns_package.ns_on_distribute(csar_id)
         normal_status = status.HTTP_202_ACCEPTED
 
     logger.debug("Leave %s, Return value is %s", fun_name(), ret)
@@ -113,7 +113,7 @@ def nfpackages_rc(request, *args, **kwargs):
         request.method)
     ret, normal_status, response_serializer, validation_error = None, None, None, None
     if request.method == 'GET':
-        ret = vnfpackage.nf_get_csars()
+        ret = sdc_vnf_package.nf_get_csars()
         normal_status = status.HTTP_200_OK
         response_serializer = NfPackagesSerializer(data=ret[1])
     elif request.method == 'POST':
@@ -128,7 +128,7 @@ def nfpackages_rc(request, *args, **kwargs):
         vim_ids = ignore_case_get(request_serivalizer.data, "vimIds")
         lab_vim_id = ignore_case_get(request_serivalizer.data, "labVimId")
         job_id = str(uuid.uuid4())
-        vnfpackage.NfDistributeThread(
+        sdc_vnf_package.NfDistributeThread(
             csar_id, vim_ids, lab_vim_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
@@ -189,7 +189,7 @@ def ns_rd_csar(request, *args, **kwargs):
                 fun_name(), request.method, csar_id)
     ret, normal_status, response_serializer, validation_error = None, None, None, None
     if request.method == 'GET':
-        ret = nspackage.ns_get_csar(csar_id)
+        ret = sdc_ns_package.ns_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
         if ret[0] == 0:
             response_serializer = NsPackageSerializer(data=ret[1])
@@ -197,7 +197,7 @@ def ns_rd_csar(request, *args, **kwargs):
             if validation_error:
                 return validation_error
     elif request.method == 'DELETE':
-        ret = nspackage.ns_delete_csar(csar_id)
+        ret = sdc_ns_package.ns_delete_csar(csar_id)
         normal_status = status.HTTP_200_OK
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
@@ -248,13 +248,13 @@ def nf_rd_csar(request, *args, **kwargs):
     ret, normal_status, response_serializer, validation_error = None, None, None, None
 
     if request.method == 'GET':
-        ret = vnfpackage.nf_get_csar(csar_id)
+        ret = sdc_vnf_package.nf_get_csar(csar_id)
         normal_status = status.HTTP_200_OK
         response_serializer = NfPackageSerializer(data=ret[1])
 
     elif request.method == 'DELETE':
         job_id = str(uuid.uuid4())
-        vnfpackage.NfPkgDeleteThread(csar_id, job_id).start()
+        sdc_vnf_package.NfPkgDeleteThread(csar_id, job_id).start()
         ret = [0, {"jobId": job_id}]
         normal_status = status.HTTP_202_ACCEPTED
         response_serializer = PostJobResponseSerializer(data=ret[1])
@@ -290,7 +290,7 @@ def ns_model_parser(request, *args, **kwargs):
         fun_name(),
         csar_id,
         inputs)
-    ret = nspackage.parse_nsd(csar_id, inputs)
+    ret = sdc_ns_package.parse_nsd(csar_id, inputs)
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
@@ -323,7 +323,7 @@ def vnf_model_parser(request, *args, **kwargs):
         fun_name(),
         csar_id,
         inputs)
-    ret = vnfpackage.parse_vnfd(csar_id, inputs)
+    ret = sdc_vnf_package.parse_vnfd(csar_id, inputs)
     logger.info("Leave %s, Return value is %s", fun_name(), ret)
     if ret[0] != 0:
         return Response(
