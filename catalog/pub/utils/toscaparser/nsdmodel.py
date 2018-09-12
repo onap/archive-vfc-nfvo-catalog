@@ -25,16 +25,14 @@ SECTIONS = (NS_TYPE, NS_VNF_TYPE, NS_VL_TYPE, NS_PNF_TYPE, NS_NFP_TYPE, NS_VNFFG
      'tosca.nodes.nfv.NFP',
      'tosca.nodes.nfv.VNFFG')
 
-
 class EtsiNsdInfoModel(BaseInfoModel):
 
     def __init__(self, path, params):
         super(EtsiNsdInfoModel, self).__init__(path, params)
 
     def parseModel(self, tosca):
-        self.buidMetadata(tosca)
-        if hasattr(tosca, 'topology_template') and hasattr(tosca.topology_template, 'inputs'):
-            self.inputs = self.buildInputs(tosca.topology_template.inputs)
+        self.metadata = self.buidMetadata(tosca)
+        self.inputs = self.buildInputs(tosca)
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
         types = tosca.topology_template.custom_defs
         self.basepath = self.get_base_path(tosca)

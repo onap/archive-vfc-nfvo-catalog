@@ -385,7 +385,9 @@ class TestNsPackage(TestCase):
                                         "nsPackageId": "13",
                                         "downloadUrl": "http://127.0.0.1:8806/static/catalog/13/13.csar",
                                         "nsdModel": "",
-                                        "nsdVersion": "2"}},
+                                        "nsdVersion": "2",
+                                        "nsdInvariantId": None
+                                        }},
                        {"csarId": "14",
                         "packageInfo": {"csarName": "14.csar",
                                         "nsdProvider": "3",
@@ -393,7 +395,8 @@ class TestNsPackage(TestCase):
                                         "nsPackageId": "14",
                                         "downloadUrl": "http://127.0.0.1:8806/static/catalog/14/14.csar",
                                         "nsdModel": "",
-                                        "nsdVersion": "3"}}]
+                                        "nsdVersion": "3",
+                                        "nsdInvariantId": None}}]
         self.assertEqual(expect_data, resp.data)
 
     def test_ns_pkg_get_one(self):
@@ -415,7 +418,8 @@ class TestNsPackage(TestCase):
                 "nsdVersion": "4",
                 "csarName": "14.csar",
                 "nsdModel": "",
-                "downloadUrl": "http://127.0.0.1:8806/static/catalog/14/14.csar"}}
+                "downloadUrl": "http://127.0.0.1:8806/static/catalog/14/14.csar",
+                "nsdInvariantId": None}}
         self.assertEqual(expect_data, resp.data)
 
     def test_ns_pkg_get_one_not_found(self):

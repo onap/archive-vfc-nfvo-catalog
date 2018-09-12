@@ -30,6 +30,33 @@ from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 
 logger = logging.getLogger(__name__)
 
+TOSCA_COMMON = (METADATA,
+                PROPERTIES,
+                DESCRIPTION,
+                REQUIREMENTS,
+                INTERFACES) = \
+    ("metadata",
+     "properties",
+     "description",
+     "requirements",
+     "interfaces")  \
+
+NODE_SECTIONS = (NODE_NAME,
+                 NODE_TYPE,
+                 NODE_METADATA,
+                 NODE_PROPERTIES,
+                 NODE_DESCRIPTION,
+                 NODE_REQUIREMENTS,
+                 NODE_INTERFACES) =  \
+    ("name",
+     "nodeType",
+     METADATA,
+     PROPERTIES,
+     DESCRIPTION,
+     REQUIREMENTS,
+     INTERFACES)      \
+
+
 
 class BaseInfoModel(object):
 
@@ -40,15 +67,17 @@ class BaseInfoModel(object):
     def parseModel(self, tosca):
         pass
 
-    def buildInputs(self, top_inputs):
+    def buildInputs(self, tosca):
         ret = {}
-        for tmpinput in top_inputs:
-            tmp = {}
-            tmp['type'] = tmpinput.type
-            tmp['description'] = tmpinput.description
-            tmp['default'] = tmpinput.default
-
-            ret[tmpinput.name] = tmp
+        inputs= tosca.tpl.get('topology_template','').get('inputs','')
+        if inputs != '':
+            ret = inputs
+            # for tmpinput in top_inputs:
+            #    tmp = {}
+            #    tmp[INPUT_TYPE] = tmpinput.type
+            #    tmp[INPUT_DESCRIPTION] = tmpinput.description
+            #    tmp[INPUT_DEFAULT] = tmpinput.default
+            #    ret[tmpinput.name] = tmp
         return ret
 
     def buildToscaTemplate(self, path, params):
@@ -178,33 +207,32 @@ class BaseInfoModel(object):
                 f.close()
 
     def buidMetadata(self, tosca):
-        if 'metadata' in tosca.tpl:
-            self.metadata = copy.deepcopy(tosca.tpl['metadata'])
-            if tosca.tpl['metadata'].get('UUID', ''):
-                self.metadata['id'] = tosca.tpl['metadata']['UUID']
+        return tosca.tpl.get('metadata', {})
+        # if tosca.tpl['metadata'].get('UUID', ''):
+        #    self.metadata['id'] = tosca.tpl['metadata']['UUID']
 
     def buildNode(self, nodeTemplate, tosca):
         inputs = tosca.inputs
         parsed_params = tosca.parsed_params
         ret = {}
-        ret['name'] = nodeTemplate.name
-        ret['nodeType'] = nodeTemplate.type
-        if 'description' in nodeTemplate.entity_tpl:
-            ret['description'] = nodeTemplate.entity_tpl['description']
+        ret[NODE_NAME] = nodeTemplate.name
+        ret[NODE_TYPE] = nodeTemplate.type
+        if NODE_DESCRIPTION in nodeTemplate.entity_tpl:
+            ret[NODE_DESCRIPTION] = nodeTemplate.entity_tpl[NODE_DESCRIPTION]
         else:
-            ret['description'] = ''
-        if 'metadata' in nodeTemplate.entity_tpl:
-            ret['metadata'] = nodeTemplate.entity_tpl['metadata']
+            ret[NODE_DESCRIPTION] = ''
+        if NODE_METADATA in nodeTemplate.entity_tpl:
+            ret[NODE_METADATA] = nodeTemplate.entity_tpl[NODE_METADATA]
         else:
-            ret['metadata'] = ''
+            ret[METADATA] = ''
         props = self.buildProperties_ex(nodeTemplate, tosca.topology_template)
-        ret['properties'] = self.verify_properties(props, inputs, parsed_params)
-        ret['requirements'] = self.build_requirements(nodeTemplate)
+        ret[NODE_PROPERTIES] = self.verify_properties(props, inputs, parsed_params)
+        ret[NODE_REQUIREMENTS] = self.build_requirements(nodeTemplate)
         self.buildCapabilities(nodeTemplate, inputs, ret)
         self.buildArtifacts(nodeTemplate, inputs, ret)
         interfaces = self.build_interfaces(nodeTemplate)
         if interfaces:
-            ret['interfaces'] = interfaces
+            ret[NODE_INTERFACES] = interfaces
         return ret
 
     def buildProperties(self, nodeTemplate, parsed_params):
@@ -456,3 +484,10 @@ class BaseInfoModel(object):
             if group_type == "tosca.groups.Root" or group_type == group_type_derived:
                 return False
         return True
+
+    def setTargetValues(dict_target, target_keys, dict_source, source_keys):
+        i = 0
+        for item in source_keys:
+            dict_target[target_keys[i]] = dict_source.get(item, "")
+            i += 1
+        return dict_target

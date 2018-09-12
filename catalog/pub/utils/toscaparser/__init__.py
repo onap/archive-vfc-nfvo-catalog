@@ -17,24 +17,35 @@ import json
 from catalog.pub.utils.toscaparser.nsdmodel import EtsiNsdInfoModel
 from catalog.pub.utils.toscaparser.vnfdmodel import EtsiVnfdInfoModel
 from catalog.pub.utils.toscaparser.pnfmodel import PnfdInfoModel
+from catalog.pub.utils.toscaparser.servicemodel import SdcServiceModel
 
 
-def parse_nsd(path, input_parameters=[]):
-    tosca_obj = EtsiNsdInfoModel(path, input_parameters)
+def parse_nsd(path, input_parameters=[], isETSI=True):
+    if isETSI:
+        tosca_obj = EtsiNsdInfoModel(path, input_parameters)
+    else:
+        tosca_obj = SdcServiceModel(path, input_parameters)
+
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')
     return strResponse
 
-
-def parse_vnfd(path, input_parameters=[]):
-    tosca_obj = EtsiVnfdInfoModel(path, input_parameters)
+def parse_vnfd(path, input_parameters=[], isETSI=True):
+    if isETSI:
+        tosca_obj = EtsiVnfdInfoModel(path, input_parameters)
+    else:
+        # SDC VF Model TBD
+        tosca_obj = {}
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')
     return strResponse
 
-
-def parse_pnfd(path, input_parameters=[]):
-    tosca_obj = PnfdInfoModel(path, input_parameters)
+def parse_pnfd(path, input_parameters=[], isETSI=True):
+    if isETSI:
+        tosca_obj = PnfdInfoModel(path, input_parameters)
+    else:
+        # SDC PNF Model TBD
+        tosca_obj = {}
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')
     return strResponse
