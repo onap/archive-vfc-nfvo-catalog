@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_0d0c203a",
+        "filename": "catalog/packages/biz/ns_descriptor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 141
+      },
+      "writtenOn": "2018-09-13T11:21:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a76adc5_caccce8b",
+      "range": {
+        "startLine": 44,
+        "startChar": 12,
+        "endLine": 44,
+        "endChar": 35
+      },
+      "revId": "ec43470be0be9d0806938192893df9d310477223",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_4ac19e52",
         "filename": "catalog/packages/biz/sdc_ns_package.py",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_ed08c429",
+        "filename": "catalog/packages/biz/sdc_ns_package.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 141
+      },
+      "writtenOn": "2018-09-13T11:21:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a76adc5_4ac19e52",
+      "range": {
+        "startLine": 136,
+        "startChar": 8,
+        "endLine": 136,
+        "endChar": 24
+      },
+      "revId": "ec43470be0be9d0806938192893df9d310477223",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_f734134b",
         "filename": "catalog/pub/utils/toscaparser/basemodel.py",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2018-09-13T08:54:52Z",
       "side": 1,
       "message": "typo here. Should be buildMetadata",
+      "range": {
+        "startLine": 208,
+        "startChar": 8,
+        "endLine": 208,
+        "endChar": 12
+      },
+      "revId": "ec43470be0be9d0806938192893df9d310477223",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_6d1cb46a",
+        "filename": "catalog/pub/utils/toscaparser/basemodel.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 141
+      },
+      "writtenOn": "2018-09-13T11:21:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a76adc5_f734134b",
       "range": {
         "startLine": 208,
         "startChar": 8,
