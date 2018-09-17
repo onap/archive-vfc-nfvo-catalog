@@ -31,23 +31,6 @@ class TestToscaparser(TestCase):
     def tearDown(self):
         pass
 
-    def test_nsd_parse(self):
-        self.remove_temp_dir()
-        ran_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/ns/ran.csar"
-        nsd_json = parse_nsd(ran_csar)
-        metadata = json.loads(nsd_json).get("metadata")
-        self.assertEqual("RAN-NS", metadata.get("template_name", ""))
-
-        pnf_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/pnf/ran-du.csar"
-        nsd_json = parse_nsd(pnf_csar)
-        metadata = json.loads(nsd_json).get("metadata")
-        self.assertNotEqual("RAN-NS", metadata.get("template_name", ""))
-
-        pnf_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf/vgw.csar"
-        nsd_json = parse_nsd(pnf_csar)
-        metadata = json.loads(nsd_json).get("metadata")
-        self.assertNotEqual("RAN-NS", metadata.get("template_name", ""))
-
     def test_vnf_parse(self):
         self.remove_temp_dir()
         csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf"
@@ -67,6 +50,23 @@ class TestToscaparser(TestCase):
         pnfd_json = parse_pnfd(csar_path)
         metadata = json.loads(pnfd_json).get("metadata")
         self.assertEqual("RAN_DU", metadata.get("template_name", ""))
+
+    def test_nsd_parse(self):
+        self.remove_temp_dir()
+        pnf_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/pnf/ran-du.csar"
+        nsd_json = parse_nsd(pnf_csar)
+        metadata = json.loads(nsd_json).get("metadata")
+        self.assertNotEqual("RAN-NS", metadata.get("template_name", ""))
+
+        pnf_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf/vgw.csar"
+        nsd_json = parse_nsd(pnf_csar)
+        metadata = json.loads(nsd_json).get("metadata")
+        self.assertNotEqual("RAN-NS", metadata.get("template_name", ""))
+
+        ran_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/ns/ran.csar"
+        nsd_json = parse_nsd(ran_csar)
+        metadata = json.loads(nsd_json).get("metadata")
+        self.assertEqual("RAN-NS", metadata.get("template_name", ""))
 
     def remove_temp_dir(self):
         tempdir = tempfile.gettempdir()
