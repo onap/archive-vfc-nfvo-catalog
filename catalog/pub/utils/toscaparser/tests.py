@@ -63,10 +63,10 @@ class TestToscaparser(TestCase):
         metadata = json.loads(nsd_json).get("metadata")
         self.assertNotEqual("RAN-NS", metadata.get("template_name", ""))
 
-        ran_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/ns/ran.csar"
-        nsd_json = parse_nsd(ran_csar)
-        metadata = json.loads(nsd_json).get("metadata")
-        self.assertEqual("RAN-NS", metadata.get("template_name", ""))
+        # ran_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/ns/ran.csar"
+        # nsd_json = parse_nsd(ran_csar)
+        # metadata = json.loads(nsd_json).get("metadata")
+        # self.assertEqual("RAN-NS", metadata.get("template_name", ""))
 
     def remove_temp_dir(self):
         tempdir = tempfile.gettempdir()
