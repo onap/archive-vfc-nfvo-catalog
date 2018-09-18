@@ -91,7 +91,9 @@ class TestNsDescriptor(TestCase):
             copy.deepcopy(self.expected_nsd_info)
         ]
         expected_reponse_data[0]['id'] = '0'
+        expected_reponse_data[0]['nsdId'] = '0'
         expected_reponse_data[1]['id'] = '1'
+        expected_reponse_data[1]['nsdId'] = '1'
 
         user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
         for i in range(2):
@@ -100,10 +102,20 @@ class TestNsDescriptor(TestCase):
                 onboardingState='CREATED',
                 operationalState='DISABLED',
                 usageState='NOT_IN_USE',
-                userDefinedData=user_defined_data
+                userDefinedData=user_defined_data,
+                nsdId=str(i)
             ).save()
 
         response = self.client.get('/api/nsd/v1/ns_descriptors', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(expected_reponse_data, response.data)
+
+        expected_reponse_data = [
+            copy.deepcopy(self.expected_nsd_info)
+        ]
+        expected_reponse_data[0]['id'] = '1'
+        expected_reponse_data[0]['nsdId'] = '1'
+        response = self.client.get('/api/nsd/v1/ns_descriptors?nsdId=1', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(expected_reponse_data, response.data)
 

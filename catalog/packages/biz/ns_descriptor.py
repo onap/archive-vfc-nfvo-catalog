@@ -58,8 +58,11 @@ class NsDescriptor(object):
         logger.info('A NSD(%s) has been created.' % data['id'])
         return data
 
-    def query_multiple(self):
-        ns_pkgs = NSPackageModel.objects.all()
+    def query_multiple(self, nsdId=None):
+        if nsdId:
+            ns_pkgs = NSPackageModel.objects.filter(nsdId=nsdId)
+        else:
+            ns_pkgs = NSPackageModel.objects.all()
         response_data = []
         for ns_pkg in ns_pkgs:
             data = self.fill_resp_data(ns_pkg)

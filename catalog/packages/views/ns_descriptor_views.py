@@ -114,7 +114,8 @@ def ns_descriptors_rc(request):
 
     if request.method == 'GET':
         try:
-            data = NsDescriptor().query_multiple()
+            nsdId = request.query_params.get("nsdId", None)
+            data = NsDescriptor().query_multiple(nsdId)
             nsd_infos = validate_data(data, NsdInfosSerializer)
             return Response(data=nsd_infos.data, status=status.HTTP_200_OK)
         except Exception as e:
