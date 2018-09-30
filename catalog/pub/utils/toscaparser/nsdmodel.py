@@ -15,6 +15,7 @@
 import functools
 import logging
 from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
+
 logger = logging.getLogger(__name__)
 
 SECTIONS = (NS_TYPE, NS_VNF_TYPE, NS_VL_TYPE, NS_PNF_TYPE, NS_NFP_TYPE, NS_VNFFG_TYPE) = \
@@ -24,6 +25,8 @@ SECTIONS = (NS_TYPE, NS_VNF_TYPE, NS_VL_TYPE, NS_PNF_TYPE, NS_NFP_TYPE, NS_VNFFG
      'tosca.nodes.nfv.PNF',
      'tosca.nodes.nfv.NFP',
      'tosca.nodes.nfv.VNFFG')
+
+NFV_NS_RELATIONSHIPS = [["tosca.relationships.nfv.VirtualLinksTo", "tosca.relationships.DependsOn"], []]
 
 
 class EtsiNsdInfoModel(BaseInfoModel):
@@ -44,6 +47,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
         self.vnffgs = self._get_all_vnffg(tosca.topology_template.groups, types)
         self.ns_exposed = self._get_all_endpoint_exposed(tosca.topology_template)
         self.nested_ns = self._get_all_nested_ns(nodeTemplates, types)
+        self.graph = self.get_deploy_graph(tosca, NFV_NS_RELATIONSHIPS)
 
     def _get_all_vnf(self, nodeTemplates, node_types):
         vnfs = []
@@ -159,7 +163,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
                 ns['ns_id'] = node['name']
                 ns['description'] = node['description']
                 ns['properties'] = node['properties']
-                ns['networks'] = self._get_networks(node)
+                ns['networks'] = self._get_networks(node, node_types)
                 nss.append(ns)
         return nss
 

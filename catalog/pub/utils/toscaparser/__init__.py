@@ -25,7 +25,6 @@ def parse_nsd(path, input_parameters=[], isETSI=True):
         tosca_obj = EtsiNsdInfoModel(path, input_parameters)
     else:
         tosca_obj = SdcServiceModel(path, input_parameters)
-
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')
     return strResponse
@@ -35,7 +34,6 @@ def parse_vnfd(path, input_parameters=[], isETSI=True):
     if isETSI:
         tosca_obj = EtsiVnfdInfoModel(path, input_parameters)
     else:
-        # SDC VF Model TBD
         tosca_obj = {}
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')
@@ -46,7 +44,6 @@ def parse_pnfd(path, input_parameters=[], isETSI=True):
     if isETSI:
         tosca_obj = PnfdInfoModel(path, input_parameters)
     else:
-        # SDC PNF Model TBD
         tosca_obj = {}
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')

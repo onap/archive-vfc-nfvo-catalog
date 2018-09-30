@@ -24,6 +24,7 @@ import paramiko
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.properties import Property
 from toscaparser.functions import Function, Concat, GetInput, get_function, function_mappings
+from catalog.pub.utils.toscaparser.graph import Graph
 
 from catalog.pub.utils.toscaparser.dataentityext import DataEntityExt
 
@@ -58,7 +59,8 @@ class BaseInfoModel(object):
         pass
 
     def buildInputs(self, tosca):
-        return tosca.tpl.get(TOPOLOGY_TEMPLATE, '').get(INPUTS, {})
+        topo = tosca.tpl.get(TOPOLOGY_TEMPLATE, None)
+        return topo.get(INPUTS, {}) if topo else {}
 
     def buildToscaTemplate(self, path, params):
         file_name = None
@@ -455,9 +457,37 @@ class BaseInfoModel(object):
                 return False
         return True
 
-    def setTargetValues(dict_target, target_keys, dict_source, source_keys):
+    def setTargetValues(self, dict_target, target_keys, dict_source, source_keys):
         i = 0
         for item in source_keys:
             dict_target[target_keys[i]] = dict_source.get(item, "")
             i += 1
         return dict_target
+
+    def get_deploy_graph(self, tosca, relations):
+        nodes = tosca.graph.nodetemplates
+        graph = Graph()
+        for node in nodes:
+            self._build_deploy_path(node, [], graph, relations)
+        return graph.to_dict()
+
+    def _build_deploy_path(self, node, node_parent, graph, relations):
+        graph.add_node(node.name, node_parent)
+        type_require_set = {}
+        type_requires = node.type_definition.requirements
+        for type_require in type_requires:
+            type_require_set.update(type_require)
+        for requirement in node.requirements:
+            for k in requirement.keys():
+                if type_require_set[k].get('relationship', None) in relations[0] or type_require_set[k].get('capability', None) in relations[0]:
+                    if isinstance(requirement[k], dict):
+                        next_node = requirement[k].get('node', None)
+                    else:
+                        next_node = requirement[k]
+                    graph.add_node(next_node, [node.name])
+                if type_require_set[k].get('relationship', None) in relations[1]:
+                    if isinstance(requirement[k], dict):
+                        next_node = requirement[k].get('node', None)
+                    else:
+                        next_node = requirement[k]
+                    graph.add_node(next_node, [node.name])
