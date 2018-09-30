@@ -21,6 +21,9 @@ logger = logging.getLogger(__name__)
 SECTIONS = (VDU_COMPUTE_TYPE, VNF_VL_TYPE, VDU_CP_TYPE, VDU_STORAGE_TYPE) = \
            ('tosca.nodes.nfv.Vdu.Compute', 'tosca.nodes.nfv.VnfVirtualLink', 'tosca.nodes.nfv.VduCp', 'tosca.nodes.nfv.Vdu.VirtualStorage')
 
+NFV_VNF_RELATIONSHIPS = [["tosca.relationships.nfv.VirtualLinksTo", "tosca.relationships.nfv.VduAttachesTo", "tosca.relationships.nfv.AttachesTo", "tosca.relationships.nfv.Vdu.AttachedTo", "tosca.relationships.DependsOn"],
+                         ["tosca.nodes.relationships.VirtualBindsTo", "tosca.relationships.nfv.VirtualBindsTo"]]
+
 
 class EtsiVnfdInfoModel(BaseInfoModel):
 
@@ -39,6 +42,7 @@ class EtsiVnfdInfoModel(BaseInfoModel):
         self.vls = self._get_all_vl(nodeTemplates, node_types)
         self.cps = self._get_all_cp(nodeTemplates, node_types)
         self.vnf_exposed = self._get_all_endpoint_exposed(tosca.topology_template)
+        self.graph = self.get_deploy_graph(tosca, NFV_VNF_RELATIONSHIPS)
 
     def _get_all_volume_storage(self, nodeTemplates, node_types):
         rets = []

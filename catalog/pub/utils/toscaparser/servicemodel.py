@@ -40,6 +40,8 @@ SDC_PNF_METADATA_SECTIONS = (SDC_PNF_UUID, SDC_PNF_INVARIANTUUID, SDC_PNF_NAME, 
 SDC_PNF_SECTIONS = (SDC_PNF_ID, SDC_PNF_METADATA, SDC_PNF_PROPERTIES, SDC_PNF_DESCRIPTION) = \
     ("name", "metadata", "properties", "description")
 
+SERVICE_RELATIONSHIPS = [["tosca.relationships.network.LinksTo", "tosca.relationships.nfv.VirtualLinksTo", "tosca.capabilities.nfv.VirtualLinkable", "tosca.relationships.DependsOn"], []]
+
 
 class SdcServiceModel(BaseInfoModel):
 
@@ -49,12 +51,14 @@ class SdcServiceModel(BaseInfoModel):
     def parseModel(self, tosca):
         self.metadata = self._buildServiceMetadata(tosca)
         self.inputs = self.buildInputs(tosca)
-        nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
-        types = tosca.topology_template.custom_defs
-        self.basepath = self.get_base_path(tosca)
-        self.vnfs = self._get_all_vnf(nodeTemplates, types)
-        self.pnfs = self._get_all_pnf(nodeTemplates, types)
-        self.vls = self._get_all_vl(nodeTemplates, types)
+        if hasattr(tosca, 'nodetemplates'):
+            nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
+            types = tosca.topology_template.custom_defs
+            self.basepath = self.get_base_path(tosca)
+            self.vnfs = self._get_all_vnf(nodeTemplates, types)
+            self.pnfs = self._get_all_pnf(nodeTemplates, types)
+            self.vls = self._get_all_vl(nodeTemplates, types)
+            self.graph = self.get_deploy_graph(tosca, SERVICE_RELATIONSHIPS)
 
     def _buildServiceMetadata(self, tosca):
         """ SDC service Meta Format
@@ -71,7 +75,8 @@ class SdcServiceModel(BaseInfoModel):
          namingPolicy: ''
         """
         metadata_temp = self.buildMetadata(tosca)
-        self.setTargetValues(self.metadata, NS_METADATA_SECTIONS, metadata_temp, SDC_SERVICE_METADATA_SECTIONS)
+        metadata = {}
+        return self.setTargetValues(metadata, NS_METADATA_SECTIONS, metadata_temp, SDC_SERVICE_METADATA_SECTIONS)
 
     def _get_all_vnf(self, nodeTemplates, node_types):
         """  SDC Resource Metadata
