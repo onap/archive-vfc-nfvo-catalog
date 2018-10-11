@@ -98,8 +98,10 @@ class SdcServiceModel(BaseInfoModel):
             if self.isNodeTypeX(node, node_types, VF_TYPE):
                 vnf = {}
                 self.setTargetValues(vnf, VNF_SECTIONS, node, SDC_VF_SECTIONS)
-                if node['metadata']:
-                    vnf['properties']['id'] = node['metadata'].get('UUID', 'undefined')
+                if not vnf['properties'].get('id', None):
+                    vnf['properties']['id'] = vnf['properties'].get('descriptor_id', None)
+                if not vnf['properties'].get('id', None) and node['metadata']:
+                    vnf['properties']['id'] = node['metadata'].get('UUID', None)
                 vnf['dependencies'] = self._get_networks(node, node_types)
                 vnf['networks'] = self._get_networks(node, node_types)
                 vnfs.append(vnf)
