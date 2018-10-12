@@ -27,7 +27,5 @@ urlpatterns = [
 if REG_TO_MSB_WHEN_START:
     import json
     from catalog.pub.utils.restcall import req_by_msb
-    req_by_msb(
-        REG_TO_MSB_REG_URL,
-        "POST",
-        json.JSONEncoder().encode(REG_TO_MSB_REG_PARAM))
+    for reg_param in REG_TO_MSB_REG_PARAM:
+        req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(reg_param))

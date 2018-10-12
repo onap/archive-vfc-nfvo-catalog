@@ -36,7 +36,7 @@ FORWARDED_FOR_FIELDS = ["HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED_HOST",
 # [register]
 REG_TO_MSB_WHEN_START = True
 REG_TO_MSB_REG_URL = "/api/microservices/v1/services"
-REG_TO_MSB_REG_PARAM = {
+REG_TO_MSB_REG_PARAM = [{
     "serviceName": "catalog",
     "version": "v1",
     "url": "/api/catalog/v1",
@@ -47,7 +47,29 @@ REG_TO_MSB_REG_PARAM = {
         "port": "8806",
         "ttl": 0
     }]
-}
+}, {
+    "serviceName": "nsd",
+    "version": "v1",
+    "url": "/api/nsd/v1",
+    "protocol": "REST",
+    "visualRange": "1",
+    "nodes": [{
+        "ip": "127.0.0.1",
+        "port": "8806",
+        "ttl": 0
+    }]
+}, {
+    "serviceName": "vnfpkgm",
+    "version": "v1",
+    "url": "/api/vnfpkgm/v1",
+    "protocol": "REST",
+    "visualRange": "1",
+    "nodes": [{
+        "ip": "127.0.0.1",
+        "port": "8806",
+        "ttl": 0
+    }]
+}]
 
 # catalog path(values is defined in settings.py)
 CATALOG_ROOT_PATH = None
