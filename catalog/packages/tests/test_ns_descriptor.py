@@ -80,11 +80,6 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(expected_reponse_data, response.data)
 
-    def test_nsd_create_failed(self):
-        reqest_data = {'username': "111"}
-        response = self.client.post('/api/nsd/v1/ns_descriptors', data=reqest_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     def test_query_multiple_nsds_normal(self):
         expected_reponse_data = [
             copy.deepcopy(self.expected_nsd_info),

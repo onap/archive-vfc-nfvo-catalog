@@ -39,7 +39,7 @@ class NsDescriptor(object):
 
     def create(self, data, id=None):
         logger.info('Start to create a NSD...')
-        user_defined_data = ignore_case_get(data, 'userDefinedData')
+        user_defined_data = ignore_case_get(data, 'userDefinedData', {})
         data = {
             'id': id if id else str(uuid.uuid4()),
             'nsdOnboardingState': PKG_STATUS.CREATED,

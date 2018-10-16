@@ -36,7 +36,7 @@ class PnfDescriptor(object):
 
     def create(self, data):
         logger.info('Start to create a PNFD...')
-        user_defined_data = ignore_case_get(data, 'userDefinedData')
+        user_defined_data = ignore_case_get(data, 'userDefinedData', {})
         data = {
             'id': str(uuid.uuid4()),
             'pnfdOnboardingState': PKG_STATUS.CREATED,

@@ -75,11 +75,6 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(expected_reponse_data, response.data)
 
-    def test_pnfd_create_failed(self):
-        request_data = {'username': "111"}
-        response = self.client.post('/api/nsd/v1/pnf_descriptors', data=request_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     def test_query_multiple_pnfds_normal(self):
         expected_reponse_data = [
             copy.deepcopy(self.expected_pnfd_info),
