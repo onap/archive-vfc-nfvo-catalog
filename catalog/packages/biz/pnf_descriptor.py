@@ -96,6 +96,8 @@ class PnfDescriptor(object):
             nsd_model = None
             if ns_pkg.nsdModel:
                 nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
+            if not nsd_model:
+                continue
             pnf_info_ids = []
             for pnf in nsd_model['pnfs']:
                 pnfd_id = pnf["properties"]["id"]
