@@ -48,7 +48,7 @@ class PnfDescriptor(object):
             pnfPackageId=data['id'],
             onboardingState=data['pnfdOnboardingState'],
             usageState=data['pnfdUsageState'],
-            userDefinedData=data['userDefinedData']
+            userDefinedData=json.dumps(user_defined_data)
         )
         logger.info('A PNFD(%s) has been created.' % data['id'])
         return data
