@@ -46,7 +46,7 @@ class VnfPackage(object):
             onboardingState=PKG_STATUS.CREATED,
             operationalState=PKG_STATUS.DISABLED,
             usageState=PKG_STATUS.NOT_IN_USE,
-            userDefinedData=user_defined_data
+            userDefinedData=json.dumps(user_defined_data)
         )
         data = {
             "id": vnf_pkg_id,
