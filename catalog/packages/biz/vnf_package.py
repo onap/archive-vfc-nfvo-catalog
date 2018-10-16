@@ -39,7 +39,7 @@ class VnfPackage(object):
         pass
 
     def create_vnf_pkg(self, data):
-        user_defined_data = ignore_case_get(data, "userDefinedData")
+        user_defined_data = ignore_case_get(data, "userDefinedData", {})
         vnf_pkg_id = str(uuid.uuid4())
         VnfPackageModel.objects.create(
             vnfPackageId=vnf_pkg_id,
