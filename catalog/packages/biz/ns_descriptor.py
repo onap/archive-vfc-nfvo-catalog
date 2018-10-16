@@ -53,7 +53,7 @@ class NsDescriptor(object):
             onboardingState=data['nsdOnboardingState'],
             operationalState=data['nsdOperationalState'],
             usageState=data['nsdUsageState'],
-            userDefinedData=data['userDefinedData']
+            userDefinedData=json.dumps(user_defined_data)
         )
         logger.info('A NSD(%s) has been created.' % data['id'])
         return data
