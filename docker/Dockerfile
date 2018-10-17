@@ -33,7 +33,8 @@ RUN wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifa
     rm -rf vfc-nfvo-catalog.zip
 
 WORKDIR /service/vfc/nfvo/catalog
-RUN pip install --pre -r requirements.txt
+RUN pip install --upgrade setuptools pip && \
+    pip install --pre -r requirements.txt
 
 EXPOSE 8806
 
