@@ -91,6 +91,7 @@ class PnfDescriptor(object):
             logger.info('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
             raise CatalogException('PNFD(%s) shall be NOT_IN_USE.' % pnfd_info_id)
         '''
+        del_pnfd_id = pnf_pkgs[0].pnfdId
         ns_pkgs = NSPackageModel.objects.all()
         for ns_pkg in ns_pkgs:
             nsd_model = None
@@ -98,16 +99,11 @@ class PnfDescriptor(object):
                 nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
             if not nsd_model:
                 continue
-            pnf_info_ids = []
             for pnf in nsd_model['pnfs']:
-                pnfd_id = pnf["properties"]["id"]
-                pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
-                for pkg in pkgs:
-                    pnf_info_ids.append(pkg.pnfPackageId)
-            if pnfd_info_id in pnf_info_ids:
-                logger.info('PNFD(%s) is referenced.' % pnfd_info_id)
-                raise CatalogException('PNFD(%s) is referenced.' % pnfd_info_id)
-
+                if del_pnfd_id == pnf["properties"]["id"]:
+                    logger.warn("PNFD(%s) is referenced in NSD", del_pnfd_id)
+                    raise CatalogException('PNFD(%s) is referenced.' % pnfd_info_id)
+                
         pnf_pkgs.delete()
         pnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, pnfd_info_id)
         fileutil.delete_dirs(pnf_pkg_path)
