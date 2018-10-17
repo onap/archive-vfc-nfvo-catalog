@@ -23,7 +23,7 @@ import uuid
 
 from catalog.packages.biz.common import parse_file_range, read, save
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.database.models import VnfPackageModel
+from catalog.pub.database.models import VnfPackageModel, NSPackageModel
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
 from catalog.pub.utils.values import ignore_case_get
 from catalog.pub.utils import fileutil, toscaparser
@@ -84,6 +84,17 @@ class VnfPackage(object):
         if vnf_pkg[0].usageState != PKG_STATUS.NOT_IN_USE:
             raise CatalogException("The VNF package (%s) is in use" % vnf_pkg_id)
         '''
+        del_vnfd_id = vnf_pkg[0].vnfdId
+        ns_pkgs = NSPackageModel.objects.all()
+        for ns_pkg in ns_pkgs:
+            nsd_model = None
+            if ns_pkg.nsdModel:
+                nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
+            if not nsd_model:
+                continue
+            for vnf in nsd_model['vnfs']:
+                if del_vnfd_id == vnf["properties"]["id"]:
+                    raise CatalogException('VNFD(%s) is referenced.' % del_vnfd_id)
         vnf_pkg.delete()
         vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnf_pkg_id)
         fileutil.delete_dirs(vnf_pkg_path)
