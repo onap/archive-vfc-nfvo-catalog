@@ -73,31 +73,59 @@ class NsPackageDistributeResponseSerializer(serializers.Serializer):
 
 
 class NsPackageInfoSerializer(serializers.Serializer):
-    nsdId = serializers.CharField(help_text="NSD ID", required=True)
+    nsdId = serializers.CharField(
+        help_text="NSD ID",
+        required=False,
+        allow_null=True
+    )
     nsPackageId = serializers.CharField(
-        help_text="NS Package ID", allow_blank=True, required=True)
+        help_text="NS Package ID",
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
     nsdProvider = serializers.CharField(
-        help_text="NSD Provider", allow_blank=True, required=True)
+        help_text="NSD Provider",
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
     nsdVersion = serializers.CharField(
         help_text="NSD Version",
         allow_blank=True,
-        required=True)
+        required=False,
+        allow_null=True
+    )
     csarName = serializers.CharField(
         help_text="CSAR name",
         allow_blank=True,
-        required=True)
+        required=False,
+        allow_null=True
+    )
     nsdModel = serializers.CharField(
         help_text="NSD Model",
         allow_blank=True,
-        required=True)
+        required=False,
+        allow_null=True
+    )
     downloadUrl = serializers.CharField(
-        help_text="URL to download NSD Model", required=True)
+        help_text="URL to download NSD Model",
+        required=False,
+        allow_null=True
+    )
 
 
 class NsPackageSerializer(serializers.Serializer):
-    csarId = serializers.CharField(help_text="CSAR ID", required=True)
+    csarId = serializers.CharField(
+        help_text="CSAR ID",
+        required=False,
+        allow_null=True
+    )
     packageInfo = NsPackageInfoSerializer(
-        help_text="NS Package Info", required=True)
+        help_text="NS Package Info",
+        required=False,
+        allow_null=True
+    )
 
 
 class NsPackagesSerializer(serializers.ListSerializer):
