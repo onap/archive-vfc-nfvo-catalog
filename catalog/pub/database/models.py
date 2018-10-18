@@ -78,6 +78,7 @@ class PnfPackageModel(models.Model):
     userDefinedData = models.TextField(db_column='USERDEFINEDDATA', max_length=1024, blank=True, null=True)  # userDefinedData
     localFilePath = models.CharField(db_column='LOCALFILEPATH', max_length=300, null=True, blank=True)
     pnfdModel = models.TextField(db_column='PNFDMODEL', max_length=65535, blank=True, null=True)  # pnfd
+    pnfdName = models.TextField(db_column='PNFDNAME', max_length=65535, blank=True, null=True)  # pnfd_name
 
     class Meta:
         db_table = 'CATALOG_PNFPACKAGE'

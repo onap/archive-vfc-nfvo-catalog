@@ -130,16 +130,50 @@ class PnfDescriptor(object):
         pnfd_json = toscaparser.parse_pnfd(local_file_name)
         pnfd = json.JSONDecoder().decode(pnfd_json)
 
-        pnfd_id = pnfd["metadata"].get("id", '')
-        if not pnfd_id:
-            raise CatalogException("PNFDID(metadata.id) of PNF(%s) does not exist." % pnfd_info_id)
+        logger.debug("pnfd_json is %s" % pnfd_json)
+        pnfd_id = ""
+        pnfdVersion = ""
+        pnfdProvider = ""
+        pnfdName = ""
+        if pnfd.get("pnf", "") != "":
+            if pnfd["pnf"].get("properties", "") != "":
+                pnfd_id = pnfd["pnf"].get("properties", "").get("descriptor_id", "")
+                pnfdVersion = pnfd["pnf"].get("properties", "").get("version", "")
+                pnfdProvider = pnfd["pnf"].get("properties", "").get("provider", "")
+                pnfdName = pnfd["pnf"].get("properties", "").get("name", "")
+        if pnfd_id == "":
+            pnfd_id = pnfd["metadata"].get("descriptor_id", "")
+            if pnfd_id == "":
+                pnfd_id = pnfd["metadata"].get("id", "")
+            if pnfd_id == "":
+                pnfd_id = pnfd["metadata"].get("UUID", "")
+            if pnfd_id == "":
+                raise CatalogException('pnfd_id is Null.')
+
+        if pnfdVersion == "":
+            pnfdVersion = pnfd["metadata"].get("template_version", "")
+            if pnfdVersion == "":
+                pnfdVersion = pnfd["metadata"].get("version", "")
+
+        if pnfdProvider == "":
+            pnfdProvider = pnfd["metadata"].get("template_author", "")
+            if pnfdVersion == "":
+                pnfdVersion = pnfd["metadata"].get("provider", "")
+
+        if pnfdName == "":
+            pnfdName = pnfd["metadata"].get("template_name", "")
+            if pnfdVersion == "":
+                pnfdName = pnfd["metadata"].get("name", "")
+
         if pnfd_id and PnfPackageModel.objects.filter(pnfdId=pnfd_id):
             logger.info('PNFD(%s) already exists.' % pnfd_id)
             raise CatalogException("PNFD(%s) already exists." % pnfd_id)
 
         pnf_pkgs.update(
             pnfdId=pnfd_id,
-            pnfdVersion=pnfd["metadata"].get("version", "undefined"),
+            pnfdName=pnfdName,
+            pnfdVersion=pnfdVersion,
+            pnfVendor=pnfdProvider,
             pnfPackageUri=local_file_name,
             onboardingState=PKG_STATUS.ONBOARDED,
             usageState=PKG_STATUS.NOT_IN_USE,
