@@ -130,7 +130,9 @@ class PnfDescriptor(object):
         pnfd_json = toscaparser.parse_pnfd(local_file_name)
         pnfd = json.JSONDecoder().decode(pnfd_json)
 
-        pnfd_id = pnfd["metadata"]["id"]
+        pnfd_id = pnfd["metadata"].get("id", '')
+        if not pnfd_id:
+            raise CatalogException("PNFDID(metadata.id) of PNF(%s) does not exist." % pnfd_info_id)
         if pnfd_id and PnfPackageModel.objects.filter(pnfdId=pnfd_id):
             logger.info('PNFD(%s) already exists.' % pnfd_id)
             raise CatalogException("PNFD(%s) already exists." % pnfd_id)

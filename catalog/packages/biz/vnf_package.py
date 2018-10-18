@@ -194,7 +194,9 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
     vnfd_json = toscaparser.parse_vnfd(vnf_pkg_path)
     vnfd = json.JSONDecoder().decode(vnfd_json)
 
-    vnfd_id = vnfd["metadata"]["id"]
+    vnfd_id = vnfd["metadata"].get("id", '')
+    if not vnfd_id:
+        raise CatalogException("VNFDID(metadata.id) of VNF(%s) does not exist." % vnf_pkg_id)
     if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
         logger.error("VNF package(%s) already exists." % vnfd_id)
         raise CatalogException("VNF package(%s) already exists." % vnfd_id)
