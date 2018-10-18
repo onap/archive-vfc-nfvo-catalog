@@ -186,9 +186,9 @@ class PnfDescriptor(object):
         data = {
             'id': pnf_pkg.pnfPackageId,
             'pnfdId': pnf_pkg.pnfdId,
-            'pnfdName': pnf_pkg.pnfdProductName,  # TODO: check
+            'pnfdName': pnf_pkg.pnfdName,
             'pnfdVersion': pnf_pkg.pnfdVersion,
-            'pnfdProvider': pnf_pkg.pnfVendor,  # TODO: check
+            'pnfdProvider': pnf_pkg.pnfVendor,
             'pnfdInvariantId': None,  # TODO
             'pnfdOnboardingState': pnf_pkg.onboardingState,
             'onboardingFailureDetails': None,  # TODO
