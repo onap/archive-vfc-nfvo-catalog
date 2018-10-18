@@ -62,7 +62,7 @@ class EtsiVnfdInfoModel(BaseInfoModel):
         rets = []
         inject_files = []
         for node in nodeTemplates:
-            logger.error("nodeTemplates :%s", node)
+            logger.debug("nodeTemplates :%s", node)
             if self.isNodeTypeX(node, node_types, VDU_COMPUTE_TYPE):
                 ret = {}
                 ret['vdu_id'] = node['name']
@@ -72,13 +72,22 @@ class EtsiVnfdInfoModel(BaseInfoModel):
                 ret['properties'] = node['properties']
                 if 'inject_files' in node['properties']:
                     inject_files = node['properties']['inject_files']
-                if inject_files is not None:
+                if isinstance(inject_files, list):
                     for inject_file in inject_files:
                         source_path = os.path.join(self.basepath, inject_file['source_path'])
                         with open(source_path, "rb") as f:
                             source_data = f.read()
                             source_data_base64 = source_data.encode("base64")
                             inject_file["source_data_base64"] = source_data_base64
+                elif isinstance(inject_files, dict):
+                    source_path = os.path.join(self.basepath, inject_files['source_path'])
+                    with open(source_path, "rb") as f:
+                        source_data = f.read()
+                        source_data_base64 = source_data.encode("base64")
+                        inject_files["source_data_base64"] = source_data_base64
+                else:
+                    logger.warn("inject_files %s format is not right.", inject_files)
+
                 virtual_storages = self.getRequirementByName(node, 'virtual_storage')
                 ret['virtual_storages'] = map(functools.partial(self._trans_virtual_storage), virtual_storages)
                 ret['dependencies'] = map(lambda x: self.get_requirement_node_name(x), self.getNodeDependencys(node))
