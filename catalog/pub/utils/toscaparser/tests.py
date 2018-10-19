@@ -34,15 +34,24 @@ class TestToscaparser(TestCase):
 
     def test_vnfd_parse(self):
         self.remove_temp_dir()
-        csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf"
         input_parameters = [{"value": "222222", "key": "sdncontroller"}]
-        vcpe = ["vgw"]
+        vcpe = ["vgw", "infra", "vbng", "vbrgemu", "vgmux"]
+        sriov_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf/vcpesriov"
         for vcpe_part in vcpe:
-            csar_file = ("%s/%s.csar" % (csar_path, vcpe_part))
+            csar_file = ("%s/%s.csar" % (sriov_path, vcpe_part))
             logger.debug("csar_file:%s", csar_file)
             vnfd_json = parse_vnfd(csar_file, input_parameters)
             metadata = json.loads(vnfd_json).get("metadata")
-            logger.debug("metadata:%s", metadata)
+            logger.debug("sriov metadata:%s", metadata)
+            self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
+
+        dpdk_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf/vcpedpdk"
+        for vcpe_part in vcpe:
+            csar_file = ("%s/%s.csar" % (dpdk_path, vcpe_part))
+            logger.debug("csar_file:%s", csar_file)
+            vnfd_json = parse_vnfd(csar_file, input_parameters)
+            metadata = json.loads(vnfd_json).get("metadata")
+            logger.debug("dpdk metadata:%s", metadata)
             self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
 
     def test_pnfd_parse(self):
