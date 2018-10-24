@@ -161,7 +161,7 @@ def nsd_content_ru(request, **kwargs):
             NsDescriptor().handle_upload_failed(nsd_info_id)
             logger.error(e.message)
             logger.error(traceback.format_exc())
-            error_data = {'error': 'Uploading NSD(%s) failed.'}
+            error_data = {'error': 'Uploading NSD(%s) failed.' % nsd_info_id}
         return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if request.method == 'GET':
