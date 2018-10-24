@@ -85,7 +85,7 @@ class BaseInfoModel(object):
                 inputs[key] = value
             params = inputs
 
-        if params and len(params) > 0:
+        if params:
             tmp = self._create_tosca_template(path, None)
             if isinstance(params, dict):
                 for key, value in params.items():
