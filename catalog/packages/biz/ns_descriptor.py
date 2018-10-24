@@ -128,6 +128,7 @@ class NsDescriptor(object):
         ns_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
 
         nsd_json = toscaparser.parse_nsd(local_file_name, isETSI)
+        logger.debug("%s", nsd_json)
         nsd = json.JSONDecoder().decode(nsd_json)
 
         nsd_id = nsd[METADATA].get(NS_UUID, "undefined")
@@ -137,7 +138,7 @@ class NsDescriptor(object):
             raise CatalogException("NSD(%s) already exists." % nsd_id)
 
         for vnf in nsd["vnfs"]:
-            vnfd_id = vnf["properties"]["id"]
+            vnfd_id = vnf["properties"].get("id", "undefined")
             pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
             if not pkg:
                 vnfd_name = vnf.get("vnf_id", "undefined")
@@ -145,7 +146,7 @@ class NsDescriptor(object):
                 raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
         ns_pkgs.update(
-            nsdId=nsd[METADATA].get(NS_UUID, "undefined"),
+            nsdId=nsd_id,
             nsdName=nsd[METADATA].get(NS_NAME, "undefined"),
             nsdDesginer=nsd[METADATA].get(NS_DESIGNER, "undefined"),
             nsdDescription=nsd[METADATA].get(NS_DESCRIPTION, ""),
