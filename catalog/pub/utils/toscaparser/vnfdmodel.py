@@ -16,6 +16,8 @@ import functools
 import logging
 import os
 from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
+from catalog.pub.exceptions import CatalogException
+
 logger = logging.getLogger(__name__)
 
 SECTIONS = (VDU_COMPUTE_TYPE, VNF_VL_TYPE, VDU_CP_TYPE, VDU_STORAGE_TYPE) = \
@@ -31,6 +33,8 @@ class EtsiVnfdInfoModel(BaseInfoModel):
         super(EtsiVnfdInfoModel, self).__init__(path, params)
 
     def parseModel(self, tosca):
+        self.vnf = {}
+        self.vnf = self.build_vnf(tosca)
         self.metadata = self.buildMetadata(tosca)
         self.inputs = self.buildInputs(tosca)
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
@@ -62,7 +66,7 @@ class EtsiVnfdInfoModel(BaseInfoModel):
         rets = []
         inject_files = []
         for node in nodeTemplates:
-            logger.error("nodeTemplates :%s", node)
+            logger.debug("nodeTemplates :%s", node)
             if self.isNodeTypeX(node, node_types, VDU_COMPUTE_TYPE):
                 ret = {}
                 ret['vdu_id'] = node['name']
@@ -204,3 +208,45 @@ class EtsiVnfdInfoModel(BaseInfoModel):
                 else:
                     forward_cps.append({"key_name": key, "cpd_id": value})
         return forward_cps
+
+    def get_substitution_mappings(self, tosca):
+        node = {}
+        substitution_mappings = tosca.tpl['topology_template']['substitution_mappings']
+        if substitution_mappings:
+            node = substitution_mappings.get('properties', {})
+            node['type'] = substitution_mappings['node_type']
+        return node
+
+    def build_vnf(self, tosca):
+        vnf = self.get_substitution_mappings(tosca)
+        metadata = self.buildMetadata(tosca)
+        if vnf.get("descriptor_id", "") == "":
+            descriptor_id = metadata.get("descriptor_id", "")
+            if descriptor_id == "":
+                descriptor_id = metadata.get("id", "")
+            if descriptor_id == "":
+                descriptor_id = metadata.get("UUID", "")
+            if descriptor_id == "":
+                raise CatalogException('descriptor_id is Null.')
+            else:
+                vnf["descriptor_id"] = descriptor_id
+
+        if vnf.get("descriptor_verison", "") == "":
+            version = metadata.get("template_version", "")
+            if version == "":
+                version = metadata.get("version", "")
+            vnf["descriptor_verison"] = version
+
+        if vnf.get("provider", "") == "":
+            provider = metadata.get("template_author", "")
+            if provider == "":
+                provider = metadata.get("provider", "")
+            vnf["provider"] = provider
+
+        if vnf.get("template_name", "") == "":
+            template_name = metadata.get("template_name", "")
+            if template_name == "":
+                template_name = metadata.get("template_name", "")
+            vnf["template_name"] = template_name
+        vnf = dict(metadata, **vnf)
+        return vnf

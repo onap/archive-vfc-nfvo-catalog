@@ -194,29 +194,28 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
     vnfd_json = toscaparser.parse_vnfd(vnf_pkg_path)
     vnfd = json.JSONDecoder().decode(vnfd_json)
 
-    vnfd_id = vnfd["metadata"].get("id", '')
-    if not vnfd_id:
-        raise CatalogException("VNFDID(metadata.id) of VNF(%s) does not exist." % vnf_pkg_id)
-    if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
-        logger.error("VNF package(%s) already exists." % vnfd_id)
-        raise CatalogException("VNF package(%s) already exists." % vnfd_id)
-
-    vnfd_ver = vnfd["metadata"].get("vnfd_version")
-    if not vnfd_ver:
-        vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
-
-    vnf_pkg.update(
-        vnfPackageId=vnf_pkg_id,
-        vnfdId=vnfd_id,
-        vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
-        vnfdVersion=vnfd_ver,
-        vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
-        vnfdModel=vnfd_json,
-        onboardingState=PKG_STATUS.ONBOARDED,
-        operationalState=PKG_STATUS.ENABLED,
-        usageState=PKG_STATUS.NOT_IN_USE,
-        localFilePath=vnf_pkg_path
-    )
+    if vnfd.get("vnf", "") != "":
+        vnfd_id = vnfd["vnf"].get("descriptor_id", "")
+        if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
+            logger.error("VNF package(%s) already exists." % vnfd_id)
+            raise CatalogException("VNF package(%s) already exists." % vnfd_id)
+        vnf_provider = vnfd["vnf"].get("provider", "")
+        vnfd_ver = vnfd["vnf"].get("descriptor_verison", "")
+        vnf_software_version = vnfd["vnf"].get("software_version", "")
+        vnf_pkg.update(
+            vnfPackageId=vnf_pkg_id,
+            vnfdId=vnfd_id,
+            vnfVendor=vnf_provider,
+            vnfdVersion=vnfd_ver,
+            vnfSoftwareVersion=vnf_software_version,
+            vnfdModel=vnfd_json,
+            onboardingState=PKG_STATUS.ONBOARDED,
+            operationalState=PKG_STATUS.ENABLED,
+            usageState=PKG_STATUS.NOT_IN_USE,
+            localFilePath=vnf_pkg_path
+        )
+    else:
+        raise CatalogException("VNF propeties and metadata in VNF Package(id=%s) are empty." % vnf_pkg_id)
     logger.info('VNF package(%s) has been processed.' % vnf_pkg_id)
 
 

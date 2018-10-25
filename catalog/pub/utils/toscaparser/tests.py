@@ -36,14 +36,17 @@ class TestToscaparser(TestCase):
         self.remove_temp_dir()
         csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf"
         input_parameters = [{"value": "222222", "key": "sdncontroller"}]
-        vcpe = ["vgw"]
-        for vcpe_part in vcpe:
-            csar_file = ("%s/%s.csar" % (csar_path, vcpe_part))
+        vnfs = ["vgw"]
+        template_names=["vCPE_vgw"]
+        i=0
+        for vnf in vnfs:
+            csar_file = ("%s/%s.csar" % (csar_path, vnf))
             logger.debug("csar_file:%s", csar_file)
             vnfd_json = parse_vnfd(csar_file, input_parameters)
             metadata = json.loads(vnfd_json).get("metadata")
             logger.debug("metadata:%s", metadata)
-            self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
+            self.assertEqual(("%s" % template_names[i]), metadata.get("template_name", ""))
+            i=i+1
 
     def test_pnfd_parse(self):
         self.remove_temp_dir()
