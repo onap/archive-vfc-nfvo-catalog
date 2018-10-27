@@ -214,6 +214,16 @@ vnfd_data = {
         "vnfProductInfoDescription": "hss",
         "vnfdVersion": "1.0.0",
         "vnfProductInfoName": "hss"
+    },
+    "vnf": {
+        "properties": {
+            "descriptor_id": "zte-hss-1.0",
+            "descriptor_verison": "1.0.0",
+            "software_version": "1.0.0",
+            "provider": "zte"
+        },
+        "metadata": {
+        }
     }
 }
 
