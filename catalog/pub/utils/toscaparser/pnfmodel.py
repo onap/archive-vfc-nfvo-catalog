@@ -30,10 +30,11 @@ class PnfdInfoModel(BaseInfoModel):
                             tosca.nodetemplates)
         self.basepath = self.get_base_path(tosca)
         self.pnf = {}
+        self.get_substitution_mappings(tosca)
         self.get_all_cp(nodeTemplates)
 
     def get_substitution_mappings(self, tosca):
-        pnf_substitution_mappings = tosca.tpl['topology_template']['substitution_mappings']
+        pnf_substitution_mappings = tosca.tpl['topology_template'].get('substitution_mappings', None)
         if pnf_substitution_mappings:
             self.pnf['type'] = pnf_substitution_mappings['node_type']
             self.pnf['properties'] = pnf_substitution_mappings['properties']
