@@ -16,6 +16,8 @@ import functools
 import logging
 import os
 from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
+# from catalog.pub.exceptions import CatalogException
+
 logger = logging.getLogger(__name__)
 
 SECTIONS = (VDU_COMPUTE_TYPE, VNF_VL_TYPE, VDU_CP_TYPE, VDU_STORAGE_TYPE) = \
@@ -31,6 +33,8 @@ class EtsiVnfdInfoModel(BaseInfoModel):
         super(EtsiVnfdInfoModel, self).__init__(path, params)
 
     def parseModel(self, tosca):
+        self.vnf = {}
+        self.vnf = self.build_vnf(tosca)
         self.metadata = self.buildMetadata(tosca)
         self.inputs = self.buildInputs(tosca)
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
@@ -72,22 +76,20 @@ class EtsiVnfdInfoModel(BaseInfoModel):
                 ret['properties'] = node['properties']
                 if 'inject_files' in node['properties']:
                     inject_files = node['properties']['inject_files']
-                if isinstance(inject_files, list):
-                    for inject_file in inject_files:
-                        source_path = os.path.join(self.basepath, inject_file['source_path'])
+                if inject_files is not None:
+                    if isinstance(inject_files, list):
+                        for inject_file in inject_files:
+                            source_path = os.path.join(self.basepath, inject_file['source_path'])
+                            with open(source_path, "rb") as f:
+                                source_data = f.read()
+                                source_data_base64 = source_data.encode("base64")
+                                inject_file["source_data_base64"] = source_data_base64
+                    if isinstance(inject_files, dict):
+                        source_path = os.path.join(self.basepath, inject_files['source_path'])
                         with open(source_path, "rb") as f:
                             source_data = f.read()
                             source_data_base64 = source_data.encode("base64")
-                            inject_file["source_data_base64"] = source_data_base64
-                elif isinstance(inject_files, dict):
-                    source_path = os.path.join(self.basepath, inject_files['source_path'])
-                    with open(source_path, "rb") as f:
-                        source_data = f.read()
-                        source_data_base64 = source_data.encode("base64")
-                        inject_files["source_data_base64"] = source_data_base64
-                else:
-                    logger.warn("inject_files %s format is not right.", inject_files)
-
+                            inject_files["source_data_base64"] = source_data_base64
                 virtual_storages = self.getRequirementByName(node, 'virtual_storage')
                 ret['virtual_storages'] = map(functools.partial(self._trans_virtual_storage), virtual_storages)
                 ret['dependencies'] = map(lambda x: self.get_requirement_node_name(x), self.getNodeDependencys(node))
@@ -213,3 +215,47 @@ class EtsiVnfdInfoModel(BaseInfoModel):
                 else:
                     forward_cps.append({"key_name": key, "cpd_id": value})
         return forward_cps
+
+    def get_substitution_mappings(self, tosca):
+        node = {}
+        substitution_mappings = tosca.tpl['topology_template'].get('substitution_mappings', None)
+        if substitution_mappings:
+            node = substitution_mappings.get('properties', {})
+            node['type'] = substitution_mappings['node_type']
+        return node
+
+    def build_vnf(self, tosca):
+        properties = self.get_substitution_mappings(tosca)
+        metadata = self.buildMetadata(tosca)
+        if properties.get("descriptor_id", "") == "":
+            descriptor_id = metadata.get("descriptor_id", "")
+            if descriptor_id == "":
+                descriptor_id = metadata.get("id", "")
+            if descriptor_id == "":
+                descriptor_id = metadata.get("UUID", "")
+            # if descriptor_id == "":
+            #     raise CatalogException('descriptor_id is Null.')
+            else:
+                properties["descriptor_id"] = descriptor_id
+
+        if properties.get("descriptor_verison", "") == "":
+            version = metadata.get("template_version", "")
+            if version == "":
+                version = metadata.get("version", "")
+            properties["descriptor_verison"] = version
+
+        if properties.get("provider", "") == "":
+            provider = metadata.get("template_author", "")
+            if provider == "":
+                provider = metadata.get("provider", "")
+            properties["provider"] = provider
+
+        if properties.get("template_name", "") == "":
+            template_name = metadata.get("template_name", "")
+            if template_name == "":
+                template_name = metadata.get("template_name", "")
+            properties["template_name"] = template_name
+        vnf = {}
+        vnf['properties'] = properties
+        vnf['metadata'] = metadata
+        return vnf
