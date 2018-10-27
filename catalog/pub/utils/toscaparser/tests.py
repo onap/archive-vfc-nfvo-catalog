@@ -58,8 +58,11 @@ class TestToscaparser(TestCase):
         self.remove_temp_dir()
         csar_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/pnf/ran-du.csar"
         pnfd_json = parse_pnfd(csar_path)
-        metadata = json.loads(pnfd_json).get("metadata")
+        pnfd_dict = json.loads(pnfd_json)
+        metadata = pnfd_dict.get("metadata")
         self.assertEqual("RAN_DU", metadata.get("template_name", ""))
+        descriptor_id = pnfd_dict["pnf"]["properties"]["descriptor_id"]
+        self.assertEqual(1, descriptor_id)
 
     def test_nsd_parse(self):
         self.remove_temp_dir()
