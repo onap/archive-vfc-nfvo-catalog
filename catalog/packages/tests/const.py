@@ -438,7 +438,17 @@ nsd_data = {"vnffgs": [{"vnffg_id": "vnffg1",
                          "version": 1,
                          "vendor": "ZTE",
                          "id": "VCPE_NS",
-                         "description": "vcpe_ns"}}
+                         "description": "vcpe_ns"},
+            "ns":{
+                "properties":{
+                    "descriptor_id":"VCPE_NS",
+                    "version":1,
+                    "name":"VCPE_NS",
+                    "desginer":"ZTE",
+                    "invariant_id":"vcpe_ns_sff_1"
+                }
+            }
+            }
 
 pnfd_data = {
     "metadata": {

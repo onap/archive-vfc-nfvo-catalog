@@ -53,6 +53,7 @@ class BaseInfoModel(object):
 
     def __init__(self, path, params):
         tosca = self.buildToscaTemplate(path, params)
+        self.description = tosca.description
         self.parseModel(tosca)
 
     def parseModel(self, tosca):
@@ -491,3 +492,21 @@ class BaseInfoModel(object):
                     else:
                         next_node = requirement[k]
                     graph.add_node(next_node, [node.name])
+
+    def get_substitution_mappings(self, tosca):
+        node = {
+                'properties':{},
+                'requirements':{},
+                'capabilities':{},
+                'metadata':{}
+               }
+        metadata = None
+        substitution_mappings = tosca.tpl['topology_template'].get('substitution_mappings', None)
+        if substitution_mappings:
+            node['type'] = substitution_mappings['node_type']
+            node['properties'] = substitution_mappings.get('properties', {})
+            node['requirements'] = substitution_mappings.get('requirements', {})
+            node['capabilities'] = substitution_mappings.get('capabilities', {})
+            metadata = substitution_mappings.get('metadata', {})
+        node['metadata'] = metadata if metadata and metadata != {} else self.buildMetadata(tosca)
+        return node

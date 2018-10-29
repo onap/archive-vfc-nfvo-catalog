@@ -36,6 +36,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
 
     def parseModel(self, tosca):
         self.metadata = self.buildMetadata(tosca)
+        self.ns = self._build_ns(tosca)
         self.inputs = self.buildInputs(tosca)
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
         types = tosca.topology_template.custom_defs
@@ -176,3 +177,29 @@ class EtsiNsdInfoModel(BaseInfoModel):
                 for key, value in item.items():
                     rets.append({"key_name": key, "vl_id": self.get_requirement_node_name(value)})
         return rets
+
+    def _build_ns(self, tosca):
+        ns = self.get_substitution_mappings(tosca)
+        properties = ns.get("properties", {})
+        metadata = ns.get("metadata", {})
+        if properties.get("descriptor_id", "") == "":
+            descriptor_id = metadata.get("descriptor_id", "")
+            if descriptor_id == "":
+                descriptor_id = metadata.get("id", "")
+            if descriptor_id == "":
+                descriptor_id = metadata.get("UUID", "")
+            properties["descriptor_id"] = descriptor_id
+        if properties.get("verison", "") == "":
+            version = metadata.get("template_version", "")
+            if version == "":
+                version = metadata.get("version", "")
+            properties["verison"] = version
+        if properties.get("designer", "") == "":
+            author = metadata.get("template_author", "")
+            properties["designer"] = author
+        if properties.get("name", "") == "":
+            template_name = metadata.get("template_name", "")
+            if template_name == "":
+                template_name = metadata.get("name", "")
+            properties["name"] = template_name
+        return ns

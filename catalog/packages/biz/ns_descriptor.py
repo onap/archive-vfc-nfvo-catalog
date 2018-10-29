@@ -131,14 +131,20 @@ class NsDescriptor(object):
         logger.debug("%s", nsd_json)
         nsd = json.JSONDecoder().decode(nsd_json)
 
-        nsd_id = nsd[METADATA].get(NS_UUID, "undefined")
-        if nsd_id == "undefined":
-            raise CatalogException("Service UUID(%s) does not exist in metadata." % nsd_id)
+        nsd_id = nsd.get("ns", {}).get("properties", {}).get("descriptor_id", "")
+        nsd_name = nsd.get("ns", {}).get("properties", {}).get("name", "")
+        nsd_version = nsd.get("ns", {}).get("properties", {}).get("version", "")
+        nsd_desginer = nsd.get("ns", {}).get("properties", {}).get("desginer", "")
+        invariant_id = nsd.get("ns", {}).get("properties", {}).get("invariant_id", "")
+        if nsd_id == "":
+            raise CatalogException("nsd_id(%s) does not exist in metadata." % nsd_id)
         if NSPackageModel.objects.filter(nsdId=nsd_id):
             raise CatalogException("NSD(%s) already exists." % nsd_id)
 
         for vnf in nsd["vnfs"]:
-            vnfd_id = vnf["properties"].get("id", "undefined")
+            vnfd_id = vnf["properties"].get("descriptor_id", "undefined")
+            if vnfd_id == "undefined":
+                vnfd_id = vnf["properties"].get("id", "undefined")
             pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
             if not pkg:
                 vnfd_name = vnf.get("vnf_id", "undefined")
@@ -147,11 +153,11 @@ class NsDescriptor(object):
 
         ns_pkgs.update(
             nsdId=nsd_id,
-            nsdName=nsd[METADATA].get(NS_NAME, "undefined"),
-            nsdDesginer=nsd[METADATA].get(NS_DESIGNER, "undefined"),
-            nsdDescription=nsd[METADATA].get(NS_DESCRIPTION, ""),
-            nsdVersion=nsd[METADATA].get(NS_VERSION, "undefined"),
-            invariantId=nsd[METADATA].get(NS_INVARIANTUUID, "undefined"),
+            nsdName=nsd_name,
+            nsdDesginer=nsd_desginer,
+            nsdDescription=nsd.get("description", ""),
+            nsdVersion=nsd_version,
+            invariantId=invariant_id,
             onboardingState=PKG_STATUS.ONBOARDED,
             operationalState=PKG_STATUS.ENABLED,
             usageState=PKG_STATUS.NOT_IN_USE,
@@ -185,7 +191,9 @@ class NsDescriptor(object):
             nsd_model = json.JSONDecoder().decode(ns_pkg.nsdModel)
             vnf_pkg_ids = []
             for vnf in nsd_model['vnfs']:
-                vnfd_id = vnf["properties"]["id"]
+                vnfd_id = vnf["properties"].get("descriptor_id", "undefined")
+                if vnfd_id == "undefined":
+                    vnfd_id = vnf["properties"].get("id", "undefined")
                 pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
                 for pkg in pkgs:
                     vnf_pkg_ids.append(pkg.vnfPackageId)
@@ -193,7 +201,9 @@ class NsDescriptor(object):
 
             pnf_info_ids = []
             for pnf in nsd_model['pnfs']:
-                pnfd_id = pnf["properties"]["id"]
+                pnfd_id = pnf["properties"].get("descriptor_id", "undefined")
+                if pnfd_id == "undefined":
+                    pnfd_id = pnf["properties"].get("id", "undefined")
                 pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
                 for pkg in pkgs:
                     pnf_info_ids.append(pkg.pnfPackageId)
