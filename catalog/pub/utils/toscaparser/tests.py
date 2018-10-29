@@ -44,6 +44,8 @@ class TestToscaparser(TestCase):
             metadata = json.loads(vnfd_json).get("metadata")
             logger.debug("sriov metadata:%s", metadata)
             self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
+            if vcpe_part == "infra":
+                self.assertEqual("b1bb0ce7-1111-4fa7-95ed-4840d70a1177", json.loads(vnfd_json)["vnf"]["properties"]["descriptor_id"])
 
         dpdk_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf/vcpedpdk"
         for vcpe_part in vcpe:
