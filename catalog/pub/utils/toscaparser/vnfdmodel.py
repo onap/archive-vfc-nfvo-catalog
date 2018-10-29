@@ -34,7 +34,7 @@ class EtsiVnfdInfoModel(BaseInfoModel):
 
     def parseModel(self, tosca):
         self.vnf = {}
-        self.vnf = self.build_vnf(tosca)
+        self.vnf = self._build_vnf(tosca)
         self.metadata = self.buildMetadata(tosca)
         self.inputs = self.buildInputs(tosca)
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca),
@@ -45,7 +45,7 @@ class EtsiVnfdInfoModel(BaseInfoModel):
         self.vdus = self._get_all_vdu(nodeTemplates, node_types)
         self.vls = self._get_all_vl(nodeTemplates, node_types)
         self.cps = self._get_all_cp(nodeTemplates, node_types)
-        self.vnf_exposed = self._get_all_endpoint_exposed(tosca.topology_template)
+        self.vnf_exposed = self._get_all_endpoint_exposed()
         self.graph = self.get_deploy_graph(tosca, NFV_VNF_RELATIONSHIPS)
 
     def _get_all_volume_storage(self, nodeTemplates, node_types):
@@ -189,54 +189,52 @@ class EtsiVnfdInfoModel(BaseInfoModel):
                     cp_vl[key] = value
         return cp_vl
 
-    def _get_all_endpoint_exposed(self, topo_tpl):
-        if 'substitution_mappings' in topo_tpl.tpl:
-            external_cps = self._get_external_cps(topo_tpl.tpl['substitution_mappings'])
-            forward_cps = self._get_forward_cps(topo_tpl.tpl['substitution_mappings'])
+    def _get_all_endpoint_exposed(self):
+        if self.vnf:
+            external_cps = self._get_external_cps(self.vnf.get('requirements', None))
+            forward_cps = self._get_forward_cps(self.vnf.get('capabilities', None))
             return {"external_cps": external_cps, "forward_cps": forward_cps}
         return {}
 
-    def _get_external_cps(self, subs_mappings):
+    def _get_external_cps(self, vnf_requirements):
         external_cps = []
-        if 'requirements' in subs_mappings:
-            for key, value in subs_mappings['requirements'].items():
+        if vnf_requirements:
+            for key, value in vnf_requirements.items():
                 if isinstance(value, list) and len(value) > 0:
                     external_cps.append({"key_name": key, "cpd_id": value[0]})
                 else:
                     external_cps.append({"key_name": key, "cpd_id": value})
         return external_cps
 
-    def _get_forward_cps(self, subs_mappings):
+    def _get_forward_cps(self, vnf_capabilities):
         forward_cps = []
-        if 'capabilities' in subs_mappings:
-            for key, value in subs_mappings['capabilities'].items():
+        if vnf_capabilities:
+            for key, value in vnf_capabilities.items():
                 if isinstance(value, list) and len(value) > 0:
                     forward_cps.append({"key_name": key, "cpd_id": value[0]})
                 else:
                     forward_cps.append({"key_name": key, "cpd_id": value})
         return forward_cps
 
-    def get_substitution_mappings(self, tosca):
-        node = {}
-        substitution_mappings = tosca.tpl['topology_template'].get('substitution_mappings', None)
-        if substitution_mappings:
-            node = substitution_mappings.get('properties', {})
-            node['type'] = substitution_mappings['node_type']
-        return node
+    # def get_substitution_mappings(self, tosca):
+    #    node = {}
+    #    substitution_mappings = tosca.tpl['topology_template'].get('substitution_mappings', None)
+    #    if substitution_mappings:
+    #        node = substitution_mappings.get('properties', {})
+    #        node['type'] = substitution_mappings['node_type']
+    #    return node
 
-    def build_vnf(self, tosca):
-        properties = self.get_substitution_mappings(tosca)
-        metadata = self.buildMetadata(tosca)
+    def _build_vnf(self, tosca):
+        vnf = self.get_substitution_mappings(tosca)
+        properties = vnf.get("properties", {})
+        metadata = vnf.get("metadata", {})
         if properties.get("descriptor_id", "") == "":
             descriptor_id = metadata.get("descriptor_id", "")
             if descriptor_id == "":
                 descriptor_id = metadata.get("id", "")
             if descriptor_id == "":
                 descriptor_id = metadata.get("UUID", "")
-            # if descriptor_id == "":
-            #     raise CatalogException('descriptor_id is Null.')
-            else:
-                properties["descriptor_id"] = descriptor_id
+            properties["descriptor_id"] = descriptor_id
 
         if properties.get("descriptor_verison", "") == "":
             version = metadata.get("template_version", "")
@@ -255,7 +253,5 @@ class EtsiVnfdInfoModel(BaseInfoModel):
             if template_name == "":
                 template_name = metadata.get("template_name", "")
             properties["template_name"] = template_name
-        vnf = {}
-        vnf['properties'] = properties
-        vnf['metadata'] = metadata
+
         return vnf
