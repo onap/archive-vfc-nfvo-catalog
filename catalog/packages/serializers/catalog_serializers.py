@@ -147,29 +147,40 @@ class NfPackageDistributeRequestSerializer(serializers.Serializer):
 class NfPackageInfoSerializer(serializers.Serializer):
     vnfdId = serializers.CharField(
         help_text="VNFD ID",
-        required=True,
+        required=False,
+        allow_null=True,
         allow_blank=True)
     vnfPackageId = serializers.CharField(
         help_text="VNF Package ID", required=True)
     vnfdProvider = serializers.CharField(
-        help_text="VNFD Provider", required=True, allow_blank=True)
+        help_text="VNFD Provider",
+        required=False,
+        allow_null=True,
+        allow_blank=True)
     vnfdVersion = serializers.CharField(
-        help_text="VNFD Version", required=True, allow_blank=True)
+        help_text="VNFD Version",
+        required=False,
+        allow_null=True,
+        allow_blank=True)
     vnfVersion = serializers.CharField(
         help_text="VNF Version",
-        required=True,
+        required=False,
+        allow_null=True,
         allow_blank=True)
     csarName = serializers.CharField(
         help_text="CSAR Name",
-        required=True,
+        required=False,
+        allow_null=True,
         allow_blank=True)
     vnfdModel = serializers.CharField(
         help_text="VNFD Model",
-        required=True,
+        required=False,
+        allow_null=True,
         allow_blank=True)
     downloadUrl = serializers.CharField(
         help_text="URL to download VNFD Model",
-        required=True,
+        required=False,
+        allow_null=True,
         allow_blank=True)
 
 
