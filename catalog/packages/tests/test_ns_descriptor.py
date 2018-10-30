@@ -24,7 +24,7 @@ from catalog.packages.biz.ns_descriptor import NsDescriptor
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import nsd_data
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.database.models import NSPackageModel, VnfPackageModel
+from catalog.pub.database.models import NSPackageModel, VnfPackageModel, PnfPackageModel
 from catalog.pub.utils import toscaparser
 
 
@@ -162,6 +162,12 @@ class TestNsDescriptor(TestCase):
             vnfPackageId="111",
             vnfdId="vcpe_vfw_zte_1_0"
         ).save()
+
+        PnfPackageModel(
+            pnfPackageId="112",
+            pnfdId="m6000_s"
+        ).save()
+
         NSPackageModel(
             nsPackageId='22',
             operationalState='DISABLED',

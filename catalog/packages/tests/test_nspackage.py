@@ -19,7 +19,7 @@ from django.test import TestCase
 from django.test import Client
 
 from catalog.pub.utils import restcall, toscaparser
-from catalog.pub.database.models import NSPackageModel, VnfPackageModel
+from catalog.pub.database.models import NSPackageModel, VnfPackageModel, PnfPackageModel
 from catalog.pub.msapi import sdc
 
 
@@ -329,6 +329,7 @@ class TestNsPackage(TestCase):
             "distributionStatus": "DISTRIBUTED"
         }]), '200']
         VnfPackageModel(vnfPackageId="1", vnfdId="vcpe_vfw_zte_1_0").save()
+        PnfPackageModel(pnfPackageId="1", pnfdId="m6000_s").save()
         resp = self.client.post(
             "/api/catalog/v1/nspackages", {"csarId": "1"}, format='json')
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
