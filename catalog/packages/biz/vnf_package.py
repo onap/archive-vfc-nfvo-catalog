@@ -93,7 +93,7 @@ class VnfPackage(object):
             if not nsd_model:
                 continue
             for vnf in nsd_model['vnfs']:
-                if del_vnfd_id == vnf["properties"]["id"]:
+                if del_vnfd_id == vnf["properties"]["descriptor_id"]:
                     raise CatalogException('VNFD(%s) is referenced.' % del_vnfd_id)
         vnf_pkg.delete()
         vnf_pkg_path = os.path.join(CATALOG_ROOT_PATH, vnf_pkg_id)
@@ -202,9 +202,11 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
         vnf_provider = vnfd["vnf"].get("provider", "")
         vnfd_ver = vnfd["vnf"]["properties"].get("descriptor_verison", "")
         vnf_software_version = vnfd["vnf"]["properties"].get("software_version", "")
+        vnfd_product_name = vnfd["vnf"]["properties"].get("product_name", "")
         vnf_pkg.update(
             vnfPackageId=vnf_pkg_id,
             vnfdId=vnfd_id,
+            vnfdProductName=vnfd_product_name,
             vnfVendor=vnf_provider,
             vnfdVersion=vnfd_ver,
             vnfSoftwareVersion=vnf_software_version,
