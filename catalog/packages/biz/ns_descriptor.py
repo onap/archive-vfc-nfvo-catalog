@@ -150,6 +150,16 @@ class NsDescriptor(object):
                 logger.error("[%s] is not distributed.", vnfd_name)
                 raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
 
+        for pnf in nsd["pnfs"]:
+            pnfd_id = pnf["properties"].get("descriptor_id", "undefined")
+            if pnfd_id == "undefined":
+                pnfd_id = pnf["properties"].get("id", "undefined")
+            pkg = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
+            if not pkg:
+                pnfd_name = pnf.get("vnf_id", "undefined")
+                logger.error("[%s] is not distributed.", pnfd_name)
+                raise CatalogException("VNF package(%s) is not distributed." % pnfd_name)
+
         ns_pkgs.update(
             nsdId=nsd_id,
             nsdName=nsd_name,
