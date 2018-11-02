@@ -133,7 +133,7 @@ class NsDescriptor(object):
         nsd_id = nsd.get("ns", {}).get("properties", {}).get("descriptor_id", "")
         nsd_name = nsd.get("ns", {}).get("properties", {}).get("name", "")
         nsd_version = nsd.get("ns", {}).get("properties", {}).get("version", "")
-        nsd_desginer = nsd.get("ns", {}).get("properties", {}).get("desginer", "")
+        nsd_designer = nsd.get("ns", {}).get("properties", {}).get("designer", "")
         invariant_id = nsd.get("ns", {}).get("properties", {}).get("invariant_id", "")
         if nsd_id == "":
             raise CatalogException("nsd_id(%s) does not exist in metadata." % nsd_id)
@@ -163,7 +163,7 @@ class NsDescriptor(object):
         ns_pkgs.update(
             nsdId=nsd_id,
             nsdName=nsd_name,
-            nsdDesginer=nsd_desginer,
+            nsdDesginer=nsd_designer,
             nsdDescription=nsd.get("description", ""),
             nsdVersion=nsd_version,
             invariantId=invariant_id,
