@@ -14,17 +14,13 @@
 
 import json
 
-from catalog.pub.utils.toscaparser.nsdmodel import EtsiNsdInfoModel
+from catalog.pub.utils.toscaparser.nsdmodel import NsdInfoModel
 from catalog.pub.utils.toscaparser.vnfdmodel import EtsiVnfdInfoModel
 from catalog.pub.utils.toscaparser.pnfmodel import PnfdInfoModel
-from catalog.pub.utils.toscaparser.servicemodel import SdcServiceModel
 
 
-def parse_nsd(path, input_parameters=[], isETSI=True):
-    if isETSI:
-        tosca_obj = EtsiNsdInfoModel(path, input_parameters)
-    else:
-        tosca_obj = SdcServiceModel(path, input_parameters)
+def parse_nsd(path, input_parameters=[]):
+    tosca_obj = NsdInfoModel(path, input_parameters).model
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')
     return strResponse

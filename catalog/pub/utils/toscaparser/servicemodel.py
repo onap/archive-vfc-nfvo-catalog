@@ -16,6 +16,7 @@ import functools
 import logging
 from catalog.pub.utils.toscaparser.const import NS_METADATA_SECTIONS, PNF_METADATA_SECTIONS, VNF_SECTIONS, PNF_SECTIONS, VL_SECTIONS
 from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
+
 logger = logging.getLogger(__name__)
 
 SDC_SERVICE_SECTIONS = (SERVICE_TYPE, SRV_DESCRIPTION) = (
@@ -45,11 +46,12 @@ SERVICE_RELATIONSHIPS = [["tosca.relationships.network.LinksTo", "tosca.relation
 
 class SdcServiceModel(BaseInfoModel):
 
-    def __init__(self, path, params):
-        super(SdcServiceModel, self).__init__(path, params)
+    def __init__(self, tosca):
+        super(SdcServiceModel, self).__init__(tosca=tosca)
 
     def parseModel(self, tosca):
         self.metadata = self._buildServiceMetadata(tosca)
+        self.ns = self._build_ns(tosca)
         self.inputs = self.buildInputs(tosca)
         if hasattr(tosca, 'nodetemplates'):
             nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
@@ -98,10 +100,9 @@ class SdcServiceModel(BaseInfoModel):
             if self.isNodeTypeX(node, node_types, VF_TYPE):
                 vnf = {}
                 self.setTargetValues(vnf, VNF_SECTIONS, node, SDC_VF_SECTIONS)
-                if not vnf['properties'].get('id', None):
-                    vnf['properties']['id'] = vnf['properties'].get('descriptor_id', None)
                 if not vnf['properties'].get('id', None) and node['metadata']:
                     vnf['properties']['id'] = node['metadata'].get('UUID', None)
+                vnf['properties']['vnfm_info'] = vnf['properties'].get('nf_type', None)
                 vnf['dependencies'] = self._get_networks(node, node_types)
                 vnf['networks'] = self._get_networks(node, node_types)
                 vnfs.append(vnf)
@@ -134,3 +135,20 @@ class SdcServiceModel(BaseInfoModel):
                 for key, value in item.items():
                     rets.append({"key_name": key, "vl_id": self.get_requirement_node_name(value)})
         return rets
+
+    def _build_ns(self, tosca):
+        ns = self.get_substitution_mappings(tosca)
+        properties = ns.get("properties", {})
+        metadata = ns.get("metadata", {})
+        if properties.get("descriptor_id", "") == "":
+            descriptor_id = metadata.get(SRV_UUID, "")
+            properties["descriptor_id"] = descriptor_id
+        properties["verison"] = ""
+        properties["designer"] = ""
+        if properties.get("name", "") == "":
+            template_name = metadata.get(SRV_NAME, "")
+            properties["name"] = template_name
+        if properties.get("invariant_id", "") == "":
+            nsd_invariant_id = metadata.get(SRV_INVARIANTUUID, "")
+            properties["invariant_id"] = nsd_invariant_id
+        return ns

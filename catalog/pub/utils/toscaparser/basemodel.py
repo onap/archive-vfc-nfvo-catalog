@@ -51,10 +51,13 @@ GROUPS_ROOT = "tosca.groups.Root"
 
 class BaseInfoModel(object):
 
-    def __init__(self, path, params):
-        tosca = self.buildToscaTemplate(path, params)
-        self.description = tosca.description
-        self.parseModel(tosca)
+    def __init__(self, path=None, params=None, tosca=None):
+        if tosca:
+            _tosca = tosca
+        else:
+            _tosca = self.buildToscaTemplate(path, params)
+        self.description = _tosca.description
+        self.parseModel(_tosca)
 
     def parseModel(self, tosca):
         pass
