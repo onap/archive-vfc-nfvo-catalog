@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-NS_METADATA_SECTIONS = (NS_UUID, NS_INVARIANTUUID, NS_NAME, NS_VERSION, NS_DESIGNER, NS_DESCRIPTION) =\
-    ("id", "invariant_id", "name", "version", "designer", "description")
+NS_METADATA_SECTIONS = (NS_UUID, NS_INVARIANTUUID, NS_NAME, NS_VERSION, NS_DESIGNER, NSD_RELEASE_DATE) =\
+    ("nsd_id", "nsd_invariant_id", "nsd_name", "nsd_file_structure_version", "nsd_designer", "nsd_release_date_time")
+# ("id", "invariant_id", "name", "version", "designer", "description")
+
+SDC_SERVICE_METADATA_SECTIONS = (SRV_UUID, SRV_INVARIANTUUID, SRV_NAME) = ('UUID', 'invariantUUID', 'name')
 
 PNF_METADATA_SECTIONS = (PNF_UUID, PNF_INVARIANTUUID, PNF_NAME, PNF_METADATA_DESCRIPTION, PNF_VERSION, PNF_PROVIDER) = \
     ("descriptor_id", "descriptor_invariant_id", "name", "description", "version", "provider")
