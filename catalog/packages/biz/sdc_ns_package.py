@@ -96,7 +96,7 @@ def parse_nsd(csar_id, inputs):
         if not ns_pkg:
             raise CatalogException("NS CSAR(%s) does not exist." % csar_id)
         csar_path = ns_pkg[0].localFilePath
-        ret = {"model": toscaparser.parse_nsd(csar_path, inputs, False)}
+        ret = {"model": toscaparser.parse_nsd(csar_path, inputs)}
     except CatalogException as e:
         return [1, e.message]
     except Exception as e:
