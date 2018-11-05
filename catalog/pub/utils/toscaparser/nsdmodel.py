@@ -15,6 +15,8 @@
 import functools
 import logging
 from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
+from catalog.pub.utils.toscaparser.const import SDC_SERVICE_METADATA_SECTIONS
+from catalog.pub.utils.toscaparser.servicemodel import SdcServiceModel
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +31,30 @@ SECTIONS = (NS_TYPE, NS_VNF_TYPE, NS_VL_TYPE, NS_PNF_TYPE, NS_NFP_TYPE, NS_VNFFG
 NFV_NS_RELATIONSHIPS = [["tosca.relationships.nfv.VirtualLinksTo", "tosca.relationships.DependsOn"], []]
 
 
+class NsdInfoModel(BaseInfoModel):
+    def __init__(self, path, params):
+        super(NsdInfoModel, self).__init__(path, params)
+
+    def parseModel(self, tosca):
+        metadata = self.buildMetadata(tosca)
+        self.model = {}
+        if self._is_etsi(metadata):
+            self.model = EtsiNsdInfoModel(tosca)
+        elif self._is_ecomp(metadata):
+            self.model = SdcServiceModel(tosca)
+
+    def _is_etsi(self, metadata):
+        NS_METADATA_MUST = ["nsd_invariant_id", "nsd_name", "nsd_file_structure_version", "nsd_designer", "nsd_release_date_time"]
+        return True if len([1 for key in NS_METADATA_MUST if key in metadata]) == len(NS_METADATA_MUST) else False
+
+    def _is_ecomp(self, metadata):
+        return True if len([1 for key in SDC_SERVICE_METADATA_SECTIONS if key in metadata]) == len(SDC_SERVICE_METADATA_SECTIONS) else False
+
+
 class EtsiNsdInfoModel(BaseInfoModel):
 
-    def __init__(self, path, params):
-        super(EtsiNsdInfoModel, self).__init__(path, params)
+    def __init__(self, tosca):
+        super(EtsiNsdInfoModel, self).__init__(tosca=tosca)
 
     def parseModel(self, tosca):
         self.metadata = self.buildMetadata(tosca)
@@ -60,8 +82,6 @@ class EtsiNsdInfoModel(BaseInfoModel):
                 vnf['properties'] = node['properties']
                 if not vnf['properties'].get('id', None):
                     vnf['properties']['id'] = vnf['properties'].get('descriptor_id', None)
-                if not vnf['properties'].get('id', None) and node['metadata']:
-                    vnf['properties']['id'] = node['metadata'].get('UUID', None)
                 vnf['dependencies'] = self._get_networks(node, node_types)
                 vnf['networks'] = self._get_networks(node, node_types)
                 vnfs.append(vnf)
@@ -183,23 +203,18 @@ class EtsiNsdInfoModel(BaseInfoModel):
         properties = ns.get("properties", {})
         metadata = ns.get("metadata", {})
         if properties.get("descriptor_id", "") == "":
-            descriptor_id = metadata.get("descriptor_id", "")
-            if descriptor_id == "":
-                descriptor_id = metadata.get("id", "")
-            if descriptor_id == "":
-                descriptor_id = metadata.get("UUID", "")
+            descriptor_id = metadata.get("nsd_id", "")
             properties["descriptor_id"] = descriptor_id
         if properties.get("verison", "") == "":
-            version = metadata.get("template_version", "")
-            if version == "":
-                version = metadata.get("version", "")
+            version = metadata.get("nsd_file_structure_version", "")
             properties["verison"] = version
         if properties.get("designer", "") == "":
-            author = metadata.get("template_author", "")
+            author = metadata.get("nsd_designer", "")
             properties["designer"] = author
         if properties.get("name", "") == "":
-            template_name = metadata.get("template_name", "")
-            if template_name == "":
-                template_name = metadata.get("name", "")
+            template_name = metadata.get("nsd_name", "")
             properties["name"] = template_name
+        if properties.get("invariant_id", "") == "":
+            nsd_invariant_id = metadata.get("nsd_invariant_id", "")
+            properties["invariant_id"] = nsd_invariant_id
         return ns

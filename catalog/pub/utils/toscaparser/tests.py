@@ -69,16 +69,18 @@ class TestToscaparser(TestCase):
     def test_nsd_parse(self):
         self.remove_temp_dir()
         # ran_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/ns/ran.csar"
-        # nsd_json = parse_nsd(ran_csar)
+        # nsd_json = parse_nsd(ran_csar, [])
+        # logger.debug("NS ran json: %s" % nsd_json)
         # metadata = json.loads(nsd_json).get("metadata")
-        # self.assertEqual("RAN-NS", metadata.get("template_name", ""))
+        # self.assertEqual("RAN-NS", metadata.get("nsd_name", ""))
 
     def test_service_descriptor_parse(self):
         self.remove_temp_dir()
         service_test_csar = os.path.dirname(os.path.abspath(__file__)) + "/testdata/ns/service-vIMS.csar"
-        test_json = parse_nsd(service_test_csar, [], False)
+        test_json = parse_nsd(service_test_csar, [])
+        logger.debug("service-vIMS json: %s" % test_json)
         metadata = json.loads(test_json).get("metadata")
-        self.assertEqual("vIMS_v2", metadata.get("name", ""))
+        self.assertEqual("vIMS_v2", metadata.get("nsd_name", ""))
 
     def remove_temp_dir(self):
         tempdir = tempfile.gettempdir()
