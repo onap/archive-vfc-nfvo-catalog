@@ -162,7 +162,8 @@ class NfPackageInfoSerializer(serializers.Serializer):
     csarName = serializers.CharField(
         help_text="CSAR Name",
         required=True,
-        allow_blank=True)
+        allow_blank=True,
+        allow_null=True)
     vnfdModel = serializers.CharField(
         help_text="VNFD Model",
         required=True,
