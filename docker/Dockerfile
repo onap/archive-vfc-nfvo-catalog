@@ -28,7 +28,7 @@ ADD . /service
 WORKDIR /service
 
 # get binary zip from nexus - vfc-nfvo-catalog
-RUN wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.catalog&a=vfc-nfvo-catalog&v=LATEST&e=zip' && \
+RUN wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.vfc.nfvo.catalog&a=vfc-nfvo-catalog&v=LATEST&e=zip' && \
     unzip vfc-nfvo-catalog.zip && \
     rm -rf vfc-nfvo-catalog.zip
 
