@@ -446,6 +446,15 @@ class BaseInfoModel(object):
                 if isinstance(value, dict):
                     ret.update(value)
                 rets.append(ret)
+        else:
+            # TODO It is workaround for SDC-1900.
+            logger.error("VCPE specific code")
+            ret = {}
+            ret['artifact_name'] = "sw_image"
+            ret['file'] = "ubuntu_16.04"
+            ret['type'] = "tosca.artifacts.nfv.SwImage"
+            rets.append(ret)
+
         return rets
 
     def get_node_by_req(self, node_templates, req):
