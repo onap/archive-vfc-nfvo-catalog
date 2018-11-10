@@ -105,10 +105,10 @@ class EtsiVnfdInfoModel(BaseInfoModel):
 
     def _trans_virtual_storage(self, virtual_storage):
         if isinstance(virtual_storage, str):
-            return {"vitual_storage_id": virtual_storage}
+            return {"virtual_storage_id": virtual_storage}
         else:
             ret = {}
-            ret['vitual_storage_id'] = self.get_requirement_node_name(virtual_storage)
+            ret['virtual_storage_id'] = self.get_requirement_node_name(virtual_storage)
             return ret
 
     def _get_linked_vl_ids(self, node, node_templates):
