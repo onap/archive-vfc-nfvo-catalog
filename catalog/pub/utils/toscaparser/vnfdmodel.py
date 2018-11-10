@@ -199,11 +199,19 @@ class EtsiVnfdInfoModel(BaseInfoModel):
     def _get_external_cps(self, vnf_requirements):
         external_cps = []
         if vnf_requirements:
-            for key, value in vnf_requirements.items():
-                if isinstance(value, list) and len(value) > 0:
-                    external_cps.append({"key_name": key, "cpd_id": value[0]})
-                else:
-                    external_cps.append({"key_name": key, "cpd_id": value})
+            if isinstance(vnf_requirements, dict):
+                for key, value in vnf_requirements.items():
+                    if isinstance(value, list) and len(value) > 0:
+                        external_cps.append({"key_name": key, "cpd_id": value[0]})
+                    else:
+                        external_cps.append({"key_name": key, "cpd_id": value})
+            elif isinstance(vnf_requirements, list):
+                for vnf_requirement in vnf_requirements:
+                    for key, value in vnf_requirement.items():
+                        if isinstance(value, list) and len(value) > 0:
+                            external_cps.append({"key_name": key, "cpd_id": value[0]})
+                        else:
+                            external_cps.append({"key_name": key, "cpd_id": value})
         return external_cps
 
     def _get_forward_cps(self, vnf_capabilities):
