@@ -53,8 +53,11 @@ class PnfDescriptor(object):
         logger.info('A PNFD(%s) has been created.' % data['id'])
         return data
 
-    def query_multiple(self):
-        pnf_pkgs = PnfPackageModel.objects.all()
+    def query_multiple(self, pnfdId=None):
+        if pnfdId:
+            pnf_pkgs = PnfPackageModel.objects.filter(pnfdId=pnfdId)
+        else:
+            pnf_pkgs = PnfPackageModel.objects.all()
         response_data = []
         for pnf_pkg in pnf_pkgs:
             data = self.fill_response_data(pnf_pkg)
