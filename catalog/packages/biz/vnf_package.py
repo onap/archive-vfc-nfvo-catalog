@@ -103,9 +103,9 @@ class VnfPackage(object):
     def upload(self, vnf_pkg_id, remote_file):
         logger.info('Start to upload VNF package(%s)...' % vnf_pkg_id)
         vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnf_pkg_id)
-        if vnf_pkg[0].onboardingState != PKG_STATUS.CREATED:
-            logger.error("VNF package(%s) is not CREATED" % vnf_pkg_id)
-            raise CatalogException("VNF package(%s) is not CREATED" % vnf_pkg_id)
+        # if vnf_pkg[0].onboardingState != PKG_STATUS.CREATED:
+        #     logger.error("VNF package(%s) is not CREATED" % vnf_pkg_id)
+        #     raise CatalogException("VNF package(%s) is not CREATED" % vnf_pkg_id)
         vnf_pkg.update(onboardingState=PKG_STATUS.UPLOADING)
 
         local_file_name = save(remote_file, vnf_pkg_id)
@@ -196,8 +196,9 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
 
     if vnfd.get("vnf", "") != "":
         vnfd_id = vnfd["vnf"]["properties"].get("descriptor_id", "")
-        if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
-            logger.error("VNF package(%s) already exists." % vnfd_id)
+        other_pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
+        if other_pkg and other_pkg[0].vnfPackageId != vnf_pkg_id:
+            logger.error("VNF package(%s,%s) already exists.", other_pkg[0].vnfPackageId, vnfd_id)
             raise CatalogException("VNF package(%s) already exists." % vnfd_id)
         vnf_provider = vnfd["vnf"].get("provider", "")
         vnfd_ver = vnfd["vnf"]["properties"].get("descriptor_verison", "")
@@ -218,7 +219,7 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
         )
     else:
         raise CatalogException("VNF propeties and metadata in VNF Package(id=%s) are empty." % vnf_pkg_id)
-    logger.info('VNF package(%s) has been processed.' % vnf_pkg_id)
+    logger.info('VNF package(%s) has been processed(done).' % vnf_pkg_id)
 
 
 def handle_upload_failed(vnf_pkg_id):
