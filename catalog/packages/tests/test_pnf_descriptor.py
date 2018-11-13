@@ -178,6 +178,11 @@ class TestPnfDescriptor(TestCase):
         PnfPackageModel(
             pnfPackageId='22',
             usageState=PKG_STATUS.NOT_IN_USE,
+            pnfdId="zte-1.1"
+        ).save()
+        PnfPackageModel(
+            pnfPackageId='23',
+            usageState=PKG_STATUS.NOT_IN_USE,
             pnfdId="zte-1.0"
         ).save()
         mock_parse_pnfd.return_value = json.JSONEncoder().encode(pnfd_data)

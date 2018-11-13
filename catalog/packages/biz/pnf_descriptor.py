@@ -168,9 +168,11 @@ class PnfDescriptor(object):
             if pnfdVersion == "":
                 pnfdName = pnfd["metadata"].get("name", "")
 
-        if pnfd_id and PnfPackageModel.objects.filter(pnfdId=pnfd_id):
-            logger.info('PNFD(%s) already exists.' % pnfd_id)
-            raise CatalogException("PNFD(%s) already exists." % pnfd_id)
+        if pnfd_id:
+            other_pnf = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
+            if other_pnf and other_pnf[0].pnfPackageId != pnfd_info_id:
+                logger.info('PNFD(%s) already exists.' % pnfd_id)
+                raise CatalogException("PNFD(%s) already exists." % pnfd_id)
 
         pnf_pkgs.update(
             pnfdId=pnfd_id,
