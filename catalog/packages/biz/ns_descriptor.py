@@ -137,7 +137,9 @@ class NsDescriptor(object):
         invariant_id = nsd.get("ns", {}).get("properties", {}).get("invariant_id", "")
         if nsd_id == "":
             raise CatalogException("nsd_id(%s) does not exist in metadata." % nsd_id)
-        if NSPackageModel.objects.filter(nsdId=nsd_id):
+        other_nspkg = NSPackageModel.objects.filter(nsdId=nsd_id)
+        if other_nspkg and other_nspkg[0].nsPackageId != nsd_info_id:
+            logger.warn("NSD(%s,%s) already exists.", nsd_id, other_nspkg[0].nsPackageId)
             raise CatalogException("NSD(%s) already exists." % nsd_id)
 
         for vnf in nsd["vnfs"]:
