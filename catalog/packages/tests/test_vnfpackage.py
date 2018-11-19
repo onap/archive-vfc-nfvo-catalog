@@ -232,6 +232,16 @@ class TestNfPackage(TestCase):
                 "vnfProductInfoDescription": "hss",
                 "vnfdVersion": "1.0.0",
                 "vnfProductInfoName": "hss"
+            },
+            "vnf": {
+                "properties": {
+                    "descriptor_id": "zte-hss-1.0",
+                    "descriptor_verison": "1.0.0",
+                    "software_version": "1.0.0",
+                    "provider": "zte"
+                },
+                "metadata": {
+                }
             }
         }
 
@@ -277,7 +287,7 @@ class TestNfPackage(TestCase):
                            vim_ids=["1"],
                            lab_vim_id="",
                            job_id="2").run()
-        self.assert_job_result("2", 255, "NFD(zte-hss-1.0) already exists.")
+        self.assert_job_result("2", 255, "VNF package(zte-hss-1.0) already exists.")
 
     @mock.patch.object(restcall, 'call_req')
     @mock.patch.object(sdc, 'download_artifacts')
