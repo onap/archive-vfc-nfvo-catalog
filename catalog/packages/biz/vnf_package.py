@@ -200,7 +200,7 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
         if other_pkg and other_pkg[0].vnfPackageId != vnf_pkg_id:
             logger.error("VNF package(%s,%s) already exists.", other_pkg[0].vnfPackageId, vnfd_id)
             raise CatalogException("VNF package(%s) already exists." % vnfd_id)
-        vnf_provider = vnfd["vnf"].get("provider", "")
+        vnf_provider = vnfd["vnf"]["properties"].get("provider", "")
         vnfd_ver = vnfd["vnf"]["properties"].get("descriptor_verison", "")
         vnf_software_version = vnfd["vnf"]["properties"].get("software_version", "")
         vnfd_product_name = vnfd["vnf"]["properties"].get("product_name", "")

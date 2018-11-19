@@ -24,6 +24,7 @@ from catalog.pub.exceptions import CatalogException
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import toscaparser
 from catalog.packages.biz.ns_descriptor import NsDescriptor
+from catalog.pub.utils import fileutil
 
 logger = logging.getLogger(__name__)
 
@@ -122,13 +123,17 @@ class NsPackage(object):
         local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
         csar_name = "%s.csar" % artifact.get("name", csar_id)
         local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path, csar_name)
+        if local_file_name.endswith(".csar") or local_file_name.endswith(".zip"):
+            artifact_vnf_file = fileutil.unzip_file(local_file_name, local_path, "Artifacts/Deployment/OTHER/ns.csar")
+            if os.path.exists(artifact_vnf_file):
+                local_file_name = artifact_vnf_file
 
         data = {
             'userDefinedData': ""
         }
         nsd = NsDescriptor()
         nsd.create(data, csar_id)
-        nsd.parse_nsd_and_save(csar_id, local_file_name, False)
+        nsd.parse_nsd_and_save(csar_id, local_file_name)
         return [0, "CSAR(%s) distributed successfully." % csar_id]
 
     def delete_csar(self, csar_id):

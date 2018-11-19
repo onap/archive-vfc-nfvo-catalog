@@ -120,31 +120,36 @@ class NfDistributeThread(threading.Thread):
         local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
         csar_name = "%s.csar" % artifact.get("name", self.csar_id)
         local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path, csar_name)
+        if local_file_name.endswith(".csar") or local_file_name.endswith(".zip"):
+            artifact_vnf_file = fileutil.unzip_file(local_file_name, local_path, "Artifacts/Deployment/OTHER/vnf.csar")
+            if os.path.exists(artifact_vnf_file):
+                local_file_name = artifact_vnf_file
 
         vnfd_json = toscaparser.parse_vnfd(local_file_name)
         vnfd = json.JSONDecoder().decode(vnfd_json)
 
-        nfd_id = vnfd["metadata"]["id"]
-        if VnfPackageModel.objects.filter(vnfdId=nfd_id):
-            raise CatalogException("NFD(%s) already exists." % nfd_id)
-
-        JobUtil.add_job_status(self.job_id, 30, "Save CSAR(%s) to database." % self.csar_id)
-
-        vnfd_ver = vnfd["metadata"].get("vnfd_version")
-        if not vnfd_ver:
-            vnfd_ver = vnfd["metadata"].get("vnfdVersion", "undefined")
-        VnfPackageModel(
-            vnfPackageId=self.csar_id,
-            vnfdId=nfd_id,
-            vnfVendor=vnfd["metadata"].get("vendor", "undefined"),
-            vnfdVersion=vnfd_ver,
-            vnfSoftwareVersion=vnfd["metadata"].get("version", "undefined"),
-            vnfdModel=vnfd_json,
-            localFilePath=local_file_name,
-            vnfPackageUri=csar_name
-        ).save()
-
-        JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
+        if vnfd.get("vnf", "") != "":
+            vnfd_id = vnfd["vnf"]["properties"].get("descriptor_id", "")
+            if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
+                logger.error("VNF package(%s) already exists.", vnfd_id)
+                raise CatalogException("VNF package(%s) already exists." % vnfd_id)
+            JobUtil.add_job_status(self.job_id, 30, "Save CSAR(%s) to database." % self.csar_id)
+            vnfd_ver = vnfd["vnf"]["properties"].get("descriptor_verison", "")
+            vnf_provider = vnfd["vnf"]["properties"].get("provider", "")
+            vnf_software_version = vnfd["vnf"]["properties"].get("software_version", "")
+            VnfPackageModel(
+                vnfPackageId=self.csar_id,
+                vnfdId=vnfd_id,
+                vnfVendor=vnf_provider,
+                vnfdVersion=vnfd_ver,
+                vnfSoftwareVersion=vnf_software_version,
+                vnfdModel=vnfd_json,
+                localFilePath=local_file_name,
+                vnfPackageUri=csar_name
+            ).save()
+            JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
+        else:
+            raise CatalogException("VNF propeties and metadata in VNF Package(id=%s) are empty." % self.csar_id)
 
     def rollback_distribute(self):
         try:
@@ -226,7 +231,7 @@ class NfPackage(object):
             pkg_info["csarName"] = nf_pkg[0].vnfPackageUri
             pkg_info["vnfdModel"] = nf_pkg[0].vnfdModel
             pkg_info["downloadUrl"] = "http://%s:%s/%s/%s/%s" % (
-                MSB_SERVICE_IP,
+                MSB_SERVICE_IP,  # REG_TO_MSB_REG_PARAM[0]["nodes"][0]["ip"],
                 REG_TO_MSB_REG_PARAM[0]["nodes"][0]["port"],
                 CATALOG_URL_PATH,
                 csar_id,
