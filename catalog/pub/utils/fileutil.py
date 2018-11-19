@@ -16,13 +16,15 @@ import shutil
 import logging
 import traceback
 import urllib2
+import zipfile
+
 
 logger = logging.getLogger(__name__)
 
 
 def make_dirs(path):
     if not os.path.exists(path):
-        os.makedirs(path, 0777)
+        os.makedirs(path, 0o777)
 
 
 def delete_dirs(path):
@@ -50,3 +52,13 @@ def download_file_from_http(url, local_dir, file_name):
         logger.error(traceback.format_exc())
         logger.error("Failed to download %s to %s.", url, local_file_name)
     return is_download_ok, local_file_name
+
+
+def unzip_file(zip_src, dst_dir, csar_path):
+    if os.path.exists(zip_src):
+        fz = zipfile.ZipFile(zip_src, 'r')
+        for file in fz.namelist():
+            fz.extract(file, dst_dir)
+        return os.path.join(dst_dir, csar_path)
+    else:
+        return ""

@@ -121,12 +121,12 @@ class NsDescriptor(object):
         logger.info('NSD(%s) has been downloaded.' % nsd_info_id)
         return read(local_file_path, start, end)
 
-    def parse_nsd_and_save(self, nsd_info_id, local_file_name, isETSI=True):
+    def parse_nsd_and_save(self, nsd_info_id, local_file_name):
         logger.info('Start to process NSD(%s)...' % nsd_info_id)
         ns_pkgs = NSPackageModel.objects.filter(nsPackageId=nsd_info_id)
         ns_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
 
-        nsd_json = toscaparser.parse_nsd(local_file_name, isETSI)
+        nsd_json = toscaparser.parse_nsd(local_file_name)
         logger.debug("%s", nsd_json)
         nsd = json.JSONDecoder().decode(nsd_json)
 
