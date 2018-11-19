@@ -120,6 +120,10 @@ class NfDistributeThread(threading.Thread):
         local_path = os.path.join(CATALOG_ROOT_PATH, self.csar_id)
         csar_name = "%s.csar" % artifact.get("name", self.csar_id)
         local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path, csar_name)
+        if local_file_name.endswith(".csar") or local_file_name.endswith(".zip"):
+            artifact_vnf_file = fileutil.unzip_file(local_file_name, local_path, "Artifacts/Deployment/OTHER/vnf.csar")
+            if os.path.exists(artifact_vnf_file):
+                local_file_name = artifact_vnf_file
 
         vnfd_json = toscaparser.parse_vnfd(local_file_name)
         vnfd = json.JSONDecoder().decode(vnfd_json)
