@@ -17,7 +17,7 @@ import os
 import sys
 import traceback
 
-from catalog.pub.config.config import CATALOG_ROOT_PATH, CATALOG_URL_PATH, MSB_SERVICE_IP
+from catalog.pub.config.config import CATALOG_ROOT_PATH, CATALOG_URL_PATH
 from catalog.pub.config.config import REG_TO_MSB_REG_PARAM
 from catalog.pub.database.models import NSPackageModel
 from catalog.pub.exceptions import CatalogException
@@ -161,7 +161,7 @@ class NsPackage(object):
             package_info["nsdModel"] = csars[0].nsdModel
             package_info["nsdInvariantId"] = csars[0].invariantId
             package_info["downloadUrl"] = "http://%s:%s/%s/%s/%s" % (
-                MSB_SERVICE_IP,
+                REG_TO_MSB_REG_PARAM[0]["nodes"][0]["ip"],
                 REG_TO_MSB_REG_PARAM[0]["nodes"][0]["port"],
                 CATALOG_URL_PATH,
                 csar_id,
