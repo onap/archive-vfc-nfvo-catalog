@@ -237,7 +237,7 @@ class NfPackage(object):
             pkg_info["csarName"] = nf_pkg[0].vnfPackageUri
             pkg_info["vnfdModel"] = nf_pkg[0].vnfdModel
             pkg_info["downloadUrl"] = "http://%s:%s/%s/%s/%s" % (
-                MSB_SERVICE_IP,  # REG_TO_MSB_REG_PARAM[0]["nodes"][0]["ip"],
+                REG_TO_MSB_REG_PARAM[0]["nodes"][0]["ip"],
                 REG_TO_MSB_REG_PARAM[0]["nodes"][0]["port"],
                 CATALOG_URL_PATH,
                 csar_id,
