@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9adffdf1_fc6795b5",
+        "filename": "catalog/packages/biz/sdc_vnf_package.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2018-11-21T00:45:56Z",
+      "side": 1,
+      "message": "Modify if condition to if not vnfd.get(\"vnf\", \"\") and move raise exception statement to if branch.",
+      "range": {
+        "startLine": 151,
+        "startChar": 8,
+        "endLine": 152,
+        "endChar": 112
+      },
+      "revId": "094b9b4e17cd20af2212f851181dae91c4ef51ac",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
