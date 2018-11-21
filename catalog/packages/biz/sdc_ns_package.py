@@ -129,7 +129,7 @@ class NsPackage(object):
                 local_file_name = artifact_vnf_file
 
         data = {
-            'userDefinedData': ""
+            'userDefinedData': {}
         }
         nsd = NsDescriptor()
         nsd.create(data, csar_id)
