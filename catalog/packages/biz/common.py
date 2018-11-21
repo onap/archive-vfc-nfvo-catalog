@@ -20,9 +20,9 @@ from catalog.pub.utils import fileutil
 CHUNK_SIZE = 1024 * 8
 
 
-def save(remote_file, descriptor_id):
+def save(remote_file, vnf_pkg_id):
     local_file_name = remote_file.name
-    local_file_dir = os.path.join(CATALOG_ROOT_PATH, descriptor_id)
+    local_file_dir = os.path.join(CATALOG_ROOT_PATH, vnf_pkg_id)
     local_file_name = os.path.join(local_file_dir, local_file_name)
     if not os.path.exists(local_file_dir):
         fileutil.make_dirs(local_file_dir)
