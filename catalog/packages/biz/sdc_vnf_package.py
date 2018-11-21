@@ -27,6 +27,7 @@ from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
 from catalog.pub.utils.jobutil import JobUtil
+from catalog.packages.const import PKG_STATUS
 
 logger = logging.getLogger(__name__)
 
@@ -139,15 +140,20 @@ class NfDistributeThread(threading.Thread):
         vnfd_ver = vnfd["vnf"]["properties"].get("descriptor_verison", "")
         vnf_provider = vnfd["vnf"]["properties"].get("provider", "")
         vnf_software_version = vnfd["vnf"]["properties"].get("software_version", "")
+        vnfd_product_name = vnfd["vnf"]["properties"].get("product_name", "")
         VnfPackageModel(
             vnfPackageId=self.csar_id,
             vnfdId=vnfd_id,
             vnfVendor=vnf_provider,
+            vnfdProductName=vnfd_product_name,
             vnfdVersion=vnfd_ver,
             vnfSoftwareVersion=vnf_software_version,
             vnfdModel=vnfd_json,
             localFilePath=local_file_name,
-            vnfPackageUri=csar_name
+            vnfPackageUri=csar_name,
+            onboardingState=PKG_STATUS.ONBOARDED,
+            operationalState=PKG_STATUS.ENABLED,
+            usageState=PKG_STATUS.NOT_IN_USE
         ).save()
         JobUtil.add_job_status(self.job_id, 100, "CSAR(%s) distribute successfully." % self.csar_id)
 

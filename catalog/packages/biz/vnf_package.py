@@ -215,7 +215,8 @@ def parse_vnfd_and_save(vnf_pkg_id, vnf_pkg_path):
             onboardingState=PKG_STATUS.ONBOARDED,
             operationalState=PKG_STATUS.ENABLED,
             usageState=PKG_STATUS.NOT_IN_USE,
-            localFilePath=vnf_pkg_path
+            localFilePath=vnf_pkg_path,
+            vnfPackageUri=os.path.split(vnf_pkg_path)[-1]
         )
     else:
         raise CatalogException("VNF propeties and metadata in VNF Package(id=%s) are empty." % vnf_pkg_id)
