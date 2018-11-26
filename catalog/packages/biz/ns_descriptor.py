@@ -148,6 +148,8 @@ class NsDescriptor(object):
                 vnfd_id = vnf["properties"].get("id", "undefined")
             pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
             if not pkg:
+                pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfd_id)
+            if not pkg:
                 vnfd_name = vnf.get("vnf_id", "undefined")
                 logger.error("[%s] is not distributed.", vnfd_name)
                 raise CatalogException("VNF package(%s) is not distributed." % vnfd_id)
@@ -157,6 +159,8 @@ class NsDescriptor(object):
             if pnfd_id == "undefined":
                 pnfd_id = pnf["properties"].get("id", "undefined")
             pkg = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
+            if not pkg:
+                pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfd_id)
             if not pkg:
                 pnfd_name = pnf.get("pnf_id", "undefined")
                 logger.error("[%s] is not distributed.", pnfd_name)
@@ -206,6 +210,8 @@ class NsDescriptor(object):
                 if vnfd_id == "undefined":
                     vnfd_id = vnf["properties"].get("id", "undefined")
                 pkgs = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
+                if not pkgs:
+                    pkgs = VnfPackageModel.objects.filter(vnfPackageId=vnfd_id)
                 for pkg in pkgs:
                     vnf_pkg_ids.append(pkg.vnfPackageId)
             data['vnfPkgIds'] = vnf_pkg_ids
@@ -216,6 +222,8 @@ class NsDescriptor(object):
                 if pnfd_id == "undefined":
                     pnfd_id = pnf["properties"].get("id", "undefined")
                 pkgs = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
+                if not pkgs:
+                    pkgs = PnfPackageModel.objects.filter(pnfPackageId=pnfd_id)
                 for pkg in pkgs:
                     pnf_info_ids.append(pkg.pnfPackageId)
             data['pnfInfoIds'] = pnf_info_ids  # TODO: need reconfirming
