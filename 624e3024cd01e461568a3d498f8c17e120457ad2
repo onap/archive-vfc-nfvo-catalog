@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9adffdf1_de9dbb5a",
+        "filename": "requirements.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 309
+      },
+      "writtenOn": "2018-12-04T02:57:58Z",
+      "side": 1,
+      "message": "release 1.1.1 doesn\u0027t include the patch for https://jira.opnfv.org/browse/PARSER-187. We should use the pre-release 1.1.1dev3 for now, and wait for the next formal release.",
+      "range": {
+        "startLine": 26,
+        "startChar": 21,
+        "endLine": 26,
+        "endChar": 22
+      },
+      "revId": "624e3024cd01e461568a3d498f8c17e120457ad2",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
