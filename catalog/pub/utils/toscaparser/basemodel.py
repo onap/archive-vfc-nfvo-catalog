@@ -56,7 +56,7 @@ class BaseInfoModel(object):
             _tosca = tosca
         else:
             _tosca = self.buildToscaTemplate(path, params)
-        self.description = _tosca.description
+        self.description = getattr(_tosca, "description", "")
         self.parseModel(_tosca)
 
     def parseModel(self, tosca):
