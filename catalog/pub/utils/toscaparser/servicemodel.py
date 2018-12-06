@@ -25,7 +25,7 @@ SDC_SERVICE_SECTIONS = (SERVICE_TYPE, SRV_DESCRIPTION) = (
 SDC_SERVICE_METADATA_SECTIONS = (SRV_UUID, SRV_INVARIANTUUID, SRV_NAME) = (
     'UUID', 'invariantUUID', 'name')
 
-SDC_VL = (VL_TYPE) = ('nfv.ext.zte.VL')
+SDC_VL = (VL_TYPE) = ('tosca.nodes.nfv.ext.zte.VL')
 SDC_VL_SECTIONS = (VL_ID, VL_METADATA, VL_PROPERTIES, VL_DESCRIPTION) = \
     ("name", "metadata", "properties", "description")
 
