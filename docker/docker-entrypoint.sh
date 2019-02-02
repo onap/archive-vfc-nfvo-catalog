@@ -17,6 +17,18 @@ if [ -z "$MYSQL_ADDR" ]; then
 fi
 echo "MYSQL_ADDR=$MYSQL_ADDR"
 
+if [ -z "$SDC_USER" ]; then
+    echo "Missing required variable SDC_USER"
+    exit 1
+fi
+echo "SDC_USER=$SDC_USER"
+
+if [ -z "$SDC_PASSWD" ]; then
+    echo "Missing required variable SDC_PASSWD"
+    exit 1
+fi
+echo "SDC_PASSWD=$SDC_PASSWD"
+
 # Wait for MSB initialization
 echo "Wait for MSB initialization"
 for i in {1..5}; do
