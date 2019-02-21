@@ -23,7 +23,4 @@ sed -i "s|DB_IP.*|DB_IP = '$MYSQL_IP'|" vfc/nfvo/catalog/catalog/pub/config/conf
 sed -i "s|DB_PORT.*|DB_PORT = $MYSQL_PORT|" vfc/nfvo/catalog/catalog/pub/config/config.py
 sed -i "s|REDIS_HOST.*|REDIS_HOST = '$MYSQL_IP'|" vfc/nfvo/catalog/catalog/pub/config/config.py
 
-sed -i "s|SDC_USER.*|SDC_USER = '$SDC_USER'|" vfc/nfvo/catalog/catalog/pub/config/config.py
-sed -i "s|SDC_PASSWD.*|SDC_PASSWD = $SDC_PASSWD|" vfc/nfvo/catalog/catalog/pub/config/config.py
-
 cat vfc/nfvo/catalog/catalog/pub/config/config.py
