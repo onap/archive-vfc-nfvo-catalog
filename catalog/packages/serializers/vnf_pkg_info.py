@@ -33,6 +33,9 @@ class _LinkSerializer(serializers.Serializer):
         required=True,
         allow_null=False)
 
+    class Meta:
+        ref_name = 'VNF_PKGM_Link_Serializer'
+
 
 class VnfPkgInfoSerializer(serializers.Serializer):
     id = serializers.CharField(
