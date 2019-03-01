@@ -140,3 +140,38 @@ class JobStatusModel(models.Model):
     def toJSON(self):
         import json
         return json.dumps(dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]]))
+
+
+class VnfPkgSubscriptionModel(models.Model):
+    subscription_id = models.CharField(max_length=255, primary_key=True, db_column='SUBSCRIPTION_ID')
+    callback_uri = models.URLField(db_column="CALLBACK_URI", max_length=255)
+    auth_info = models.TextField(db_column="AUTH_INFO")
+    usage_states = models.TextField(db_column="USAGE_STATES")
+    notification_types = models.TextField(db_column="NOTIFICATION_TYPES")
+    vnfd_id = models.TextField(db_column="VNFD_ID")
+    vnf_pkg_id = models.TextField(db_column="VNF_PKG_ID")
+    operation_states = models.TextField(db_column="OPERATION_STATES")
+    vnf_products_from_provider = \
+        models.TextField(db_column="VNF_PRODUCTS_FROM_PROVIDER")
+    links = models.TextField(db_column="LINKS")
+
+    class Meta:
+        db_table = 'VNF_PKG_SUBSCRIPTION'
+
+    def toDict(self):
+        import json
+        subscription_obj = {
+            "id": self.subscription_id,
+            "callbackUri": self.callback_uri,
+            "_links": json.loads(self.links)
+        }
+        filter_obj = {
+            "notificationTypes": json.loads(self.notification_types),
+            "vnfdId": json.loads(self.vnfd_id),
+            "vnfPkgId": json.loads(self.vnf_pkg_id),
+            "operationalState": json.loads(self.operation_states),
+            "usageState": json.loads(self.usage_states),
+            "vnfProductsFromProviders": json.loads(self.vnf_products_from_provider)
+        }
+        subscription_obj["filter"] = filter_obj
+        return subscription_obj

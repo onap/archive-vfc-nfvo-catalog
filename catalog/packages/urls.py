@@ -14,7 +14,8 @@
 
 from django.conf.urls import url
 
-from catalog.packages.views import vnf_package_views
+from catalog.packages.views import vnf_package_views, vnf_package_subscription_views
+from catalog.packages.views.vnf_package_subscription_views import SubscriptionsView
 from catalog.packages.views import catalog_views, ns_descriptor_views, pnf_descriptor_views
 
 
@@ -48,7 +49,9 @@ urlpatterns = [
     url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)$', vnf_package_views.vnf_package_rd, name='vnf_package_rd'),
     url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/package_content$', vnf_package_views.package_content_ru, name='package_content_ru'),
     url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/package_content/upload_from_uri$', vnf_package_views.upload_from_uri_c, name='upload_from_uri_c'),
+    url(r'^api/vnfpkgm/v1/subscriptions$', SubscriptionsView.as_view(), name='subscriptions_create_query'),
+    #url(r'^api/vnfpkgm/v1/subscriptions/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)$', vnf_package_subscription_views.vnf_package_subscriptions_rc, name='subscriptions_rc'),
     # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/vnfd$', vnfd.as_view(), name='vnfd_r'),# url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/artifacts/artifactPath$', artifacts.as_view(), name='artifacts_r'),
-    # url(r'^api/vnfpkgm/v1/subscriptions', vnfpkg_subscriptions.as_view(), name='subscriptions_rc'),
+
     # url(r'^api/vnfpkgm/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', vnfpkg_subscription.as_view(), name='subscription_rd'),
 ]
