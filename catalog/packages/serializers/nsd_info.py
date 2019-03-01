@@ -29,6 +29,9 @@ class _LinkSerializer(serializers.Serializer):
         allow_null=False
     )
 
+    class Meta:
+        ref_name = 'NSD_LinkSerializer'
+
 
 class NsdInfoSerializer(serializers.Serializer):
     id = serializers.CharField(

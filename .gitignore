@@ -5,3 +5,5 @@ logs/*.log
 target
 htmlcov
 .coverage
+static/*/*
+test-reports/*
