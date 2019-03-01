@@ -19,3 +19,11 @@ class CatalogException(Exception):
 
 class ResourceNotFoundException(CatalogException):
     pass
+
+
+class VnfPkgSubscriptionException(CatalogException):
+    pass
+
+
+class VnfPkgDuplicateSubscriptionException(CatalogException):
+    pass
