@@ -27,3 +27,15 @@ class VnfPkgSubscriptionException(CatalogException):
 
 class VnfPkgDuplicateSubscriptionException(CatalogException):
     pass
+
+
+class ResourceNotFoundException(CatalogException):
+    pass
+
+
+class NsdmBadRequestException(CatalogException):
+    pass
+
+
+class NsdmDuplicateSubscriptionException(CatalogException):
+    pass

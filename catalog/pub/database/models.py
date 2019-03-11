@@ -142,6 +142,40 @@ class JobStatusModel(models.Model):
         return json.dumps(dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]]))
 
 
+class NsdmSubscriptionModel(models.Model):
+    subscriptionid = models.CharField(db_column='SUBSCRIPTIONID', max_length=255, primary_key=True)
+    notificationTypes = models.TextField(db_column='NOTIFICATIONTYPES', null=True)
+    auth_info = models.TextField(db_column='AUTHINFO', null=True)
+    callback_uri = models.CharField(db_column='CALLBACKURI', max_length=255)
+    nsdInfoId = models.TextField(db_column='NSDINFOID', null=True)
+    nsdId = models.TextField(db_column='NSDID', null=True)
+    nsdName = models.TextField(db_column='NSDNAME', null=True)
+    nsdVersion = models.TextField(db_column='NSDVERSION', null=True)
+    nsdDesigner = models.TextField(db_column='NSDDESIGNER', null=True)
+    nsdInvariantId = models.TextField(db_column='NSDINVARIANTID', null=True)
+    vnfPkgIds = models.TextField(db_column='VNFPKGIDS', null=True)
+    pnfdInfoIds = models.TextField(db_column='PNFDINFOIDS', null=True)
+    nestedNsdInfoIds = models.TextField(db_column='NESTEDNSDINFOIDS', null=True)
+    nsdOnboardingState = models.TextField(db_column='NSDONBOARDINGSTATE', null=True)
+    nsdOperationalState = models.TextField(db_column='NSDOPERATIONALSTATE', null=True)
+    nsdUsageState = models.TextField(db_column='NSDUSAGESTATE', null=True)
+    pnfdId = models.TextField(db_column='PNFDID', null=True)
+    pnfdName = models.TextField(db_column='PNFDNAME', null=True)
+    pnfdVersion = models.TextField(db_column='PNFDVERSION', null=True)
+    pnfdProvider = models.TextField(db_column='PNFDPROVIDER', null=True)
+    pnfdInvariantId = models.TextField(db_column='PNFDINVARIANTID', null=True)
+    pnfdOnboardingState = models.TextField(db_column='PNFDONBOARDINGSTATE', null=True)
+    pnfdUsageState = models.TextField(db_column='PNFDUSAGESTATE', null=True)
+    links = models.TextField(db_column='LINKS')
+
+    class Meta:
+        db_table = 'CATALOG_NSDM_SUBSCRIPTION'
+
+    def toJSON(self):
+        import json
+        return json.dumps(dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]]))
+
+
 class VnfPkgSubscriptionModel(models.Model):
     subscription_id = models.CharField(max_length=255, primary_key=True, db_column='SUBSCRIPTION_ID')
     callback_uri = models.URLField(db_column="CALLBACK_URI", max_length=255)
