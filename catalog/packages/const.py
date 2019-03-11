@@ -26,3 +26,22 @@ OAUTH2_CLIENT_CREDENTIALS = "OAUTH2_CLIENT_CREDENTIALS"
 NOTIFICATION_TYPES = ["VnfPackageOnboardingNotification", "VnfPackageChangeNotification"]
 
 VNFPKG_SUBSCRIPTION_ROOT_URI = "api/vnfpkgm/v1/subscriptions/"
+
+NSDM_SUBSCRIPTION_ROOT_URI = "api/nsd/v1/subscriptions/"
+
+NSDM_NOTIFICATION_FILTERS = ["notificationTypes", "nsdInfoId", "nsdName",
+                             "nsdId", "nsdVersion", "nsdDesigner",
+                             "nsdInvariantId", "vnfPkgIds", "pnfdInfoIds",
+                             "nestedNsdInfoIds", "nsdOnboardingState",
+                             "nsdOperationalState", "nsdUsageState",
+                             "pnfdId", "pnfdName", "pnfdVersion",
+                             "pnfdProvider", "pnfdInvariantId",
+                             "pnfdOnboardingState", "pnfdUsageState"]
+
+NSDM_NOTIFICATION_TYPES = ["NsdOnBoardingNotification",
+                           "NsdOnboardingFailureNotification",
+                           "NsdChangeNotification",
+                           "NsdDeletionNotification",
+                           "PnfdOnBoardingNotification",
+                           "PnfdOnBoardingFailureNotification",
+                           "PnfdDeletionNotification"]

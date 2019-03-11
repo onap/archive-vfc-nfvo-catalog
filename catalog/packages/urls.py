@@ -16,7 +16,7 @@ from django.conf.urls import url
 
 from catalog.packages.views import vnf_package_views
 from catalog.packages.views.vnf_package_subscription_views import SubscriptionsView
-from catalog.packages.views import catalog_views, ns_descriptor_views, pnf_descriptor_views
+from catalog.packages.views import catalog_views, ns_descriptor_views, pnf_descriptor_views, nsdm_subscription_views
 
 
 urlpatterns = [
@@ -36,8 +36,8 @@ urlpatterns = [
     url(r'^api/nsd/v1/ns_descriptors$', ns_descriptor_views.ns_descriptors_rc, name='ns_descriptors_rc'),
     url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)$', ns_descriptor_views.ns_info_rd, name='ns_info_rd'),
     url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)/nsd_content$', ns_descriptor_views.nsd_content_ru, name='nsd_content_ru'),
-    # url(r'^api/nsd/v1/subscriptions', nsd_subscriptions.as_view(), name='subscriptions_rc'),
-    # url(r'^api/nsd/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', nsd_subscription.as_view(), name='subscription_rd'),
+    url(r'^api/nsd/v1/subscriptions$', nsdm_subscription_views.nsd_subscription_rc, name='nsd_subscription_rc'),
+    # url(r'^api/nsd/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', nsdm_subscription_views.nsd_subscription_rd, name='nsd_subscription_rd'),
 
     #  ETSI SOL005 PNFD
     url(r'^api/nsd/v1/pnf_descriptors$', pnf_descriptor_views.pnf_descriptors_rc, name='pnf_descriptors_rc'),
