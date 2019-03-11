@@ -26,3 +26,5 @@ class ProblemDetailsSerializer(serializers.Serializer):
         "specification or by an implementation.",
         required=False,
         allow_null=True)
+    class Meta:
+        ref_name = 'SUBSCRIPTION_ProblemDetailsSerializer'
