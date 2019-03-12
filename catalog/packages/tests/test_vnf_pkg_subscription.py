@@ -153,3 +153,25 @@ class TestNfPackageSubscription(TestCase):
         response = self.client.get("/api/vnfpkgm/v1/subscriptions/" + dummy_uuid,
                                    format='json')
         self.assertEqual(404, response.status_code)
+
+    @mock.patch("requests.get")
+    @mock.patch.object(uuid, 'uuid4')
+    def test_delete_subscription_with_id(self, mock_uuid4, mock_requests):
+        temp_uuid = "99442b18-a5c7-11e8-998c-bf1755941f13"
+        dummy_uuid = str(uuid.uuid4())
+        mock_requests.return_value.status_code = 204
+        mock_requests.get.status_code = 204
+        mock_uuid4.return_value = temp_uuid
+        self.client.post("/api/vnfpkgm/v1/subscriptions",
+                         data=self.vnf_subscription_data, format='json')
+        self.client.get("/api/vnfpkgm/v1/subscriptions/" + dummy_uuid,
+                        format='json')
+        response = self.client.delete("/api/vnfpkgm/v1/subscriptions/" + temp_uuid)
+        self.assertEqual(204, response.status_code)
+
+    @mock.patch("requests.get")
+    @mock.patch.object(uuid, 'uuid4')
+    def test_delete_subscription_with_id_not_exists(self, mock_uuid4, mock_requests):
+        dummy_uuid = str(uuid.uuid4())
+        response = self.client.delete("/api/vnfpkgm/v1/subscriptions/" + dummy_uuid)
+        self.assertEqual(404, response.status_code)
