@@ -99,3 +99,38 @@ class CreateQuerySubscriptionView(APIView):
             problem_details_serializer = get_problem_details_serializer(status.HTTP_500_INTERNAL_SERVER_ERROR,
                                                                         traceback.format_exc())
             return Response(data=problem_details_serializer.data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class QueryTerminateSubscriptionView(APIView):
+
+
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: PkgmSubscriptionSerializer(),
+            status.HTTP_404_NOT_FOUND: ProblemDetailsSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
+        }
+    )
+    def get(self, request, subscriptionId):
+        logger.debug("SubscribeNotification--get::> %s" % subscriptionId)
+        try:
+
+            resp_data = QuerySubscription().query_single_subscription(subscriptionId)
+
+            subscription_serializer = PkgmSubscriptionSerializer(data=resp_data)
+            if not subscription_serializer.is_valid():
+                raise VnfPkgSubscriptionException(subscription_serializer.errors)
+
+            return Response(data=subscription_serializer.data, status=status.HTTP_200_OK)
+        except SubscriptionDoesNotExistsException as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = get_problem_details_serializer(status.HTTP_404_NOT_FOUND,
+                                                                        traceback.format_exc())
+            return Response(data=problem_details_serializer.data, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = get_problem_details_serializer(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                                        traceback.format_exc())
+            return Response(data=problem_details_serializer.data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
