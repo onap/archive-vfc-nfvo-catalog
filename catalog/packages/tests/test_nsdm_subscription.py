@@ -434,3 +434,53 @@ class TestNsdmSubscription(TestCase):
         response = self.client.get('/api/nsd/v1/subscriptions', format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_nsdm_get_subscription(self):
+        NsdmSubscriptionModel(subscriptionid=self.subscription_id,
+                              callback_uri="http://callbackuri.com",
+                              auth_info={},
+                              notificationTypes=json.dumps(
+                                  ["NsdOnBoardingNotification"]),
+                              nsdId=[], nsdVersion=[],
+                              nsdInfoId=[], nsdDesigner=[],
+                              nsdName=[], nsdInvariantId=[],
+                              vnfPkgIds=[], pnfdInfoIds=[],
+                              nestedNsdInfoIds=[], nsdOnboardingState=[],
+                              nsdOperationalState=[], nsdUsageState=[],
+                              pnfdId=[], pnfdVersion=[], pnfdProvider=[],
+                              pnfdName=[], pnfdInvariantId=[],
+                              pnfdOnboardingState=[], pnfdUsageState=[],
+                              links=json.dumps(self.links)).save()
+        response = self.client.get('/api/nsd/v1/'
+                                   'subscriptions/' + self.subscription_id,
+                                   format='json')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(self.test_subscription, response.data)
+
+    def test_nsdm_get_subscription_failure(self):
+        expected_data = {
+            "title": "Query Subscription Failed!",
+            "status": 404,
+            "detail": "Subscription(" + self.subscription_id + ") "
+            "doesn't exists"
+        }
+        response = self.client.get('/api/nsd/v1/'
+                                   'subscriptions/' + self.subscription_id,
+                                   format='json')
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+        self.assertEqual(expected_data, response.data)
+
+    def test_nsdm_get_subscription_failure_bad_request(self):
+        response = self.client.get("/api/nsd/v1/subscriptions/123",
+                                   format='json')
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    @mock.patch.object(NsdmSubscription, 'query_single_subscription')
+    def test_nsdmsubscription_getsingle_when_catch_exception(
+            self, mock_create):
+        mock_create.side_effect = TypeError("Unicode type")
+        response = self.client.get('/api/nsd/v1/'
+                                   'subscriptions/' + self.subscription_id,
+                                   format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_500_INTERNAL_SERVER_ERROR)
