@@ -82,7 +82,7 @@ class TestNfPackageSubscription(TestCase):
 
     @mock.patch("requests.get")
     @mock.patch.object(uuid, 'uuid4')
-    def test_create_duplicate_subscriptions(self, mock_uuid4, mock_requests):
+    def test_duplicate_subscriptions(self, mock_uuid4, mock_requests):
         temp_uuid = "99442b18-a5c7-11e8-998c-bf1755941f13"
         temp1_uuid = "00342b18-a5c7-11e8-998c-bf1755941f12"
         mock_requests.return_value.status_code = 204
@@ -98,3 +98,30 @@ class TestNfPackageSubscription(TestCase):
         mock_uuid4.return_value = temp_uuid
         response = self.client.post("/api/vnfpkgm/v1/subscriptions", data=self.vnf_subscription_data, format='json')
         self.assertEqual(303, response.status_code)
+
+    @mock.patch("requests.get")
+    @mock.patch.object(uuid, 'uuid4')
+    def test_get_subscriptions(self, mock_uuid4, mock_requests):
+        temp_uuid = "99442b18-a5c7-11e8-998c-bf1755941f13"
+        mock_requests.return_value.status_code = 204
+        mock_requests.get.status_code = 204
+        mock_uuid4.return_value = temp_uuid
+        self.client.post("/api/vnfpkgm/v1/subscriptions",
+                         data=self.vnf_subscription_data, format='json')
+        response = self.client.get("/api/vnfpkgm/v1/subscriptions?usageState=IN_USE",
+                                   format='json')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.data))
+
+    @mock.patch("requests.get")
+    @mock.patch.object(uuid, 'uuid4')
+    def test_get_subscriptions_with_invalid_params(self, mock_uuid4, mock_requests):
+        temp_uuid = "99442b18-a5c7-11e8-998c-bf1755941f13"
+        mock_requests.return_value.status_code = 204
+        mock_requests.get.status_code = 204
+        mock_uuid4.return_value = temp_uuid
+        self.client.post("/api/vnfpkgm/v1/subscriptions",
+                         data=self.vnf_subscription_data, format='json')
+        response = self.client.get("/api/vnfpkgm/v1/subscriptions?dummy=dummy",
+                                   format='json')
+        self.assertEqual(400, response.status_code)
