@@ -171,7 +171,18 @@ def nsd_subscription_rc(request):
         status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
     }
 )
-@api_view(http_method_names=['GET'])
+@swagger_auto_schema(
+    method='DELETE',
+    operation_description="Delete subscription for Nsd Management",
+    request_body=no_body,
+    responses={
+        status.HTTP_204_NO_CONTENT: 'No_Content',
+        status.HTTP_400_BAD_REQUEST: ProblemDetailsSerializer(),
+        status.HTTP_404_NOT_FOUND: ProblemDetailsSerializer(),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
+    }
+)
+@api_view(http_method_names=['GET', 'DELETE'])
 def nsd_subscription_rd(request, **kwargs):
     subscription_id = kwargs.get("subscriptionId")
     if request.method == 'GET':
@@ -208,6 +219,41 @@ def nsd_subscription_rd(request, **kwargs):
                     title,
                     status.HTTP_500_INTERNAL_SERVER_ERROR,
                     "Query of subscriptioni(%s) Failed"
+                    % subscription_id)
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    elif request.method == 'DELETE':
+        try:
+            title = 'Delete Subscription Failed!'
+            validate_data({'subscription_id': subscription_id},
+                          NsdmSubscriptionIdSerializer)
+            subscription_data = NsdmSubscription().\
+                delete_single_subscription(subscription_id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except NsdmBadRequestException as e:
+            logger.error(e.message)
+            problem_details_serializer = \
+                get_problem_details_serializer(title,
+                                               status.HTTP_400_BAD_REQUEST,
+                                               e.message)
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_400_BAD_REQUEST)
+        except ResourceNotFoundException as e:
+            logger.error(e.message)
+            problem_details_serializer = \
+                get_problem_details_serializer(title,
+                                               status.HTTP_404_NOT_FOUND,
+                                               e.message)
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = \
+                get_problem_details_serializer(
+                    title,
+                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "Delete of subscription(%s) Failed"
                     % subscription_id)
             return Response(data=problem_details_serializer.data,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -57,6 +57,17 @@ class NsdmSubscription:
         logger.debug("Subscription found... ")
         return self.fill_resp_data(subscription[0])
 
+    def delete_single_subscription(self, subscription_id):
+        logger.debug("Start Delete Subscription... ")
+        subscription = \
+            NsdmSubscriptionModel.objects.filter(
+                subscriptionid=subscription_id)
+        if not subscription.exists():
+            raise ResourceNotFoundException(
+                "Subscription(%s) doesn't exists" % subscription_id)
+        subscription.delete()
+        logger.debug("Deleted Subscription... ")
+
     def query_multi_subscriptions(self, query_params):
         self.params = query_params
         query_data = {}
