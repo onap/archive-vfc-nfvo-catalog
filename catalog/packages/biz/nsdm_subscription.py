@@ -46,6 +46,17 @@ class NsdmSubscription:
     def __init__(self):
         pass
 
+    def query_single_subscription(self, subscription_id):
+        logger.debug("Start Query Subscription... ")
+        subscription = \
+            NsdmSubscriptionModel.objects.filter(
+                subscriptionid=subscription_id)
+        if not subscription.exists():
+            raise ResourceNotFoundException(
+                "Subscription(%s) doesn't exists" % subscription_id)
+        logger.debug("Subscription found... ")
+        return self.fill_resp_data(subscription[0])
+
     def query_multi_subscriptions(self, query_params):
         self.params = query_params
         query_data = {}

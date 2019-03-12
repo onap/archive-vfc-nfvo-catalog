@@ -24,6 +24,7 @@ from catalog.packages.serializers.nsdm_filter_data \
     import NsdmNotificationsFilter
 from catalog.packages.serializers.nsdm_subscription import \
     NsdmSubscriptionsSerializer, \
+    NsdmSubscriptionIdSerializer, \
     NsdmSubscriptionSerializer, \
     NsdmSubscriptionRequestSerializer
 from catalog.packages.serializers.response \
@@ -155,5 +156,58 @@ def nsd_subscription_rc(request):
                     title,
                     status.HTTP_500_INTERNAL_SERVER_ERROR,
                     traceback.format_exc())
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query subscriptions for Nsd Management",
+    request_body=no_body,
+    responses={
+        status.HTTP_200_OK: NsdmSubscriptionSerializer(),
+        status.HTTP_400_BAD_REQUEST: ProblemDetailsSerializer(),
+        status.HTTP_404_NOT_FOUND: ProblemDetailsSerializer(),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
+    }
+)
+@api_view(http_method_names=['GET'])
+def nsd_subscription_rd(request, **kwargs):
+    subscription_id = kwargs.get("subscriptionId")
+    if request.method == 'GET':
+        try:
+            title = 'Query Subscription Failed!'
+            validate_data({'subscription_id': subscription_id},
+                          NsdmSubscriptionIdSerializer)
+            subscription_data = \
+                NsdmSubscription().query_single_subscription(subscription_id)
+            subscription = validate_data(subscription_data,
+                                         NsdmSubscriptionSerializer)
+            return Response(data=subscription.data, status=status.HTTP_200_OK)
+        except NsdmBadRequestException as e:
+            logger.error(e.message)
+            problem_details_serializer = \
+                get_problem_details_serializer(title,
+                                               status.HTTP_400_BAD_REQUEST,
+                                               e.message)
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_400_BAD_REQUEST)
+        except ResourceNotFoundException as e:
+            logger.error(e.message)
+            problem_details_serializer = \
+                get_problem_details_serializer(title,
+                                               status.HTTP_404_NOT_FOUND,
+                                               e.message)
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = \
+                get_problem_details_serializer(
+                    title,
+                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "Query of subscriptioni(%s) Failed"
+                    % subscription_id)
             return Response(data=problem_details_serializer.data,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
