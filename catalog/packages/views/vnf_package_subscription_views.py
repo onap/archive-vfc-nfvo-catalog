@@ -22,11 +22,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from catalog.packages.serializers.vnf_pkg_subscription import PkgmSubscriptionRequestSerializer, \
-    PkgmSubscriptionSerializer
+    PkgmSubscriptionSerializer, PkgmSubscriptionsSerializer
 from catalog.packages.serializers.response import ProblemDetailsSerializer
-from catalog.packages.biz.vnf_pkg_subscription import CreateSubscription
+from catalog.packages.biz.vnf_pkg_subscription import CreateSubscription, QuerySubscription
 from catalog.packages.views.common import validate_data
-from catalog.pub.exceptions import VnfPkgDuplicateSubscriptionException
+from catalog.pub.exceptions import VnfPkgDuplicateSubscriptionException, VnfPkgSubscriptionException
 
 logger = logging.getLogger(__name__)
 VALID_FILTERS = ["callbackUri", "notificationTypes", "vnfdId", "vnfPkgId", "operationalState", "usageState"]
@@ -42,7 +42,7 @@ def get_problem_details_serializer(status_code, error_message):
     return problem_details_serializer
 
 
-class SubscriptionsView(APIView):
+class CreateQuerySubscriptionView(APIView):
 
     @swagger_auto_schema(
         request_body=PkgmSubscriptionRequestSerializer,
@@ -64,6 +64,35 @@ class SubscriptionsView(APIView):
             problem_details_serializer = get_problem_details_serializer(status.HTTP_303_SEE_OTHER,
                                                                         traceback.format_exc())
             return Response(data=problem_details_serializer.data, status=status.HTTP_303_SEE_OTHER)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = get_problem_details_serializer(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                                        traceback.format_exc())
+            return Response(data=problem_details_serializer.data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: PkgmSubscriptionSerializer(),
+            status.HTTP_400_BAD_REQUEST: ProblemDetailsSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
+        }
+    )
+    def get(self, request):
+        logger.debug("SubscribeNotification--get::> %s" % request.query_params)
+        try:
+            if request.query_params and not set(request.query_params).issubset(set(VALID_FILTERS)):
+                problem_details_serializer = get_problem_details_serializer(status.HTTP_400_BAD_REQUEST,
+                                                                            "Not a valid filter")
+                return Response(data=problem_details_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+            resp_data = QuerySubscription().query_multi_subscriptions(request.query_params)
+
+            subscriptions_serializer = PkgmSubscriptionsSerializer(data=resp_data)
+            if not subscriptions_serializer.is_valid():
+                raise VnfPkgSubscriptionException(subscriptions_serializer.errors)
+
+            return Response(data=subscriptions_serializer.data, status=status.HTTP_200_OK)
+
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
