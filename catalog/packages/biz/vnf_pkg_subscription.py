@@ -167,3 +167,17 @@ class QuerySubscription(object):
             raise SubscriptionDoesNotExistsException("Subscription with ID: %s "
                                                      "does not exists" % subscription_id)
         return subscription[0].toDict()
+
+
+class TerminateSubscription(object):
+
+    def terminate(self, subscription_id):
+        logger.debug("TerminateSubscriptions--delete--biz::> "
+                     "ID: %s" % subscription_id)
+
+        subscription = VnfPkgSubscriptionModel.objects.filter(
+            subscription_id=subscription_id)
+        if not subscription.exists():
+            raise SubscriptionDoesNotExistsException("Subscription with ID: %s "
+                                                     "does not exists" % subscription_id)
+        subscription[0].delete()

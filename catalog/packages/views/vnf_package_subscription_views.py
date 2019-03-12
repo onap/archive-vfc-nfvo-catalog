@@ -24,9 +24,10 @@ from rest_framework.response import Response
 from catalog.packages.serializers.vnf_pkg_subscription import PkgmSubscriptionRequestSerializer, \
     PkgmSubscriptionSerializer, PkgmSubscriptionsSerializer
 from catalog.packages.serializers.response import ProblemDetailsSerializer
-from catalog.packages.biz.vnf_pkg_subscription import CreateSubscription, QuerySubscription
+from catalog.packages.biz.vnf_pkg_subscription import CreateSubscription, QuerySubscription, TerminateSubscription
 from catalog.packages.views.common import validate_data
-from catalog.pub.exceptions import VnfPkgDuplicateSubscriptionException, VnfPkgSubscriptionException
+from catalog.pub.exceptions import VnfPkgDuplicateSubscriptionException, VnfPkgSubscriptionException, \
+    SubscriptionDoesNotExistsException
 
 logger = logging.getLogger(__name__)
 VALID_FILTERS = ["callbackUri", "notificationTypes", "vnfdId", "vnfPkgId", "operationalState", "usageState"]
@@ -103,7 +104,6 @@ class CreateQuerySubscriptionView(APIView):
 
 class QueryTerminateSubscriptionView(APIView):
 
-
     @swagger_auto_schema(
         responses={
             status.HTTP_200_OK: PkgmSubscriptionSerializer(),
@@ -122,6 +122,31 @@ class QueryTerminateSubscriptionView(APIView):
                 raise VnfPkgSubscriptionException(subscription_serializer.errors)
 
             return Response(data=subscription_serializer.data, status=status.HTTP_200_OK)
+        except SubscriptionDoesNotExistsException as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = get_problem_details_serializer(status.HTTP_404_NOT_FOUND,
+                                                                        traceback.format_exc())
+            return Response(data=problem_details_serializer.data, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = get_problem_details_serializer(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                                        traceback.format_exc())
+            return Response(data=problem_details_serializer.data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_204_NO_CONTENT: "",
+            status.HTTP_404_NOT_FOUND: ProblemDetailsSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
+        }
+    )
+    def delete(self, request, subscriptionId):
+        logger.debug("SubscribeNotification--get::> %s" % subscriptionId)
+        try:
+            TerminateSubscription().terminate(subscriptionId)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except SubscriptionDoesNotExistsException as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
