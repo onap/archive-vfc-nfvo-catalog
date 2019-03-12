@@ -15,7 +15,7 @@
 from django.conf.urls import url
 
 from catalog.packages.views import vnf_package_views
-from catalog.packages.views.vnf_package_subscription_views import CreateQuerySubscriptionView
+from catalog.packages.views.vnf_package_subscription_views import CreateQuerySubscriptionView, QueryTerminateSubscriptionView
 from catalog.packages.views import catalog_views, ns_descriptor_views, pnf_descriptor_views, nsdm_subscription_views
 
 
@@ -52,6 +52,7 @@ urlpatterns = [
 
     # ETSI SOL 005 VNF Package Management Subscription APIs
     url(r'^api/vnfpkgm/v1/subscriptions$', CreateQuerySubscriptionView.as_view(), name='subscriptions_create_query'),
+    url(r'^api/vnfpkgm/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', QueryTerminateSubscriptionView.as_view(), name='subscriptions_query_terminate'),
     # url(r'^api/vnfpkgm/v1/subscriptions/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)$', vnf_package_subscription_views.vnf_package_subscriptions_rc, name='subscriptions_rc'),
     # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/vnfd$', vnfd.as_view(), name='vnfd_r'),# url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/artifacts/artifactPath$', artifacts.as_view(), name='artifacts_r'),
 

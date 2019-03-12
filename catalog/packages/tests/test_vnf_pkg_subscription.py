@@ -125,3 +125,31 @@ class TestNfPackageSubscription(TestCase):
         response = self.client.get("/api/vnfpkgm/v1/subscriptions?dummy=dummy",
                                    format='json')
         self.assertEqual(400, response.status_code)
+
+    @mock.patch("requests.get")
+    @mock.patch.object(uuid, 'uuid4')
+    def test_get_subscription_with_id(self, mock_uuid4, mock_requests):
+        temp_uuid = "99442b18-a5c7-11e8-998c-bf1755941f13"
+        mock_requests.return_value.status_code = 204
+        mock_requests.get.status_code = 204
+        mock_uuid4.return_value = temp_uuid
+        self.client.post("/api/vnfpkgm/v1/subscriptions",
+                         data=self.vnf_subscription_data, format='json')
+        response = self.client.get("/api/vnfpkgm/v1/subscriptions/" + temp_uuid,
+                                   format='json')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(temp_uuid, response.data["id"])
+
+    @mock.patch("requests.get")
+    @mock.patch.object(uuid, 'uuid4')
+    def test_get_subscription_with_id_not_exists(self, mock_uuid4, mock_requests):
+        temp_uuid = "99442b18-a5c7-11e8-998c-bf1755941f13"
+        dummy_uuid = str(uuid.uuid4())
+        mock_requests.return_value.status_code = 204
+        mock_requests.get.status_code = 204
+        mock_uuid4.return_value = temp_uuid
+        self.client.post("/api/vnfpkgm/v1/subscriptions",
+                         data=self.vnf_subscription_data, format='json')
+        response = self.client.get("/api/vnfpkgm/v1/subscriptions/" + dummy_uuid,
+                                   format='json')
+        self.assertEqual(404, response.status_code)

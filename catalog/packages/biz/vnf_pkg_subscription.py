@@ -25,7 +25,7 @@ from rest_framework import status
 from catalog.packages import const
 from catalog.pub.database.models import VnfPkgSubscriptionModel
 from catalog.pub.exceptions import VnfPkgSubscriptionException,\
-    VnfPkgDuplicateSubscriptionException
+    VnfPkgDuplicateSubscriptionException, SubscriptionDoesNotExistsException
 from catalog.pub.utils.values import ignore_case_get
 
 
@@ -156,3 +156,14 @@ class QuerySubscription(object):
         if not subscriptions.exists():
             return []
         return [subscription.toDict() for subscription in subscriptions]
+
+    def query_single_subscription(self, subscription_id):
+        logger.debug("QuerySingleSubscriptions--get--single--subscription--biz::> "
+                     "ID: %s" % subscription_id)
+
+        subscription = VnfPkgSubscriptionModel.objects.filter(
+            subscription_id=subscription_id)
+        if not subscription.exists():
+            raise SubscriptionDoesNotExistsException("Subscription with ID: %s "
+                                                     "does not exists" % subscription_id)
+        return subscription[0].toDict()

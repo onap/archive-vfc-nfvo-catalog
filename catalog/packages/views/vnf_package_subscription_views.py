@@ -26,7 +26,8 @@ from catalog.packages.serializers.vnf_pkg_subscription import PkgmSubscriptionRe
 from catalog.packages.serializers.response import ProblemDetailsSerializer
 from catalog.packages.biz.vnf_pkg_subscription import CreateSubscription, QuerySubscription
 from catalog.packages.views.common import validate_data
-from catalog.pub.exceptions import VnfPkgDuplicateSubscriptionException, VnfPkgSubscriptionException
+from catalog.pub.exceptions import VnfPkgDuplicateSubscriptionException, VnfPkgSubscriptionException, \
+    SubscriptionDoesNotExistsException
 
 logger = logging.getLogger(__name__)
 VALID_FILTERS = ["callbackUri", "notificationTypes", "vnfdId", "vnfPkgId", "operationalState", "usageState"]
@@ -93,6 +94,40 @@ class CreateQuerySubscriptionView(APIView):
 
             return Response(data=subscriptions_serializer.data, status=status.HTTP_200_OK)
 
+        except Exception as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = get_problem_details_serializer(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                                        traceback.format_exc())
+            return Response(data=problem_details_serializer.data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class QueryTerminateSubscriptionView(APIView):
+
+    @swagger_auto_schema(
+        responses={
+            status.HTTP_200_OK: PkgmSubscriptionSerializer(),
+            status.HTTP_404_NOT_FOUND: ProblemDetailsSerializer(),
+            status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
+        }
+    )
+    def get(self, request, subscriptionId):
+        logger.debug("SubscribeNotification--get::> %s" % subscriptionId)
+        try:
+
+            resp_data = QuerySubscription().query_single_subscription(subscriptionId)
+
+            subscription_serializer = PkgmSubscriptionSerializer(data=resp_data)
+            if not subscription_serializer.is_valid():
+                raise VnfPkgSubscriptionException(subscription_serializer.errors)
+
+            return Response(data=subscription_serializer.data, status=status.HTTP_200_OK)
+        except SubscriptionDoesNotExistsException as e:
+            logger.error(e.message)
+            logger.error(traceback.format_exc())
+            problem_details_serializer = get_problem_details_serializer(status.HTTP_404_NOT_FOUND,
+                                                                        traceback.format_exc())
+            return Response(data=problem_details_serializer.data, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             logger.error(e.message)
             logger.error(traceback.format_exc())
