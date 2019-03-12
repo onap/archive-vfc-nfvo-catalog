@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)$', ns_descriptor_views.ns_info_rd, name='ns_info_rd'),
     url(r'^api/nsd/v1/ns_descriptors/(?P<nsdInfoId>[0-9a-zA-Z\-\_]+)/nsd_content$', ns_descriptor_views.nsd_content_ru, name='nsd_content_ru'),
     url(r'^api/nsd/v1/subscriptions$', nsdm_subscription_views.nsd_subscription_rc, name='nsd_subscription_rc'),
-    # url(r'^api/nsd/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', nsdm_subscription_views.nsd_subscription_rd, name='nsd_subscription_rd'),
+    url(r'^api/nsd/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', nsdm_subscription_views.nsd_subscription_rd, name='nsd_subscription_rd'),
 
     #  ETSI SOL005 PNFD
     url(r'^api/nsd/v1/pnf_descriptors$', pnf_descriptor_views.pnf_descriptors_rc, name='pnf_descriptors_rc'),
