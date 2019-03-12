@@ -15,17 +15,21 @@
 import logging
 import traceback
 
-from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from catalog.packages.serializers.nsdm_filter_data \
+    import NsdmNotificationsFilter
 from catalog.packages.serializers.nsdm_subscription import \
+    NsdmSubscriptionsSerializer, \
     NsdmSubscriptionSerializer, \
     NsdmSubscriptionRequestSerializer
 from catalog.packages.serializers.response \
     import ProblemDetailsSerializer
 from catalog.pub.exceptions import \
+    ResourceNotFoundException, \
     NsdmBadRequestException, NsdmDuplicateSubscriptionException
 from catalog.packages.biz.nsdm_subscription import NsdmSubscription
 
@@ -63,7 +67,18 @@ def get_problem_details_serializer(title, status_code, error_message):
         status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
     }
 )
-@api_view(http_method_names=['POST'])
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query subscriptions for Nsd Management",
+    request_body=no_body,
+    responses={
+        status.HTTP_200_OK: NsdmSubscriptionsSerializer(),
+        status.HTTP_400_BAD_REQUEST: ProblemDetailsSerializer(),
+        status.HTTP_404_NOT_FOUND: ProblemDetailsSerializer(),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer(),
+    }
+)
+@api_view(http_method_names=['POST', 'GET'])
 def nsd_subscription_rc(request):
     if request.method == 'POST':
         logger.debug("SubscribeNotification--post::> %s" % request.data)
@@ -101,5 +116,44 @@ def nsd_subscription_rc(request):
                     title,
                     status.HTTP_500_INTERNAL_SERVER_ERROR,
                     e.message)
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if request.method == 'GET':
+        logger.debug("Subscription Notification GET %s" % request.query_params)
+        try:
+            title = 'Query Subscription Failed!'
+            request_query_params = {}
+            if request.query_params:
+                request_query_params = \
+                    validate_data(request.query_params,
+                                  NsdmNotificationsFilter).data
+            subscription_data = \
+                NsdmSubscription().query_multi_subscriptions(
+                    request_query_params)
+            subscriptions = validate_data(subscription_data,
+                                          NsdmSubscriptionsSerializer)
+            return Response(data=subscriptions.data, status=status.HTTP_200_OK)
+        except NsdmBadRequestException as e:
+            logger.error(e.message)
+            problem_details_serializer = \
+                get_problem_details_serializer(title,
+                                               status.HTTP_400_BAD_REQUEST,
+                                               e.message)
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_400_BAD_REQUEST)
+        except ResourceNotFoundException as e:
+            problem_details_serializer = \
+                get_problem_details_serializer(title,
+                                               status.HTTP_404_NOT_FOUND,
+                                               e.message)
+            return Response(data=problem_details_serializer.data,
+                            status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e.message)
+            problem_details_serializer = \
+                get_problem_details_serializer(
+                    title,
+                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    traceback.format_exc())
             return Response(data=problem_details_serializer.data,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

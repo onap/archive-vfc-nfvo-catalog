@@ -25,6 +25,7 @@ from rest_framework import status
 from catalog.packages import const
 from catalog.pub.database.models import NsdmSubscriptionModel
 from catalog.pub.exceptions import CatalogException, \
+    ResourceNotFoundException, \
     NsdmBadRequestException, NsdmDuplicateSubscriptionException
 from catalog.pub.utils.values import ignore_case_get
 
@@ -44,6 +45,25 @@ class NsdmSubscription:
 
     def __init__(self):
         pass
+
+    def query_multi_subscriptions(self, query_params):
+        self.params = query_params
+        query_data = {}
+        logger.debug("Start QueryMultiSubscriptions get --> "
+                     "Check for filters in query params" % self.params)
+        for query, value in self.params.iteritems():
+            if query in const.NSDM_NOTIFICATION_FILTERS and value:
+                query_data[query + '__icontains'] = json.dumps(list(set(value)))
+        # Query the database with filters if the request
+        # has fields in request params, else fetch all records
+        if query_data:
+            subscriptions = NsdmSubscriptionModel.objects.filter(**query_data)
+        else:
+            subscriptions = NsdmSubscriptionModel.objects.all()
+        if not subscriptions.exists():
+            raise ResourceNotFoundException("Subscriptions doesn't exist")
+        return [self.fill_resp_data(subscription)
+                for subscription in subscriptions]
 
     def check_callbackuri_connection(self):
         logger.debug("Create Subscription --> Test Callback URI --"

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import mock
 import uuid
 from django.test import TestCase
@@ -336,5 +337,100 @@ class TestNsdmSubscription(TestCase):
         mock_create.side_effect = TypeError("Unicode type")
         response = self.client.post('/api/nsd/v1/subscriptions',
                                     data=self.subscription, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_nsdm_get_subscriptions(self):
+        NsdmSubscriptionModel(subscriptionid=self.subscription_id,
+                              callback_uri="http://callbackuri.com",
+                              auth_info={},
+                              notificationTypes=json.dumps(
+                                  ["NsdOnBoardingNotification"]),
+                              nsdId=[], nsdVersion=[],
+                              nsdInfoId=[], nsdDesigner=[],
+                              nsdName=[], nsdInvariantId=[],
+                              vnfPkgIds=[], pnfdInfoIds=[],
+                              nestedNsdInfoIds=[], nsdOnboardingState=[],
+                              nsdOperationalState=[], nsdUsageState=[],
+                              pnfdId=[], pnfdVersion=[], pnfdProvider=[],
+                              pnfdName=[], pnfdInvariantId=[],
+                              pnfdOnboardingState=[], pnfdUsageState=[],
+                              links=json.dumps(self.links)).save()
+        response = self.client.get("/api/nsd/v1/subscriptions",
+                                   format='json')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual([self.test_subscription], response.data)
+
+    def test_nsdm_get_subscriptions_filter(self):
+        NsdmSubscriptionModel(subscriptionid=self.subscription_id,
+                              callback_uri="http://callbackuri.com",
+                              auth_info={},
+                              notificationTypes=json.dumps(
+                                  ["NsdOnBoardingNotification"]),
+                              nsdId=[], nsdVersion=[],
+                              nsdInfoId=[], nsdDesigner=[],
+                              nsdName=[], nsdInvariantId=[],
+                              vnfPkgIds=[], pnfdInfoIds=[],
+                              nestedNsdInfoIds=[], nsdOnboardingState=[],
+                              nsdOperationalState=[], nsdUsageState=[],
+                              pnfdId=[], pnfdVersion=[], pnfdProvider=[],
+                              pnfdName=[], pnfdInvariantId=[],
+                              pnfdOnboardingState=[], pnfdUsageState=[],
+                              links=json.dumps(self.links)).save()
+        response = self.client.get("/api/nsd/v1/subscriptions"
+                                   "?notificationTypes"
+                                   "=NsdOnBoardingNotification",
+                                   format='json')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual([self.test_subscription], response.data)
+
+    def test_nsdm_get_subscriptions_filter_failure(self):
+        NsdmSubscriptionModel(subscriptionid=self.subscription_id,
+                              callback_uri="http://callbackuri.com",
+                              auth_info={},
+                              notificationTypes=json.dumps(
+                                  ["NsdOnBoardingNotification"]),
+                              nsdId=[], nsdVersion=[],
+                              nsdInfoId=[], nsdDesigner=[],
+                              nsdName=[], nsdInvariantId=[],
+                              vnfPkgIds=[], pnfdInfoIds=[],
+                              nestedNsdInfoIds=[], nsdOnboardingState=[],
+                              nsdOperationalState=[], nsdUsageState=[],
+                              pnfdId=[], pnfdVersion=[], pnfdProvider=[],
+                              pnfdName=[], pnfdInvariantId=[],
+                              pnfdOnboardingState=[], pnfdUsageState=[],
+                              links=json.dumps(self.links)).save()
+        response = self.client.get("/api/nsd/v1/subscriptions"
+                                   "?notificationTypes="
+                                   "PnfdOnBoardingFailureNotification",
+                                   format='json')
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+
+    def test_nsdm_get_subscriptions_invalid_filter(self):
+        NsdmSubscriptionModel(subscriptionid=self.subscription_id,
+                              callback_uri="http://callbackuri.com",
+                              auth_info={},
+                              notificationTypes=json.dumps(
+                                  ["NsdOnBoardingNotification"]),
+                              nsdId=[], nsdVersion=[],
+                              nsdInfoId=[], nsdDesigner=[],
+                              nsdName=[], nsdInvariantId=[],
+                              vnfPkgIds=[], pnfdInfoIds=[],
+                              nestedNsdInfoIds=[], nsdOnboardingState=[],
+                              nsdOperationalState=[], nsdUsageState=[],
+                              pnfdId=[], pnfdVersion=[], pnfdProvider=[],
+                              pnfdName=[], pnfdInvariantId=[],
+                              pnfdOnboardingState=[], pnfdUsageState=[],
+                              links=json.dumps(self.links)).save()
+        response = self.client.get("/api/nsd/v1/subscriptions"
+                                   "?notificationTypes="
+                                   "PnfdOnBoardingFailureNotificati",
+                                   format='json')
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    @mock.patch.object(NsdmSubscription, 'query_multi_subscriptions')
+    def test_nsdmsubscription_get_when_catch_exception(self, mock_create):
+        mock_create.side_effect = TypeError("Unicode type")
+        response = self.client.get('/api/nsd/v1/subscriptions', format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_500_INTERNAL_SERVER_ERROR)
