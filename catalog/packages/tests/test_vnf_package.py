@@ -321,3 +321,43 @@ class TestVnfPackage(TestCase):
         mock_download.side_effect = TypeError("integer type")
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @mock.patch.object(toscaparser, 'parse_vnfd')
+    def test_fetch_vnf_artifact(self, mock_parse_vnfd):
+        data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "resource_test.csar"), "rb")}
+        VnfPackageModel.objects.create(
+            vnfPackageId="222",
+            onboardingState="CREATED"
+        )
+        mock_parse_vnfd.return_value = json.JSONEncoder().encode(vnfd_data)
+        response = self.client.put("/api/vnfpkgm/v1/vnf_packages/222/package_content", data=data)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/artifacts/image")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.getvalue(), "ubuntu_16.04\n")
+
+    @mock.patch.object(toscaparser, 'parse_vnfd')
+    def test_fetch_vnf_artifact_not_exists(self, mock_parse_vnfd):
+        data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "resource_test.csar"), "rb")}
+        VnfPackageModel.objects.create(
+            vnfPackageId="222",
+            onboardingState="CREATED"
+        )
+        mock_parse_vnfd.return_value = json.JSONEncoder().encode(vnfd_data)
+        response = self.client.put("/api/vnfpkgm/v1/vnf_packages/222/package_content", data=data)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/2224/artifacts/image")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    @mock.patch.object(toscaparser, 'parse_vnfd')
+    def test_fetch_vnf_artifact_vnf_not_exists(self, mock_parse_vnfd):
+        data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "resource_test.csar"), "rb")}
+        VnfPackageModel.objects.create(
+            vnfPackageId="222",
+            onboardingState="CREATED"
+        )
+        mock_parse_vnfd.return_value = json.JSONEncoder().encode(vnfd_data)
+        response = self.client.put("/api/vnfpkgm/v1/vnf_packages/222/package_content", data=data)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/artifacts/image1")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
