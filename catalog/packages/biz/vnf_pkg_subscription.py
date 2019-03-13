@@ -24,7 +24,8 @@ from rest_framework import status
 
 from catalog.packages import const
 from catalog.pub.database.models import VnfPkgSubscriptionModel
-from catalog.pub.exceptions import VnfPkgSubscriptionException, VnfPkgDuplicateSubscriptionException
+from catalog.pub.exceptions import VnfPkgSubscriptionException,\
+    VnfPkgDuplicateSubscriptionException
 from catalog.pub.utils.values import ignore_case_get
 
 
@@ -136,3 +137,22 @@ class CreateSubscription(object):
             vnf_pkg_id=json.dumps(self.vnf_pkg_id),
             links=json.dumps(links))
         logger.debug('Create Subscription[%s] success', self.subscription_id)
+
+
+class QuerySubscription(object):
+
+    def query_multi_subscriptions(self, params):
+        query_data = {}
+        logger.debug("QuerySubscription--get--multi--subscriptions--biz::> Check "
+                     "for filters in query params %s" % params)
+        for query, value in params.iteritems():
+            if query in ROOT_FILTERS:
+                query_data[ROOT_FILTERS[query] + '__icontains'] = value
+        # Query the database with filters if the request has fields in request params, else fetch all records
+        if query_data:
+            subscriptions = VnfPkgSubscriptionModel.objects.filter(**query_data)
+        else:
+            subscriptions = VnfPkgSubscriptionModel.objects.all()
+        if not subscriptions.exists():
+            return []
+        return [subscription.toDict() for subscription in subscriptions]
