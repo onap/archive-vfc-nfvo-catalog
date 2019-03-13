@@ -29,6 +29,10 @@ class VnfPkgDuplicateSubscriptionException(CatalogException):
     pass
 
 
+class SubscriptionDoesNotExistsException(CatalogException):
+    pass
+
+
 class NsdmBadRequestException(CatalogException):
     pass
 
