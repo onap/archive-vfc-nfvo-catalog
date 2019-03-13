@@ -14,6 +14,7 @@
 import os
 import shutil
 import logging
+import tempfile
 import traceback
 import urllib2
 import zipfile
@@ -62,3 +63,17 @@ def unzip_file(zip_src, dst_dir, csar_path):
         return os.path.join(dst_dir, csar_path)
     else:
         return ""
+
+
+def unzip_csar_to_tmp(zip_src):
+    dirpath = tempfile.mkdtemp()
+    zip_ref = zipfile.ZipFile(zip_src, 'r')
+    zip_ref.extractall(dirpath)
+    return dirpath
+
+
+def get_artifact_path(vnf_path, artifact_file):
+    for root, dirs, files in os.walk(vnf_path):
+        if artifact_file in files:
+            return os.path.join(root, artifact_file)
+    return None

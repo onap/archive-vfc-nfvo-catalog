@@ -39,3 +39,7 @@ class NsdmBadRequestException(CatalogException):
 
 class NsdmDuplicateSubscriptionException(CatalogException):
     pass
+
+
+class ArtifactNotFoundException(CatalogException):
+    pass
