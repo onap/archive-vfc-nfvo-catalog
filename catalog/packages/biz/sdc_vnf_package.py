@@ -229,6 +229,7 @@ class NfPackage(object):
             nf_pkg = VnfPackageModel.objects.filter(vnfdId=csar_id)
 
         if nf_pkg:
+            db_csar_id = nf_pkg[0].vnfPackageId
             pkg_info["vnfdId"] = nf_pkg[0].vnfdId
             pkg_info["vnfPackageId"] = nf_pkg[0].vnfPackageId
             pkg_info["vnfdProvider"] = nf_pkg[0].vnfVendor
@@ -240,13 +241,13 @@ class NfPackage(object):
                 REG_TO_MSB_REG_PARAM[0]["nodes"][0]["ip"],
                 REG_TO_MSB_REG_PARAM[0]["nodes"][0]["port"],
                 CATALOG_URL_PATH,
-                csar_id,
+                db_csar_id,
                 nf_pkg[0].vnfPackageUri)
         else:
             raise CatalogException("Vnf package[%s] not Found." % csar_id)
 
         csar_info = {
-            "csarId": csar_id,
+            "csarId": db_csar_id,
             "packageInfo": pkg_info,
             "imageInfo": []
         }
