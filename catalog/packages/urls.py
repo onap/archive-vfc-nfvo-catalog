@@ -27,6 +27,8 @@ urlpatterns = [
     url(r'^api/catalog/v1/nspackages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', catalog_views.ns_rd_csar, name='nspackage_rd'),
     url(r'^api/catalog/v1/vnfpackages$', catalog_views.nfpackages_rc, name='nfpackages_rc'),
     url(r'^api/catalog/v1/vnfpackages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', catalog_views.nf_rd_csar, name='nfpackage_rd'),
+    url(r'^api/parser/v1/service_packages$', catalog_views.servicepackages_rc, name='servicepackages_rc'),
+    url(r'^api/parser/v1/service_packages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', catalog_views.service_rd_csar, name='servicepackage_rd'),
 
     # NFV Model Parser
     url(r'^api/catalog/v1/parsernsd$', catalog_views.ns_model_parser, name='nsmodelparser_rc'),

@@ -132,6 +132,69 @@ class NsPackagesSerializer(serializers.ListSerializer):
     child = NsPackageSerializer()
 
 
+class ServicePackageDistributeRequestSerializer(serializers.Serializer):
+    csarId = serializers.CharField(help_text="csarId", required=True)
+
+
+class ServicePackageInfoSerializer(serializers.Serializer):
+    servicedId = serializers.CharField(
+        help_text="ServiceD ID",
+        required=False,
+        allow_null=True
+    )
+    servicePackageId = serializers.CharField(
+        help_text="Service Package ID",
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    servicedProvider = serializers.CharField(
+        help_text="ServiceD Provider",
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    servicedVersion = serializers.CharField(
+        help_text="ServiceD Version",
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    csarName = serializers.CharField(
+        help_text="CSAR name",
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    servicedModel = serializers.CharField(
+        help_text="ServiceD Model",
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    downloadUrl = serializers.CharField(
+        help_text="URL to download ServiceD Model",
+        required=False,
+        allow_null=True
+    )
+
+class ServicePackageSerializer(serializers.Serializer):
+    csarId = serializers.CharField(
+        help_text="CSAR ID",
+        required=False,
+        allow_null=True
+    )
+    packageInfo = ServicePackageInfoSerializer(
+        help_text="Service Package Info",
+        required=False,
+        allow_null=True
+    )
+
+
+class ServicePackagesSerializer(serializers.ListSerializer):
+    child = ServicePackageSerializer()
+
+
 class NfPackageDistributeRequestSerializer(serializers.Serializer):
     csarId = serializers.CharField(help_text="CSAR ID", required=True)
     vimIds = serializers.ListField(

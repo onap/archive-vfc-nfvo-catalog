@@ -21,7 +21,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from catalog.packages.biz import sdc_vnf_package, sdc_ns_package
-from catalog.packages.serializers.catalog_serializers import InternalErrorRequestSerializer
+from catalog.packages.biz.sdc_service_package import ServicePackage
+from catalog.packages.serializers.catalog_serializers import InternalErrorRequestSerializer, \
+    ServicePackageDistributeRequestSerializer, ServicePackagesSerializer, ServicePackageSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackageDistributeRequestSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackageSerializer
 from catalog.packages.serializers.catalog_serializers import NfPackagesSerializer
@@ -32,6 +34,8 @@ from catalog.packages.serializers.catalog_serializers import NsPackagesSerialize
 from catalog.packages.serializers.catalog_serializers import ParseModelRequestSerializer
 from catalog.packages.serializers.catalog_serializers import ParseModelResponseSerializer
 from catalog.packages.serializers.catalog_serializers import PostJobResponseSerializer
+from catalog.packages.views.common import fmt_error_rsp
+from catalog.pub.exceptions import PackageNotFoundException, PackageHasExistsException
 from catalog.pub.utils.syscomm import fun_name
 from catalog.pub.utils.values import ignore_case_get
 
@@ -206,6 +210,117 @@ def ns_rd_csar(request, *args, **kwargs):
                 'error': ret[1]},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(data=ret[1], status=normal_status)
+
+
+@swagger_auto_schema(
+    method='POST',
+    operation_description="On distribute Service package",
+    request_body=ServicePackageDistributeRequestSerializer,
+    responses={
+        status.HTTP_202_ACCEPTED: "",
+        status.HTTP_400_BAD_REQUEST: InternalErrorRequestSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query Service packages",
+    request_body=no_body,
+    responses={
+        status.HTTP_200_OK: ServicePackagesSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
+@api_view(http_method_names=['POST', 'GET'])
+def servicepackages_rc(request, *args, **kwargs):
+    logger.debug("Enter %s, method is %s", fun_name(), request.method)
+
+    if request.method == 'GET':
+        # Gets service package list
+        try:
+            csar_list = ServicePackage().get_csars()
+            response_serializer = ServicePackagesSerializer(data=csar_list)
+            validation_error = handleValidatonError(response_serializer, False)
+            if validation_error:
+                return validation_error
+            return Response(data=csar_list, status=status.HTTP_200_OK)
+        except Exception as e:
+            error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+    elif request.method == 'POST':
+        # Distributes the package according to the given csarId
+        request_serializer = ServicePackageDistributeRequestSerializer(data=request.data)
+        validation_error = handleValidatonError(request_serializer, True)
+        if validation_error:
+            return validation_error
+
+        csar_id = ignore_case_get(request.data, "csarId")
+        logger.debug("csar_id is %s", csar_id)
+        try:
+            ServicePackage().on_distribute(csar_id)
+            return Response(status=status.HTTP_202_ACCEPTED)
+        except PackageHasExistsException as e:
+            error_status = status.HTTP_400_BAD_REQUEST
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+        except Exception as e:
+            error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+
+
+@swagger_auto_schema(
+    method='DELETE',
+    operation_description="Delete one Service package",
+    request_body=no_body,
+    manual_parameters=[
+        openapi.Parameter(
+            'csarId',
+            openapi.IN_QUERY,
+            "csarId",
+            type=openapi.TYPE_STRING)],
+    responses={
+        status.HTTP_204_NO_CONTENT: "",
+        status.HTTP_404_NOT_FOUND: InternalErrorRequestSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
+@swagger_auto_schema(
+    method='GET',
+    operation_description="Query one Service package",
+    request_body=no_body,
+    manual_parameters=[
+        openapi.Parameter(
+            'csarId',
+            openapi.IN_QUERY,
+            "csarId",
+            type=openapi.TYPE_STRING)],
+    responses={
+        status.HTTP_200_OK: ServicePackageSerializer,
+        status.HTTP_404_NOT_FOUND: InternalErrorRequestSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
+@api_view(http_method_names=['DELETE', 'GET'])
+def service_rd_csar(request, *args, **kwargs):
+    csar_id = ignore_case_get(kwargs, "csarId")
+    logger.info("Enter %s, method is %s, csar_id is %s", fun_name(), request.method, csar_id)
+
+    if request.method == 'GET':
+        try:
+            ret = ServicePackage().get_csar(csar_id)
+            response_serializer = ServicePackageSerializer(data=ret)
+            validation_error = handleValidatonError(response_serializer, False)
+            if validation_error:
+                return validation_error
+            return Response(data=ret, status=status.HTTP_200_OK)
+        except PackageNotFoundException as e:
+            error_status = status.HTTP_404_NOT_FOUND
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+        except Exception as e:
+            error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+
+    elif request.method == 'DELETE':
+        try:
+            ServicePackage().delete_csar(csar_id)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except PackageNotFoundException as e:
+            error_status = status.HTTP_404_NOT_FOUND
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+        except Exception as e:
+            error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
 
 
 @swagger_auto_schema(
