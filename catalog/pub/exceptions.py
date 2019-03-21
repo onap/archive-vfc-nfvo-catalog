@@ -21,6 +21,14 @@ class ResourceNotFoundException(CatalogException):
     pass
 
 
+class PackageNotFoundException(CatalogException):
+    pass
+
+
+class PackageHasExistsException(CatalogException):
+    pass
+
+
 class VnfPkgSubscriptionException(CatalogException):
     pass
 

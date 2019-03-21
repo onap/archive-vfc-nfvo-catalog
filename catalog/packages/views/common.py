@@ -25,3 +25,7 @@ def validate_data(data, serializer):
         logger.error('Data validation failed.')
         raise CatalogException(serialized_data.errors)
     return serialized_data
+
+
+def fmt_error_rsp(error_message, status):
+    return {"errorMessage": error_message, "error": status}
