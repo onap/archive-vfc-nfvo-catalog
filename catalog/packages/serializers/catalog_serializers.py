@@ -178,6 +178,7 @@ class ServicePackageInfoSerializer(serializers.Serializer):
         allow_null=True
     )
 
+
 class ServicePackageSerializer(serializers.Serializer):
     csarId = serializers.CharField(
         help_text="CSAR ID",
