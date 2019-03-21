@@ -38,6 +38,29 @@ class NSPackageModel(models.Model):
         db_table = 'CATALOG_NSPACKAGE'
 
 
+class ServicePackageModel(models.Model):
+    servicePackageId = models.CharField(db_column='SERVICEPACKAGEID', primary_key=True, max_length=50)
+    servicePackageUri = models.CharField(db_column='SERVICEPACKAGEURI', max_length=300, null=True, blank=True)
+    checksum = models.CharField(db_column='CHECKSUM', max_length=50, null=True, blank=True)  # checksum
+    sdcCsarId = models.CharField(db_column='SDCCSARID', max_length=50, null=True, blank=True)  # SdcCSARUri
+    onboardingState = models.CharField(db_column='ONBOARDINGSTATE', max_length=20, blank=True, null=True)
+    operationalState = models.CharField(db_column='OPERATIONALSTATE', max_length=20, blank=True, null=True)  # operationalState
+    usageState = models.CharField(db_column='USAGESTATE', max_length=20, blank=True, null=True)  # usageState
+    deletionPending = models.CharField(db_column='DELETIONPENDING', max_length=20, blank=True, null=True)  # deletionPending
+    servicedId = models.CharField(db_column='SERVICEDID', max_length=50, blank=True, null=True)
+    invariantId = models.CharField(db_column='INVARIANTID', max_length=50, blank=True, null=True)  # servicedInvariantId
+    servicedName = models.CharField(db_column='SERVICEDNAME', max_length=50, blank=True, null=True)
+    servicedDesigner = models.CharField(db_column='SERVICEDDESIGNER', max_length=50, null=True, blank=True)
+    servicedDescription = models.CharField(db_column='SERVICEDDESCRIPTION', max_length=100, null=True, blank=True)
+    servicedVersion = models.CharField(db_column='SERVICEDVERSION', max_length=20, null=True, blank=True)
+    userDefinedData = models.TextField(db_column='USERDEFINEDDATA', max_length=1024, blank=True, null=True)  # userDefinedData
+    localFilePath = models.CharField(db_column='LOCALFILEPATH', max_length=300, null=True, blank=True)
+    servicedModel = models.TextField(db_column='SERVICEDMODEL', max_length=65535, null=True, blank=True)
+
+    class Meta:
+        db_table = 'CATALOG_SERVICEPACKAGE'
+
+
 class VnfPackageModel(models.Model):
     # uuid = models.CharField(db_column='UUID', primary_key=True, max_length=255)
     vnfPackageId = models.CharField(db_column='VNFPACKAGEID', primary_key=True, max_length=50)   # onboardedVnfPkgInfoId
