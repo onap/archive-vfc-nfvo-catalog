@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2456016b_a7f57af0",
+        "filename": "catalog/pub/database/migrations/0001_initial.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2019-03-22T01:09:49Z",
+      "side": 1,
+      "message": "This file need not be submitted.",
+      "revId": "d52251d689c5b46162ddb93a65e00736a6872274",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4c94b4b_772949c4",
+        "filename": "catalog/pub/database/migrations/__init__.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2019-03-22T01:09:49Z",
+      "side": 1,
+      "message": "Missing license header",
+      "revId": "d52251d689c5b46162ddb93a65e00736a6872274",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
