@@ -125,6 +125,40 @@ class SdcServiceModel(BaseInfoModel):
             if self.isNodeTypeX(node, node_types, VL_TYPE):
                 vl = {}
                 self.setTargetValues(vl, VL_SECTIONS, node, SDC_VL_SECTIONS)
+                vl_profile = {}
+                if 'segmentation_id' in vl['properties']:
+                    vl_profile['segmentationId'] = vl['properties'].get('segmentation_id')
+                if 'network_name' in vl['properties']:
+                    vl_profile['networkName'] = vl['properties'].get('network_name')
+                if 'cidr' in vl['properties']:
+                    vl_profile['cidr'] = vl['properties'].get('cidr')
+                if 'network_name' in vl['properties']:
+                    vl_profile['networkName'] = vl['properties'].get('network_name')
+                if 'start_ip' in vl['properties']:
+                    vl_profile['startIp'] = vl['properties'].get('start_ip', '')
+                if 'end_ip' in vl['properties']:
+                    vl_profile['endIp'] = vl['properties'].get('end_ip', '')
+                if 'gateway_ip' in vl['properties']:
+                    vl_profile['gatewayIp'] = vl['properties'].get('gateway_ip', '')
+                if 'physical_network' in vl['properties']:
+                    vl_profile['physicalNetwork'] = vl['properties'].get('physical_network', '')
+                if 'network_type' in vl['properties']:
+                    vl_profile['networkType'] = vl['properties'].get('network_type', '')
+                if 'dhcp_enabled' in vl['properties']:
+                    vl_profile['dhcpEnabled'] = vl['properties'].get('dhcp_enabled', '')
+                if 'vlan_transparent' in vl['properties']:
+                    vl_profile['vlanTransparent'] = vl['properties'].get('vlan_transparent', '')
+                if 'mtu' in vl['properties']:
+                    vl_profile['mtu'] = vl['properties'].get('mtu', '')
+                if 'ip_version' in vl['properties']:
+                    vl_profile['ip_version'] = vl['properties'].get('ip_version', '')
+                if 'dns_nameservers' in vl['properties']:
+                    vl_profile['dns_nameservers'] = vl['properties'].get('dns_nameservers', [])
+                if 'host_routes' in vl['properties']:
+                    vl_profile['host_routes'] = vl['properties'].get('host_routes', [])
+                if 'network_id' in vl['properties']:
+                    vl_profile['network_id'] = vl['properties'].get('network_id', '')
+                vl['properties']['vl_profile'] = vl_profile
                 vls.append(vl)
         return vls
 
