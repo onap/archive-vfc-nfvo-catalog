@@ -31,6 +31,10 @@ urlpatterns = [
     url(r'^api/parser/v1/service_packages/(?P<csarId>[0-9a-zA-Z\-\_]+)$', catalog_views.service_rd_csar, name='servicepackage_rd'),
 
     # NFV Model Parser
+    url(r'^api/parser/v1/parser$', catalog_views.model_parser, name='modelparser_rc'),
+    url(r'^api/parser/v1/parsernsd$', catalog_views.ns_model_parser, name='nsmodelparser_rc'),
+    url(r'^api/parser/v1/parservnfd$', catalog_views.vnf_model_parser, name='vnfmodelparser_rc'),
+    url(r'^api/parser/v1/parserpnfd$', pnf_descriptor_views.pnf_model_parser, name='pnfmodelparser_rc'),
     url(r'^api/catalog/v1/parsernsd$', catalog_views.ns_model_parser, name='nsmodelparser_rc'),
     url(r'^api/catalog/v1/parservnfd$', catalog_views.vnf_model_parser, name='vnfmodelparser_rc'),
     url(r'^api/catalog/v1/parserpnfd$', pnf_descriptor_views.pnf_model_parser, name='pnfmodelparser_rc'),

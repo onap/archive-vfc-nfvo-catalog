@@ -282,6 +282,7 @@ class PostJobResponseSerializer(serializers.Serializer):
 
 class ParseModelRequestSerializer(serializers.Serializer):
     csarId = serializers.CharField(help_text="CSAR ID", required=True)
+    packageType = serializers.CharField(help_text="Package type: VNF, PNF, NS, Service", required=False)
     inputs = serializers.JSONField(help_text="Inputs", required=False)
 
 

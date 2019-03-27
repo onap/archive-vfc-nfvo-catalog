@@ -46,11 +46,7 @@ class ServicePackage(object):
             csar_name = "%s.csar" % artifact.get("name", csar_id)
             local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path, csar_name)
             if local_file_name.endswith(".csar") or local_file_name.endswith(".zip"):
-                artifact_vnf_file = fileutil.unzip_file(local_file_name, local_path,
-                                                        "Artifacts/Deployment/OTHER/ns.csar")
-                if os.path.exists(artifact_vnf_file):
-                    local_file_name = artifact_vnf_file
-
+                fileutil.unzip_file(local_file_name, local_path, "")
             data = {
                 'userDefinedData': {}
             }
@@ -94,11 +90,13 @@ class ServicePackage(object):
                 csar_id,
                 csars[0].servicePackageUri)
         else:
-            raise PackageNotFoundException("Service package[%s] not Found." % csar_id)
+            error_message = "Service package[%s] not Found." % csar_id
+            logger.error(error_message)
+            raise PackageNotFoundException(error_message)
 
         return {"csarId": csar_id, "packageInfo": package_info}
 
-    def parse_serviced(csar_id, inputs):
+    def parse_serviced(self, csar_id, inputs):
         service_pkg = ServicePackageModel.objects.filter(servicePackageId=csar_id)
         if not service_pkg:
             raise PackageNotFoundException("Service CSAR(%s) does not exist." % csar_id)
