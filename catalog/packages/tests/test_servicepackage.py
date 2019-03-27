@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import json
-import os
 
 from django.test import TestCase, Client
 from mock import mock
@@ -23,7 +22,6 @@ from catalog.pub.database.models import ServicePackageModel
 from catalog.pub.exceptions import PackageNotFoundException, PackageHasExistsException, CatalogException
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import toscaparser
-from catalog.settings import BASE_DIR
 
 PARSER_BASE_URL = "/api/parser/v1"
 

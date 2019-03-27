@@ -153,14 +153,25 @@ if platform.system() == 'Windows' or 'test' in sys.argv:
                 'maxBytes': 1024 * 1024 * 50,
                 'backupCount': 5,
             },
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'standard'
+            },
         },
 
         'loggers': {
             'catalog': {
-                'handlers': ['catalog_handler'],
+                'handlers': ['catalog_handler', 'console'],
                 'level': 'DEBUG',
                 'propagate': False
             },
+            'tosca': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False
+            },
+
         }
     }
 else:
