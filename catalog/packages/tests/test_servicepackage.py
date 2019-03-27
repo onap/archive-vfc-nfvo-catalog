@@ -40,34 +40,6 @@ class TestServicePackage(TestCase):
 
     ###############################################################
 
-    @mock.patch.object(sdc, 'get_artifact')
-    @mock.patch.object(sdc, 'download_artifacts')
-    @mock.patch.object(toscaparser, 'parse_nsd')
-    def test_service_pkg_distribute(self, mock_get_artifact, mock_download_artifacts, mock_parse_nsd):
-        mock_get_artifact.return_value = {
-            "uuid": "1",
-            "invariantUUID": "63eaec39-ffbe-411c-a838-448f2c73f7eb",
-            "name": "underlayvpn",
-            "version": "2.0",
-            "toscaModelURL": "/sdc/v1/catalog/resources/c94490a0-f7ef-48be-b3f8-8d8662a37236/toscaModel",
-            "category": "Volte",
-            "subCategory": "VolteVNF",
-            "resourceType": "VF",
-            "lifecycleState": "CERTIFIED",
-            "distributionStatus": "DISTRIBUTION_APPROVED",
-            "lastUpdaterUserId": "jh0003"
-        }
-        mock_download_artifacts.return_value = os.path.join(os.path.join(BASE_DIR, "resources"), 'resource_test.csar')
-        mock_parse_nsd.return_value = {}
-        try:
-            csar_id = '1'
-            ServicePackage().on_distribute(csar_id)
-
-            sPkg = ServicePackageModel.objects.filter(servicePackageId=csar_id)
-            self.assertIsNotNone(sPkg)
-        except Exception as e:
-            pass
-
     def test_service_pkg_distribute_when_pkg_exists(self):
         ServicePackageModel(servicePackageId="1", servicedId="2").save()
         csar_id = 1

@@ -389,6 +389,7 @@ def nf_rd_csar(request, *args, **kwargs):
 
     return Response(data=response_serializer.data, status=normal_status)
 
+
 @swagger_auto_schema(
     method='POST',
     operation_description="Parse model(NS, Service, VNF, PNF)",
