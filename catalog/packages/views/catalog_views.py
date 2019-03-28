@@ -21,6 +21,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from catalog.packages.biz import sdc_vnf_package, sdc_ns_package
+from catalog.packages.biz.pnf_descriptor import PnfDescriptor
 from catalog.packages.biz.sdc_service_package import ServicePackage
 from catalog.packages.serializers.catalog_serializers import InternalErrorRequestSerializer, \
     ServicePackageDistributeRequestSerializer, ServicePackagesSerializer, ServicePackageSerializer
@@ -387,6 +388,66 @@ def nf_rd_csar(request, *args, **kwargs):
         return validation_error
 
     return Response(data=response_serializer.data, status=normal_status)
+
+
+@swagger_auto_schema(
+    method='POST',
+    operation_description="Parse model(NS, Service, VNF, PNF)",
+    request_body=ParseModelRequestSerializer,
+    responses={
+        status.HTTP_202_ACCEPTED: ParseModelResponseSerializer,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
+@api_view(http_method_names=['POST'])
+def model_parser(request, *args, **kwargs):
+    csar_id = ignore_case_get(request.data, "csarId")
+    package_type = ignore_case_get(request.data, "packageType")
+    inputs = ignore_case_get(request.data, "inputs")
+    logger.debug(
+        "Enter %s, csar_id=%s, package_type=%s, inputs=%s",
+        fun_name(),
+        csar_id,
+        package_type,
+        inputs)
+
+    if package_type.lower().__eq__("service"):
+        try:
+            ret = ServicePackage().parse_serviced(csar_id, inputs)
+            response_serializer = ParseModelResponseSerializer(data=ret)
+            validation_error = handleValidatonError(
+                response_serializer, False)
+            if validation_error:
+                return validation_error
+            return Response(data=response_serializer.data, status=status.HTTP_202_ACCEPTED)
+        except PackageNotFoundException as e:
+            error_status = status.HTTP_404_NOT_FOUND
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+        except Exception as e:
+            error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+    elif package_type.lower().__eq__("ns"):
+        ret = sdc_ns_package.parse_nsd(csar_id, inputs)
+    elif package_type.lower().__eq__("vnf"):
+        ret = sdc_vnf_package.parse_vnfd(csar_id, inputs)
+    elif package_type.lower().__eq__("pnf"):
+        ret = PnfDescriptor().parse_pnfd(csar_id, inputs)
+    else:
+        error_status = status.HTTP_400_BAD_REQUEST
+        error_message = "Invalid package type, it should be one of [VNF, PNF, NS, Service]"
+        return Response(data=fmt_error_rsp(error_message, error_status), status=error_status)
+
+    if ret[0] != 0:
+        return Response(
+            data={
+                'error': ret[1]},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    response_serializer = ParseModelResponseSerializer(data=ret[1])
+    validation_error = handleValidatonError(
+        response_serializer, False)
+    if validation_error:
+        return validation_error
+
+    return Response(data=response_serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 @swagger_auto_schema(

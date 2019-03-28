@@ -28,15 +28,18 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceDescriptor(object):
+    """
+    Action for Service Descriptor
+    """
 
     def __init__(self):
         pass
 
-    def create(self, data, csar_id):
+    def create(self, data, csar_id=None):
         logger.info('Start to create a ServiceD...')
         user_defined_data = ignore_case_get(data, 'userDefinedData', {})
         data = {
-            'id': id if id else str(uuid.uuid4()),
+            'id': csar_id if csar_id else str(uuid.uuid4()),
             'servicedOnboardingState': PKG_STATUS.CREATED,
             'servicedOperationalState': PKG_STATUS.DISABLED,
             'servicedUsageState': PKG_STATUS.NOT_IN_USE,
@@ -58,7 +61,7 @@ class ServiceDescriptor(object):
         service_pkgs = ServicePackageModel.objects.filter(servicePackageId=serviced_info_id)
         service_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
 
-        serviced_json = toscaparser.parse_nsd(local_file_name)  # TODO
+        serviced_json = toscaparser.parse_nsd(local_file_name)
         logger.debug("%s", serviced_json)
         serviced = json.JSONDecoder().decode(serviced_json)
 

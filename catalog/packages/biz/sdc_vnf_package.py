@@ -19,6 +19,7 @@ import sys
 import threading
 import traceback
 
+from catalog.packages.const import PKG_STATUS
 from catalog.pub.config.config import CATALOG_ROOT_PATH, CATALOG_URL_PATH
 from catalog.pub.config.config import REG_TO_MSB_REG_PARAM
 from catalog.pub.database.models import VnfPackageModel
@@ -27,7 +28,6 @@ from catalog.pub.msapi import sdc
 from catalog.pub.utils import fileutil
 from catalog.pub.utils import toscaparser
 from catalog.pub.utils.jobutil import JobUtil
-from catalog.packages.const import PKG_STATUS
 
 logger = logging.getLogger(__name__)
 
