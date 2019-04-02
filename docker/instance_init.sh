@@ -1,51 +1,31 @@
 #!/bin/bash
 
-if [ ! -f /var/log/onap/vfc/catalog/runtime_catalog.log ]; then
-    mkdir -p /var/log/onap/vfc/catalog
-    touch /var/log/onap/vfc/catalog/runtime_catalog.log
-else
-    echo >/var/log/onap/vfc/catalog/runtime_catalog.log
-fi
-
-if [ ! -f /service/vfc/nfvo/catalog/resources/bin/logs/runtime_catalog.log ]; then
-    mkdir -p /service/vfc/nfvo/catalog/resources/bin/logs
-    touch /service/vfc/nfvo/catalog/resources/bin/logs/runtime_catalog.log
-else
-    echo >/service/vfc/nfvo/catalog/resources/bin/logs/runtime_catalog.log
-fi
-
 MYSQL_IP=`echo $MYSQL_ADDR | cut -d: -f 1`
 MYSQL_PORT=`echo $MYSQL_ADDR | cut -d: -f 2`
-MYSQL_USER=`echo $MYSQL_AUTH | cut -d: -f 1`
-MYSQL_ROOT_PASSWORD=`echo $MYSQL_AUTH | cut -d: -f 2`
+
+if [ $MYSQL_AUTH ]; then
+    MYSQL_ROOT_USER=`echo $MYSQL_AUTH | cut -d: -f 1`
+    MYSQL_ROOT_PASSWORD=`echo $MYSQL_AUTH | cut -d: -f 2`
+else
+    MYSQL_ROOT_USER="root"
+    MYSQL_ROOT_PASSWORD="root"
+fi
 
 function create_database {
     cd /service/vfc/nfvo/catalog/resources/bin
-    bash initDB.sh $MYSQL_USER $MYSQL_ROOT_PASSWORD $MYSQL_PORT $MYSQL_IP
- 
-    man_path=/service/vfc/nfvo/catalog
+    bash initDB.sh $MYSQL_ROOT_USER $MYSQL_ROOT_PASSWORD $MYSQL_PORT $MYSQL_IP
 
-    tab=`mysql -u${MYSQL_USER} -p${MYSQL_ROOT_PASSWORD} -P${MYSQL_PORT} -h${MYSQL_IP} -e "SELECT count(TABLE_NAME) FROM information_schema.TABLES WHERE TABLE_SCHEMA='nfvocatalog';"`
-    tab1=`echo $tab |awk '{print $2}'`
-
-        echo "TABLE NOT EXISTS, START MIGRATE"
-        python $man_path/manage.py makemigrations database && python $man_path/manage.py migrate database &
-        wait
-        tab2=`mysql -u${MYSQL_USER} -p${MYSQL_ROOT_PASSWORD} -P${MYSQL_PORT} -h${MYSQL_IP} -e "SELECT count(TABLE_NAME) FROM information_schema.TABLES WHERE TABLE_SCHEMA='nfvocatalog';"`
-	tab3=`echo $tab2|awk '{print $2}'`
-        if [ $tab3 -gt 0  ] ; then
-        echo "TABLE CREATE SUCCESSFUL"
-    fi
-else
-    echo "table already existed"
-    exit 1
-fi
  }
 
-if [ ! -f /service/vfc/nfvo/catalog/docker/db.txt ]; then
-    echo 1 > /service/vfc/nfvo/catalog/docker/db.txt
-	
+function migrate_database {
+    cd /service/vfc/nfvo/catalog
+    python manage.py makemigrations database
+    python manage.py migrate
+}
+
+cd /service
+if [ ! -f dbexist.txt ]; then
+    echo 1 > dbexist.txt
     create_database
-else
-    echo "database already existed"
+    migrate_database
 fi
