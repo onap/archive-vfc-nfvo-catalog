@@ -1,6 +1,5 @@
 #!/bin/bash
 
-pip install PyMySQL==0.9.3
 if [ ! -f /var/log/onap/vfc/catalog/runtime_catalog.log ]; then
     mkdir -p /var/log/onap/vfc/catalog
     touch /var/log/onap/vfc/catalog/runtime_catalog.log
