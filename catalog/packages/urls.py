@@ -15,9 +15,11 @@
 from django.conf.urls import url
 
 from catalog.packages.views import vnf_package_views
-from catalog.packages.views.vnf_package_subscription_views import CreateQuerySubscriptionView, QueryTerminateSubscriptionView
+from catalog.packages.views.vnf_package_subscription_views import CreateQuerySubscriptionView,\
+    QueryTerminateSubscriptionView
 from catalog.packages.views.vnf_package_artifact_views import FetchVnfPkgmArtifactsView
 from catalog.packages.views import catalog_views, ns_descriptor_views, pnf_descriptor_views, nsdm_subscription_views
+from catalog.packages.views.health_check_views import HealthCheckView
 
 
 urlpatterns = [
@@ -65,4 +67,7 @@ urlpatterns = [
     # url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/vnfd$', vnfd.as_view(), name='vnfd_r'),# url(r'^api/vnfpkgm/v1/vnf_packages/(?P<vnfPkgId>[0-9a-zA-Z\-\_]+)/artifacts/artifactPath$', artifacts.as_view(), name='artifacts_r'),
 
     # url(r'^api/vnfpkgm/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', vnfpkg_subscription.as_view(), name='subscription_rd'),
+
+    # health check
+    url(r'^api/vnfpkgm/v1/healthcheck$', HealthCheckView.as_view()),
 ]
