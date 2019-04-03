@@ -19,7 +19,7 @@ import uuid
 
 from catalog.packages.const import PKG_STATUS
 from catalog.pub.config.config import CATALOG_ROOT_PATH
-from catalog.pub.database.models import ServicePackageModel
+from catalog.pub.database.models import ServicePackageModel, VnfPackageModel, PnfPackageModel
 from catalog.pub.exceptions import CatalogException, PackageNotFoundException
 from catalog.pub.utils import toscaparser, fileutil
 from catalog.pub.utils.values import ignore_case_get
@@ -61,18 +61,17 @@ class ServiceDescriptor(object):
         service_pkgs = ServicePackageModel.objects.filter(servicePackageId=serviced_info_id)
         service_pkgs.update(onboardingState=PKG_STATUS.PROCESSING)
 
-        serviced_json = toscaparser.parse_nsd(local_file_name)
-        logger.debug("%s", serviced_json)
+        serviced_json = toscaparser.parse_sd(local_file_name)
         serviced = json.JSONDecoder().decode(serviced_json)
 
-        serviced_id = serviced.get("ns", {}).get("properties", {}).get("descriptor_id", "")
-        serviced_name = serviced.get("ns", {}).get("properties", {}).get("name", "")
-        serviced_version = serviced.get("ns", {}).get("properties", {}).get("version", "")
-        serviced_designer = serviced.get("ns", {}).get("properties", {}).get("designer", "")
-        invariant_id = serviced.get("ns", {}).get("properties", {}).get("invariant_id", "")
+        serviced_id = serviced.get("service", {}).get("properties", {}).get("descriptor_id", "")
+        serviced_name = serviced.get("service", {}).get("properties", {}).get("name", "")
+        serviced_version = serviced.get("service", {}).get("properties", {}).get("version", "")
+        serviced_designer = serviced.get("service", {}).get("properties", {}).get("designer", "")
+        invariant_id = serviced.get("service", {}).get("properties", {}).get("invariant_id", "")
         if serviced_id == "":
             raise CatalogException("serviced_id(%s) does not exist in metadata." % serviced_id)
-        other_nspkg = ServicePackageModel.objects.filter(nsdId=serviced_id)
+        other_nspkg = ServicePackageModel.objects.filter(servicedId=serviced_id)
         if other_nspkg and other_nspkg[0].servicePackageId != serviced_info_id:
             logger.warn("ServiceD(%s,%s) already exists.", serviced_id, other_nspkg[0].servicePackageId)
             raise CatalogException("ServiceD(%s) already exists." % serviced_id)
@@ -81,9 +80,9 @@ class ServiceDescriptor(object):
             vnfd_id = vnf["properties"].get("descriptor_id", "undefined")
             if vnfd_id == "undefined":
                 vnfd_id = vnf["properties"].get("id", "undefined")
-            pkg = ServicePackageModel.objects.filter(vnfdId=vnfd_id)
+            pkg = VnfPackageModel.objects.filter(vnfdId=vnfd_id)
             if not pkg:
-                pkg = ServicePackageModel.objects.filter(vnfPackageId=vnfd_id)
+                pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfd_id)
             if not pkg:
                 vnfd_name = vnf.get("vnf_id", "undefined")
                 logger.error("[%s] is not distributed.", vnfd_name)
@@ -93,9 +92,9 @@ class ServiceDescriptor(object):
             pnfd_id = pnf["properties"].get("descriptor_id", "undefined")
             if pnfd_id == "undefined":
                 pnfd_id = pnf["properties"].get("id", "undefined")
-            pkg = ServicePackageModel.objects.filter(pnfdId=pnfd_id)
+            pkg = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
             if not pkg:
-                pkg = ServicePackageModel.objects.filter(pnfPackageId=pnfd_id)
+                pkg = PnfPackageModel.objects.filter(pnfPackageId=pnfd_id)
             if not pkg:
                 pnfd_name = pnf.get("pnf_id", "undefined")
                 logger.error("[%s] is not distributed.", pnfd_name)
@@ -104,7 +103,7 @@ class ServiceDescriptor(object):
         service_pkgs.update(
             servicedId=serviced_id,
             servicedName=serviced_name,
-            servicedDesginer=serviced_designer,
+            servicedDesigner=serviced_designer,
             servicedDescription=serviced.get("description", ""),
             servicedVersion=serviced_version,
             invariantId=invariant_id,

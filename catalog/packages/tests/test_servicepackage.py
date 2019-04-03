@@ -18,7 +18,7 @@ from mock import mock
 from rest_framework import status
 
 from catalog.packages.biz.sdc_service_package import ServicePackage
-from catalog.pub.database.models import ServicePackageModel
+from catalog.pub.database.models import ServicePackageModel, VnfPackageModel, PnfPackageModel
 from catalog.pub.exceptions import PackageNotFoundException, PackageHasExistsException, CatalogException
 from catalog.pub.msapi import sdc
 from catalog.pub.utils import toscaparser
@@ -32,6 +32,222 @@ class TestServicePackage(TestCase):
     def setUp(self):
         self.client = Client()
         ServicePackageModel.objects.filter().delete()
+        self.sd_data = {
+            "inputs": {
+                "sdwanvpnresource_list": [
+                    {
+                        "sdwanvpn_topology": "",
+                        "required": True,
+                        "type": "string"
+                    },
+                    {
+                        "sdwansitelan_list": [
+                            {
+                                "deviceName": "",
+                                "required": True,
+                                "type": "string",
+                                "description": "The device name in the site"
+                            }
+                        ]
+                    }
+                ],
+                "sdwansiteresource_list": [
+                    {
+                        "sdwansite_controlPoint": "",
+                        "required": False,
+                        "type": "string",
+                        "description": "The control point of the site,only for sd-wan-edge"
+                    },
+                    {
+                        "sdwandevice_list": [
+                            {
+                                "systemIp": "",
+                                "required": False,
+                                "type": "string",
+                                "description": "The system ip of the device"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "pnfs": [
+                {
+                    "pnf_id": "m6000_s",
+                    "cps": [],
+                    "description": "",
+                    "properties": {
+                        "vendor": "zte",
+                        "request_reclassification": False,
+                        "pnf_type": "m6000s",
+                        "version": "1.0",
+                        "management_address": "111111",
+                        "id": "m6000_s",
+                        "nsh_aware": False
+                    }
+                }
+            ],
+            "description": "",
+            "graph": {
+                "sdwansiteresource": [
+                    "sdwanvpnresource"
+                ],
+                "sdwanvpnresource": []
+            },
+            "basepath": "c:\\users\\cmcc\\appdata\\local\\temp\\tmpn79jwc\\Definitions",
+            "vnfs": [
+                {
+                    "vnf_id": "sdwansiteresource",
+                    "description": "",
+                    "properties": {
+                        "sdwandevice_type": "",
+                        "sdwandevice_class": "PNF",
+                        "multi_stage_design": "False",
+                        "min_instances": "1",
+                        "sdwansite_controlPoint": "",
+                        "id": "cd557883-ac4b-462d-aa01-421b5fa606b1",
+                        "sdwansite_longitude": "",
+                        "sdwansite_latitude": "",
+                        "sdwansite_postcode": "",
+                        "sdwansite_type": "",
+                        "nf_naming": {
+                            "ecomp_generated_naming": True
+                        },
+                        "sdwansite_emails": "",
+                        "sdwansite_role": "",
+                        "vnfm_info": "",
+                        "sdwansite_address": "",
+                        "sdwansite_description": "",
+                        "availability_zone_max_count": "1",
+                        "sdwansite_name": ""
+                    },
+                    "dependencies": [],
+                    "networks": [],
+                    "metadata": {
+                        "category": "Configuration",
+                        "subcategory": "Configuration",
+                        "UUID": "cd557883-ac4b-462d-aa01-421b5fa606b1",
+                        "invariantUUID": "c83b621e-e267-4910-a75a-a2a5957296e4",
+                        "name": "sdwansiteresource",
+                        "customizationUUID": "673dd6b3-3a06-4ef0-8ad0-8c26224b08f7",
+                        "resourceVendorRelease": "1.0",
+                        "version": "1.0",
+                        "resourceVendor": "onap",
+                        "resourceVendorModelNumber": "",
+                        "type": "VF",
+                        "description": "sdwansiteresource"
+                    }
+                }
+            ],
+            "vls": [],
+            "service": {
+                "type": "org.openecomp.service.EnhanceService",
+                "requirements": {
+                    "sdwanvpnresource.sdwanvpn.dependency": [
+                        "sdwanvpnresource",
+                        "sdwanvpn.dependency"
+                    ],
+                    "sdwansiteresource.sdwansitewan.dependency": [
+                        "sdwansiteresource",
+                        "sdwansitewan.dependency"
+                    ],
+                    "sdwansiteresource.sdwandevice.dependency": [
+                        "sdwansiteresource",
+                        "sdwandevice.dependency"
+                    ],
+                    "sdwanvpnresource.sdwansitelan.dependency": [
+                        "sdwanvpnresource",
+                        "sdwansitelan.dependency"
+                    ],
+                    "sdwanvpnresource.sdwanvpn.device": [
+                        "sdwanvpnresource",
+                        "sdwanvpn.device"
+                    ],
+                    "sdwansiteresource.sdwansite.device": [
+                        "sdwansiteresource",
+                        "sdwansite.device"
+                    ],
+                    "sdwansiteresource.sdwansite.dependency": [
+                        "sdwansiteresource",
+                        "sdwansite.dependency"
+                    ],
+                    "sdwanvpnresource.sdwansitelan.device": [
+                        "sdwanvpnresource",
+                        "sdwansitelan.device"
+                    ],
+                    "sdwansiteresource.sdwansitewan.device": [
+                        "sdwansiteresource",
+                        "sdwansitewan.device"
+                    ],
+                    "sdwansiteresource.sdwandevice.device": [
+                        "sdwansiteresource",
+                        "sdwandevice.device"
+                    ]
+                },
+                "properties": {
+                    "descriptor_id": "49ee73f4-1e31-4054-b871-eb9b1c29999b",
+                    "designer": "",
+                    "invariant_id": "5de07996-7ff0-4ec1-b93c-e3a00bb3f207",
+                    "name": "Enhance_Service",
+                    "verison": ""
+                },
+                "capabilities": {
+                    "sdwansiteresource.sdwandevice.feature": [
+                        "sdwansiteresource",
+                        "sdwandevice.feature"
+                    ],
+                    "sdwanvpnresource.sdwanvpn.feature": [
+                        "sdwanvpnresource",
+                        "sdwanvpn.feature"
+                    ],
+                    "sdwanvpnresource.sdwanvpn.link": [
+                        "sdwanvpnresource",
+                        "sdwanvpn.link"
+                    ],
+                    "sdwansiteresource.sdwansite.feature": [
+                        "sdwansiteresource",
+                        "sdwansite.feature"
+                    ],
+                    "sdwansiteresource.sdwansitewan.feature": [
+                        "sdwansiteresource",
+                        "sdwansitewan.feature"
+                    ],
+                    "sdwanvpnresource.sdwansitelan.feature": [
+                        "sdwanvpnresource",
+                        "sdwansitelan.feature"
+                    ]
+                },
+                "metadata": {
+                    "category": "E2E Service",
+                    "serviceType": "",
+                    "description": "Enhance_Service",
+                    "instantiationType": "A-la-carte",
+                    "type": "Service",
+                    "environmentContext": "General_Revenue-Bearing",
+                    "serviceEcompNaming": True,
+                    "UUID": "49ee73f4-1e31-4054-b871-eb9b1c29999b",
+                    "ecompGeneratedNaming": True,
+                    "serviceRole": "",
+                    "invariantUUID": "5de07996-7ff0-4ec1-b93c-e3a00bb3f207",
+                    "namingPolicy": "",
+                    "name": "Enhance_Service"
+                }
+            },
+            "metadata": {
+                "category": "E2E Service",
+                "serviceType": "",
+                "description": "Enhance_Service",
+                "instantiationType": "A-la-carte",
+                "type": "Service",
+                "environmentContext": "General_Revenue-Bearing",
+                "serviceEcompNaming": True,
+                "UUID": "49ee73f4-1e31-4054-b871-eb9b1c29999b",
+                "ecompGeneratedNaming": True,
+                "serviceRole": "",
+                "invariantUUID": "5de07996-7ff0-4ec1-b93c-e3a00bb3f207",
+                "namingPolicy": "",
+                "name": "Enhance_Service"
+            }
+        }
 
     def tearDown(self):
         pass
@@ -40,7 +256,7 @@ class TestServicePackage(TestCase):
 
     def test_service_pkg_distribute_when_pkg_exists(self):
         ServicePackageModel(servicePackageId="1", servicedId="2").save()
-        csar_id = 1
+        csar_id = "1"
         try:
             ServicePackage().on_distribute(csar_id)
         except PackageHasExistsException as e:
@@ -49,7 +265,7 @@ class TestServicePackage(TestCase):
     @mock.patch.object(sdc, 'get_artifact')
     def test_service_pkg_distribute_when_fail_get_artifacts(self, mock_get_artifact):
         mock_get_artifact.side_effect = CatalogException("Failed to query artifact(services,1) from sdc.")
-        csar_id = 1
+        csar_id = "1"
         try:
             ServicePackage().on_distribute(csar_id)
         except Exception as e:
@@ -58,7 +274,7 @@ class TestServicePackage(TestCase):
 
     @mock.patch.object(sdc, 'get_artifact')
     @mock.patch.object(sdc, 'download_artifacts')
-    def test_api_service_pkg_distribute_when_fail_download_artifacts(self, mock_get_artifact, mock_download_artifacts):
+    def test_service_pkg_distribute_when_fail_download_artifacts(self, mock_get_artifact, mock_download_artifacts):
         mock_get_artifact.return_value = {
             "uuid": "1",
             "invariantUUID": "63eaec39-ffbe-411c-a838-448f2c73f7eb",
@@ -73,12 +289,35 @@ class TestServicePackage(TestCase):
             "lastUpdaterUserId": "jh0003"
         }
         mock_download_artifacts.side_effect = CatalogException("Failed to download 1 from sdc.")
-        csar_id = 1
+        csar_id = "1"
         try:
             ServicePackage().on_distribute(csar_id)
         except Exception as e:
             self.assertTrue(isinstance(e, CatalogException))
             self.assertEqual("Failed to download 1 from sdc.", e.message)
+
+    @mock.patch.object(sdc, 'get_artifact')
+    @mock.patch.object(sdc, 'download_artifacts')
+    @mock.patch.object(toscaparser, 'parse_sd')
+    def test_service_pkg_distribute(self, mock_parse_sd, mock_download_artifacts, mock_get_artifact):
+        mock_parse_sd.return_value = json.JSONEncoder().encode(self.sd_data)
+        mock_download_artifacts.return_value = "/test.csar"
+        mock_get_artifact.return_value = {
+            "uuid": "1",
+            "invariantUUID": "63eaec39-ffbe-411c-a838-448f2c73f7eb",
+            "name": "underlayvpn",
+            "version": "2.0",
+            "toscaModelURL": "/sdc/v1/catalog/resources/c94490a0-f7ef-48be-b3f8-8d8662a37236/toscaModel",
+            "category": "Volte",
+            "subCategory": "VolteVNF",
+            "resourceType": "VF",
+            "lifecycleState": "CERTIFIED",
+            "distributionStatus": "DISTRIBUTION_APPROVED",
+            "lastUpdaterUserId": "jh0003"
+        }
+        VnfPackageModel(vnfPackageId="1", vnfdId="cd557883-ac4b-462d-aa01-421b5fa606b1").save()
+        PnfPackageModel(pnfPackageId="1", pnfdId="m6000_s").save()
+        ServicePackage().on_distribute(csar_id="1")
 
     def test_api_service_pkg_distribute_when_pkg_exists(self):
         ServicePackageModel(servicePackageId="1", servicedId="2").save()
@@ -185,18 +424,18 @@ class TestServicePackage(TestCase):
 
     ###############################################################
 
-    @mock.patch.object(toscaparser, 'parse_nsd')
-    def test_service_pkg_parser(self, mock_parse_nsd):
+    @mock.patch.object(toscaparser, 'parse_sd')
+    def test_service_pkg_parser(self, mock_parse_sd):
         ServicePackageModel(servicePackageId="8", servicedId="2").save()
-        mock_parse_nsd.return_value = json.JSONEncoder().encode({"a": "b"})
+        mock_parse_sd.return_value = json.JSONEncoder().encode({"a": "b"})
 
         inputs = []
-        ret = ServicePackage().parse_serviced(8, inputs)
+        ret = ServicePackage().parse_serviced("8", inputs)
         self.assertTrue({"model": '{"c": "d"}'}, ret)
 
     def test_service_pkg_parser_not_found(self):
         try:
-            csar_id = 8000
+            csar_id = "8000"
             inputs = []
             ServicePackage().parse_serviced(csar_id, inputs)
         except PackageNotFoundException as e:
