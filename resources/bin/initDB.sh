@@ -25,10 +25,10 @@ sql_path=$HOME/../
 mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -P$MYSQL_PORT -h$MYSQL_IP <$sql_path/dbscripts/mysql/vfc-nfvo-catalog-createdb.sql
 sql_result=$?
 if [ $sql_result -ne 0 ] ; then
-    echo "failed to create nfvocatalog database"
+    echo "Failed to create nfvocatalog database"
     exit 1
 elif [ $sql_result -eq 0 ]; then
-    echo "create nfvocatalog database successfully"
+    echo "Create nfvocatalog database successfully"
     exit 0
 fi
 
