@@ -14,14 +14,11 @@
 -- limitations under the License.
 --
 
-/******************drop old database and user***************************/
+/******************create database and user***************************/
 use mysql;
-drop database IF  EXISTS nfvocatalog;
-delete from user where User='nfvocatalog';
-FLUSH PRIVILEGES;
 
-/******************create new database and user***************************/
-create database nfvocatalog CHARACTER SET utf8;
+create database if not exists nfvocatalog CHARACTER SET utf8;
+
 
 GRANT ALL PRIVILEGES ON nfvocatalog.* TO 'nfvocatalog'@'%' IDENTIFIED BY 'nfvocatalog' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON mysql.* TO 'nfvocatalog'@'%' IDENTIFIED BY 'nfvocatalog' WITH GRANT OPTION;
