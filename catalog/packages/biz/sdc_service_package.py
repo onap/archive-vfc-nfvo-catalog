@@ -103,7 +103,7 @@ class ServicePackage(object):
 
         try:
             csar_path = service_pkg[0].localFilePath
-            ret = {"model": toscaparser.parse_nsd(csar_path, inputs)}
+            ret = {"model": toscaparser.parse_sd(csar_path, inputs)}
             return ret
         except CatalogException as e:
             logger.error(e.message)

@@ -15,12 +15,20 @@
 import json
 
 from catalog.pub.utils.toscaparser.nsdmodel import NsdInfoModel
-from catalog.pub.utils.toscaparser.vnfdmodel import EtsiVnfdInfoModel
 from catalog.pub.utils.toscaparser.pnfmodel import PnfdInfoModel
+from catalog.pub.utils.toscaparser.sdmodel import SdInfoModel
+from catalog.pub.utils.toscaparser.vnfdmodel import EtsiVnfdInfoModel
 
 
 def parse_nsd(path, input_parameters=[]):
     tosca_obj = NsdInfoModel(path, input_parameters).model
+    strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
+    strResponse = strResponse.replace(': null', ': ""')
+    return strResponse
+
+
+def parse_sd(path, input_parameters=[]):
+    tosca_obj = SdInfoModel(path, input_parameters)
     strResponse = json.dumps(tosca_obj, default=lambda obj: obj.__dict__)
     strResponse = strResponse.replace(': null', ': ""')
     return strResponse
