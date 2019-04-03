@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92595567_bdd63b9e",
+        "filename": "resources/bin/initDB.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2019-04-03T03:31:50Z",
+      "side": 1,
+      "message": "Should be changed to else",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 32
+      },
+      "revId": "18be3b1eb14cc9b9c2b8684106594237097b8755",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12aaae78_cf7bc43d",
+        "filename": "resources/dbscripts/mysql/vfc-nfvo-catalog-createdb.sql",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2019-04-03T03:31:50Z",
+      "side": 1,
+      "message": "should fix this comment",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 73
+      },
+      "revId": "18be3b1eb14cc9b9c2b8684106594237097b8755",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
