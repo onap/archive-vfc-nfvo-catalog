@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+import json
 
-from drf_yasg.utils import swagger_auto_schema
+from django.test import TestCase, Client
 from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-logger = logging.getLogger(__name__)
 
 
-class HealthCheckView(APIView):
-    @swagger_auto_schema(
-        responses={
-            status.HTTP_200_OK: 'Active'})
-    def get(self, request, format=None):
-        logger.debug("Health check.")
-        return Response({"status": "active"})
+class TestHealthCheck(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def tearDown(self):
+        pass
+
+    def test_health_check(self):
+        response = self.client.get("/api/vnfpkgm/v1/health_check")
+        self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
+        resp_data = json.loads(response.content)
+        self.assertEqual({"status": "active"}, resp_data)
