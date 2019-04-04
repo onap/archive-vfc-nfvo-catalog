@@ -69,5 +69,5 @@ urlpatterns = [
     # url(r'^api/vnfpkgm/v1/subscriptions/(?P<subscriptionId>[0-9a-zA-Z\-\_]+)$', vnfpkg_subscription.as_view(), name='subscription_rd'),
 
     # health check
-    url(r'^api/vnfpkgm/v1/healthcheck$', HealthCheckView.as_view()),
+    url(r'^api/vnfpkgm/v1/health_check$', HealthCheckView.as_view()),
 ]
