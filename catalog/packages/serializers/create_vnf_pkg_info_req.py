@@ -18,6 +18,10 @@ from rest_framework import serializers
 class CreateVnfPkgInfoRequestSerializer(serializers.Serializer):
     userDefinedData = serializers.DictField(
         help_text="User defined data for the VNF package.",
-        child=serializers.CharField(help_text="KeyValue Pairs", allow_blank=True),
+        child=serializers.CharField(
+            help_text="KeyValue Pairs",
+            allow_blank=True
+        ),
         required=False,
-        allow_null=True)
+        allow_null=True
+    )
