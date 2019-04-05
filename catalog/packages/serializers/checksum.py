@@ -20,9 +20,11 @@ class ChecksumSerializer(serializers.Serializer):
         help_text="Name of the algorithm used to generate the checksum.",
         required=True,
         allow_null=False,
-        allow_blank=False)
+        allow_blank=False
+    )
     hash = serializers.CharField(
         help_text="The hexadecimal value of the checksum.",
         required=True,
         allow_null=True,
-        allow_blank=False)
+        allow_blank=False
+    )

@@ -17,9 +17,13 @@ from rest_framework import serializers
 
 class CreatePnfdInfoRequestSerializer(serializers.Serializer):
     userDefinedData = serializers.DictField(
-        help_text='User-defined data for the PNF descriptor resource to be created. \
-        It shall be present when the user defined data is set for the individual PNF descriptor resource to be created.',
-        child=serializers.CharField(help_text='Key Value Pairs', allow_blank=True),
+        help_text="User-defined data for the PNF descriptor resource to be created." +
+        "It shall be present when the user defined data is set for the individual " +
+        "PNF descriptor resource to be created.",
+        child=serializers.CharField(
+            help_text='Key Value Pairs',
+            allow_blank=True
+        ),
         required=False,
         allow_null=True
     )
