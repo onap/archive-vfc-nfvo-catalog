@@ -19,57 +19,127 @@ from catalog.pub.utils.toscaparser.vnfdmodel import EtsiVnfdInfoModel
 
 
 class PostJobRequestSerializer(serializers.Serializer):
-    progress = serializers.CharField(help_text="Job Progress", required=False)
-    desc = serializers.CharField(help_text="Description", required=False)
-    errcode = serializers.CharField(help_text="Error Code", required=False)
+    progress = serializers.CharField(
+        help_text="Job Progress",
+        required=False
+    )
+    desc = serializers.CharField(
+        help_text="Description",
+        required=False
+    )
+    errcode = serializers.CharField(
+        help_text="Error Code",
+        required=False
+    )
 
 
 class JobResponseHistoryListSerializer(serializers.Serializer):
-    status = serializers.CharField(help_text="Status", required=False)
-    progress = serializers.CharField(help_text="Job Progress", required=False)
+    status = serializers.CharField(
+        help_text="Status",
+        required=False
+    )
+    progress = serializers.CharField(
+        help_text="Job Progress",
+        required=False
+    )
     statusDescription = serializers.CharField(
-        help_text="Status Description", required=False)
-    errorCode = serializers.CharField(help_text="Error Code", required=False, allow_null=True)
-    responseId = serializers.CharField(help_text="Response Id", required=False)
+        help_text="Status Description",
+        required=False
+    )
+    errorCode = serializers.CharField(
+        help_text="Error Code",
+        required=False,
+        allow_null=True
+    )
+    responseId = serializers.CharField(
+        help_text="Response Id",
+        required=False
+    )
 
 
 class JobResponseDescriptorSerializer(serializers.Serializer):
-    status = serializers.CharField(help_text="Status", required=False)
-    progress = serializers.CharField(help_text="Job Progress", required=False)
+    status = serializers.CharField(
+        help_text="Status",
+        required=False
+    )
+    progress = serializers.CharField(
+        help_text="Job Progress",
+        required=False
+    )
     statusDescription = serializers.CharField(
-        help_text="Status Description", required=False)
-    errorCode = serializers.CharField(help_text="Error Code", required=False, allow_null=True)
-    responseId = serializers.CharField(help_text="Response Id", required=False)
+        help_text="Status Description",
+        required=False
+    )
+    errorCode = serializers.CharField(
+        help_text="Error Code",
+        required=False,
+        allow_null=True
+    )
+    responseId = serializers.CharField(
+        help_text="Response Id",
+        required=False
+    )
     responseHistoryList = JobResponseHistoryListSerializer(
-        many=True, help_text="Response History List", required=False)
+        help_text="Response History List",
+        many=True,
+        required=False
+    )
 
 
 class GetJobResponseSerializer(serializers.Serializer):
     jobId = serializers.CharField(
         help_text="Job Id",
-        required=False)
+        required=False
+    )
     responseDescriptor = JobResponseDescriptorSerializer(
-        help_text="Job Response Descriptor", required=False)
+        help_text="Job Response Descriptor",
+        required=False
+    )
 
 
 class PostJobResponseResultSerializer(serializers.Serializer):
-    result = serializers.CharField(help_text="Result", required=True)
-    msg = serializers.CharField(help_text="Message", required=False)
+    result = serializers.CharField(
+        help_text="Result",
+        required=True
+    )
+    msg = serializers.CharField(
+        help_text="Message",
+        required=False
+    )
 
 
 class InternalErrorRequestSerializer(serializers.Serializer):
-    error = serializers.CharField(help_text="Error", required=True)
-    errorMessage = serializers.CharField(help_text="Error Message", required=False)
+    error = serializers.CharField(
+        help_text="Error",
+        required=True
+    )
+    errorMessage = serializers.CharField(
+        help_text="Error Message",
+        required=False
+    )
 
 
 class NsPackageDistributeRequestSerializer(serializers.Serializer):
-    csarId = serializers.CharField(help_text="csarId", required=True)
+    csarId = serializers.CharField(
+        help_text="csarId",
+        required=True
+    )
 
 
 class NsPackageDistributeResponseSerializer(serializers.Serializer):
-    status = serializers.CharField(help_text="status", required=True)
-    statusDescription = serializers.CharField(help_text="statusDescription", required=True)
-    errorCode = serializers.CharField(help_text="errorCode", required=True, allow_null=True)
+    status = serializers.CharField(
+        help_text="status",
+        required=True
+    )
+    statusDescription = serializers.CharField(
+        help_text="statusDescription",
+        required=True
+    )
+    errorCode = serializers.CharField(
+        help_text="errorCode",
+        required=True,
+        allow_null=True
+    )
 
 
 class NsPackageInfoSerializer(serializers.Serializer):
@@ -133,7 +203,10 @@ class NsPackagesSerializer(serializers.ListSerializer):
 
 
 class ServicePackageDistributeRequestSerializer(serializers.Serializer):
-    csarId = serializers.CharField(help_text="csarId", required=True)
+    csarId = serializers.CharField(
+        help_text="csarId",
+        required=True
+    )
 
 
 class ServicePackageInfoSerializer(serializers.Serializer):
@@ -197,15 +270,20 @@ class ServicePackagesSerializer(serializers.ListSerializer):
 
 
 class NfPackageDistributeRequestSerializer(serializers.Serializer):
-    csarId = serializers.CharField(help_text="CSAR ID", required=True)
+    csarId = serializers.CharField(
+        help_text="CSAR ID",
+        required=True
+    )
     vimIds = serializers.ListField(
         help_text="A string for vimIds",
         child=serializers.CharField(),
-        required=False)
+        required=False
+    )
     labVimId = serializers.CharField(
         help_text="A list of VIM IDs.",
         allow_blank=True,
-        required=False)
+        required=False
+    )
 
 
 class NfPackageInfoSerializer(serializers.Serializer):
@@ -213,63 +291,96 @@ class NfPackageInfoSerializer(serializers.Serializer):
         help_text="VNFD ID",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     vnfPackageId = serializers.CharField(
-        help_text="VNF Package ID", required=True)
+        help_text="VNF Package ID",
+        required=True
+    )
     vnfdProvider = serializers.CharField(
         help_text="VNFD Provider",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     vnfdVersion = serializers.CharField(
         help_text="VNFD Version",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     vnfVersion = serializers.CharField(
         help_text="VNF Version",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     csarName = serializers.CharField(
         help_text="CSAR Name",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     vnfdModel = serializers.CharField(
         help_text="VNFD Model",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     downloadUrl = serializers.CharField(
         help_text="URL to download VNFD Model",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
 
 
 class NfImageInfoSerializer(serializers.Serializer):
     index = serializers.CharField(
         help_text="Index of VNF Image",
-        required=True)
+        required=True
+    )
     fileName = serializers.CharField(
-        help_text="Image file name", required=True)
-    imageId = serializers.CharField(help_text="Image ID", required=True)
-    vimId = serializers.CharField(help_text="VIM ID", required=True)
-    vimUser = serializers.CharField(help_text="User of VIM", required=True)
-    tenant = serializers.CharField(help_text="Tenant", required=True)
-    status = serializers.CharField(help_text="Status", required=True)
+        help_text="Image file name",
+        required=True
+    )
+    imageId = serializers.CharField(
+        help_text="Image ID",
+        required=True
+    )
+    vimId = serializers.CharField(
+        help_text="VIM ID",
+        required=True
+    )
+    vimUser = serializers.CharField(
+        help_text="User of VIM",
+        required=True
+    )
+    tenant = serializers.CharField(
+        help_text="Tenant",
+        required=True
+    )
+    status = serializers.CharField(
+        help_text="Status",
+        required=True
+    )
 
 
 class NfPackageSerializer(serializers.Serializer):
-    csarId = serializers.CharField(help_text="CSAR ID", required=True)
+    csarId = serializers.CharField(
+        help_text="CSAR ID",
+        required=True
+    )
     packageInfo = NfPackageInfoSerializer(
-        help_text="VNF Package Info", required=True)
+        help_text="VNF Package Info",
+        required=True
+    )
     imageInfo = NfImageInfoSerializer(
         help_text="Image Info",
         required=False,
         many=True,
-        allow_null=True)
+        allow_null=True
+    )
 
 
 class NfPackagesSerializer(serializers.ListSerializer):
@@ -277,17 +388,32 @@ class NfPackagesSerializer(serializers.ListSerializer):
 
 
 class PostJobResponseSerializer(serializers.Serializer):
-    jobId = serializers.CharField(help_text="jobId", required=True)
+    jobId = serializers.CharField(
+        help_text="jobId",
+        required=True
+    )
 
 
 class ParseModelRequestSerializer(serializers.Serializer):
-    csarId = serializers.CharField(help_text="CSAR ID", required=True)
-    packageType = serializers.CharField(help_text="Package type: VNF, PNF, NS, Service", required=False)
-    inputs = serializers.JSONField(help_text="Inputs", required=False)
+    csarId = serializers.CharField(
+        help_text="CSAR ID",
+        required=True
+    )
+    packageType = serializers.CharField(
+        help_text="Package type: VNF, PNF, NS, Service",
+        required=False
+    )
+    inputs = serializers.JSONField(
+        help_text="Inputs",
+        required=False
+    )
 
 
 class ParseModelResponseSerializer(serializers.Serializer):
-    model = serializers.JSONField(help_text="Model", required=True)
+    model = serializers.JSONField(
+        help_text="Model",
+        required=True
+    )
 
 
 class EtsiNsdInfoModelSerializer(serializers.ModelSerializer):
@@ -303,8 +429,14 @@ class EtsiVnfdInfoModelSerializer(serializers.ModelSerializer):
 
 
 class ParseNSPackageResponseSerializer(serializers.Serializer):
-    model = EtsiNsdInfoModelSerializer(help_text="NSD Model", required=True)
+    model = EtsiNsdInfoModelSerializer(
+        help_text="NSD Model",
+        required=True
+    )
 
 
 class ParseNfPackageResponseSerializer(serializers.Serializer):
-    model = EtsiVnfdInfoModelSerializer(help_text="VNFD Model", required=True)
+    model = EtsiVnfdInfoModelSerializer(
+        help_text="VNFD Model",
+        required=True
+    )
