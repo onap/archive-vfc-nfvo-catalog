@@ -70,4 +70,8 @@ urlpatterns = [
 
     # health check
     url(r'^api/vnfpkgm/v1/health_check$', HealthCheckView.as_view()),
+    url(r'^api/nsd/v1/health_check$', HealthCheckView.as_view()),
+    url(r'^api/catalog/v1/health_check$', HealthCheckView.as_view()),
+    url(r'^api/parser/v1/health_check$', HealthCheckView.as_view()),
+    
 ]
