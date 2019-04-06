@@ -23,15 +23,18 @@ class _LinkSerializer(serializers.Serializer):
     self = LinkSerializer(
         help_text='URI of this resource.',
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     vnfd = LinkSerializer(
         help_text='Link to the VNFD resource.',
         required=False,
-        allow_null=False)
+        allow_null=False
+    )
     packageContent = LinkSerializer(
         help_text='Link to the "VNF package content resource.',
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
 
     class Meta:
         ref_name = 'VNF_PKGM_Link_Serializer'
@@ -42,67 +45,81 @@ class VnfPkgInfoSerializer(serializers.Serializer):
         help_text="Identifier of the on-boarded VNF package.",
         required=True,
         allow_null=False,
-        allow_blank=False)
+        allow_blank=False
+    )
     vnfdId = serializers.CharField(
-        help_text="This identifier, which is managed by the VNF provider, identifies the VNF package \
-        and the VNFD in a globally unique way.",
+        help_text="This identifier, which is managed by the VNF provider, "
+        "identifies the VNF package and the VNFD in a globally unique way.",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     vnfProvider = serializers.CharField(
         help_text="Provider of the VNF package and the VNFD.",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     vnfProductName = serializers.CharField(
         help_text="Name to identify the VNF product.",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     vnfSoftwareVersion = serializers.CharField(
         help_text="Software version of the VNF.",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     vnfdVersion = serializers.CharField(
         help_text="The version of the VNvFD.",
         required=False,
         allow_null=True,
-        allow_blank=True)
+        allow_blank=True
+    )
     checksum = ChecksumSerializer(
         help_text="Checksum of the on-boarded VNF package.",
         required=False,
-        allow_null=True,)
+        allow_null=True
+    )
     softwareImages = VnfPackageSoftwareImageInfoSerializer(
         help_text="Information about VNF package artifacts that are software images.",
         required=False,
         allow_null=True,
-        many=True)
+        many=True
+    )
     additionalArtifacts = VnfPackageArtifactInfoSerializer(
-        help_text="Information about VNF package artifacts contained in the VNF package that are not software images.",
+        help_text="Information about VNF package artifacts contained in "
+        "the VNF package that are not software images.",
         required=False,
         allow_null=True,
-        many=True)
+        many=True
+    )
     onboardingState = serializers.ChoiceField(
         help_text="On-boarding state of the VNF package.",
         choices=["CREATED", "UPLOADING", "PROCESSING", "ONBOARDED"],
         required=True,
-        allow_null=True)
+        allow_null=True
+    )
     operationalState = serializers.ChoiceField(
         help_text="Operational state of the VNF package.",
         choices=["ENABLED", "DISABLED"],
         required=True,
-        allow_null=True)
+        allow_null=True
+    )
     usageState = serializers.ChoiceField(
         help_text="Usage state of the VNF package.",
         choices=["IN_USE", "NOT_IN_USE"],
         required=True,
-        allow_null=True)
+        allow_null=True
+    )
     userDefinedData = serializers.DictField(
         help_text="User defined data for the VNF package.",
         child=serializers.CharField(help_text="KeyValue Pairs", allow_blank=True),
         required=False,
-        allow_null=True)
+        allow_null=True
+    )
     _links = _LinkSerializer(
         help_text='Links to resources related to this resource.',
         required=True,

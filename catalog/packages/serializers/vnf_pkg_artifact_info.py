@@ -21,13 +21,19 @@ class VnfPackageArtifactInfoSerializer(serializers.Serializer):
         help_text="Path in the VNF package.",
         required=True,
         allow_null=False,
-        allow_blank=False)
+        allow_blank=False
+    )
     checksum = ChecksumSerializer(
         help_text="Checksum of the artifact file.",
         required=True,
-        allow_null=False,)
+        allow_null=False
+    )
     metadata = serializers.DictField(
         help_text="The metadata of the artifact that are available in the VNF package",
-        child=serializers.CharField(help_text="KeyValue Pairs", allow_blank=True),
+        child=serializers.CharField(
+            help_text="KeyValue Pairs",
+            allow_blank=True
+        ),
         required=False,
-        allow_null=True)
+        allow_null=True
+    )

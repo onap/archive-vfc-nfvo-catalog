@@ -20,14 +20,17 @@ class UploadVnfPackageFromUriRequestSerializer(serializers.Serializer):
         help_text="Address information of the VNF package content.",
         required=True,
         allow_null=False,
-        allow_blank=False)
+        allow_blank=False
+    )
     userName = serializers.CharField(
         help_text="User name to be used for authentication.",
         required=False,
         allow_null=False,
-        allow_blank=False)
+        allow_blank=False
+    )
     password = serializers.CharField(
         help_text="Password to be used for authentication.",
         required=False,
         allow_null=False,
-        allow_blank=False)
+        allow_blank=False
+    )
