@@ -25,13 +25,15 @@ class VersionSerializer(serializers.Serializer):
         help_text="VNF software version to match.",
         max_length=255,
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     vnfdVersions = serializers.ListField(
         child=serializers.CharField(),
         help_text="Match VNF packages that contain "
                   "VNF products with certain VNFD versions",
         required=False,
-        allow_null=False)
+        allow_null=False
+    )
 
 
 class vnfProductsSerializer(serializers.Serializer):
@@ -39,7 +41,8 @@ class vnfProductsSerializer(serializers.Serializer):
         help_text="Name of the VNF product to match.",
         max_length=255,
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     versions = VersionSerializer(
         help_text="match VNF packages that contain "
                   "VNF products with certain versions",
@@ -53,7 +56,8 @@ class vnfProductsProvidersSerializer(serializers.Serializer):
         help_text="Name of the VNFprovider to match.",
         max_length=255,
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     vnfProducts = vnfProductsSerializer(
         help_text="match VNF packages that contain "
                   "VNF products with certain product names, "
@@ -65,10 +69,14 @@ class vnfProductsProvidersSerializer(serializers.Serializer):
 
 class PkgmNotificationsFilter(serializers.Serializer):
     notificationTypes = serializers.ListField(
-        child=serializers.ChoiceField(required=True, choices=NOTIFICATION_TYPES),
+        child=serializers.ChoiceField(
+            required=True,
+            choices=NOTIFICATION_TYPES
+        ),
         help_text="Match particular notification types",
         allow_null=False,
-        required=False)
+        required=False
+    )
     vnfProductsFromProviders = vnfProductsProvidersSerializer(
         help_text="Match VNF packages that contain "
                   "VNF products from certain providers.",
@@ -80,20 +88,30 @@ class PkgmNotificationsFilter(serializers.Serializer):
         help_text="Match VNF packages with a VNFD identifier"
                   "listed in the attribute",
         required=False,
-        allow_null=False)
+        allow_null=False
+    )
     vnfPkgId = serializers.ListField(
         child=serializers.UUIDField(),
         help_text="Match VNF packages with a VNFD identifier"
                   "listed in the attribute",
         required=False,
-        allow_null=False)
+        allow_null=False
+    )
     operationalState = serializers.ListField(
-        child=serializers.ChoiceField(required=True, choices=PackageOperationalStateType),
+        child=serializers.ChoiceField(
+            required=True,
+            choices=PackageOperationalStateType
+        ),
         help_text="Operational state of the VNF package.",
         allow_null=False,
-        required=False)
+        required=False
+    )
     usageState = serializers.ListField(
-        child=serializers.ChoiceField(required=True, choices=PackageUsageStateType),
+        child=serializers.ChoiceField(
+            required=True,
+            choices=PackageUsageStateType
+        ),
         help_text="Operational state of the VNF package.",
         allow_null=False,
-        required=False)
+        required=False
+    )

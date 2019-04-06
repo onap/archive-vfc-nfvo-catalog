@@ -21,45 +21,54 @@ class VnfPackageSoftwareImageInfoSerializer(serializers.Serializer):
         help_text="Identifier of the software image.",
         required=True,
         allow_null=False,
-        allow_blank=False)
+        allow_blank=False
+    )
     name = serializers.CharField(
         help_text="Name of the software image.",
         required=True,
         allow_null=True,
-        allow_blank=False)
+        allow_blank=False
+    )
     provider = serializers.CharField(
         help_text="Provider of the software image.",
         required=True,
         allow_null=True,
-        allow_blank=False)
+        allow_blank=False
+    )
     version = serializers.CharField(
         help_text="Version of the software image.",
         required=True,
         allow_null=True,
-        allow_blank=False)
+        allow_blank=False
+    )
     checksum = ChecksumSerializer(
         help_text="Checksum of the software image file.",
         required=True,
-        allow_null=False, )
+        allow_null=False
+    )
     containerFormat = serializers.ChoiceField(
         help_text="terminationType: Indicates whether forceful or graceful termination is requested.",
         choices=["AKI", "AMI", "ARI", "BARE", "DOCKER", "OVA", "OVF"],
         required=True,
-        allow_null=True)
+        allow_null=True
+    )
     diskFormat = serializers.ChoiceField(
         help_text="Disk format of a software image is the format of the underlying disk image.",
         choices=["AKI", "AMI", "ARI", "ISO", "QCOW2", "RAW", "VDI", "VHD", "VHDX", "VMDK"],
         required=True,
-        allow_null=True)
+        allow_null=True
+    )
     createdAt = serializers.DateTimeField(
         help_text="Time when this software image was created.",
         required=True,
         format=None,
-        input_formats=None)
+        input_formats=None
+    )
     minDisk = serializers.IntegerField(
         help_text="The minimal disk for this software image in bytes.",
         required=True,
-        allow_null=True)
+        allow_null=True
+    )
     minRam = serializers.IntegerField(
         help_text="The minimal RAM for this software image in bytes.",
         required=True,
@@ -72,11 +81,16 @@ class VnfPackageSoftwareImageInfoSerializer(serializers.Serializer):
     )
     userMetadata = serializers.DictField(
         help_text="User-defined data.",
-        child=serializers.CharField(help_text="KeyValue Pairs", allow_blank=True),
+        child=serializers.CharField(
+            help_text="KeyValue Pairs",
+            allow_blank=True
+        ),
         required=False,
-        allow_null=True)
+        allow_null=True
+    )
     imagePath = serializers.CharField(
         help_text="Path in the VNF package.",
         required=True,
         allow_null=True,
-        allow_blank=False)
+        allow_blank=False
+    )

@@ -23,7 +23,8 @@ class LinkSerializer(serializers.Serializer):
         help_text="URI of the referenced resource.",
         required=True,
         allow_null=False,
-        allow_blank=False)
+        allow_blank=False
+    )
 
     class Meta:
         ref_name = 'VNF_SUBSCRIPTION_LINKSERIALIZER'
@@ -33,7 +34,8 @@ class LinkSelfSerializer(serializers.Serializer):
     self = LinkSerializer(
         help_text="URI of this resource.",
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
 
 
 class PkgmSubscriptionRequestSerializer(serializers.Serializer):
@@ -48,7 +50,8 @@ class PkgmSubscriptionRequestSerializer(serializers.Serializer):
         help_text="Callback URI to send"
                   "the notification",
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     authentication = subscription_auth_data.SubscriptionAuthenticationSerializer(
         help_text="Authentication parameters to configure the use of "
                   "authorization when sending notifications corresponding to"
@@ -62,16 +65,19 @@ class PkgmSubscriptionSerializer(serializers.Serializer):
     id = serializers.UUIDField(
         help_text="Identifier of this subscription resource.",
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     callbackUri = serializers.URLField(
         help_text="The URI of the endpoint to send the notification to.",
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
 
     _links = LinkSelfSerializer(
         help_text="Links to resources related to this resource.",
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
 
     filter = vnf_pkg_notifications.PkgmNotificationsFilter(
         help_text="Filter settings for this subscription, "
