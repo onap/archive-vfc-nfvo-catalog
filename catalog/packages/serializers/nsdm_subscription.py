@@ -22,7 +22,8 @@ from nsdm_filter_data import NsdmNotificationsFilter
 class NsdmSubscriptionLinkSerializer(serializers.Serializer):
     self = LinkSerializer(
         help_text="Links to resources related to this resource.",
-        required=True)
+        required=True
+    )
 
 
 class NsdmSubscriptionSerializer(serializers.Serializer):
@@ -30,19 +31,23 @@ class NsdmSubscriptionSerializer(serializers.Serializer):
         help_text="Identifier of this subscription resource.",
         max_length=255,
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     callbackUri = serializers.CharField(
         help_text="The URI of the endpoint to send the notification to.",
         max_length=255,
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     filter = NsdmNotificationsFilter(
         help_text="Filter settings for this subscription, to define the "
         "of all notifications this subscription relates to.",
-        required=False)
+        required=False
+    )
     _links = NsdmSubscriptionLinkSerializer(
         help_text="Links to resources related to this resource.",
-        required=True)
+        required=True
+    )
 
 
 class NsdmSubscriptionsSerializer(serializers.ListSerializer):
@@ -53,23 +58,27 @@ class NsdmSubscriptionIdSerializer(serializers.Serializer):
     subscription_id = serializers.UUIDField(
         help_text="Identifier of this subscription resource.",
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
 
 
 class NsdmSubscriptionRequestSerializer(serializers.Serializer):
     callbackUri = serializers.CharField(
         help_text="The URI of the endpoint to send the notification to.",
         required=True,
-        allow_null=False)
+        allow_null=False
+    )
     filter = NsdmNotificationsFilter(
         help_text="Filter settings for the subscription,"
                   " to define the subset of all "
                   "notifications this subscription relates to.",
         required=False,
-        allow_null=True)
+        allow_null=True
+    )
     authentication = SubscriptionAuthenticationSerializer(
         help_text="Authentication parameters to configure"
                   " the use of Authorization when sending "
                   "notifications corresponding to this subscription.",
         required=False,
-        allow_null=True)
+        allow_null=True
+    )

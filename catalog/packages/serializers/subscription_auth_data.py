@@ -23,19 +23,22 @@ class OAuthCredentialsSerializer(serializers.Serializer):
         "request of the OAuth 2.0 client credentials grant type.",
         required=False,
         max_length=255,
-        allow_null=False)
+        allow_null=False
+    )
     clientPassword = serializers.CharField(
         help_text="Client password to be used in the access token "
         "request of the OAuth 2.0 client credentials grant type.",
         required=False,
         max_length=255,
-        allow_null=False)
+        allow_null=False
+    )
     tokenEndpoint = serializers.CharField(
         help_text="The token endpoint from which the access token can "
         "be obtained.",
         required=False,
         max_length=255,
-        allow_null=False)
+        allow_null=False
+    )
 
 
 class BasicAuthSerializer(serializers.Serializer):
@@ -43,12 +46,14 @@ class BasicAuthSerializer(serializers.Serializer):
         help_text="Username to be used in HTTP Basic authentication.",
         max_length=255,
         required=False,
-        allow_null=False)
+        allow_null=False
+    )
     password = serializers.CharField(
         help_text="Password to be used in HTTP Basic authentication.",
         max_length=255,
         required=False,
-        allow_null=False)
+        allow_null=False
+    )
 
 
 class SubscriptionAuthenticationSerializer(serializers.Serializer):
@@ -57,13 +62,16 @@ class SubscriptionAuthenticationSerializer(serializers.Serializer):
         help_text="Defines the types of Authentication / Authorization "
         "which the API consumer is willing to accept when "
         "receiving a notification.",
-        required=True)
+        required=True
+    )
     paramsBasic = BasicAuthSerializer(
         help_text="Parameters for authentication/authorization using BASIC.",
         required=False,
-        allow_null=False)
+        allow_null=False
+    )
     paramsOauth2ClientCredentials = OAuthCredentialsSerializer(
         help_text="Parameters for authentication/authorization using "
         "OAUTH2_CLIENT_CREDENTIALS.",
         required=False,
-        allow_null=False)
+        allow_null=False
+    )
