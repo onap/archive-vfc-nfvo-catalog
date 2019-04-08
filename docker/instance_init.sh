@@ -28,6 +28,6 @@ GET_CATALOG_DB="show databases like 'nfvocatalog';"
 CATALOG_DB=`mysql -u$MYSQL_ROOT_USER -p$MYSQL_ROOT_PASSWORD -P$MYSQL_PORT -h$MYSQL_IP -e "GET_CATALOG_DB"`
 if [[ "$CATALOG_DB" == "" ]]; then
     create_database
-
+    migrate_database
 fi
-migrate_database
+

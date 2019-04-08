@@ -19,7 +19,7 @@ if [ ! -x  $logDir  ]; then
 fi
 
 # nohup python manage.py runserver 0.0.0.0:8806 > /dev/null &
-nohup uwsgi --http :8806 -t 120 --module lcm.wsgi --master --processes 4 &
+nohup uwsgi --http :8806 -t 120 --module catalog.wsgi --master --processes 4 &
 
 while [ ! -f $logDir/runtime_catalog.log ]; do
     sleep 1
