@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import traceback
 import logging
 
 from drf_yasg.utils import swagger_auto_schema
@@ -24,20 +22,18 @@ from django.http import FileResponse
 
 from catalog.packages.serializers.response import ProblemDetailsSerializer
 from catalog.packages.biz.vnf_pkg_artifacts import FetchVnfPkgArtifact
-from catalog.pub.exceptions import ResourceNotFoundException, ArtifactNotFoundException
+from .common import view_safe_call_with_log
 
 logger = logging.getLogger(__name__)
-VALID_FILTERS = ["callbackUri", "notificationTypes", "vnfdId", "vnfPkgId", "operationalState", "usageState"]
 
-
-def get_problem_details_serializer(status_code, error_message):
-    problem_details = {
-        "status": status_code,
-        "detail": error_message
-    }
-    problem_details_serializer = ProblemDetailsSerializer(data=problem_details)
-    problem_details_serializer.is_valid()
-    return problem_details_serializer
+VALID_FILTERS = [
+    "callbackUri",
+    "notificationTypes",
+    "vnfdId",
+    "vnfPkgId",
+    "operationalState",
+    "usageState"
+]
 
 
 class FetchVnfPkgmArtifactsView(APIView):
@@ -49,29 +45,11 @@ class FetchVnfPkgmArtifactsView(APIView):
             status.HTTP_500_INTERNAL_SERVER_ERROR: ProblemDetailsSerializer()
         }
     )
+    @view_safe_call_with_log(logger=logger)
     def get(self, request, vnfPkgId, artifactPath):
         logger.debug("FetchVnfPkgmArtifactsView--get::> ")
-        try:
 
-            resp_data = FetchVnfPkgArtifact().fetch(vnfPkgId, artifactPath)
-            response = FileResponse(resp_data)
+        resp_data = FetchVnfPkgArtifact().fetch(vnfPkgId, artifactPath)
+        response = FileResponse(resp_data)
 
-            return response
-        except ResourceNotFoundException as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            problem_details_serializer = get_problem_details_serializer(status.HTTP_404_NOT_FOUND,
-                                                                        traceback.format_exc())
-            return Response(data=problem_details_serializer.data, status=status.HTTP_404_NOT_FOUND)
-        except ArtifactNotFoundException as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            problem_details_serializer = get_problem_details_serializer(status.HTTP_404_NOT_FOUND,
-                                                                        traceback.format_exc())
-            return Response(data=problem_details_serializer.data, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            problem_details_serializer = get_problem_details_serializer(status.HTTP_404_NOT_FOUND,
-                                                                        traceback.format_exc())
-            return Response(data=problem_details_serializer.data, status=status.HTTP_404_NOT_FOUND)
+        return response
