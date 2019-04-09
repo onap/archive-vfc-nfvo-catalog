@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import traceback
 
 from django.http import StreamingHttpResponse
 from drf_yasg.utils import no_body, swagger_auto_schema
@@ -26,7 +25,7 @@ from catalog.packages.serializers.create_nsd_info_request import CreateNsdInfoRe
 from catalog.packages.serializers.nsd_info import NsdInfoSerializer
 from catalog.packages.serializers.nsd_infos import NsdInfosSerializer
 from catalog.packages.views.common import validate_data
-from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
+from catalog.pub.exceptions import CatalogException
 from .common import view_safe_call_with_log
 
 logger = logging.getLogger(__name__)
@@ -83,30 +82,19 @@ def ns_info_rd(request, **kwargs):
     }
 )
 @api_view(http_method_names=['POST', 'GET'])
+@view_safe_call_with_log(logger=logger)
 def ns_descriptors_rc(request):
     if request.method == 'POST':
-        try:
-            create_nsd_info_request = validate_data(request.data, CreateNsdInfoRequestSerializer)
-            data = NsDescriptor().create(create_nsd_info_request.data)
-            nsd_info = validate_data(data, NsdInfoSerializer)
-            return Response(data=nsd_info.data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            error_data = {'error': 'Creating a NSD failed.'}
-        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        create_nsd_info_request = validate_data(request.data, CreateNsdInfoRequestSerializer)
+        data = NsDescriptor().create(create_nsd_info_request.data)
+        nsd_info = validate_data(data, NsdInfoSerializer)
+        return Response(data=nsd_info.data, status=status.HTTP_201_CREATED)
 
     if request.method == 'GET':
-        try:
-            nsdId = request.query_params.get("nsdId", None)
-            data = NsDescriptor().query_multiple(nsdId)
-            nsd_infos = validate_data(data, NsdInfosSerializer)
-            return Response(data=nsd_infos.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            error_data = {'error': 'Query of multiple NSDs failed.'}
-        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        nsdId = request.query_params.get("nsdId", None)
+        data = NsDescriptor().query_multiple(nsdId)
+        nsd_infos = validate_data(data, NsdInfosSerializer)
+        return Response(data=nsd_infos.data, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(
@@ -129,6 +117,7 @@ def ns_descriptors_rc(request):
     }
 )
 @api_view(http_method_names=['PUT', 'GET'])
+@view_safe_call_with_log(logger=logger)
 def nsd_content_ru(request, **kwargs):
     nsd_info_id = kwargs.get("nsdInfoId")
     if request.method == 'PUT':
@@ -139,31 +128,12 @@ def nsd_content_ru(request, **kwargs):
             return Response(data=None, status=status.HTTP_204_NO_CONTENT)
         except CatalogException as e:
             NsDescriptor().handle_upload_failed(nsd_info_id)
-            logger.error(e.message)
-            error_data = {'error': e.message}
+            raise e
         except Exception as e:
             NsDescriptor().handle_upload_failed(nsd_info_id)
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            error_data = {'error': 'Uploading NSD(%s) failed.' % nsd_info_id}
-        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise e
 
     if request.method == 'GET':
-        try:
-            file_range = request.META.get('RANGE')
-            file_iterator = NsDescriptor().download(nsd_info_id, file_range)
-            return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
-        except ResourceNotFoundException as e:
-            logger.error(e.message)
-            error_data = {'error': e.message}
-            error_code = status.HTTP_404_NOT_FOUND
-        except CatalogException as e:
-            logger.error(e.message)
-            error_data = {'error': e.message}
-            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            error_data = {'error': 'Downloading NSD(%s) failed.' % nsd_info_id}
-            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return Response(data=error_data, status=error_code)
+        file_range = request.META.get('RANGE')
+        file_iterator = NsDescriptor().download(nsd_info_id, file_range)
+        return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
