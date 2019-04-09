@@ -21,6 +21,7 @@ from rest_framework.response import Response
 from catalog.pub.exceptions import CatalogException
 from catalog.pub.exceptions import NsdmBadRequestException
 from catalog.pub.exceptions import PackageNotFoundException
+from catalog.pub.exceptions import ResourceNotFoundException
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,12 @@ def view_safe_call_with_log(logger):
             try:
                 return func(*args, **kwargs)
             except PackageNotFoundException as e:
+                logger.error(e.message)
+                return make_error_resp(
+                    detail=e.message,
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            except ResourceNotFoundException as e:
                 logger.error(e.message)
                 return make_error_resp(
                     detail=e.message,

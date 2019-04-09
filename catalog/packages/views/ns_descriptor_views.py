@@ -27,6 +27,7 @@ from catalog.packages.serializers.nsd_info import NsdInfoSerializer
 from catalog.packages.serializers.nsd_infos import NsdInfosSerializer
 from catalog.packages.views.common import validate_data
 from catalog.pub.exceptions import CatalogException, ResourceNotFoundException
+from .common import view_safe_call_with_log
 
 logger = logging.getLogger(__name__)
 
@@ -51,33 +52,16 @@ logger = logging.getLogger(__name__)
     }
 )
 @api_view(http_method_names=['GET', 'DELETE'])
+@view_safe_call_with_log(logger=logger)
 def ns_info_rd(request, **kwargs):
     nsd_info_id = kwargs.get("nsdInfoId")
     if request.method == 'GET':
-        try:
-            data = NsDescriptor().query_single(nsd_info_id)
-            nsd_info = validate_data(data, NsdInfoSerializer)
-            return Response(data=nsd_info.data, status=status.HTTP_200_OK)
-        except ResourceNotFoundException as e:
-            logger.error(e.message)
-            error_data = {'error': e.message}
-            error_code = status.HTTP_404_NOT_FOUND
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            error_data = {'error': 'Query of NSD(%s) failed.' % nsd_info_id}
-            error_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return Response(data=error_data, status=error_code)
-
+        data = NsDescriptor().query_single(nsd_info_id)
+        nsd_info = validate_data(data, NsdInfoSerializer)
+        return Response(data=nsd_info.data, status=status.HTTP_200_OK)
     if request.method == 'DELETE':
-        try:
-            NsDescriptor().delete_single(nsd_info_id)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            error_data = {'error': 'Deletion of NSD(%s) failed.' % nsd_info_id}
-        return Response(data=error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        NsDescriptor().delete_single(nsd_info_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @swagger_auto_schema(
