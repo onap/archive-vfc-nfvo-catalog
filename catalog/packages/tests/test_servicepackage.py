@@ -18,6 +18,7 @@ from mock import mock
 from rest_framework import status
 
 from catalog.packages.biz.sdc_service_package import ServicePackage
+from catalog.packages.const import PKG_STATUS
 from catalog.pub.database.models import ServicePackageModel, VnfPackageModel, PnfPackageModel
 from catalog.pub.exceptions import PackageNotFoundException, PackageHasExistsException, CatalogException
 from catalog.pub.msapi import sdc
@@ -318,6 +319,13 @@ class TestServicePackage(TestCase):
         VnfPackageModel(vnfPackageId="1", vnfdId="cd557883-ac4b-462d-aa01-421b5fa606b1").save()
         PnfPackageModel(pnfPackageId="1", pnfdId="m6000_s").save()
         ServicePackage().on_distribute(csar_id="1")
+
+        service_package = ServicePackageModel.objects.filter(servicePackageId="1").first()
+        self.assertEqual("5de07996-7ff0-4ec1-b93c-e3a00bb3f207", service_package.invariantId)
+        self.assertEqual("Enhance_Service", service_package.servicedName)
+        self.assertEqual(PKG_STATUS.ONBOARDED, service_package.onboardingState)
+        self.assertEqual(PKG_STATUS.ENABLED, service_package.operationalState)
+        self.assertEqual(PKG_STATUS.NOT_IN_USE, service_package.usageState)
 
     def test_api_service_pkg_distribute_when_pkg_exists(self):
         ServicePackageModel(servicePackageId="1", servicedId="2").save()

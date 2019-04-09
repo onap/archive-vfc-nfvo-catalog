@@ -48,7 +48,7 @@ class SdInfoModel(BaseInfoModel):
             type = input.schema.type
             if type.__eq__('list') or type.__eq__('map'):
                 complex_input = []
-                entry_schema = input.schema.schema['entry_schema']
+                entry_schema = self.get_entry_schema(input.schema.schema['entry_schema'])
                 self.get_child_input_repeat(complex_input, entry_schema, input)
                 result_inputs[input.schema.name] = complex_input
 
@@ -67,7 +67,7 @@ class SdInfoModel(BaseInfoModel):
         for key, value in properties.iteritems():
             if value['type'].__eq__('list'):
                 child_complex_input = []
-                child_entry_schema = value['entry_schema']
+                child_entry_schema = self.get_entry_schema(value['entry_schema'])
                 self.get_child_input_repeat(child_complex_input, child_entry_schema, input)
                 complex_input.append({key: child_complex_input})
             else:
@@ -85,3 +85,9 @@ class SdInfoModel(BaseInfoModel):
                         "required": value['required'],
                     }
                 complex_input.append(simple_input)
+
+    def get_entry_schema(self, entry_schema):
+        if isinstance(entry_schema, dict):
+            if 'type' in entry_schema.keys():
+                entry_schema = entry_schema['type']
+        return entry_schema
