@@ -25,10 +25,11 @@ class FetchVnfPkgArtifact(object):
     def fetch(self, vnfPkgId, artifactPath):
         logger.debug("FetchVnfPkgArtifact--get--single--artifact--biz::>"
                      "ID: %s path: %s" % (vnfPkgId, artifactPath))
-        vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId).get()
-        if not vnf_pkg:
+        vnf_pkg = VnfPackageModel.objects.filter(vnfPackageId=vnfPkgId)
+        if not vnf_pkg.exists():
             err_msg = "NF Package (%s) doesn't exists." % vnfPkgId
-            return ResourceNotFoundException(err_msg)
+            raise ResourceNotFoundException(err_msg)
+        vnf_pkg = vnf_pkg.get()
         local_path = vnf_pkg.localFilePath
         if local_path.endswith(".csar") or local_path.endswith(".zip"):
             vnf_extract_path = fileutil.unzip_csar_to_tmp(local_path)
