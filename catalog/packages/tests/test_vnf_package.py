@@ -346,7 +346,7 @@ class TestVnfPackage(TestCase):
         mock_parse_vnfd.return_value = json.JSONEncoder().encode(vnfd_data)
         response = self.client.put("/api/vnfpkgm/v1/vnf_packages/222/package_content", data=data)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
-        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/2224/artifacts/image")
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/1451/artifacts/image")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     @mock.patch.object(toscaparser, 'parse_vnfd')
