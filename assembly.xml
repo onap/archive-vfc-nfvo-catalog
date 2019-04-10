@@ -30,6 +30,8 @@
                 <include>**/*.xml</include>
                 <include>**/*.yml</include>
                 <include>**/*.sh</include>
+                <include>**/*.crt</include>
+                <include>**/*.key</include>
             </includes>
         </fileSet>
         <fileSet>
