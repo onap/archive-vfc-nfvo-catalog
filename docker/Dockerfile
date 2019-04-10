@@ -36,7 +36,7 @@ WORKDIR /service
 RUN wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.catalog&a=vfc-nfvo-catalog&v=LATEST&e=zip' && \
     unzip vfc-nfvo-catalog.zip && \
     rm -rf vfc-nfvo-catalog.zip && \
-    chown onap:onap /service -R
+    chown onap:onap -R /service /var/log
 
 WORKDIR /service/vfc/nfvo/catalog
 RUN pip install --upgrade setuptools pip && \
