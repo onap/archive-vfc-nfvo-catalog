@@ -22,7 +22,6 @@ RUN apt-get update && \
     apt-get install -y unzip && \
     apt-get install -y curl && \
     apt-get install -y build-essential && \
-#    apt-get install -y libssl-dev && \
     apt-get install -y libffi-dev && \
     groupadd -r onap && useradd -r -g onap onap && \
     chmod u+w /etc/sudoers && \
@@ -35,8 +34,9 @@ WORKDIR /service
 # get binary zip from nexus - vfc-nfvo-catalog
 RUN wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.catalog&a=vfc-nfvo-catalog&v=LATEST&e=zip' && \
     unzip vfc-nfvo-catalog.zip && \
-    rm -rf vfc-nfvo-catalog.zip && \
-    chown onap:onap -R /service /var/log
+    rm -rf vfc-nfvo-catalog.zip
+
+RUN chown onap:onap -R /service /var/log
 
 WORKDIR /service/vfc/nfvo/catalog
 RUN pip install --upgrade setuptools pip && \
