@@ -2,7 +2,6 @@
 
 install_sf(){
 
-    sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     apk --no-cache update
     apk --no-cache add bash curl gcc wget mysql-client openssl-dev
     apk --no-cache add python-dev libffi-dev musl-dev py2-virtualenv
