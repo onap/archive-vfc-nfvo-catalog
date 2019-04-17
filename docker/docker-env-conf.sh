@@ -1,6 +1,6 @@
 #!/bin/bash
 
-config_env(){
+install_sf(){
 
     sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     apk --no-cache update
@@ -8,6 +8,7 @@ config_env(){
     apk --no-cache add python-dev libffi-dev musl-dev py2-virtualenv
 
     # get binary zip from nexus - vfc-nfvo-catalog
+
     wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.catalog&a=vfc-nfvo-catalog&v=LATEST&e=zip' && \
     unzip vfc-nfvo-catalog.zip && \
     rm -rf vfc-nfvo-catalog.zip && \
@@ -15,7 +16,7 @@ config_env(){
     pip install --no-cache-dir --pre -r  /service/vfc/nfvo/catalog/requirements.txt
 }
 
-add_onap(){
+add_user(){
 
     apk --no-cache add sudo
     addgroup -g 1000 -S onap && \
@@ -23,20 +24,32 @@ add_onap(){
     chmod u+w /etc/sudoers && \
     sed -i '/User privilege/a\\onap    ALL=(ALL:ALL) NOPASSWD:ALL' /etc/sudoers && \
     chmod u-x /etc/sudoers && \
-    chown onap:onap -R /service
+    sudo chown onap:onap -R /service
 }
 
-clean_env(){
+config_logdir(){
+
+    if [ ! -d "/var/log/onap" ]; then
+       sudo mkdir /var/log/onap
+    fi 
+   
+    sudo chown onap:onap -R /var/log/onap
+    chmod g+s /var/log/onap
+    
+}
+
+clean_sf_cache(){
 
     rm -rf /var/cache/apk/*
     rm -rf /root/.cache/pip/*
     rm -rf /tmp/*
 }
 
-config_env
+install_sf
 wait
-add_onap
-clean_env
+add_user
+config_logdir
+clean_sf_cache
 
 
 
