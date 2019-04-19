@@ -14,34 +14,65 @@
 
 from catalog.pub.utils.jobutil import enum
 
-PKG_STATUS = enum(CREATED="CREATED", UPLOADING="UPLOADING", PROCESSING="PROCESSING", ONBOARDED="ONBOARDED",
-                  IN_USE="IN_USE", NOT_IN_USE="NOT_IN_USE", ENABLED="ENABLED", DISABLED="DISABLED")
+PKG_STATUS = enum(
+    CREATED="CREATED",
+    UPLOADING="UPLOADING",
+    PROCESSING="PROCESSING",
+    ONBOARDED="ONBOARDED",
+    IN_USE="IN_USE",
+    NOT_IN_USE="NOT_IN_USE",
+    ENABLED="ENABLED",
+    DISABLED="DISABLED"
+)
 
-AUTH_TYPES = ["BASIC", "OAUTH2_CLIENT_CREDENTIALS", "TLS_CERT"]
+AUTH_TYPES = [
+    "BASIC",
+    "OAUTH2_CLIENT_CREDENTIALS",
+    "TLS_CERT"
+]
 
 BASIC = "BASIC"
 
 OAUTH2_CLIENT_CREDENTIALS = "OAUTH2_CLIENT_CREDENTIALS"
 
-NOTIFICATION_TYPES = ["VnfPackageOnboardingNotification", "VnfPackageChangeNotification"]
+NOTIFICATION_TYPES = [
+    "VnfPackageOnboardingNotification",
+    "VnfPackageChangeNotification"
+]
 
 VNFPKG_SUBSCRIPTION_ROOT_URI = "api/vnfpkgm/v1/subscriptions/"
 
 NSDM_SUBSCRIPTION_ROOT_URI = "api/nsd/v1/subscriptions/"
 
-NSDM_NOTIFICATION_FILTERS = ["notificationTypes", "nsdInfoId", "nsdName",
-                             "nsdId", "nsdVersion", "nsdDesigner",
-                             "nsdInvariantId", "vnfPkgIds", "pnfdInfoIds",
-                             "nestedNsdInfoIds", "nsdOnboardingState",
-                             "nsdOperationalState", "nsdUsageState",
-                             "pnfdId", "pnfdName", "pnfdVersion",
-                             "pnfdProvider", "pnfdInvariantId",
-                             "pnfdOnboardingState", "pnfdUsageState"]
+NSDM_NOTIFICATION_FILTERS = [
+    "notificationTypes",
+    "nsdInfoId",
+    "nsdName",
+    "nsdId",
+    "nsdVersion",
+    "nsdDesigner",
+    "nsdInvariantId",
+    "vnfPkgIds",
+    "pnfdInfoIds",
+    "nestedNsdInfoIds",
+    "nsdOnboardingState",
+    "nsdOperationalState",
+    "nsdUsageState",
+    "pnfdId",
+    "pnfdName",
+    "pnfdVersion",
+    "pnfdProvider",
+    "pnfdInvariantId",
+    "pnfdOnboardingState",
+    "pnfdUsageState"
+]
 
-NSDM_NOTIFICATION_TYPES = ["NsdOnBoardingNotification",
-                           "NsdOnboardingFailureNotification",
-                           "NsdChangeNotification",
-                           "NsdDeletionNotification",
-                           "PnfdOnBoardingNotification",
-                           "PnfdOnBoardingFailureNotification",
-                           "PnfdDeletionNotification"]
+NSDM_NOTIFICATION_TYPES = [
+    "NsdOnBoardingNotification",
+    "NsdOnboardingFailureNotification",
+    "NsdChangeNotification",
+    "NsdDeletionNotification",
+    "PnfdOnBoardingNotification",
+    "PnfdOnBoardingFailureNotification",
+    "PnfdDeletionNotification"
+]
