@@ -23,6 +23,7 @@ from catalog.pub.exceptions import NsdmBadRequestException
 from catalog.pub.exceptions import PackageNotFoundException
 from catalog.pub.exceptions import ResourceNotFoundException
 from catalog.pub.exceptions import ArtifactNotFoundException
+from catalog.pub.exceptions import NsdmDuplicateSubscriptionException
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,12 @@ def view_safe_call_with_log(logger):
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
+            except NsdmDuplicateSubscriptionException as e:
+                logger.error(e.message)
+                return make_error_resp(
+                    detail=e.message,
+                    status=status.HTTP_303_SEE_OTHER
+                )
             except PackageNotFoundException as e:
                 logger.error(e.message)
                 return make_error_resp(
