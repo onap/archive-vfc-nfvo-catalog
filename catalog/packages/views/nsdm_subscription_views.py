@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import traceback
 
 from drf_yasg.utils import swagger_auto_schema, no_body
 from rest_framework import status
@@ -27,11 +26,9 @@ from catalog.packages.serializers.nsdm_subscription import NsdmSubscriptionSeria
 from catalog.packages.serializers.nsdm_subscription import NsdmSubscriptionRequestSerializer
 from catalog.packages.serializers.response import ProblemDetailsSerializer
 
-from catalog.pub.exceptions import ResourceNotFoundException
 from catalog.pub.exceptions import NsdmBadRequestException
-from catalog.pub.exceptions import NsdmDuplicateSubscriptionException
-
 from catalog.packages.biz.nsdm_subscription import NsdmSubscription
+from .common import view_safe_call_with_log
 
 logger = logging.getLogger(__name__)
 
@@ -42,17 +39,6 @@ def validate_data(data, serializer):
         logger.error('Data validation failed.')
         raise NsdmBadRequestException(serialized_data.errors)
     return serialized_data
-
-
-def get_problem_details_serializer(title, status_code, error_message):
-    problem_details = {
-        "title": title,
-        "status": status_code,
-        "detail": error_message
-    }
-    problem_details_serializer = ProblemDetailsSerializer(data=problem_details)
-    problem_details_serializer.is_valid()
-    return problem_details_serializer
 
 
 @swagger_auto_schema(
@@ -78,84 +64,33 @@ def get_problem_details_serializer(title, status_code, error_message):
     }
 )
 @api_view(http_method_names=['POST', 'GET'])
+@view_safe_call_with_log(logger=logger)
 def nsd_subscription_rc(request):
     if request.method == 'POST':
         logger.debug("SubscribeNotification--post::> %s" % request.data)
-        try:
-            title = 'Creating Subscription Failed!'
-            nsdm_subscription_request = \
-                validate_data(request.data,
-                              NsdmSubscriptionRequestSerializer)
-            subscription = NsdmSubscription().create(
-                nsdm_subscription_request.data)
-            subscription_resp = validate_data(subscription,
-                                              NsdmSubscriptionSerializer)
-            return Response(data=subscription_resp.data,
-                            status=status.HTTP_201_CREATED)
-        except NsdmDuplicateSubscriptionException as e:
-            logger.error(e.message)
-            problem_details_serializer = \
-                get_problem_details_serializer(title,
-                                               status.HTTP_303_SEE_OTHER,
-                                               e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_303_SEE_OTHER)
-        except NsdmBadRequestException as e:
-            problem_details_serializer = \
-                get_problem_details_serializer(title,
-                                               status.HTTP_400_BAD_REQUEST,
-                                               e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            problem_details_serializer = \
-                get_problem_details_serializer(
-                    title,
-                    status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        nsdm_subscription_request = \
+            validate_data(request.data,
+                          NsdmSubscriptionRequestSerializer)
+        subscription = NsdmSubscription().create(
+            nsdm_subscription_request.data)
+        subscription_resp = validate_data(subscription,
+                                          NsdmSubscriptionSerializer)
+        return Response(data=subscription_resp.data,
+                        status=status.HTTP_201_CREATED)
+
     if request.method == 'GET':
         logger.debug("Subscription Notification GET %s" % request.query_params)
-        try:
-            title = 'Query Subscription Failed!'
-            request_query_params = {}
-            if request.query_params:
-                request_query_params = \
-                    validate_data(request.query_params,
-                                  NsdmNotificationsFilter).data
-            subscription_data = \
-                NsdmSubscription().query_multi_subscriptions(
-                    request_query_params)
-            subscriptions = validate_data(subscription_data,
-                                          NsdmSubscriptionsSerializer)
-            return Response(data=subscriptions.data, status=status.HTTP_200_OK)
-        except NsdmBadRequestException as e:
-            logger.error(e.message)
-            problem_details_serializer = \
-                get_problem_details_serializer(title,
-                                               status.HTTP_400_BAD_REQUEST,
-                                               e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_400_BAD_REQUEST)
-        except ResourceNotFoundException as e:
-            problem_details_serializer = \
-                get_problem_details_serializer(title,
-                                               status.HTTP_404_NOT_FOUND,
-                                               e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            logger.error(e.message)
-            problem_details_serializer = \
-                get_problem_details_serializer(
-                    title,
-                    status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    traceback.format_exc())
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        request_query_params = {}
+        if request.query_params:
+            request_query_params = \
+                validate_data(request.query_params,
+                              NsdmNotificationsFilter).data
+        subscription_data = \
+            NsdmSubscription().query_multi_subscriptions(
+                request_query_params)
+        subscriptions = validate_data(subscription_data,
+                                      NsdmSubscriptionsSerializer)
+        return Response(data=subscriptions.data, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(
@@ -181,77 +116,14 @@ def nsd_subscription_rc(request):
     }
 )
 @api_view(http_method_names=['GET', 'DELETE'])
+@view_safe_call_with_log(logger=logger)
 def nsd_subscription_rd(request, **kwargs):
     subscription_id = kwargs.get("subscriptionId")
+    validate_data({'subscription_id': subscription_id}, NsdmSubscriptionIdSerializer)
     if request.method == 'GET':
-        try:
-            title = 'Query Subscription Failed!'
-            validate_data({'subscription_id': subscription_id},
-                          NsdmSubscriptionIdSerializer)
-            subscription_data = \
-                NsdmSubscription().query_single_subscription(subscription_id)
-            subscription = validate_data(subscription_data,
-                                         NsdmSubscriptionSerializer)
-            return Response(data=subscription.data, status=status.HTTP_200_OK)
-        except NsdmBadRequestException as e:
-            logger.error(e.message)
-            problem_details_serializer = \
-                get_problem_details_serializer(title,
-                                               status.HTTP_400_BAD_REQUEST,
-                                               e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_400_BAD_REQUEST)
-        except ResourceNotFoundException as e:
-            logger.error(e.message)
-            problem_details_serializer = \
-                get_problem_details_serializer(title,
-                                               status.HTTP_404_NOT_FOUND,
-                                               e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            problem_details_serializer = \
-                get_problem_details_serializer(
-                    title,
-                    status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "Query of subscriptioni(%s) Failed"
-                    % subscription_id)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        subscription_data = NsdmSubscription().query_single_subscription(subscription_id)
+        subscription = validate_data(subscription_data, NsdmSubscriptionSerializer)
+        return Response(data=subscription.data, status=status.HTTP_200_OK)
     elif request.method == 'DELETE':
-        try:
-            title = 'Delete Subscription Failed!'
-            validate_data({'subscription_id': subscription_id},
-                          NsdmSubscriptionIdSerializer)
-            subscription_data = NsdmSubscription().\
-                delete_single_subscription(subscription_id)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except NsdmBadRequestException as e:
-            logger.error(e.message)
-            problem_details_serializer = \
-                get_problem_details_serializer(title,
-                                               status.HTTP_400_BAD_REQUEST,
-                                               e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_400_BAD_REQUEST)
-        except ResourceNotFoundException as e:
-            logger.error(e.message)
-            problem_details_serializer = \
-                get_problem_details_serializer(title,
-                                               status.HTTP_404_NOT_FOUND,
-                                               e.message)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            logger.error(e.message)
-            logger.error(traceback.format_exc())
-            problem_details_serializer = \
-                get_problem_details_serializer(
-                    title,
-                    status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "Delete of subscription(%s) Failed"
-                    % subscription_id)
-            return Response(data=problem_details_serializer.data,
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        subscription_data = NsdmSubscription().delete_single_subscription(subscription_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
