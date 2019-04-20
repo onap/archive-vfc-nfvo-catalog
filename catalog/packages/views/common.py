@@ -24,6 +24,8 @@ from catalog.pub.exceptions import PackageNotFoundException
 from catalog.pub.exceptions import ResourceNotFoundException
 from catalog.pub.exceptions import ArtifactNotFoundException
 from catalog.pub.exceptions import NsdmDuplicateSubscriptionException
+from catalog.pub.exceptions import VnfPkgDuplicateSubscriptionException
+from catalog.pub.exceptions import VnfPkgSubscriptionException
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,12 @@ def view_safe_call_with_log(logger):
                     detail=e.message,
                     status=status.HTTP_303_SEE_OTHER
                 )
+            except VnfPkgDuplicateSubscriptionException as e:
+                logger.error(e.message)
+                return make_error_resp(
+                    detail=e.message,
+                    status=status.HTTP_303_SEE_OTHER
+                )
             except PackageNotFoundException as e:
                 logger.error(e.message)
                 return make_error_resp(
@@ -84,6 +92,12 @@ def view_safe_call_with_log(logger):
                 return make_error_resp(
                     detail=e.message,
                     status=status.HTTP_400_BAD_REQUEST
+                )
+            except VnfPkgSubscriptionException as e:
+                logger.error(e.message)
+                return make_error_resp(
+                    detail=e.message,
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             except CatalogException as e:
                 logger.error(e.message)
