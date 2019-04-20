@@ -100,8 +100,7 @@ class TestNsdmSubscription(TestCase):
         expected_data = {
             'status': 500,
             'detail': "callbackUri http://callbackuri.com didn't"
-                      " return 204 statuscode.",
-            'title': 'Creating Subscription Failed!'
+                      " return 204 statuscode."
         }
         response = self.client.post("/api/nsd/v1/subscriptions",
                                     data=self.subscription, format='json')
@@ -148,8 +147,7 @@ class TestNsdmSubscription(TestCase):
         expected_data = {
             'status': 303,
             'detail': 'Already Subscription exists with'
-                      ' the same callbackUri and filter',
-            'title': 'Creating Subscription Failed!'
+                      ' the same callbackUri and filter'
         }
         response = self.client.post("/api/nsd/v1/subscriptions",
                                     data=self.subscription, format='json')
@@ -191,8 +189,7 @@ class TestNsdmSubscription(TestCase):
         mock_requests.get.return_value.status_code = 204
         expected_data = {
             'status': 400,
-            'detail': 'Auth type should be BASIC',
-            'title': 'Creating Subscription Failed!'
+            'detail': 'Auth type should be BASIC'
         }
         response = self.client.post("/api/nsd/v1/subscriptions",
                                     data=dummy_subscription, format='json')
@@ -217,8 +214,7 @@ class TestNsdmSubscription(TestCase):
         mock_requests.get.return_value.status_code = 204
         expected_data = {
             'status': 400,
-            'detail': 'Auth type should be OAUTH2_CLIENT_CREDENTIALS',
-            'title': 'Creating Subscription Failed!'
+            'detail': 'Auth type should be OAUTH2_CLIENT_CREDENTIALS'
         }
         response = self.client.post("/api/nsd/v1/subscriptions",
                                     data=dummy_subscription, format='json')
@@ -240,8 +236,7 @@ class TestNsdmSubscription(TestCase):
         mock_requests.get.return_value.status_code = 204
         expected_data = {
             'status': 400,
-            'detail': 'userName and password needed for BASIC',
-            'title': 'Creating Subscription Failed!'
+            'detail': 'userName and password needed for BASIC'
         }
         response = self.client.post("/api/nsd/v1/subscriptions",
                                     data=dummy_subscription, format='json')
@@ -266,8 +261,7 @@ class TestNsdmSubscription(TestCase):
         expected_data = {
             'status': 400,
             'detail': 'clientId, clientPassword and tokenEndpoint'
-                      ' required for OAUTH2_CLIENT_CREDENTIALS',
-            'title': 'Creating Subscription Failed!'
+                      ' required for OAUTH2_CLIENT_CREDENTIALS'
         }
         response = self.client.post("/api/nsd/v1/subscriptions",
                                     data=dummy_subscription, format='json')
@@ -295,8 +289,7 @@ class TestNsdmSubscription(TestCase):
         expected_data = {
             'status': 400,
             'detail': 'Notification Filter should contain'
-                      ' either nsdId or nsdInfoId',
-            'title': 'Creating Subscription Failed!'
+                      ' either nsdId or nsdInfoId'
         }
         response = self.client.post("/api/nsd/v1/subscriptions",
                                     data=dummy_subscription, format='json')
@@ -324,8 +317,7 @@ class TestNsdmSubscription(TestCase):
         expected_data = {
             'status': 400,
             'detail': 'Notification Filter should contain'
-                      ' either pnfdId or pnfdInfoIds',
-            'title': 'Creating Subscription Failed!'
+                      ' either pnfdId or pnfdInfoIds'
         }
         response = self.client.post("/api/nsd/v1/subscriptions",
                                     data=dummy_subscription, format='json')
@@ -459,7 +451,6 @@ class TestNsdmSubscription(TestCase):
 
     def test_nsdm_get_subscription_failure(self):
         expected_data = {
-            "title": "Query Subscription Failed!",
             "status": 404,
             "detail": "Subscription(" + self.subscription_id + ") "
             "doesn't exists"
