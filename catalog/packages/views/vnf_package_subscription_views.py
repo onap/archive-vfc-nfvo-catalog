@@ -28,20 +28,19 @@ from catalog.packages.biz.vnf_pkg_subscription import QuerySubscription
 from catalog.packages.biz.vnf_pkg_subscription import TerminateSubscription
 from catalog.packages.views.common import validate_data
 from catalog.pub.exceptions import VnfPkgSubscriptionException
+from catalog.pub.exceptions import BadRequestException
 from .common import view_safe_call_with_log
 
 logger = logging.getLogger(__name__)
-VALID_FILTERS = ["callbackUri", "notificationTypes", "vnfdId", "vnfPkgId", "operationalState", "usageState"]
 
-
-def get_problem_details_serializer(status_code, error_message):
-    problem_details = {
-        "status": status_code,
-        "detail": error_message
-    }
-    problem_details_serializer = ProblemDetailsSerializer(data=problem_details)
-    problem_details_serializer.is_valid()
-    return problem_details_serializer
+VALID_FILTERS = [
+    "callbackUri",
+    "notificationTypes",
+    "vnfdId",
+    "vnfPkgId",
+    "operationalState",
+    "usageState"
+]
 
 
 class CreateQuerySubscriptionView(APIView):
@@ -74,9 +73,8 @@ class CreateQuerySubscriptionView(APIView):
         logger.debug("SubscribeNotification--get::> %s" % request.query_params)
 
         if request.query_params and not set(request.query_params).issubset(set(VALID_FILTERS)):
-            problem_details_serializer = get_problem_details_serializer(status.HTTP_400_BAD_REQUEST,
-                                                                        "Not a valid filter")
-            return Response(data=problem_details_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+            raise BadRequestException("Not a valid filter")
+
         resp_data = QuerySubscription().query_multi_subscriptions(request.query_params)
 
         subscriptions_serializer = PkgmSubscriptionsSerializer(data=resp_data)

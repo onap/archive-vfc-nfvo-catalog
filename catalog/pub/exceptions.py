@@ -17,6 +17,10 @@ class CatalogException(Exception):
     pass
 
 
+class BadRequestException(CatalogException):
+    pass
+
+
 class ResourceNotFoundException(CatalogException):
     pass
 

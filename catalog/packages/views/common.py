@@ -19,6 +19,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from catalog.pub.exceptions import CatalogException
+from catalog.pub.exceptions import BadRequestException
 from catalog.pub.exceptions import NsdmBadRequestException
 from catalog.pub.exceptions import PackageNotFoundException
 from catalog.pub.exceptions import ResourceNotFoundException
@@ -86,6 +87,12 @@ def view_safe_call_with_log(logger):
                 return make_error_resp(
                     detail=e.message,
                     status=status.HTTP_404_NOT_FOUND
+                )
+            except BadRequestException as e:
+                logger.error(e.message)
+                return make_error_resp(
+                    detail=e.message,
+                    status=status.HTTP_400_BAD_REQUEST
                 )
             except NsdmBadRequestException as e:
                 logger.error(e.message)
