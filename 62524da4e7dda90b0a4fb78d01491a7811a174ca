@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d54d09ad_8ae47c83",
+        "filename": "catalog/pub/utils/toscaparser/vnfdparser/__init__.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2019-04-23T07:21:33Z",
+      "side": 1,
+      "message": "I think we can write like below in case that we can add other version support.\n\n    switcher \u003d {\n        \"base\": VnfdSOLBase(etsi_vnfd_model),\n        \"2.5.1\": VnfdSOL251(etsi_vnfd_model)\n        \n    }\n    # Get the function from switcher dictionary\n    func \u003d switcher.get(argument, lambda: \"Invalid Version\")\n    # Execute the function\n    print func()",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 43
+      },
+      "revId": "62524da4e7dda90b0a4fb78d01491a7811a174ca",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
