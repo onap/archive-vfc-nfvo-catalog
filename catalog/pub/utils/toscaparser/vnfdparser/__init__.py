@@ -18,6 +18,6 @@ from catalog.pub.utils.toscaparser.vnfdparser.vnfd_sol_251 import VnfdSOL251
 def CreateVnfdSOLParser(sol_version, etsi_vnfd_model):
     switcher = {
         "base": VnfdSOLBase(etsi_vnfd_model),
-        "2.5.1": VnfdSOL251(etsi_vnfd_model)
+        "2.5.1+1": VnfdSOL251(etsi_vnfd_model)
     }
     return switcher.get(sol_version, lambda: "Invalid Version")

@@ -79,3 +79,5 @@ CATALOG_URL_PATH = None
 SDC_BASE_URL = "http://msb-iag/api"
 SDC_USER = "aai"
 SDC_PASSWD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"
+
+VNFD_SCHEMA_VERSION_DEFAULT = "base"
