@@ -14,6 +14,7 @@
 
 import functools
 import logging
+from catalog.pub.config.config import VNFD_SCHEMA_VERSION_DEFAULT
 from catalog.pub.utils.toscaparser.basemodel import BaseInfoModel
 from catalog.pub.utils.toscaparser.vnfdparser import CreateVnfdSOLParser
 
@@ -36,7 +37,7 @@ class EtsiVnfdInfoModel(BaseInfoModel):
         nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
         self.basepath = self.get_base_path(tosca)
         node_types = tosca.topology_template.custom_defs
-        sol_version = self.metadata.get("SOL_VERSION", "base") if isinstance(self.metadata, dict) else "base"
+        sol_version = self.metadata.get("VNFD_SCHEMA_VERSION", VNFD_SCHEMA_VERSION_DEFAULT) if isinstance(self.metadata, dict) else VNFD_SCHEMA_VERSION_DEFAULT
         vnfd_sol_parser = CreateVnfdSOLParser(sol_version, self)
         self.vnf = vnfd_sol_parser.build_vnf(tosca)
         self.volume_storages = vnfd_sol_parser.get_all_volume_storage(nodeTemplates, node_types)
