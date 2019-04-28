@@ -64,12 +64,17 @@ class CreateSubscription(object):
                      "to %s" % self.callback_uri)
         try:
             response = requests.get(self.callback_uri, timeout=2)
-            if response.status_code not in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK):
-                raise VnfPkgSubscriptionException("callbackUri %s returns %s status "
-                                                  "code." % (self.callback_uri, response.status_code))
+            if response.status_code != status.HTTP_204_NO_CONTENT:
+                raise VnfPkgSubscriptionException(
+                    "callbackUri %s returns %s status code." % (
+                        self.callback_uri,
+                        response.status_code
+                    )
+                )
         except Exception:
-            raise VnfPkgSubscriptionException("callbackUri %s didn't return 204 or 200 status"
-                                              "code." % self.callback_uri)
+            raise VnfPkgSubscriptionException(
+                "callbackUri %s didn't return 204 status code." % self.callback_uri
+            )
 
     def do_biz(self):
         self.subscription_id = str(uuid.uuid4())
@@ -77,7 +82,9 @@ class CreateSubscription(object):
         self.check_valid_auth_info()
         self.check_valid()
         self.save_db()
-        subscription = VnfPkgSubscriptionModel.objects.get(subscription_id=self.subscription_id)
+        subscription = VnfPkgSubscriptionModel.objects.get(
+            subscription_id=self.subscription_id
+        )
         if subscription:
             return subscription.toDict()
 

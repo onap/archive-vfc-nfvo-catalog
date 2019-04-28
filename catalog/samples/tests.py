@@ -31,3 +31,15 @@ class SampleViewTest(unittest.TestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
         resp_data = json.loads(response.content)
         self.assertEqual({"status": "active"}, resp_data)
+
+
+class CallbackSampleTest(unittest.TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def tearDown(self):
+        pass
+
+    def test_callback(self):
+        response = self.client.get("/api/catalog/v1/callback_sample")
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code, response.content)
