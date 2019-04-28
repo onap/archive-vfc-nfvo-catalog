@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7840da0_c3a42bf4",
+        "filename": "catalog/pub/utils/toscaparser/vnfdparser/vnfd_sol_251.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 141
+      },
+      "writtenOn": "2019-04-28T10:50:40Z",
+      "side": 1,
+      "message": "virtual_link_protocol_data is an option parameter. It can not be as key directly. please also check other parameters.",
+      "range": {
+        "startLine": 72,
+        "startChar": 53,
+        "endLine": 72,
+        "endChar": 79
+      },
+      "revId": "1ae04db339005518f81d7e983d1afcbb73c6c2c8",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
