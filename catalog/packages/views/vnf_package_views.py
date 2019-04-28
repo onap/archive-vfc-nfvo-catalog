@@ -105,7 +105,7 @@ def package_content_ru(request, **kwargs):
             raise e
 
     if request.method == "GET":
-        file_range = request.META.get('RANGE')
+        file_range = request.META.get('HTTP_RANGE')
         file_iterator = VnfPackage().download(vnf_pkg_id, file_range)
         return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
 

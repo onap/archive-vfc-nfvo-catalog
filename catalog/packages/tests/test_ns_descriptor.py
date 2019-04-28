@@ -248,7 +248,7 @@ class TestNsDescriptor(TestCase):
 
         response = self.client.get(
             "/api/nsd/v1/ns_descriptors/23/nsd_content",
-            RANGE='5-10',
+            HTTP_RANGE='5-10',
             format='json'
         )
         partial_file_content = ''
