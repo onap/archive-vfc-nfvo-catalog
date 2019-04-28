@@ -22,6 +22,7 @@ from catalog.packages.const import PKG_STATUS
 from catalog.pub.database.models import ServicePackageModel, VnfPackageModel, PnfPackageModel
 from catalog.pub.exceptions import PackageNotFoundException
 from catalog.pub.utils import toscaparser
+from .const import sd_data
 
 logger = logging.getLogger(__name__)
 
@@ -37,102 +38,7 @@ class TestServiceDescription(TestCase):
         self.data = {
             'userDefinedData': self.user_defined_data,
         }
-        self.sd_data = {
-            "inputs": {
-                "sdwanvpnresource_list": [
-                    {
-                        "sdwanvpn_topology": "",
-                        "required": True,
-                        "type": "string"
-                    }
-                ]
-            },
-            "pnfs": [
-                {
-                    "pnf_id": "m6000_s",
-                    "cps": [],
-                    "description": "",
-                    "properties": {
-                        "vendor": "zte",
-                        "request_reclassification": False,
-                        "pnf_type": "m6000s",
-                        "version": "1.0",
-                        "management_address": "111111",
-                        "id": "m6000_s",
-                        "nsh_aware": False
-                    }
-                }
-            ],
-            "description": "",
-            "vnfs": [
-                {
-                    "vnf_id": "sdwansiteresource",
-                    "description": "",
-                    "properties": {
-                        "sdwandevice_type": "",
-                        "sdwandevice_class": "PNF",
-                        "multi_stage_design": "false",
-                        "min_instances": "1",
-                        "sdwansite_controlPoint": "",
-                        "id": "cd557883-ac4b-462d-aa01-421b5fa606b1",
-                        "sdwansite_longitude": "",
-                        "sdwansite_latitude": "",
-                        "sdwansite_postcode": "",
-                        "sdwansite_type": "",
-                        "nf_naming": {
-                            "ecomp_generated_naming": True
-                        },
-                        "sdwansite_emails": "",
-                        "sdwansite_role": "",
-                        "vnfm_info": "",
-                        "sdwansite_address": "",
-                        "sdwansite_description": "",
-                        "availability_zone_max_count": "1",
-                        "sdwansite_name": ""
-                    }
-                }
-            ],
-            "service": {
-                "type": "org.openecomp.service.EnhanceService",
-                "properties": {
-                    "descriptor_id": "49ee73f4-1e31-4054-b871-eb9b1c29999b",
-                    "designer": "",
-                    "invariant_id": "5de07996-7ff0-4ec1-b93c-e3a00bb3f207",
-                    "name": "Enhance_Service",
-                    "verison": ""
-                },
-                "metadata": {
-                    "category": "E2E Service",
-                    "serviceType": "",
-                    "description": "Enhance_Service",
-                    "instantiationType": "A-la-carte",
-                    "type": "Service",
-                    "environmentContext": "General_Revenue-Bearing",
-                    "serviceEcompNaming": True,
-                    "UUID": "49ee73f4-1e31-4054-b871-eb9b1c29999b",
-                    "ecompGeneratedNaming": True,
-                    "serviceRole": "",
-                    "invariantUUID": "5de07996-7ff0-4ec1-b93c-e3a00bb3f207",
-                    "namingPolicy": "",
-                    "name": "Enhance_Service"
-                }
-            },
-            "metadata": {
-                "category": "E2E Service",
-                "serviceType": "",
-                "description": "Enhance_Service",
-                "instantiationType": "A-la-carte",
-                "type": "Service",
-                "environmentContext": "General_Revenue-Bearing",
-                "serviceEcompNaming": True,
-                "UUID": "49ee73f4-1e31-4054-b871-eb9b1c29999b",
-                "ecompGeneratedNaming": True,
-                "serviceRole": "",
-                "invariantUUID": "5de07996-7ff0-4ec1-b93c-e3a00bb3f207",
-                "namingPolicy": "",
-                "name": "Enhance_Service"
-            }
-        }
+        self.sd_data = sd_data
         ServicePackageModel.objects.filter().delete()
 
     def tearDown(self):
