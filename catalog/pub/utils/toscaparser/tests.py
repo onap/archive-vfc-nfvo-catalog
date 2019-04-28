@@ -35,26 +35,25 @@ class TestToscaparser(TestCase):
     def test_vnfd_parse(self):
         self.remove_temp_dir()
         input_parameters = [{"value": "222222", "key": "sdncontroller"}]
-        vcpe = ["vgw", "infra", "vbng", "vbrgemu", "vgmux"]
+        # vcpe = ["vgw", "infra", "vbng", "vbrgemu", "vgmux"]
+        vcpe_part = 'vgw'
         sriov_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf/vcpesriov"
-        for vcpe_part in vcpe:
-            csar_file = ("%s/%s.csar" % (sriov_path, vcpe_part))
-            logger.debug("csar_file:%s", csar_file)
-            vnfd_json = parse_vnfd(csar_file, input_parameters)
-            metadata = json.loads(vnfd_json).get("metadata")
-            logger.debug("sriov metadata:%s", metadata)
-            self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
-            if vcpe_part == "infra":
-                self.assertEqual("b1bb0ce7-1111-4fa7-95ed-4840d70a1177", json.loads(vnfd_json)["vnf"]["properties"]["descriptor_id"])
+        csar_file = ("%s/%s.csar" % (sriov_path, vcpe_part))
+        logger.debug("csar_file:%s", csar_file)
+        vnfd_json = parse_vnfd(csar_file, input_parameters)
+        metadata = json.loads(vnfd_json).get("metadata")
+        logger.debug("sriov metadata:%s", metadata)
+        self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
+        if vcpe_part == "infra":
+            self.assertEqual("b1bb0ce7-1111-4fa7-95ed-4840d70a1177", json.loads(vnfd_json)["vnf"]["properties"]["descriptor_id"])
 
         dpdk_path = os.path.dirname(os.path.abspath(__file__)) + "/testdata/vnf/vcpedpdk"
-        for vcpe_part in vcpe:
-            csar_file = ("%s/%s.csar" % (dpdk_path, vcpe_part))
-            logger.debug("csar_file:%s", csar_file)
-            vnfd_json = parse_vnfd(csar_file, input_parameters)
-            metadata = json.loads(vnfd_json).get("metadata")
-            logger.debug("dpdk metadata:%s", metadata)
-            self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
+        csar_file = ("%s/%s.csar" % (dpdk_path, vcpe_part))
+        logger.debug("csar_file:%s", csar_file)
+        vnfd_json = parse_vnfd(csar_file, input_parameters)
+        metadata = json.loads(vnfd_json).get("metadata")
+        logger.debug("dpdk metadata:%s", metadata)
+        self.assertEqual(("vCPE_%s" % vcpe_part), metadata.get("template_name", ""))
 
     def test_pnfd_parse(self):
         self.remove_temp_dir()
