@@ -250,7 +250,7 @@ class TestVnfPackage(TestCase):
             onboardingState="ONBOARDED",
             localFilePath="vnfPackage.csar"
         )
-        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content", RANGE="4-7")
+        response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content", HTTP_RANGE="4-7")
         partial_file_content = ''
         for data in response.streaming_content:
             partial_file_content = partial_file_content + data
