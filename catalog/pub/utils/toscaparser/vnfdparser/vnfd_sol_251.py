@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
 import logging
 import os
 
@@ -68,6 +67,21 @@ class VnfdSOL251():
                 vl['vl_id'] = node['name']
                 vl['description'] = node['description']
                 vl['properties'] = node['properties']
+                vlp = vl['properties']
+                nodep = node['properties']
+                protocol_data = nodep['vl_profile']['virtual_link_protocol_data'][0]
+
+                vlp['connectivity_type']['layer_protocol'] = nodep['connectivity_type']['layer_protocols']
+                vlp['vl_profile']['max_bit_rate_requirements'] = nodep['vl_profile']['max_bitrate_requirements']
+                vlp['vl_profile']['min_bit_rate_requirements'] = nodep['vl_profile']['min_bitrate_requirements']
+                vlp['vl_profile']['networkName'] = protocol_data['l3_protocol_data']['name']
+                vlp['vl_profile']['cidr'] = protocol_data['l3_protocol_data']['cidr']
+                vlp['vl_profile']['dhcpEnabled'] = protocol_data['l3_protocol_data']['dhcp_enabled']
+                vlp['vl_profile']['ip_version'] = protocol_data['l3_protocol_data']['ip_version']
+                vlp['vl_profile']['associated_layer_protocol'] = protocol_data['associated_layer_protocol']
+                l2_protocol_data = protocol_data.get("l2_protocol_data", "")
+                if l2_protocol_data:
+                    vlp['vl_profile']['physicalNetwork'] = l2_protocol_data["physical_network"]
                 vls.append(vl)
         return vls
 
@@ -79,7 +93,14 @@ class VnfdSOL251():
                 cp['cp_id'] = node['name']
                 cp['cpd_id'] = node['name']
                 cp['description'] = node['description']
-                cp['properties'] = node['properties']
+                cp['properties'] = {}
+                cp['properties']['layer_protocol'] = node['properties']['layer_protocols']
+                cp['properties']['trunk_mode'] = node['properties']['trunk_mode']
+                cp['properties']['protocol_data'] = node['properties']['protocol']
+                cp_protocol = cp['properties']['protocol_data'][0]
+                node_protocol = node['properties']['protocol'][0]
+                cp_protocol['asscociated_layer_protocol'] = node_protocol['associated_layer_protocol']
+                cp_protocol['address_data'] = node_protocol['address_data'][0]
                 cp['vl_id'] = self._get_node_vl_id(node)
                 cp['vdu_id'] = self._get_node_vdu_id(node)
                 vls = self._buil_cp_vls(node)
@@ -112,6 +133,8 @@ class VnfdSOL251():
                 if 'description' in node:
                     ret['description'] = node['description']
                 ret['properties'] = node['properties']
+                ret['properties']['user_data'] = ret['properties']['boot_data']
+                del ret['properties']['boot_data']
                 if 'inject_files' in node['properties']:
                     inject_files = node['properties']['inject_files']
                 if inject_files is not None:
@@ -128,12 +151,14 @@ class VnfdSOL251():
                             source_data = f.read()
                             source_data_base64 = source_data.encode("base64")
                             inject_files["source_data_base64"] = source_data_base64
-                virtual_storages = self.model.getRequirementByName(node, 'virtual_storage')
-                ret['virtual_storages'] = map(functools.partial(self._trans_virtual_storage), virtual_storages)
                 ret['dependencies'] = map(lambda x: self.model.get_requirement_node_name(x), self.model.getNodeDependencys(node))
                 virtual_compute = self.model.getCapabilityByName(node, 'virtual_compute')
                 if virtual_compute is not None and 'properties' in virtual_compute:
-                    ret['virtual_compute'] = virtual_compute['properties']
+                    vc = {}
+                    vc['virtual_storages'] = virtual_compute['properties']['virtual_local_storage']
+                    vc['virtual_cpu'] = virtual_compute['properties']['virtual_cpu']
+                    vc['virtual_memory'] = virtual_compute['properties']['virtual_memory']
+                    ret['virtual_compute'] = vc
                 ret['vls'] = self._get_linked_vl_ids(node, nodeTemplates)
                 ret['cps'] = self._get_virtal_binding_cp_ids(node, nodeTemplates)
                 ret['artifacts'] = self.model.build_artifacts(node)
