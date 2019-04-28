@@ -17,6 +17,7 @@ import copy
 import json
 import mock
 import os
+import shutil
 
 
 from django.test import TestCase
@@ -25,6 +26,7 @@ from rest_framework.test import APIClient
 from catalog.packages.biz.pnf_descriptor import PnfDescriptor
 from catalog.packages.const import PKG_STATUS
 from catalog.packages.tests.const import pnfd_data
+from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import PnfPackageModel, NSPackageModel
 from catalog.pub.utils import toscaparser
 
@@ -55,7 +57,9 @@ class TestPnfDescriptor(TestCase):
         }
 
     def tearDown(self):
-        pass
+        file_path = os.path.join(CATALOG_ROOT_PATH, "22")
+        if os.path.exists(file_path):
+            shutil.rmtree(file_path)
 
     def test_pnfd_create_normal(self):
         request_data = {'userDefinedData': self.user_defined_data}

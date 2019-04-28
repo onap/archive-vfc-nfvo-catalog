@@ -16,6 +16,7 @@ import json
 import os
 import urllib2
 import mock
+import shutil
 
 from django.test import TestCase
 from rest_framework import status
@@ -42,7 +43,9 @@ class TestVnfPackage(TestCase):
         self.client = APIClient()
 
     def tearDown(self):
-        pass
+        file_path = os.path.join(CATALOG_ROOT_PATH, "222")
+        if os.path.exists(file_path):
+            shutil.rmtree(file_path)
 
     @mock.patch.object(toscaparser, 'parse_vnfd')
     def test_upload_vnf_pkg(self, mock_parse_vnfd):
