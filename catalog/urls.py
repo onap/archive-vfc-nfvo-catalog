@@ -13,10 +13,12 @@
 # limitations under the License.
 
 from django.conf.urls import include, url
+from django.contrib import admin
 
 from catalog.pub.config.config import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL, REG_TO_MSB_REG_PARAM
 
 urlpatterns = [
+    url(r'^api/catalog/v1/admin', admin.site.urls),
     url(r'^', include('catalog.samples.urls')),
     url(r'^', include('catalog.packages.urls')),
     url(r'^', include('catalog.jobs.urls')),
