@@ -45,7 +45,7 @@ def read(file_path, start, end):
 def parse_file_range(file_path, file_range):
     start, end = 0, os.path.getsize(file_path)
     if file_range:
-        [start, end] = file_range.split('-')
-        start, end = start.strip(), end.strip()
-        start, end = int(start), int(end)
+        [start, range_end] = file_range.split('-')
+        range_end = range_end.strip() if range_end.strip() else end
+        start, end = int(start.strip()), int(range_end)
     return start, end
