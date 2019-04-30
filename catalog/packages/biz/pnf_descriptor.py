@@ -53,7 +53,8 @@ class PnfDescriptor(object):
         logger.info('A PNFD(%s) has been created.' % data['id'])
         return data
 
-    def query_multiple(self, pnfdId=None):
+    def query_multiple(self, request):
+        pnfdId = request.query_params.get('pnfdId')
         if pnfdId:
             pnf_pkgs = PnfPackageModel.objects.filter(pnfdId=pnfdId)
         else:
@@ -140,10 +141,10 @@ class PnfDescriptor(object):
         pnfdName = ""
         if pnfd.get("pnf", "") != "":
             if pnfd["pnf"].get("properties", "") != "":
-                pnfd_id = pnfd["pnf"].get("properties", "").get("descriptor_id", "")
-                pnfdVersion = pnfd["pnf"].get("properties", "").get("version", "")
-                pnfdProvider = pnfd["pnf"].get("properties", "").get("provider", "")
-                pnfdName = pnfd["pnf"].get("properties", "").get("name", "")
+                pnfd_id = pnfd["pnf"].get("properties", {}).get("descriptor_id", "")
+                pnfdVersion = pnfd["pnf"].get("properties", {}).get("version", "")
+                pnfdProvider = pnfd["pnf"].get("properties", {}).get("provider", "")
+                pnfdName = pnfd["pnf"].get("properties", {}).get("name", "")
         if pnfd_id == "":
             pnfd_id = pnfd["metadata"].get("descriptor_id", "")
             if pnfd_id == "":
@@ -212,7 +213,6 @@ class PnfDescriptor(object):
         pnf_pkg.update(onboardingState=PKG_STATUS.CREATED)
 
     def parse_pnfd(self, csar_id, inputs):
-        ret = None
         try:
             pnf_pkg = PnfPackageModel.objects.filter(pnfPackageId=csar_id)
             if not pnf_pkg:

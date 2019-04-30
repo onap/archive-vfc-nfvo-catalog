@@ -99,11 +99,7 @@ def pnf_descriptors_rc(request):
         return Response(data=pnfd_info.data, status=status.HTTP_201_CREATED)
 
     if request.method == 'GET':
-        pnfdId = request.query_params.get('pnfdId', None)
-        if pnfdId:
-            data = PnfDescriptor().query_multiple(pnfdId)
-        else:
-            data = PnfDescriptor().query_multiple()
+        data = PnfDescriptor().query_multiple(request)
         pnfd_infos = validate_data(data, PnfdInfosSerializer)
         return Response(data=pnfd_infos.data, status=status.HTTP_200_OK)
 
