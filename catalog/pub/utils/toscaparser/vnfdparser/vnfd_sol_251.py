@@ -31,31 +31,44 @@ class VnfdSOL251():
         vnf = self.model.get_substitution_mappings(tosca)
         properties = vnf.get("properties", {})
         metadata = vnf.get("metadata", {})
-        if properties.get("descriptor_id", "") == "":
-            descriptor_id = metadata.get("descriptor_id", "")
-            if descriptor_id == "":
-                descriptor_id = metadata.get("id", "")
-            if descriptor_id == "":
-                descriptor_id = metadata.get("UUID", "")
-            properties["descriptor_id"] = descriptor_id
 
-        if properties.get("descriptor_verison", "") == "":
-            version = metadata.get("template_version", "")
-            if version == "":
-                version = metadata.get("version", "")
-            properties["descriptor_verison"] = version
+        ptype = "descriptor_id"
+        meta_types = ["descriptor_id", "id", "UUID"]
+        properties["descriptor_id"] = self._get_property(properties, metadata, ptype, meta_types)
 
-        if properties.get("provider", "") == "":
-            provider = metadata.get("template_author", "")
-            if provider == "":
-                provider = metadata.get("provider", "")
-            properties["provider"] = provider
+        ptype = "descriptor_version"
+        meta_types = ["template_version", "version"]
+        properties["descriptor_version"] = self._get_property(properties, metadata, ptype, meta_types)
 
-        if properties.get("template_name", "") == "":
-            template_name = metadata.get("template_name", "")
-            if template_name == "":
-                template_name = metadata.get("template_name", "")
-            properties["template_name"] = template_name
+        ptype = "provider"
+        meta_types = ["template_author", "provider"]
+        properties["provider"] = self._get_property(properties, metadata, ptype, meta_types)
+
+        ptype = "template_name"
+        meta_types = ["template_name"]
+        properties["template_name"] = self._get_property(properties, metadata, ptype, meta_types)
+
+        ptype = "software_version"
+        meta_types = ["software_version"]
+        properties["software_version"] = self._get_property(properties, metadata, ptype, meta_types)
+
+        ptype = "product_name"
+        meta_types = ["product_name"]
+        properties["product_name"] = self._get_property(properties, metadata, ptype, meta_types)
+
+        ptype = "flavour_description"
+        meta_types = ["flavour_description"]
+        properties["flavour_description"] = self._get_property(properties, metadata, ptype, meta_types)
+
+        ptype = "vnfm_info"
+        meta_types = ["vnfm_info"]
+        properties["vnfm_info"] = self._get_property(properties, metadata, ptype, meta_types)
+
+        ptype = "flavour_id"
+        meta_types = ["flavour_id"]
+        properties["flavour_id"] = self._get_property(properties, metadata, ptype, meta_types)
+
+        logger.debug("vnf:%s", vnf)
 
         return vnf
 
@@ -183,6 +196,17 @@ class VnfdSOL251():
             forward_cps = self._get_forward_cps(self.model.vnf.get('capabilities', None))
             return {"external_cps": external_cps, "forward_cps": forward_cps}
         return {}
+
+    def _get_property(self, properties, metadata, ptype, meta_types):
+        data = properties.get(ptype, "")
+        if isinstance(data, dict):
+            data = data.get("default", "")
+        if data == "":
+            for mtype in meta_types:
+                data = metadata.get(mtype, "")
+                if data != "":
+                    break
+        return data
 
     def _trans_virtual_storage(self, virtual_storage):
         if isinstance(virtual_storage, str):
