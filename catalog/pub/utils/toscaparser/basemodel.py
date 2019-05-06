@@ -515,10 +515,22 @@ class BaseInfoModel(object):
         metadata = None
         substitution_mappings = tosca.tpl['topology_template'].get('substitution_mappings', None)
         if substitution_mappings:
-            node['type'] = substitution_mappings['node_type']
-            node['properties'] = substitution_mappings.get('properties', {})
-            node['requirements'] = substitution_mappings.get('requirements', {})
-            node['capabilities'] = substitution_mappings.get('capabilities', {})
-            metadata = substitution_mappings.get('metadata', {})
+            nodeType = substitution_mappings['node_type']
+            if nodeType == 'tosca.nodes.nfv.VNF':
+                node['type'] = nodeType
+                node['properties'] = substitution_mappings.get('properties', {})
+                node['requirements'] = substitution_mappings.get('requirements', {})
+                node['capabilities'] = substitution_mappings.get('capabilities', {})
+                metadata = substitution_mappings.get('metadata', {})
+            else:
+                nodeTypes = tosca.tpl['node_types'].get('onap.vcpe_vgw', None)
+                derivedFrom = nodeTypes.get('derived_from', "")
+                if derivedFrom == 'tosca.nodes.nfv.VNF':
+                    node['type'] = 'derivedFrom'
+                    node['properties'] = nodeTypes.get('properties', {})
+                    node['requirements'] = nodeTypes.get('requirements', {})
+                    node['capabilities'] = nodeTypes.get('capabilities', {})
+                    metadata = nodeTypes.get('metadata', {})
+
         node['metadata'] = metadata if metadata and metadata != {} else self.buildMetadata(tosca)
         return node
