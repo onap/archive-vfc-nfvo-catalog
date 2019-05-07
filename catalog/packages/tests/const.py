@@ -218,7 +218,7 @@ vnfd_data = {
     "vnf": {
         "properties": {
             "descriptor_id": "zte-hss-1.0",
-            "descriptor_verison": "1.0.0",
+            "descriptor_version": "1.0.0",
             "software_version": "1.0.0",
             "provider": "zte"
         },
