@@ -40,11 +40,11 @@ class VnfdSOLBase():
                 descriptor_id = metadata.get("UUID", "")
             properties["descriptor_id"] = descriptor_id
 
-        if properties.get("descriptor_verison", "") == "":
+        if properties.get("descriptor_version", "") == "":
             version = metadata.get("template_version", "")
             if version == "":
                 version = metadata.get("version", "")
-            properties["descriptor_verison"] = version
+            properties["descriptor_version"] = version
 
         if properties.get("provider", "") == "":
             provider = metadata.get("template_author", "")

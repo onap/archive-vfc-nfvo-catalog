@@ -130,14 +130,14 @@ class NfDistributeThread(threading.Thread):
         vnfd = json.JSONDecoder().decode(vnfd_json)
 
         if not vnfd.get("vnf"):
-            raise CatalogException("VNF propeties and metadata in VNF Package(id=%s) are empty." % self.csar_id)
+            raise CatalogException("VNF properties and metadata in VNF Package(id=%s) are empty." % self.csar_id)
 
         vnfd_id = vnfd["vnf"]["properties"].get("descriptor_id", "")
         if VnfPackageModel.objects.filter(vnfdId=vnfd_id):
             logger.error("VNF package(%s) already exists.", vnfd_id)
             raise CatalogException("VNF package(%s) already exists." % vnfd_id)
         JobUtil.add_job_status(self.job_id, 30, "Save CSAR(%s) to database." % self.csar_id)
-        vnfd_ver = vnfd["vnf"]["properties"].get("descriptor_verison", "")
+        vnfd_ver = vnfd["vnf"]["properties"].get("descriptor_version", "")
         vnf_provider = vnfd["vnf"]["properties"].get("provider", "")
         vnf_software_version = vnfd["vnf"]["properties"].get("software_version", "")
         vnfd_product_name = vnfd["vnf"]["properties"].get("product_name", "")
