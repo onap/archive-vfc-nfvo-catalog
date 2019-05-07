@@ -36,5 +36,8 @@ class FetchVnfPkgArtifact(object):
             artifact_path = fileutil.get_artifact_path(vnf_extract_path, artifactPath)
             if not artifact_path:
                 raise ArtifactNotFoundException("Couldn't artifact %s" % artifactPath)
-        file_content = open(artifact_path, 'rb').read()
+            with open(artifact_path, 'rb') as f:
+                file_content = f.read()
+        else:
+            raise ArtifactNotFoundException("NF Package format is not csar or zip")
         return file_content
