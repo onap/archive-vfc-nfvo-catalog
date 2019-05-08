@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7a8c734_cdecc271",
+        "filename": "catalog/pub/utils/toscaparser/basemodel.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 141
+      },
+      "writtenOn": "2019-05-08T03:31:58Z",
+      "side": 1,
+      "message": "If we define some node_types in template, but not define the new VNF node type， but the properties is defined in the substitution mapping directly, it will meet problem;",
+      "range": {
+        "startLine": 520,
+        "startChar": 16,
+        "endLine": 520,
+        "endChar": 26
+      },
+      "revId": "7c9dd4cd754c847bf235ad62dd0ccceef4405af5",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b61575f_ccbc0deb",
+        "filename": "catalog/pub/utils/toscaparser/basemodel.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 141
+      },
+      "writtenOn": "2019-05-08T03:31:58Z",
+      "side": 1,
+      "message": "if some property default value are provided and required is false, the property value should not be as the following. The properties should be not provided.  \n            \"product_info_name\":{\n                \"required\":false,\n                \"type\":\"string\",\n                \"description\":\"Human readable name for the VNF Product\"\n            },",
+      "range": {
+        "startLine": 524,
+        "startChar": 37,
+        "endLine": 524,
+        "endChar": 69
+      },
+      "revId": "7c9dd4cd754c847bf235ad62dd0ccceef4405af5",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
