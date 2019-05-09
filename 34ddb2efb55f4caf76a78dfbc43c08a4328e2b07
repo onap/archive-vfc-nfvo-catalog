@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ef99f08_55434128",
+        "filename": "catalog/pub/utils/toscaparser/basemodel.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 141
+      },
+      "writtenOn": "2019-05-09T11:41:56Z",
+      "side": 1,
+      "message": "add \u0027type\u0027:\"\" here to avoid 529 line node[\u0027type\u0027] key not exist error",
+      "range": {
+        "startLine": 509,
+        "startChar": 15,
+        "endLine": 509,
+        "endChar": 16
+      },
+      "revId": "34ddb2efb55f4caf76a78dfbc43c08a4328e2b07",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
