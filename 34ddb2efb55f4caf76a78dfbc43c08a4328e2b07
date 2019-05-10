@@ -22,6 +22,30 @@
       "revId": "34ddb2efb55f4caf76a78dfbc43c08a4328e2b07",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89c4754b_bc3130cd",
+        "filename": "catalog/pub/utils/toscaparser/basemodel.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2019-05-10T01:22:39Z",
+      "side": 1,
+      "message": "if \"type\" is not in node, then node[\u0027type\u0027] is executed. I have tested.",
+      "parentUuid": "8ef99f08_55434128",
+      "range": {
+        "startLine": 509,
+        "startChar": 15,
+        "endLine": 509,
+        "endChar": 16
+      },
+      "revId": "34ddb2efb55f4caf76a78dfbc43c08a4328e2b07",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
