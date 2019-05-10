@@ -46,6 +46,30 @@
       "revId": "34ddb2efb55f4caf76a78dfbc43c08a4328e2b07",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e1d3ce7_3b7236af",
+        "filename": "catalog/pub/utils/toscaparser/basemodel.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2019-05-10T01:24:12Z",
+      "side": 1,
+      "message": "type error: the node[\u0027type\u0027] is not executed.",
+      "parentUuid": "89c4754b_bc3130cd",
+      "range": {
+        "startLine": 509,
+        "startChar": 15,
+        "endLine": 509,
+        "endChar": 16
+      },
+      "revId": "34ddb2efb55f4caf76a78dfbc43c08a4328e2b07",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
