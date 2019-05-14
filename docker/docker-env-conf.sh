@@ -8,7 +8,7 @@ install_sf(){
 
     # get binary zip from nexus - vfc-nfvo-catalog
 
-    wget -q -O vfc-nfvo-catalog.zip 'https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.catalog&a=vfc-nfvo-catalog&v=LATEST&e=zip' && \
+    wget -q -O vfc-nfvo-catalog.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.vfc.nfvo.catalog&a=vfc-nfvo-catalog&v=${pkg_version}-SNAPSHOT&e=zip" && \
     unzip vfc-nfvo-catalog.zip && \
     rm -rf vfc-nfvo-catalog.zip && \
     pip install --upgrade setuptools pip && \
