@@ -23,7 +23,7 @@ fi
 
 
 if [ "${SSL_ENABLED}" = "true" ]; then
-    nohup uwsgi --https :8806,catalog/pub/ssl/cert/foobar.crt,catalog/pub/ssl/cert/foobar.key, -t 120 --module catalog.wsgi --master --processes 4 &
+    nohup uwsgi --https :8806,catalog/pub/ssl/cert/foobar.crt,catalog/pub/ssl/cert/foobar.key, -t 120 --enable-threads --module catalog.wsgi --master --processes 4 &
 else
-    nohup uwsgi --http :8806 -t 120 --module catalog.wsgi --master --processes 4 &
+    nohup uwsgi --http :8806 -t 120 --enable-threads --module catalog.wsgi --master --processes 4 &
 fi
