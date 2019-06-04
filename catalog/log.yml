@@ -10,6 +10,10 @@ loggers:
         handlers: [django_handler]
         level: "DEBUG"
         propagate: False
+    tosca.model:
+        handlers: [cataloglocal_handler, catalog_handler]
+        level: "DEBUG"
+        propagate: False
 handlers:
     cataloglocal_handler:
         level: "DEBUG"
