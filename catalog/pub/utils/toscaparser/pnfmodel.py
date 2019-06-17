@@ -37,7 +37,7 @@ class PnfdInfoModel(BaseInfoModel):
         pnf_substitution_mappings = tosca.tpl['topology_template'].get('substitution_mappings', None)
         if pnf_substitution_mappings:
             self.pnf['type'] = pnf_substitution_mappings['node_type']
-            self.pnf['properties'] = pnf_substitution_mappings['properties']
+            self.pnf['properties'] = pnf_substitution_mappings.get('properties', {})
 
     def get_all_cp(self, nodeTemplates):
         self.pnf['ExtPorts'] = []
