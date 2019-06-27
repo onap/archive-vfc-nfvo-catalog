@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from rest_framework import serializers
-from pnfd_info import PnfdInfoSerializer
+from .pnfd_info import PnfdInfoSerializer
 
 
 class PnfdInfosSerializer(serializers.ListSerializer):

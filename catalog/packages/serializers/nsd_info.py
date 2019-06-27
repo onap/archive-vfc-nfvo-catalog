@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from rest_framework import serializers
-from problem_details import ProblemDetailsSerializer
-from link import LinkSerializer
+from .problem_details import ProblemDetailsSerializer
+from .link import LinkSerializer
 
 
 class _LinkSerializer(serializers.Serializer):

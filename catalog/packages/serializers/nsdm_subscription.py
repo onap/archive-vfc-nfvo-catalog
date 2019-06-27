@@ -14,9 +14,9 @@
 
 from rest_framework import serializers
 
-from link import LinkSerializer
-from subscription_auth_data import SubscriptionAuthenticationSerializer
-from nsdm_filter_data import NsdmNotificationsFilter
+from .link import LinkSerializer
+from .subscription_auth_data import SubscriptionAuthenticationSerializer
+from .nsdm_filter_data import NsdmNotificationsFilter
 
 
 class NsdmSubscriptionLinkSerializer(serializers.Serializer):

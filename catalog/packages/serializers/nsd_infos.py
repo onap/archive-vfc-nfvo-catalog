@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from rest_framework import serializers
-from nsd_info import NsdInfoSerializer
+from .nsd_info import NsdInfoSerializer
 
 
 class NsdInfosSerializer(serializers.ListSerializer):

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from rest_framework import serializers
-from checksum import ChecksumSerializer
+from .checksum import ChecksumSerializer
 
 
 class VnfPackageSoftwareImageInfoSerializer(serializers.Serializer):

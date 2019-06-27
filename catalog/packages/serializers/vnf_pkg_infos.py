@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from rest_framework import serializers
-from vnf_pkg_info import VnfPkgInfoSerializer
+from .vnf_pkg_info import VnfPkgInfoSerializer
 
 
 class VnfPkgInfosSerializer(serializers.ListSerializer):

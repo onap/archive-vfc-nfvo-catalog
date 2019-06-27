@@ -13,10 +13,10 @@
 # limitations under the License.
 
 from rest_framework import serializers
-from checksum import ChecksumSerializer
-from vnf_pkg_software_image_info import VnfPackageSoftwareImageInfoSerializer
-from vnf_pkg_artifact_info import VnfPackageArtifactInfoSerializer
-from link import LinkSerializer
+from .checksum import ChecksumSerializer
+from .vnf_pkg_software_image_info import VnfPackageSoftwareImageInfoSerializer
+from .vnf_pkg_artifact_info import VnfPackageArtifactInfoSerializer
+from .link import LinkSerializer
 
 
 class _LinkSerializer(serializers.Serializer):
