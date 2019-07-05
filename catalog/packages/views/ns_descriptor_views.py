@@ -87,14 +87,14 @@ def ns_descriptors_rc(request):
     if request.method == 'POST':
         create_nsd_info_request = validate_data(request.data, CreateNsdInfoRequestSerializer)
         data = NsDescriptor().create(create_nsd_info_request.data)
-        nsd_info = validate_data(data, NsdInfoSerializer)
-        return Response(data=nsd_info.data, status=status.HTTP_201_CREATED)
+        validate_data(data, NsdInfoSerializer)
+        return Response(data=data, status=status.HTTP_201_CREATED)
 
     if request.method == 'GET':
         nsdId = request.query_params.get("nsdId", None)
         data = NsDescriptor().query_multiple(nsdId)
-        nsd_infos = validate_data(data, NsdInfosSerializer)
-        return Response(data=nsd_infos.data, status=status.HTTP_200_OK)
+        validate_data(data, NsdInfosSerializer)
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(

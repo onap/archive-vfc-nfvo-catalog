@@ -58,16 +58,16 @@ def vnf_packages_rc(request):
     if request.method == 'GET':
         logger.debug("Query VNF packages> %s" % request.data)
         data = VnfPackage().query_multiple()
-        vnf_pkg_infos = validate_data(data, VnfPkgInfosSerializer)
-        return Response(data=vnf_pkg_infos.data, status=status.HTTP_200_OK)
+        validate_data(data, VnfPkgInfosSerializer)
+        return Response(data=data, status=status.HTTP_200_OK)
 
     if request.method == 'POST':
         logger.debug("Create VNF package> %s" % request.data)
         create_vnf_pkg_info_request = validate_data(request.data,
                                                     CreateVnfPkgInfoRequestSerializer)
         data = VnfPackage().create_vnf_pkg(create_vnf_pkg_info_request.data)
-        vnf_pkg_info = validate_data(data, VnfPkgInfoSerializer)
-        return Response(data=vnf_pkg_info.data, status=status.HTTP_201_CREATED)
+        validate_data(data, VnfPkgInfoSerializer)
+        return Response(data=data, status=status.HTTP_201_CREATED)
 
 
 @swagger_auto_schema(
@@ -159,8 +159,8 @@ def vnf_package_rd(request, **kwargs):
     if request.method == 'GET':
         logger.debug("Query an individual VNF package> %s" % request.data)
         data = VnfPackage().query_single(vnf_pkg_id)
-        vnf_pkg_info = validate_data(data, VnfPkgInfoSerializer)
-        return Response(data=vnf_pkg_info.data, status=status.HTTP_200_OK)
+        validate_data(data, VnfPkgInfoSerializer)
+        return Response(data=data, status=status.HTTP_200_OK)
 
     if request.method == 'DELETE':
         logger.debug("Delete an individual VNF package> %s" % request.data)

@@ -95,13 +95,13 @@ def pnf_descriptors_rc(request):
     if request.method == 'POST':
         create_pnfd_info_request = validate_data(request.data, CreatePnfdInfoRequestSerializer)
         data = PnfDescriptor().create(create_pnfd_info_request.data)
-        pnfd_info = validate_data(data, PnfdInfoSerializer)
-        return Response(data=pnfd_info.data, status=status.HTTP_201_CREATED)
+        validate_data(data, PnfdInfoSerializer)
+        return Response(data=data, status=status.HTTP_201_CREATED)
 
     if request.method == 'GET':
         data = PnfDescriptor().query_multiple(request)
-        pnfd_infos = validate_data(data, PnfdInfosSerializer)
-        return Response(data=pnfd_infos.data, status=status.HTTP_200_OK)
+        validate_data(data, PnfdInfosSerializer)
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(
