@@ -16,7 +16,7 @@ import os
 import sys
 import platform
 
-import redisco
+import catalog.pub.redisco
 
 from catalog.pub.config.config import REDIS_HOST, REDIS_PORT, REDIS_PASSWD
 from catalog.pub.config.config import DB_NAME, DB_IP, DB_USER, DB_PASSWD, DB_PORT
@@ -116,7 +116,7 @@ DATABASES = {
     },
 }
 
-redisco.connection_setup(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWD, db=0)
+catalog.pub.redisco.connection_setup(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWD, db=0)
 # CACHE_BACKEND = 'redis_cache.cache://%s@%s:%s' % (REDIS_PASSWD, REDIS_HOST, REDIS_PORT)
 
 TIME_ZONE = 'UTC'

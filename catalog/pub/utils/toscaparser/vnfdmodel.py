@@ -34,7 +34,7 @@ class EtsiVnfdInfoModel(BaseInfoModel):
     def parseModel(self, tosca):
         self.metadata = self.buildMetadata(tosca)
         self.inputs = self.buildInputs(tosca)
-        nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
+        nodeTemplates = list(map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates))
         self.basepath = self.get_base_path(tosca)
         node_types = tosca.topology_template.custom_defs
         sol_version = self.metadata.get("VNFD_SCHEMA_VERSION", VNFD_SCHEMA_VERSION_DEFAULT) if isinstance(self.metadata, dict) else VNFD_SCHEMA_VERSION_DEFAULT

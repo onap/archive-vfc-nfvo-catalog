@@ -118,19 +118,17 @@ class VnfdSOLBase():
                     if isinstance(inject_files, list):
                         for inject_file in inject_files:
                             source_path = os.path.join(self.model.basepath, inject_file['source_path'])
-                            with open(source_path, "rb") as f:
+                            with open(source_path, "rt") as f:
                                 source_data = f.read()
-                                source_data_base64 = source_data.encode("base64")
-                                inject_file["source_data_base64"] = source_data_base64
+                                inject_file["source_data_base64"] = source_data
                     if isinstance(inject_files, dict):
                         source_path = os.path.join(self.model.basepath, inject_files['source_path'])
-                        with open(source_path, "rb") as f:
+                        with open(source_path, "rt") as f:
                             source_data = f.read()
-                            source_data_base64 = source_data.encode("base64")
-                            inject_files["source_data_base64"] = source_data_base64
+                            inject_files["source_data_base64"] = source_data
                 virtual_storages = self.model.getRequirementByName(node, 'virtual_storage')
-                ret['virtual_storages'] = map(functools.partial(self._trans_virtual_storage), virtual_storages)
-                ret['dependencies'] = map(lambda x: self.model.get_requirement_node_name(x), self.model.getNodeDependencys(node))
+                ret['virtual_storages'] = list(map(functools.partial(self._trans_virtual_storage), virtual_storages))
+                ret['dependencies'] = [self.model.get_requirement_node_name(x) for x in self.model.getNodeDependencys(node)]
                 virtual_compute = self.model.getCapabilityByName(node, 'virtual_compute')
                 if virtual_compute is not None and 'properties' in virtual_compute:
                     ret['virtual_compute'] = virtual_compute['properties']
@@ -166,14 +164,14 @@ class VnfdSOLBase():
         return vl_ids
 
     def _get_virtal_binding_cp_ids(self, node, nodeTemplates):
-        return map(lambda x: x['name'], self._get_virtal_binding_cps(node, nodeTemplates))
+        return [x['name'] for x in self._get_virtal_binding_cps(node, nodeTemplates)]
 
     def _get_virtal_binding_cps(self, node, nodeTemplates):
         cps = []
         for tmpnode in nodeTemplates:
             if 'requirements' in tmpnode:
                 for item in tmpnode['requirements']:
-                    for key, value in item.items():
+                    for key, value in list(item.items()):
                         if key.upper().startswith('VIRTUAL_BINDING'):
                             req_node_name = self.model.get_requirement_node_name(value)
                             if req_node_name is not None and req_node_name == node['name']:
@@ -181,19 +179,19 @@ class VnfdSOLBase():
         return cps
 
     def _get_node_vdu_id(self, node):
-        vdu_ids = map(lambda x: self.model.get_requirement_node_name(x), self.model.getRequirementByName(node, 'virtual_binding'))
+        vdu_ids = [self.model.get_requirement_node_name(x) for x in self.model.getRequirementByName(node, 'virtual_binding')]
         if len(vdu_ids) > 0:
             return vdu_ids[0]
         return ""
 
     def _get_node_vl_id(self, node):
-        vl_ids = map(lambda x: self.model.get_requirement_node_name(x), self.model.getRequirementByName(node, 'virtual_link'))
+        vl_ids = [self.model.get_requirement_node_name(x) for x in self.model.getRequirementByName(node, 'virtual_link')]
         if len(vl_ids) > 0:
             return vl_ids[0]
         return ""
 
     def _buil_cp_vls(self, node):
-        return map(lambda x: self._build_cp_vl(x), self.model.getRequirementByName(node, 'virtual_link'))
+        return [self._build_cp_vl(x) for x in self.model.getRequirementByName(node, 'virtual_link')]
 
     def _build_cp_vl(self, req):
         cp_vl = {}
@@ -202,7 +200,7 @@ class VnfdSOLBase():
         if relationship is not None:
             properties = self.model.get_prop_from_obj(relationship, 'properties')
             if properties is not None and isinstance(properties, dict):
-                for key, value in properties.items():
+                for key, value in list(properties.items()):
                     cp_vl[key] = value
         return cp_vl
 
@@ -210,14 +208,14 @@ class VnfdSOLBase():
         external_cps = []
         if vnf_requirements:
             if isinstance(vnf_requirements, dict):
-                for key, value in vnf_requirements.items():
+                for key, value in list(vnf_requirements.items()):
                     if isinstance(value, list) and len(value) > 0:
                         external_cps.append({"key_name": key, "cpd_id": value[0]})
                     else:
                         external_cps.append({"key_name": key, "cpd_id": value})
             elif isinstance(vnf_requirements, list):
                 for vnf_requirement in vnf_requirements:
-                    for key, value in vnf_requirement.items():
+                    for key, value in list(vnf_requirement.items()):
                         if isinstance(value, list) and len(value) > 0:
                             external_cps.append({"key_name": key, "cpd_id": value[0]})
                         else:
@@ -227,7 +225,7 @@ class VnfdSOLBase():
     def _get_forward_cps(self, vnf_capabilities):
         forward_cps = []
         if vnf_capabilities:
-            for key, value in vnf_capabilities.items():
+            for key, value in list(vnf_capabilities.items()):
                 if isinstance(value, list) and len(value) > 0:
                     forward_cps.append({"key_name": key, "cpd_id": value[0]})
                 else:

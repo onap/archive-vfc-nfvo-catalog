@@ -77,7 +77,7 @@ class BaseInfoModel(object):
                 try:
                     os.remove(file_name)
                 except Exception as e:
-                    logger.error("Failed to parse package, error: %s", e.message)
+                    logger.error("Failed to parse package, error: %s", e.args[0])
 
     def _validate_input_params(self, path, params):
         valid_params = {}
@@ -92,7 +92,7 @@ class BaseInfoModel(object):
         if params:
             tmp = self._create_tosca_template(path, None)
             if isinstance(params, dict):
-                for key, value in params.items():
+                for key, value in list(params.items()):
                     if hasattr(tmp, 'inputs') and len(tmp.inputs) > 0:
                         for input_def in tmp.inputs:
                             if (input_def.name == key):
@@ -107,16 +107,16 @@ class BaseInfoModel(object):
                                       no_required_paras_check=True,
                                       debug_mode=True)
         except Exception as e:
-            print e.message
+            print(e.args[0])
         finally:
             if tosca_tpl is not None and hasattr(tosca_tpl, "temp_dir") and os.path.exists(tosca_tpl.temp_dir):
                 try:
                     shutil.rmtree(tosca_tpl.temp_dir)
                 except Exception as e:
-                    logger.error("Failed to create tosca template, error: %s", e.message)
-                print "-----------------------------"
-                print '\n'.join(['%s:%s' % item for item in tosca_tpl.__dict__.items()])
-                print "-----------------------------"
+                    logger.error("Failed to create tosca template, error: %s", e.args[0])
+                print("-----------------------------")
+                print('\n'.join(['%s:%s' % item for item in list(tosca_tpl.__dict__.items())]))
+                print("-----------------------------")
             return tosca_tpl
 
     def _check_download_file(self, path):
@@ -130,7 +130,7 @@ class BaseInfoModel(object):
         path = path.encode("utf-8")
         tmps = str.split(path, '/')
         localFileName = tmps[len(tmps) - 1]
-        urllib.urlretrieve(path, localFileName)
+        urllib.request.urlretrieve(path, localFileName)
         return localFileName
 
     def downloadFileFromFtpServer(self, path):
@@ -222,7 +222,7 @@ class BaseInfoModel(object):
     def buildProperties(self, nodeTemplate, parsed_params):
         properties = {}
         isMappingParams = parsed_params and len(parsed_params) > 0
-        for k, item in nodeTemplate.get_properties().items():
+        for k, item in list(nodeTemplate.get_properties().items()):
             properties[k] = item.value
             if isinstance(item.value, GetInput):
                 if item.value.result() and isMappingParams:
@@ -232,7 +232,7 @@ class BaseInfoModel(object):
                     tmp[item.value.name] = item.value.input_name
                     properties[k] = tmp
         if ATTRIBUTES in nodeTemplate.entity_tpl:
-            for k, item in nodeTemplate.entity_tpl[ATTRIBUTES].items():
+            for k, item in list(nodeTemplate.entity_tpl[ATTRIBUTES].items()):
                 properties[k] = str(item)
         return properties
 
@@ -241,7 +241,7 @@ class BaseInfoModel(object):
             properties = nodeTemplate.get_properties()
         _properties = {}
         if isinstance(properties, dict):
-            for name, prop in properties.items():
+            for name, prop in list(properties.items()):
                 if isinstance(prop, Property):
                     if isinstance(prop.value, Function):
                         if isinstance(prop.value, Concat):  # support one layer inner function.
@@ -251,7 +251,7 @@ class BaseInfoModel(object):
                                     value_str += arg
                                 elif isinstance(arg, dict):
                                     raw_func = {}
-                                    for k, v in arg.items():
+                                    for k, v in list(arg.items()):
                                         func_args = []
                                         func_args.append(v)
                                         raw_func[k] = func_args
@@ -282,7 +282,7 @@ class BaseInfoModel(object):
                                 value_str += arg
                             elif isinstance(arg, dict):
                                 raw_func = {}
-                                for k, v in arg.items():
+                                for k, v in list(arg.items()):
                                     func_args = []
                                     func_args.append(v)
                                     raw_func[k] = func_args
@@ -306,7 +306,7 @@ class BaseInfoModel(object):
     def verify_properties(self, props, inputs, parsed_params):
         ret_props = {}
         if (props and len(props) > 0):
-            for key, value in props.items():
+            for key, value in list(props.items()):
                 ret_props[key] = self._verify_value(value, inputs, parsed_params)
                 #                 if isinstance(value, str):
                 #                     ret_props[key] = self._verify_string(inputs, parsed_params, value);
@@ -323,7 +323,7 @@ class BaseInfoModel(object):
     def build_requirements(self, node_template):
         rets = []
         for req in node_template.requirements:
-            for req_name, req_value in req.items():
+            for req_name, req_value in list(req.items()):
                 if (isinstance(req_value, dict)):
                     if ('node' in req_value and req_value['node'] not in node_template.templates):
                         continue  # No target requirement for aria parser, not add to result.
@@ -385,7 +385,7 @@ class BaseInfoModel(object):
         requirements = []
         if REQUIREMENTS in node:
             for item in node[REQUIREMENTS]:
-                for key, value in item.items():
+                for key, value in list(item.items()):
                     if key == requirementName:
                         requirements.append(value)
         return requirements
@@ -439,7 +439,7 @@ class BaseInfoModel(object):
         rets = []
         if ARTIFACTS in node and len(node[ARTIFACTS]) > 0:
             artifacts = node[ARTIFACTS]
-            for name, value in artifacts.items():
+            for name, value in list(artifacts.items()):
                 ret = {}
                 ret['artifact_name'] = name
                 ret['file'] = value
@@ -491,7 +491,7 @@ class BaseInfoModel(object):
         for type_require in type_requires:
             type_require_set.update(type_require)
         for requirement in node.requirements:
-            for k in requirement.keys():
+            for k in list(requirement.keys()):
                 if type_require_set[k].get('relationship', None) in relations[0] or type_require_set[k].get('capability', None) in relations[0]:
                     if isinstance(requirement[k], dict):
                         next_node = requirement[k].get('node', None)

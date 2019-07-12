@@ -60,7 +60,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
         self.metadata = self.buildMetadata(tosca)
         self.ns = self._build_ns(tosca)
         self.inputs = self.buildInputs(tosca)
-        nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
+        nodeTemplates = list(map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates))
         types = tosca.topology_template.custom_defs
         self.basepath = self.get_base_path(tosca)
         self.vnfs = self._get_all_vnf(nodeTemplates, types)
@@ -126,7 +126,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
         forwarderList = []
         if 'requirements' in node:
             for item in node['requirements']:
-                for key, value in item.items():
+                for key, value in list(item.items()):
                     if key == 'forwarder':
                         tmpnode = self.get_node_by_req(node_templates, value)
                         type = 'pnf' if self.isNodeTypeX(tmpnode, node_types, NS_PNF_TYPE) else 'vnf'
@@ -161,7 +161,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
     def _get_external_cps(self, subs_mappings):
         external_cps = []
         if 'requirements' in subs_mappings:
-            for key, value in subs_mappings['requirements'].items():
+            for key, value in list(subs_mappings['requirements'].items()):
                 if isinstance(value, list) and len(value) > 0:
                     external_cps.append({"key_name": key, "cpd_id": value[0]})
                 else:
@@ -171,7 +171,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
     def _get_forward_cps(self, subs_mappings):
         forward_cps = []
         if 'capabilities' in subs_mappings:
-            for key, value in subs_mappings['capabilities'].items():
+            for key, value in list(subs_mappings['capabilities'].items()):
                 if isinstance(value, list) and len(value) > 0:
                     forward_cps.append({"key_name": key, "cpd_id": value[0]})
                 else:
@@ -194,7 +194,7 @@ class EtsiNsdInfoModel(BaseInfoModel):
         rets = []
         if 'requirements' in node and (self.isNodeTypeX(node, node_types, NS_TYPE) or self.isNodeTypeX(node, node_types, NS_VNF_TYPE)):
             for item in node['requirements']:
-                for key, value in item.items():
+                for key, value in list(item.items()):
                     rets.append({"key_name": key, "vl_id": self.get_requirement_node_name(value)})
         return rets
 

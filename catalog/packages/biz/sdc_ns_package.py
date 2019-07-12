@@ -43,7 +43,7 @@ def ns_on_distribute(csar_id):
         ret = NsPackage().on_distribute(csar_id)
     except CatalogException as e:
         NsPackage().delete_csar(csar_id)
-        return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
+        return fmt_ns_pkg_rsp(STATUS_FAILED, e.args[0])
     except:
         logger.error(traceback.format_exc())
         NsPackage().delete_csar(csar_id)
@@ -58,7 +58,7 @@ def ns_delete_csar(csar_id):
     try:
         ret = NsPackage().delete_csar(csar_id)
     except CatalogException as e:
-        return fmt_ns_pkg_rsp(STATUS_FAILED, e.message)
+        return fmt_ns_pkg_rsp(STATUS_FAILED, e.args[0])
     except:
         logger.error(traceback.format_exc())
         return fmt_ns_pkg_rsp(STATUS_FAILED, str(sys.exc_info()))
@@ -70,7 +70,7 @@ def ns_get_csars():
     try:
         ret = NsPackage().get_csars()
     except CatalogException as e:
-        return [1, e.message]
+        return [1, e.args[0]]
     except:
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
@@ -82,9 +82,9 @@ def ns_get_csar(csar_id):
     try:
         ret = NsPackage().get_csar(csar_id)
     except CatalogException as e:
-        return [1, e.message]
+        return [1, e.args[0]]
     except Exception as e:
-        logger.error(e.message)
+        logger.error(e.args[0])
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return ret
@@ -99,9 +99,9 @@ def parse_nsd(csar_id, inputs):
         csar_path = ns_pkg[0].localFilePath
         ret = {"model": toscaparser.parse_nsd(csar_path, inputs)}
     except CatalogException as e:
-        return [1, e.message]
+        return [1, e.args[0]]
     except Exception as e:
-        logger.error(e.message)
+        logger.error(e.args[0])
         logger.error(traceback.format_exc())
         return [1, str(sys.exc_info())]
     return [0, ret]

@@ -64,14 +64,14 @@ class SdInfoModel(BaseInfoModel):
     def get_child_input_repeat(self, complex_input, entry_schema, input):
         custom_defs = input.custom_defs
         properties = custom_defs[entry_schema]['properties']
-        for key, value in properties.iteritems():
+        for key, value in properties.items():
             if value['type'].__eq__('list'):
                 child_complex_input = []
                 child_entry_schema = self.get_entry_schema(value['entry_schema'])
                 self.get_child_input_repeat(child_complex_input, child_entry_schema, input)
                 complex_input.append({key: child_complex_input})
             else:
-                if 'description' in value.keys():
+                if 'description' in list(value.keys()):
                     simple_input = {
                         key: "",
                         "type": value['type'],
@@ -88,6 +88,6 @@ class SdInfoModel(BaseInfoModel):
 
     def get_entry_schema(self, entry_schema):
         if isinstance(entry_schema, dict):
-            if 'type' in entry_schema.keys():
+            if 'type' in list(entry_schema.keys()):
                 entry_schema = entry_schema['type']
         return entry_schema

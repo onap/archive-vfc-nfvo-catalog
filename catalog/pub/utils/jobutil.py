@@ -15,6 +15,7 @@ import datetime
 import logging
 import uuid
 import traceback
+from functools import reduce
 
 from catalog.pub.database.models import JobStatusModel, JobModel
 from catalog.pub.utils import idutil

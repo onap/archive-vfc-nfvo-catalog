@@ -22,3 +22,12 @@ def ignore_case_get(args, key, def_val=""):
         if old_key.upper() == key.upper():
             return args[old_key]
     return def_val
+
+
+def remove_none_key(data, none_list=None):
+    none_list = none_list if none_list else [None, '', 'NULL', 'None', [], {}]
+    if isinstance(data, dict):
+        data = dict([(k, remove_none_key(v, none_list)) for k, v in list(data.items()) if v not in none_list])
+    if isinstance(data, list):
+        data = [remove_none_key(s, none_list) for s in data if s not in none_list]
+    return data

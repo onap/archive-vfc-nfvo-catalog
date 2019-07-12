@@ -18,7 +18,7 @@ import os
 import sys
 import threading
 import traceback
-import urllib2
+import urllib
 import uuid
 
 from catalog.packages.biz.common import parse_file_range, read, save
@@ -139,9 +139,9 @@ class VnfPkgUploadThread(threading.Thread):
             self.upload_vnf_pkg_from_uri()
             parse_vnfd_and_save(self.vnf_pkg_id, self.upload_file_name)
         except CatalogException as e:
-            logger.error(e.message)
+            logger.error(e.args[0])
         except Exception as e:
-            logger.error(e.message)
+            logger.error(e.args[0])
             logger.error(traceback.format_exc())
             logger.error(str(sys.exc_info()))
 
@@ -154,14 +154,13 @@ class VnfPkgUploadThread(threading.Thread):
         vnf_pkg.update(onboardingState=PKG_STATUS.UPLOADING)
 
         uri = ignore_case_get(self.data, "addressInformation")
-        request = urllib2.Request(uri)
-        response = urllib2.urlopen(request)
+        response = urllib.request.urlopen(uri)
 
         local_file_dir = os.path.join(CATALOG_ROOT_PATH, self.vnf_pkg_id)
         self.upload_file_name = os.path.join(local_file_dir, os.path.basename(uri))
         if not os.path.exists(local_file_dir):
             fileutil.make_dirs(local_file_dir)
-        with open(self.upload_file_name, "wb") as local_file:
+        with open(self.upload_file_name, "wt") as local_file:
             local_file.write(response.read())
         response.close()
         logger.info('VNF packge(%s) has been uploaded.' % self.vnf_pkg_id)

@@ -261,7 +261,7 @@ class TestServicePackage(TestCase):
         try:
             ServicePackage().on_distribute(csar_id)
         except PackageHasExistsException as e:
-            self.assertEqual("Service CSAR(1) already exists.", e.message)
+            self.assertEqual("Service CSAR(1) already exists.", e.args[0])
 
     @mock.patch.object(sdc, 'get_artifact')
     def test_service_pkg_distribute_when_fail_get_artifacts(self, mock_get_artifact):
@@ -271,7 +271,7 @@ class TestServicePackage(TestCase):
             ServicePackage().on_distribute(csar_id)
         except Exception as e:
             self.assertTrue(isinstance(e, CatalogException))
-            self.assertEqual("Failed to query artifact(services,1) from sdc.", e.message)
+            self.assertEqual("Failed to query artifact(services,1) from sdc.", e.args[0])
 
     @mock.patch.object(sdc, 'get_artifact')
     @mock.patch.object(sdc, 'download_artifacts')
@@ -295,7 +295,7 @@ class TestServicePackage(TestCase):
             ServicePackage().on_distribute(csar_id)
         except Exception as e:
             self.assertTrue(isinstance(e, CatalogException))
-            self.assertEqual("Failed to download 1 from sdc.", e.message)
+            self.assertEqual("Failed to download 1 from sdc.", e.args[0])
 
     @mock.patch.object(sdc, 'get_artifact')
     @mock.patch.object(sdc, 'download_artifacts')
@@ -389,7 +389,7 @@ class TestServicePackage(TestCase):
         try:
             ServicePackage().get_csar(1000)
         except PackageNotFoundException as e:
-            self.assertEqual("Service package[1000] not Found.", e.message)
+            self.assertEqual("Service package[1000] not Found.", e.args[0])
 
     def test_api_service_pkg_get_one(self):
         ServicePackageModel(
@@ -423,7 +423,7 @@ class TestServicePackage(TestCase):
         try:
             ServicePackage().delete_csar("8000")
         except PackageNotFoundException as e:
-            self.assertEqual("Service package[8000] not Found.", e.message)
+            self.assertEqual("Service package[8000] not Found.", e.args[0])
 
     def test_api_service_pkg_normal_delete(self):
         ServicePackageModel(servicePackageId="8", servicedId="2").save()
@@ -447,7 +447,7 @@ class TestServicePackage(TestCase):
             inputs = []
             ServicePackage().parse_serviced(csar_id, inputs)
         except PackageNotFoundException as e:
-            self.assertEqual("Service CSAR(8000) does not exist.", e.message)
+            self.assertEqual("Service CSAR(8000) does not exist.", e.args[0])
 
     def test_api_service_pkg_parser_not_found(self):
         query_data = {

@@ -73,7 +73,7 @@ class NsdmSubscription:
         query_data = {}
         logger.debug("Start QueryMultiSubscriptions get --> "
                      "Check for filters in query params" % self.params)
-        for query, value in self.params.iteritems():
+        for query, value in list(self.params.items()):
             if query in const.NSDM_NOTIFICATION_FILTERS and value:
                 query_data[query + '__icontains'] = json.dumps(list(set(value)))
         # Query the database with filters if the request
@@ -103,8 +103,9 @@ class NsdmSubscription:
     def fill_resp_data(self, subscription):
         subscription_filter = dict()
         for filter_type in const.NSDM_NOTIFICATION_FILTERS:
-            subscription_filter[filter_type] = \
-                ast.literal_eval(subscription.__dict__[filter_type])
+            if subscription.__dict__[filter_type]:
+                subscription_filter[filter_type] = \
+                    ast.literal_eval(subscription.__dict__[filter_type])
         resp_data = {
             'id': subscription.subscriptionid,
             'callbackUri': subscription.callback_uri,
@@ -156,20 +157,17 @@ class NsdmSubscription:
             raise NsdmBadRequestException('Auth type should '
                                           'be ' + const.OAUTH2_CLIENT_CREDENTIALS)
         if const.BASIC in self.authentication.get("authType", '') and \
-                "paramsBasic" in self.authentication.keys() and \
-                not is_filter_type_equal(PARAMSBASICKEYS,
-                                         self.authentication.
-                                         get("paramsBasic").keys()):
+                "paramsBasic" in list(self.authentication.keys()) and \
+                not is_filter_type_equal(PARAMSBASICKEYS, list(
+                    self.authentication.get("paramsBasic").keys())):
             raise NsdmBadRequestException('userName and password needed '
                                           'for ' + const.BASIC)
         if const.OAUTH2_CLIENT_CREDENTIALS in \
                 self.authentication.get("authType", '') and \
                 "paramsOauth2ClientCredentials" in \
-                self.authentication.keys() and \
-                not is_filter_type_equal(PARAMSOAUTH2CLIENTCREDENTIALSKEYS,
-                                         self.authentication.
-                                         get("paramsOauth2ClientCredentials")
-                                         .keys()):
+                list(self.authentication.keys()) and \
+                not is_filter_type_equal(PARAMSOAUTH2CLIENTCREDENTIALSKEYS, list(
+                    self.authentication.get("paramsOauth2ClientCredentials").keys())):
             raise NsdmBadRequestException('clientId, clientPassword and '
                                           'tokenEndpoint required '
                                           'for ' + const.OAUTH2_CLIENT_CREDENTIALS)
@@ -213,7 +211,8 @@ class NsdmSubscription:
             "links": json.dumps(links)
         }
         for filter_type in const.NSDM_NOTIFICATION_FILTERS:
-            subscription_save_db[filter_type] = json.dumps(
-                list(set(self.filter.get(filter_type, []))))
+            if self.filter:
+                subscription_save_db[filter_type] = json.dumps(
+                    list(set(self.filter.get(filter_type, []))))
         NsdmSubscriptionModel.objects.create(**subscription_save_db)
         logger.debug('Create Subscription[%s] success', self.subscription_id)

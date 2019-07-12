@@ -14,7 +14,7 @@
 
 import json
 import os
-import urllib2
+import urllib
 import mock
 import shutil
 
@@ -49,7 +49,7 @@ class TestVnfPackage(TestCase):
 
     @mock.patch.object(toscaparser, 'parse_vnfd')
     def test_upload_vnf_pkg(self, mock_parse_vnfd):
-        data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "empty.txt"), "rb")}
+        data = {'file': open(os.path.join(CATALOG_ROOT_PATH, "empty.txt"), "rt")}
         VnfPackageModel.objects.create(
             vnfPackageId="222",
             onboardingState="CREATED"
@@ -70,7 +70,7 @@ class TestVnfPackage(TestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @mock.patch.object(toscaparser, 'parse_vnfd')
-    @mock.patch.object(urllib2, 'urlopen')
+    @mock.patch.object(urllib.request, 'urlopen')
     def test_upload_nf_pkg_from_uri(self, mock_urlopen, mock_parse_vnfd):
         vnf_pkg = VnfPackageModel.objects.create(
             vnfPackageId="222",
@@ -230,7 +230,7 @@ class TestVnfPackage(TestCase):
         self.assertEqual(response.data, None)
 
     def test_fetch_vnf_pkg(self):
-        with open("vnfPackage.csar", "wb") as fp:
+        with open("vnfPackage.csar", "wt") as fp:
             fp.writelines("AAAABBBBCCCCDDDD")
         VnfPackageModel.objects.create(
             vnfPackageId="222",
@@ -240,13 +240,13 @@ class TestVnfPackage(TestCase):
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content")
         file_content = ''
         for data in response.streaming_content:
-            file_content = file_content + data
+            file_content = file_content + data.decode()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('AAAABBBBCCCCDDDD', file_content)
         os.remove("vnfPackage.csar")
 
     def test_fetch_partical_vnf_pkg(self):
-        with open("vnfPackage.csar", "wb") as fp:
+        with open("vnfPackage.csar", "wt") as fp:
             fp.writelines("AAAABBBBCCCCDDDD")
         VnfPackageModel.objects.create(
             vnfPackageId="222",
@@ -256,13 +256,13 @@ class TestVnfPackage(TestCase):
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content", HTTP_RANGE="4-7")
         partial_file_content = ''
         for data in response.streaming_content:
-            partial_file_content = partial_file_content + data
+            partial_file_content = partial_file_content.encode() + data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('BBB', partial_file_content)
+        self.assertEqual(b'BBB', partial_file_content)
         os.remove("vnfPackage.csar")
 
     def test_fetch_last_partical_vnf_pkg(self):
-        with open("vnfPackage.csar", "wb") as fp:
+        with open("vnfPackage.csar", "wt") as fp:
             fp.writelines("AAAABBBBCCCCDDDD")
         VnfPackageModel.objects.create(
             vnfPackageId="222",
@@ -272,9 +272,9 @@ class TestVnfPackage(TestCase):
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content", HTTP_RANGE=" 4-")
         partial_file_content = ''
         for data in response.streaming_content:
-            partial_file_content = partial_file_content + data
+            partial_file_content = partial_file_content.encode() + data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('BBBBCCCCDDDD', partial_file_content)
+        self.assertEqual(b'BBBBCCCCDDDD', partial_file_content)
         os.remove("vnfPackage.csar")
 
     def test_fetch_vnf_pkg_when_pkg_not_exist(self):
@@ -353,7 +353,7 @@ class TestVnfPackage(TestCase):
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/artifacts/image")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.getvalue(), "ubuntu_16.04\n")
+        self.assertEqual(response.getvalue(), b"ubuntu_16.04\n")
 
     @mock.patch.object(toscaparser, 'parse_vnfd')
     def test_fetch_vnf_artifact_not_exists(self, mock_parse_vnfd):

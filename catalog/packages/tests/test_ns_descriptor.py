@@ -175,9 +175,9 @@ class TestNsDescriptor(TestCase):
             userDefinedData=user_defined_data_json,
         ).save()
 
-        with open('nsd_content.txt', 'wb') as fp:
+        with open('nsd_content.txt', 'wt') as fp:
             fp.write('test')
-        with open('nsd_content.txt', 'rb') as fp:
+        with open('nsd_content.txt', 'rt') as fp:
             resp = self.client.put(
                 "/api/nsd/v1/ns_descriptors/22/nsd_content",
                 {'file': fp},
@@ -195,9 +195,9 @@ class TestNsDescriptor(TestCase):
         os.remove('nsd_content.txt')
 
     def test_nsd_content_upload_failure(self):
-        with open('nsd_content.txt', 'wb') as fp:
+        with open('nsd_content.txt', 'wt') as fp:
             fp.write('test')
-        with open('nsd_content.txt', 'rb') as fp:
+        with open('nsd_content.txt', 'rt') as fp:
             response = self.client.put(
                 "/api/nsd/v1/ns_descriptors/22/nsd_content",
                 {'file': fp},
@@ -205,7 +205,7 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_nsd_content_download_normal(self):
-        with open('nsd_content.txt', 'wb') as fp:
+        with open('nsd_content.txt', 'wt') as fp:
             fp.writelines('test1')
             fp.writelines('test2')
         NSPackageModel.objects.create(
@@ -220,7 +220,7 @@ class TestNsDescriptor(TestCase):
         for data in response.streaming_content:
             file_content = '%s%s' % (file_content, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('test1test2', file_content)
+        self.assertEqual("b'test1test2'", file_content)
         os.remove('nsd_content.txt')
 
     def test_nsd_content_download_when_ns_not_exist(self):
@@ -237,7 +237,7 @@ class TestNsDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_nsd_content_partial_download_normal(self):
-        with open('nsd_content.txt', 'wb') as fp:
+        with open('nsd_content.txt', 'wt') as fp:
             fp.writelines('test1')
             fp.writelines('test2')
         NSPackageModel(
@@ -255,7 +255,7 @@ class TestNsDescriptor(TestCase):
         for data in response.streaming_content:
             partial_file_content = '%s%s' % (partial_file_content, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('test2', partial_file_content)
+        self.assertEqual("b'test2'", partial_file_content)
         os.remove('nsd_content.txt')
 
     @mock.patch.object(NsDescriptor, 'create')
@@ -286,9 +286,9 @@ class TestNsDescriptor(TestCase):
     @mock.patch.object(NsDescriptor, 'upload')
     def test_upload_when_catch_exception(self, mock_upload):
         mock_upload.side_effect = TypeError("integer type")
-        with open('nsd_content.txt', 'wb') as fp:
+        with open('nsd_content.txt', 'wt') as fp:
             fp.write('test')
-        with open('nsd_content.txt', 'rb') as fp:
+        with open('nsd_content.txt', 'rt') as fp:
             response = self.client.put("/api/nsd/v1/ns_descriptors/22/nsd_content", {'file': fp})
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         os.remove('nsd_content.txt')

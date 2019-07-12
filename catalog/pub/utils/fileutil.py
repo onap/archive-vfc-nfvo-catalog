@@ -16,7 +16,7 @@ import shutil
 import logging
 import tempfile
 import traceback
-import urllib2
+import urllib
 import zipfile
 
 
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def make_dirs(path):
     if not os.path.exists(path):
-        os.makedirs(path, 0777)
+        os.makedirs(path, 0o777)
 
 
 def delete_dirs(path):
@@ -34,7 +34,7 @@ def delete_dirs(path):
             shutil.rmtree(path)
     except Exception as e:
         logger.error(traceback.format_exc())
-        logger.error("Failed to delete %s:%s", path, e.message)
+        logger.error("Failed to delete %s:%s", path, e.args[0])
 
 
 def download_file_from_http(url, local_dir, file_name):
@@ -42,9 +42,8 @@ def download_file_from_http(url, local_dir, file_name):
     is_download_ok = False
     try:
         make_dirs(local_dir)
-        r = urllib2.Request(url)
-        req = urllib2.urlopen(r)
-        save_file = open(local_file_name, 'wb')
+        req = urllib.request.urlopen(url)
+        save_file = open(local_file_name, 'w')
         save_file.write(req.read())
         save_file.close()
         req.close()
