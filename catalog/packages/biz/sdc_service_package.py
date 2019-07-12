@@ -106,9 +106,9 @@ class ServicePackage(object):
             ret = {"model": toscaparser.parse_sd(csar_path, inputs)}
             return ret
         except CatalogException as e:
-            logger.error(e.message)
+            logger.error(e.args[0])
             raise e
         except Exception as e:
-            logger.error(e.message)
+            logger.error(e.args[0])
             logger.error(traceback.format_exc())
             raise e

@@ -149,10 +149,10 @@ class TestPnfDescriptor(TestCase):
             userDefinedData=user_defined_data_json,
         ).save()
         mock_parse_pnfd.return_value = json.JSONEncoder().encode(pnfd_data)
-        with open('pnfd_content.txt', 'wb') as fp:
+        with open('pnfd_content.txt', 'wt') as fp:
             fp.write('test')
 
-        with open('pnfd_content.txt', 'rb') as fp:
+        with open('pnfd_content.txt', 'rt') as fp:
             resp = self.client.put(
                 "/api/nsd/v1/pnf_descriptors/22/pnfd_content",
                 {'file': fp},
@@ -165,10 +165,10 @@ class TestPnfDescriptor(TestCase):
         os.remove('pnfd_content.txt')
 
     def test_pnfd_content_upload_when_pnf_not_exist(self):
-        with open('pnfd_content.txt', 'wb') as fp:
+        with open('pnfd_content.txt', 'wt') as fp:
             fp.write('test')
 
-        with open('pnfd_content.txt', 'rb') as fp:
+        with open('pnfd_content.txt', 'rt') as fp:
             resp = self.client.put(
                 "/api/nsd/v1/pnf_descriptors/22/pnfd_content",
                 {'file': fp},
@@ -177,7 +177,7 @@ class TestPnfDescriptor(TestCase):
 
     @mock.patch.object(toscaparser, "parse_pnfd")
     def test_pnfd_content_upload_when_pnfd_exist(self, mock_parse_pnfd):
-        with open('pnfd_content.txt', 'wb') as fp:
+        with open('pnfd_content.txt', 'wt') as fp:
             fp.write('test')
         PnfPackageModel(
             pnfPackageId='22',
@@ -190,7 +190,7 @@ class TestPnfDescriptor(TestCase):
             pnfdId="zte-1.0"
         ).save()
         mock_parse_pnfd.return_value = json.JSONEncoder().encode(pnfd_data)
-        with open('pnfd_content.txt', 'rb') as fp:
+        with open('pnfd_content.txt', 'rt') as fp:
             resp = self.client.put(
                 "/api/nsd/v1/pnf_descriptors/22/pnfd_content",
                 {'file': fp},
@@ -198,7 +198,7 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def test_pnfd_download_normal(self):
-        with open('pnfd_content.txt', 'wb') as fp:
+        with open('pnfd_content.txt', 'wt') as fp:
             fp.writelines('test1')
             fp.writelines('test2')
         user_defined_data = json.JSONEncoder().encode(self.user_defined_data)
@@ -215,7 +215,7 @@ class TestPnfDescriptor(TestCase):
         for data in resp.streaming_content:
             file_content = '%s%s' % (file_content, data)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual('test1test2', file_content)
+        self.assertEqual("b'test1test2'", file_content)
         os.remove('pnfd_content.txt')
 
     def test_pnfd_download_failed(self):
@@ -223,7 +223,7 @@ class TestPnfDescriptor(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_pnfd_download_when_not_on_boarded(self):
-        with open('pnfd_content.txt', 'wb') as fp:
+        with open('pnfd_content.txt', 'wt') as fp:
             fp.writelines('test1')
             fp.writelines('test2')
         user_defined_data = json.JSONEncoder().encode(self.user_defined_data)

@@ -243,7 +243,7 @@ def servicepackages_rc(request, *args, **kwargs):
             return Response(data=csar_list, status=status.HTTP_200_OK)
         except Exception as e:
             error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
     elif request.method == 'POST':
         # Distributes the package according to the given csarId
         request_serializer = ServicePackageDistributeRequestSerializer(data=request.data)
@@ -258,10 +258,10 @@ def servicepackages_rc(request, *args, **kwargs):
             return Response(status=status.HTTP_202_ACCEPTED)
         except PackageHasExistsException as e:
             error_status = status.HTTP_400_BAD_REQUEST
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
         except Exception as e:
             error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
 
 
 @swagger_auto_schema(
@@ -307,10 +307,10 @@ def service_rd_csar(request, *args, **kwargs):
             return Response(data=ret, status=status.HTTP_200_OK)
         except PackageNotFoundException as e:
             error_status = status.HTTP_404_NOT_FOUND
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
         except Exception as e:
             error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
 
     elif request.method == 'DELETE':
         try:
@@ -318,10 +318,10 @@ def service_rd_csar(request, *args, **kwargs):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except PackageNotFoundException as e:
             error_status = status.HTTP_404_NOT_FOUND
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
         except Exception as e:
             error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
 
 
 @swagger_auto_schema(
@@ -420,10 +420,10 @@ def model_parser(request, *args, **kwargs):
             return Response(data=response_serializer.data, status=status.HTTP_202_ACCEPTED)
         except PackageNotFoundException as e:
             error_status = status.HTTP_404_NOT_FOUND
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
         except Exception as e:
             error_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-            return Response(data=fmt_error_rsp(e.message, error_status), status=error_status)
+            return Response(data=fmt_error_rsp(e.args[0], error_status), status=error_status)
     elif package_type.lower().__eq__("ns"):
         ret = sdc_ns_package.parse_nsd(csar_id, inputs)
     elif package_type.lower().__eq__("vnf"):

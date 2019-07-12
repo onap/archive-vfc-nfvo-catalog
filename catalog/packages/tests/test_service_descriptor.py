@@ -92,4 +92,4 @@ class TestServiceDescription(TestCase):
             ServiceDescriptor().delete_single(csar_id)
         except Exception as e:
             self.assertTrue(isinstance(e, PackageNotFoundException))
-            self.assertEqual("Service package[8000] not Found.", e.message)
+            self.assertEqual("Service package[8000] not Found.", e.args[0])

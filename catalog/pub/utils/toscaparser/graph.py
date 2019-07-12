@@ -21,7 +21,7 @@ class Graph(object):
     def __init__(self, graph_dict=None):
         self.graph = OrderedDict()
         if graph_dict:
-            for node, dep_nodes in graph_dict.iteritems():
+            for node, dep_nodes in list(graph_dict.items()):
                 self.add_node(node, dep_nodes)
 
     def add_node(self, node, dep_nodes):
@@ -67,7 +67,7 @@ class Graph(object):
 
     def to_dict(self):
         dict = {}
-        for node, dependents in self.graph.iteritems():
+        for node, dependents in self.graph.items():
             dict[node] = []
             for dep in dependents:
                 dict[node].append(dep)

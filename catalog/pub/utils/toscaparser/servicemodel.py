@@ -54,7 +54,7 @@ class SdcServiceModel(BaseInfoModel):
         self.ns = self._build_ns(tosca)
         self.inputs = self.buildInputs(tosca)
         if hasattr(tosca, 'nodetemplates'):
-            nodeTemplates = map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates)
+            nodeTemplates = list(map(functools.partial(self.buildNode, tosca=tosca), tosca.nodetemplates))
             types = tosca.topology_template.custom_defs
             self.basepath = self.get_base_path(tosca)
             self.vnfs = self._get_all_vnf(nodeTemplates, types)
@@ -166,7 +166,7 @@ class SdcServiceModel(BaseInfoModel):
         rets = []
         if 'requirements' in node and self.isNodeTypeX(node, node_types, VF_TYPE):
             for item in node['requirements']:
-                for key, value in item.items():
+                for key, value in list(item.items()):
                     rets.append({"key_name": key, "vl_id": self.get_requirement_node_name(value)})
         return rets
 

@@ -73,10 +73,8 @@ def nsd_subscription_rc(request):
                           NsdmSubscriptionRequestSerializer)
         subscription = NsdmSubscription().create(
             nsdm_subscription_request.data)
-        subscription_resp = validate_data(subscription,
-                                          NsdmSubscriptionSerializer)
-        return Response(data=subscription_resp.data,
-                        status=status.HTTP_201_CREATED)
+        validate_data(subscription, NsdmSubscriptionSerializer)
+        return Response(data=subscription, status=status.HTTP_201_CREATED)
 
     if request.method == 'GET':
         logger.debug("Subscription Notification GET %s" % request.query_params)

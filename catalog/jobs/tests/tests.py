@@ -29,7 +29,7 @@ class JobsViewTest(TestCase):
         JobModel(jobid=self.job_id, jobtype='VNF', jobaction='INST', resid='1').save()
         JobStatusModel(indexid=1, jobid=self.job_id, status='inst', errcode='0', progress=20, descp='inst').save()
         response = self.client.get("/api/catalog/v1/jobs/%s" % self.job_id)
-        self.failUnlessEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
     def test_job_when_jobid_not_exist(self):
         job_id = 'test_new_job_id'

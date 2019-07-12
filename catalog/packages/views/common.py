@@ -59,61 +59,61 @@ def view_safe_call_with_log(logger):
             try:
                 return func(*args, **kwargs)
             except NsdmDuplicateSubscriptionException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_303_SEE_OTHER
                 )
             except VnfPkgDuplicateSubscriptionException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_303_SEE_OTHER
                 )
             except PackageNotFoundException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_404_NOT_FOUND
                 )
             except ResourceNotFoundException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_404_NOT_FOUND
                 )
             except ArtifactNotFoundException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_404_NOT_FOUND
                 )
             except BadRequestException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_400_BAD_REQUEST
                 )
             except NsdmBadRequestException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_400_BAD_REQUEST
                 )
             except VnfPkgSubscriptionException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             except CatalogException as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 return make_error_resp(
-                    detail=e.message,
+                    detail=e.args[0],
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             except Exception as e:
-                logger.error(e.message)
+                logger.error(e.args[0])
                 logger.error(traceback.format_exc())
                 return make_error_resp(
                     detail='Unexpected exception',

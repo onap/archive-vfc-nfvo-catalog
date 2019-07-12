@@ -37,6 +37,9 @@ class TestNsdmSubscription(TestCase):
                     "userName": "username",
                     "password": "password"
                 }
+            },
+            "filter": {
+                "nsdId": ["b632bddc-abcd-4180-bd8d-4e8a9578eff7"],
             }
         }
         self.links = {

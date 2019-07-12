@@ -152,7 +152,7 @@ class QuerySubscription(object):
         query_data = {}
         logger.debug("QuerySubscription--get--multi--subscriptions--biz::> Check "
                      "for filters in query params %s" % params)
-        for query, value in params.iteritems():
+        for query, value in list(params.items()):
             if query in ROOT_FILTERS:
                 query_data[ROOT_FILTERS[query] + '__icontains'] = value
         # Query the database with filters if the request has fields in request params, else fetch all records
