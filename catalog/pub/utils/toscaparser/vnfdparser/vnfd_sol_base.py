@@ -15,6 +15,7 @@
 import functools
 import logging
 import os
+import base64
 
 
 logger = logging.getLogger(__name__)
@@ -118,14 +119,16 @@ class VnfdSOLBase():
                     if isinstance(inject_files, list):
                         for inject_file in inject_files:
                             source_path = os.path.join(self.model.basepath, inject_file['source_path'])
-                            with open(source_path, "rt") as f:
+                            with open(source_path, "rb") as f:
                                 source_data = f.read()
-                                inject_file["source_data_base64"] = source_data
+                                source_data_base64 = base64.b64encode(source_data)
+                                inject_file["source_data_base64"] = source_data_base64.decode()
                     if isinstance(inject_files, dict):
                         source_path = os.path.join(self.model.basepath, inject_files['source_path'])
-                        with open(source_path, "rt") as f:
+                        with open(source_path, "rb") as f:
                             source_data = f.read()
-                            inject_files["source_data_base64"] = source_data
+                            source_data_base64 = base64.b64encode(source_data)
+                            inject_files["source_data_base64"] = source_data_base64.decode()
                 virtual_storages = self.model.getRequirementByName(node, 'virtual_storage')
                 ret['virtual_storages'] = list(map(functools.partial(self._trans_virtual_storage), virtual_storages))
                 ret['dependencies'] = [self.model.get_requirement_node_name(x) for x in self.model.getNodeDependencys(node)]
