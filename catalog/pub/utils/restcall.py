@@ -18,6 +18,7 @@ import logging
 import urllib
 import uuid
 import httplib2
+import base64
 
 from catalog.pub.config.config import MSB_SERVICE_IP, MSB_SERVICE_PORT
 
@@ -39,7 +40,7 @@ def call_req(base_url, user, passwd, auth_type, resource, method, content='', ad
         full_url = combine_url(base_url, resource)
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
         if user:
-            headers['Authorization'] = 'Basic ' + ('%s:%s' % (user, passwd)).encode("base64")
+            headers['Authorization'] = 'Basic %s' % base64.b64encode(bytes('%s:%s' % (user, passwd), "utf-8")).decode()
         ca_certs = None
         if additional_headers:
             headers.update(additional_headers)
