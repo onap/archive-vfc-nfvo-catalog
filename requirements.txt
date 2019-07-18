@@ -26,7 +26,7 @@ unittest_xml_reporting==1.12.0
 nfv-toscaparser==1.1.2.dev2
 
 # for auto swagger
-drf-yasg>=1.2.2
+drf-yasg==1.16.0
 flex>=6.11.1
 swagger-spec-validator>=2.1.0
 
