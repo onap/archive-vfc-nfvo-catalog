@@ -213,9 +213,9 @@ class TestPnfDescriptor(TestCase):
         resp = self.client.get("/api/nsd/v1/pnf_descriptors/22/pnfd_content")
         file_content = ""
         for data in resp.streaming_content:
-            file_content = '%s%s' % (file_content, data)
+            file_content = '%s%s' % (file_content, data.decode())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual("b'test1test2'", file_content)
+        self.assertEqual("test1test2", file_content)
         os.remove('pnfd_content.txt')
 
     def test_pnfd_download_failed(self):

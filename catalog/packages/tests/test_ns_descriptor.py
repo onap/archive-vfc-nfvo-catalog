@@ -218,9 +218,9 @@ class TestNsDescriptor(TestCase):
         )
         file_content = ""
         for data in response.streaming_content:
-            file_content = '%s%s' % (file_content, data)
+            file_content = '%s%s' % (file_content, data.decode())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual("b'test1test2'", file_content)
+        self.assertEqual("test1test2", file_content)
         os.remove('nsd_content.txt')
 
     def test_nsd_content_download_when_ns_not_exist(self):
@@ -253,9 +253,9 @@ class TestNsDescriptor(TestCase):
         )
         partial_file_content = ''
         for data in response.streaming_content:
-            partial_file_content = '%s%s' % (partial_file_content, data)
+            partial_file_content = '%s%s' % (partial_file_content, data.decode())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual("b'test2'", partial_file_content)
+        self.assertEqual("test2", partial_file_content)
         os.remove('nsd_content.txt')
 
     @mock.patch.object(NsDescriptor, 'create')

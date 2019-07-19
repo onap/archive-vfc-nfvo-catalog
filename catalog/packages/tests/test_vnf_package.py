@@ -256,9 +256,9 @@ class TestVnfPackage(TestCase):
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content", HTTP_RANGE="4-7")
         partial_file_content = ''
         for data in response.streaming_content:
-            partial_file_content = partial_file_content.encode() + data
+            partial_file_content = partial_file_content + data.decode()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(b'BBB', partial_file_content)
+        self.assertEqual('BBB', partial_file_content)
         os.remove("vnfPackage.csar")
 
     def test_fetch_last_partical_vnf_pkg(self):
@@ -272,9 +272,9 @@ class TestVnfPackage(TestCase):
         response = self.client.get("/api/vnfpkgm/v1/vnf_packages/222/package_content", HTTP_RANGE=" 4-")
         partial_file_content = ''
         for data in response.streaming_content:
-            partial_file_content = partial_file_content.encode() + data
+            partial_file_content = partial_file_content + data.decode()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(b'BBBBCCCCDDDD', partial_file_content)
+        self.assertEqual('BBBBCCCCDDDD', partial_file_content)
         os.remove("vnfPackage.csar")
 
     def test_fetch_vnf_pkg_when_pkg_not_exist(self):
