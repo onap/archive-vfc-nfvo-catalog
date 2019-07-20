@@ -91,7 +91,7 @@ class VnfdSOL251():
                 vl['properties'] = node['properties']
                 vlp = vl['properties']
                 nodep = node['properties']
-                vlp['connectivity_type']['layer_protocol'] = nodep['connectivity_type']['layer_protocols']
+                vlp['connectivity_type']['layer_protocol'] = nodep['connectivity_type']['layer_protocols'][0]
                 vlp['vl_profile']['max_bit_rate_requirements'] = nodep['vl_profile']['max_bitrate_requirements']
                 vlp['vl_profile']['min_bit_rate_requirements'] = nodep['vl_profile']['min_bitrate_requirements']
                 if 'virtual_link_protocol_data' in nodep['vl_profile']:
