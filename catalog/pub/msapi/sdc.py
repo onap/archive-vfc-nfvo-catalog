@@ -16,10 +16,10 @@ import json
 import logging
 import os
 
-from catalog.pub.exceptions import CatalogException
-from catalog.pub.utils import restcall
-from catalog.pub.utils import fileutil
 from catalog.pub.config.config import SDC_BASE_URL, SDC_USER, SDC_PASSWD
+from catalog.pub.exceptions import CatalogException
+from catalog.pub.utils import fileutil
+from catalog.pub.utils import restcall
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +81,19 @@ def get_artifact(asset_type, csar_id):
             else:
                 return artifact
     raise CatalogException("Failed to query artifact(%s,%s) from sdc." % (asset_type, csar_id))
+
+
+def get_asset(asset_type, uuid):
+    resource = "/sdc/v1/catalog/{assetType}/{uuid}/metadata".format(assetType=asset_type, uuid=uuid)
+    ret = call_sdc(resource, "GET")
+    if ret[0] != 0:
+        logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
+        raise CatalogException("Failed to get asset(%s, %s) from sdc." % (asset_type, uuid))
+    asset = json.JSONDecoder().decode(ret[1])
+    if asset.get("distributionStatus", None) != DISTRIBUTED:
+        raise CatalogException("The asset (%s,%s) is not distributed from sdc." % (asset_type, uuid))
+    else:
+        return asset
 
 
 def delete_artifact(asset_type, asset_id, artifact_id):

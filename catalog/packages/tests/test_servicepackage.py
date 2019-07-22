@@ -249,6 +249,37 @@ class TestServicePackage(TestCase):
                 "name": "Enhance_Service"
             }
         }
+        self.asset_data = {
+            "uuid": "1",
+            "invariantUUID": "63eaec39-ffbe-411c-a838-448f2c73f7eb",
+            "name": "underlayvpn",
+            "version": "2.0",
+            "toscaModelURL": "/sdc/v1/catalog/resources/c94490a0-f7ef-48be-b3f8-8d8662a37236/toscaModel",
+            "category": "Volte",
+            "subCategory": "VolteVNF",
+            "resourceType": "VF",
+            "lifecycleState": "CERTIFIED",
+            "distributionStatus": "DISTRIBUTION_APPROVED",
+            "lastUpdaterUserId": "jh0003",
+            "resources": [
+                {
+                    "resourceInstanceName": "contrailV2VLANSubInterface 0",
+                    "resourceName": "contrailV2VLANSubInterface",
+                    "resourceInvariantUUID": "4d31b775-af63-491d-89f1-254e218e7140",
+                    "resourceVersion": "1.0",
+                    "resoucreType": "CP",
+                    "resourceUUID": "cd557883-ac4b-462d-aa01-421b5fa606b1"
+                },
+                {
+                    "resourceInstanceName": "Network 0",
+                    "resourceName": "Network",
+                    "resourceInvariantUUID": "f90f567e-7d7d-4216-af38-6bca0637c59f",
+                    "resourceVersion": "1.0",
+                    "resoucreType": "VL",
+                    "resourceUUID": "m6000_s"
+                }
+            ]
+        }
 
     def tearDown(self):
         pass
@@ -263,9 +294,9 @@ class TestServicePackage(TestCase):
         except PackageHasExistsException as e:
             self.assertEqual("Service CSAR(1) already exists.", e.args[0])
 
-    @mock.patch.object(sdc, 'get_artifact')
-    def test_service_pkg_distribute_when_fail_get_artifacts(self, mock_get_artifact):
-        mock_get_artifact.side_effect = CatalogException("Failed to query artifact(services,1) from sdc.")
+    @mock.patch.object(sdc, 'get_asset')
+    def test_service_pkg_distribute_when_fail_get_artifacts(self, mock_get_asset):
+        mock_get_asset.side_effect = CatalogException("Failed to query artifact(services,1) from sdc.")
         csar_id = "1"
         try:
             ServicePackage().on_distribute(csar_id)
@@ -273,51 +304,42 @@ class TestServicePackage(TestCase):
             self.assertTrue(isinstance(e, CatalogException))
             self.assertEqual("Failed to query artifact(services,1) from sdc.", e.args[0])
 
-    @mock.patch.object(sdc, 'get_artifact')
+    @mock.patch.object(sdc, 'get_asset')
+    def test_service_pkg_distribute_when_resource_not_distribute(self, mock_get_asset):
+        mock_get_asset.return_value = self.asset_data
+        csar_id = "1"
+        try:
+            ServicePackage().on_distribute(csar_id)
+        except Exception as e:
+            self.assertTrue(isinstance(e, CatalogException))
+            self.assertEqual("Resource (cd557883-ac4b-462d-aa01-421b5fa606b1) is not distributed.", e.args[0])
+
+    @mock.patch.object(sdc, 'get_asset')
     @mock.patch.object(sdc, 'download_artifacts')
-    def test_service_pkg_distribute_when_fail_download_artifacts(self, mock_get_artifact, mock_download_artifacts):
-        mock_get_artifact.return_value = {
-            "uuid": "1",
-            "invariantUUID": "63eaec39-ffbe-411c-a838-448f2c73f7eb",
-            "name": "underlayvpn",
-            "version": "2.0",
-            "toscaModelURL": "/sdc/v1/catalog/resources/c94490a0-f7ef-48be-b3f8-8d8662a37236/toscaModel",
-            "category": "Volte",
-            "subCategory": "VolteVNF",
-            "resourceType": "VF",
-            "lifecycleState": "CERTIFIED",
-            "distributionStatus": "DISTRIBUTION_APPROVED",
-            "lastUpdaterUserId": "jh0003"
-        }
+    def test_service_pkg_distribute_when_fail_download_artifacts(self, mock_get_asset, mock_download_artifacts):
+        mock_get_asset.return_value = self.asset_data
         mock_download_artifacts.side_effect = CatalogException("Failed to download 1 from sdc.")
         csar_id = "1"
+        VnfPackageModel(vnfPackageId="cd557883-ac4b-462d-aa01-421b5fa606b1",
+                        vnfdId="cd557883-ac4b-462d-aa01-421b5fa606b1").save()
+        PnfPackageModel(pnfPackageId="m6000_s", pnfdId="m6000_s").save()
+
         try:
             ServicePackage().on_distribute(csar_id)
         except Exception as e:
             self.assertTrue(isinstance(e, CatalogException))
             self.assertEqual("Failed to download 1 from sdc.", e.args[0])
 
-    @mock.patch.object(sdc, 'get_artifact')
+    @mock.patch.object(sdc, 'get_asset')
     @mock.patch.object(sdc, 'download_artifacts')
     @mock.patch.object(toscaparser, 'parse_sd')
-    def test_service_pkg_distribute(self, mock_parse_sd, mock_download_artifacts, mock_get_artifact):
+    def test_service_pkg_distribute(self, mock_parse_sd, mock_download_artifacts, mock_get_asset):
         mock_parse_sd.return_value = json.JSONEncoder().encode(self.sd_data)
         mock_download_artifacts.return_value = "/test.csar"
-        mock_get_artifact.return_value = {
-            "uuid": "1",
-            "invariantUUID": "63eaec39-ffbe-411c-a838-448f2c73f7eb",
-            "name": "underlayvpn",
-            "version": "2.0",
-            "toscaModelURL": "/sdc/v1/catalog/resources/c94490a0-f7ef-48be-b3f8-8d8662a37236/toscaModel",
-            "category": "Volte",
-            "subCategory": "VolteVNF",
-            "resourceType": "VF",
-            "lifecycleState": "CERTIFIED",
-            "distributionStatus": "DISTRIBUTION_APPROVED",
-            "lastUpdaterUserId": "jh0003"
-        }
-        VnfPackageModel(vnfPackageId="1", vnfdId="cd557883-ac4b-462d-aa01-421b5fa606b1").save()
-        PnfPackageModel(pnfPackageId="1", pnfdId="m6000_s").save()
+        mock_get_asset.return_value = self.asset_data
+        VnfPackageModel(vnfPackageId="cd557883-ac4b-462d-aa01-421b5fa606b1",
+                        vnfdId="cd557883-ac4b-462d-aa01-421b5fa606b1").save()
+        PnfPackageModel(pnfPackageId="m6000_s", pnfdId="m6000_s").save()
         ServicePackage().on_distribute(csar_id="1")
 
         service_package = ServicePackageModel.objects.filter(servicePackageId="1").first()

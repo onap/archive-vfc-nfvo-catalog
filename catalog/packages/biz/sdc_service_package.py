@@ -19,7 +19,7 @@ from coverage.xmlreport import os
 
 from catalog.packages.biz.service_descriptor import ServiceDescriptor
 from catalog.pub.config.config import CATALOG_ROOT_PATH, REG_TO_MSB_REG_PARAM, CATALOG_URL_PATH
-from catalog.pub.database.models import ServicePackageModel
+from catalog.pub.database.models import ServicePackageModel, VnfPackageModel, PnfPackageModel
 from catalog.pub.exceptions import CatalogException, PackageNotFoundException, \
     PackageHasExistsException
 from catalog.pub.msapi import sdc
@@ -41,10 +41,20 @@ class ServicePackage(object):
             raise PackageHasExistsException("Service CSAR(%s) already exists." % csar_id)
 
         try:
-            artifact = sdc.get_artifact(sdc.ASSETTYPE_SERVICES, csar_id)
+            service = sdc.get_asset(sdc.ASSETTYPE_SERVICES, csar_id)
+            # check if the related resources exist
+            resources = service.get('resources', None)
+            if resources:
+                for resource in resources:
+                    if not VnfPackageModel.objects.filter(vnfPackageId=resource['resourceUUID']) and \
+                            not PnfPackageModel.objects.filter(pnfPackageId=resource['resourceUUID']):
+                        logger.error("Resource [%s] is not distributed.", resource['resourceUUID'])
+                        raise CatalogException("Resource (%s) is not distributed." % resource['resourceUUID'])
+
+            # download csar package
             local_path = os.path.join(CATALOG_ROOT_PATH, csar_id)
-            csar_name = "%s.csar" % artifact.get("name", csar_id)
-            local_file_name = sdc.download_artifacts(artifact["toscaModelURL"], local_path, csar_name)
+            csar_name = "%s.csar" % service.get("name", csar_id)
+            local_file_name = sdc.download_artifacts(service["toscaModelURL"], local_path, csar_name)
             if local_file_name.endswith(".csar") or local_file_name.endswith(".zip"):
                 fileutil.unzip_file(local_file_name, local_path, "")
             data = {
