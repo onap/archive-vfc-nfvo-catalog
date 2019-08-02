@@ -27,7 +27,7 @@ nfv-toscaparser==1.1.2.dev2
 
 # for auto swagger
 ruamel.yaml==0.15.97
-drf-yasg==1.14.0
+drf-yasg==1.16.0
 flex>=6.11.1
 swagger-spec-validator>=2.1.0
 
