@@ -15,7 +15,8 @@
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from catalog.pub.config.config import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL, REG_TO_MSB_REG_PARAM
+from catalog.pub.config.config import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL, REG_TO_MSB_REG_PARAM, \
+    MSB_SVC_CALALOG_URL, MSB_SVC_NSD_URL, MSB_SVC_VNFPKGM_URL
 
 urlpatterns = [
     url(r'^api/catalog/v1/admin', admin.site.urls),
@@ -30,4 +31,7 @@ if REG_TO_MSB_WHEN_START:
     import json
     from catalog.pub.utils.restcall import req_by_msb
     for reg_param in REG_TO_MSB_REG_PARAM:
+        req_by_msb(MSB_SVC_CALALOG_URL, "DELETE")
+        req_by_msb(MSB_SVC_NSD_URL, "DELETE")
+        req_by_msb(MSB_SVC_VNFPKGM_URL, "DELETE")
         req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(reg_param))

@@ -70,6 +70,9 @@ REG_TO_MSB_REG_PARAM = [{
         "ttl": 0
     }]
 }]
+MSB_SVC_CALALOG_URL = "/api/microservices/v1/services/catalog/version/v1"
+MSB_SVC_NSD_URL = "/api/microservices/v1/services/nsd/version/v1"
+MSB_SVC_VNFPKGM_URL = "/api/microservices/v1/services/vnfpkgm/version/v1"
 
 # catalog path(values is defined in settings.py)
 CATALOG_ROOT_PATH = None
