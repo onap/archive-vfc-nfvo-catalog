@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f753aceb_7045ce24",
+        "filename": "catalog/urls.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1389
+      },
+      "writtenOn": "2019-08-20T07:30:14Z",
+      "side": 1,
+      "message": "Move the three lines outside the for loop",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 49
+      },
+      "revId": "ced20b9a0cc35ca6ffa4c6495546735daf410dd2",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
