@@ -57,6 +57,10 @@ class NsDescriptor(object):
         logger.info('A NSD(%s) has been created.' % data['id'])
         return data
 
+    def update(self, data, nsd_info_id):
+        usageState = PKG_STATUS.IN_USE if data["usageState"] else PKG_STATUS.NOT_IN_USE
+        NSPackageModel.objects.filter(nsPackageId=nsd_info_id).update(usageState=usageState)
+
     def query_multiple(self, nsdId=None):
         if nsdId:
             ns_pkgs = NSPackageModel.objects.filter(nsdId=nsdId)

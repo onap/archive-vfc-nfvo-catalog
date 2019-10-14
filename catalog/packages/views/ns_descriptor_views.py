@@ -137,3 +137,21 @@ def nsd_content_ru(request, **kwargs):
         file_range = request.META.get('HTTP_RANGE')
         file_iterator = NsDescriptor().download(nsd_info_id, file_range)
         return StreamingHttpResponse(file_iterator, status=status.HTTP_200_OK)
+
+
+@swagger_auto_schema(
+    method='PUT',
+    operation_description="Update a NSD",
+    request_body=no_body,
+    responses={
+        status.HTTP_202_ACCEPTED: "Successfully",
+        status.HTTP_500_INTERNAL_SERVER_ERROR: "Internal error"
+    }
+)
+@api_view(http_method_names=['PUT'])
+@view_safe_call_with_log(logger=logger)
+def ns_descriptors_u(request, **kwargs):
+    if request.method == 'PUT':
+        nsd_info_id = kwargs.get("nsdInfoId")
+        NsDescriptor().update(request.data, nsd_info_id)
+        return Response(data=None, status=status.HTTP_202_ACCEPTED)
