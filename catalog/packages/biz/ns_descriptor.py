@@ -89,10 +89,10 @@ class NsDescriptor(object):
         if ns_pkgs[0].operationalState != PKG_STATUS.DISABLED:
             logger.error('NSD(%s) shall be DISABLED.' % nsd_info_id)
             raise CatalogException('NSD(%s) shall be DISABLED.' % nsd_info_id)
+        '''
         if ns_pkgs[0].usageState != PKG_STATUS.NOT_IN_USE:
             logger.error('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
             raise CatalogException('NSD(%s) shall be NOT_IN_USE.' % nsd_info_id)
-        '''
         ns_pkgs.delete()
         ns_pkg_path = os.path.join(CATALOG_ROOT_PATH, nsd_info_id)
         fileutil.delete_dirs(ns_pkg_path)
