@@ -66,6 +66,9 @@ class NsDescriptor(object):
             ns_pkgs = NSPackageModel.objects.filter(nsdId=nsdId)
         else:
             ns_pkgs = NSPackageModel.objects.all()
+        if not ns_pkgs.exists():
+            logger.debug("NSD infos does not exist.")
+            return []
         response_data = []
         for ns_pkg in ns_pkgs:
             data = self.fill_resp_data(ns_pkg)
