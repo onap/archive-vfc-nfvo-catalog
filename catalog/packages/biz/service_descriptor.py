@@ -20,7 +20,7 @@ import uuid
 from catalog.packages.const import PKG_STATUS
 from catalog.pub.config.config import CATALOG_ROOT_PATH
 from catalog.pub.database.models import ServicePackageModel, VnfPackageModel, PnfPackageModel
-from catalog.pub.exceptions import CatalogException, PackageNotFoundException
+from catalog.pub.exceptions import CatalogException
 from catalog.pub.utils import toscaparser, fileutil
 from catalog.pub.utils.values import ignore_case_get
 
@@ -121,8 +121,8 @@ class ServiceDescriptor(object):
         logger.info('Start to delete ServiceD(%s)...' % serviced_info_id)
         service_pkgs = ServicePackageModel.objects.filter(servicePackageId=serviced_info_id)
         if not service_pkgs.exists():
-            logger.warn('ServiceD(%s) not found.' % serviced_info_id)
-            raise PackageNotFoundException("Service package[%s] not Found." % serviced_info_id)
+            logger.info('ServiceD(%s) not found.' % serviced_info_id)
+            return
         service_pkgs.delete()
         service_pkg_path = os.path.join(CATALOG_ROOT_PATH, serviced_info_id)
         fileutil.delete_dirs(service_pkg_path)
