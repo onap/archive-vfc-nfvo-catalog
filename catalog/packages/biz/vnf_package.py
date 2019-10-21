@@ -61,6 +61,9 @@ class VnfPackage(object):
     def query_multiple(self):
         pkgs_info = []
         nf_pkgs = VnfPackageModel.objects.filter()
+        if not nf_pkgs.exists():
+            logger.debug("VNF infos does not exist.")
+            return []
         for nf_pkg in nf_pkgs:
             ret = fill_response_data(nf_pkg)
             pkgs_info.append(ret)

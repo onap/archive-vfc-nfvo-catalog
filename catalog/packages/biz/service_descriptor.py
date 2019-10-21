@@ -121,8 +121,8 @@ class ServiceDescriptor(object):
         logger.info('Start to delete ServiceD(%s)...' % serviced_info_id)
         service_pkgs = ServicePackageModel.objects.filter(servicePackageId=serviced_info_id)
         if not service_pkgs.exists():
-            logger.warn('ServiceD(%s) not found.' % serviced_info_id)
-            raise PackageNotFoundException("Service package[%s] not Found." % serviced_info_id)
+            logger.info('ServiceD(%s) not found.' % serviced_info_id)
+            return
         service_pkgs.delete()
         service_pkg_path = os.path.join(CATALOG_ROOT_PATH, serviced_info_id)
         fileutil.delete_dirs(service_pkg_path)
