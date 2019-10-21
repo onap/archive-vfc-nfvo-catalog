@@ -36,3 +36,6 @@ onappylog==1.0.9
 
 # uwsgi for parallel processing
 # uwsgi
+
+# Demaap-lib
+apscheduler
