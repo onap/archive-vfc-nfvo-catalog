@@ -59,6 +59,9 @@ class PnfDescriptor(object):
             pnf_pkgs = PnfPackageModel.objects.filter(pnfdId=pnfdId)
         else:
             pnf_pkgs = PnfPackageModel.objects.all()
+        if not pnf_pkgs.exists():
+            logger.debug("PNFD infos does not exist.")
+            return []
         response_data = []
         for pnf_pkg in pnf_pkgs:
             data = self.fill_response_data(pnf_pkg)
@@ -141,34 +144,19 @@ class PnfDescriptor(object):
         pnfdProvider = ""
         pnfdName = ""
         if pnfd.get("pnf", "") != "":
-            if pnfd["pnf"].get("properties", "") != "":
-                pnfd_id = pnfd["pnf"].get("properties", {}).get("descriptor_id", "")
-                pnfdVersion = pnfd["pnf"].get("properties", {}).get("version", "")
-                pnfdProvider = pnfd["pnf"].get("properties", {}).get("provider", "")
-                pnfdName = pnfd["pnf"].get("properties", {}).get("name", "")
+            if pnfd["pnf"].get("properties"):
+                properties = pnfd["pnf"]["properties"]
+                pnfd_id = properties.get("descriptor_id", "")
+                pnfdVersion = properties.get("version", "")
+                pnfdProvider = properties.get("provider", "")
+                pnfdName = properties.get("name", "")
+        pnfd_id = self.extract_metadata(pnfd, ["descriptor_id", "id", "UUID"], pnfd_id)
         if pnfd_id == "":
-            pnfd_id = pnfd["metadata"].get("descriptor_id", "")
-            if pnfd_id == "":
-                pnfd_id = pnfd["metadata"].get("id", "")
-            if pnfd_id == "":
-                pnfd_id = pnfd["metadata"].get("UUID", "")
-            if pnfd_id == "":
-                raise CatalogException('pnfd_id is Null.')
+            raise CatalogException('pnfd_id is Null.')
 
-        if pnfdVersion == "":
-            pnfdVersion = pnfd["metadata"].get("template_version", "")
-            if pnfdVersion == "":
-                pnfdVersion = pnfd["metadata"].get("version", "")
-
-        if pnfdProvider == "":
-            pnfdProvider = pnfd["metadata"].get("template_author", "")
-            if pnfdVersion == "":
-                pnfdVersion = pnfd["metadata"].get("provider", "")
-
-        if pnfdName == "":
-            pnfdName = pnfd["metadata"].get("template_name", "")
-            if pnfdVersion == "":
-                pnfdName = pnfd["metadata"].get("name", "")
+        pnfdVersion = self.extract_metadata(pnfd, ["template_version", "version"], pnfdVersion)
+        pnfdProvider = self.extract_metadata(pnfd, ["template_author", "provider"], pnfdProvider)
+        pnfdName = self.extract_metadata(pnfd, ["template_name", "name"], pnfdName)
 
         other_pnf = PnfPackageModel.objects.filter(pnfdId=pnfd_id)
         if other_pnf and other_pnf[0].pnfPackageId != pnfd_info_id:
@@ -187,6 +175,15 @@ class PnfDescriptor(object):
             pnfdModel=pnfd_json
         )
         logger.info('PNFD(%s) has been processed.' % pnfd_info_id)
+
+    def extract_metadata(self, contents, key_list, result):
+        if result:
+            return result
+        for k in key_list:
+            result = contents["metadata"].get(k)
+            if result:
+                return result
+        return ""
 
     def fill_response_data(self, pnf_pkg):
         data = {
