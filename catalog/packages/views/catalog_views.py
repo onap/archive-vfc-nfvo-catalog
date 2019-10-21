@@ -108,6 +108,7 @@ def nspackages_rc(request, *args, **kwargs):
     request_body=no_body,
     responses={
         status.HTTP_200_OK: NfPackagesSerializer,
+        status.HTTP_202_ACCEPTED: PostJobResponseSerializer,
         status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @api_view(http_method_names=['POST', 'GET'])
 def nfpackages_rc(request, *args, **kwargs):
@@ -396,6 +397,8 @@ def nf_rd_csar(request, *args, **kwargs):
     request_body=ParseModelRequestSerializer,
     responses={
         status.HTTP_202_ACCEPTED: ParseModelResponseSerializer,
+        status.HTTP_400_BAD_REQUEST: InternalErrorRequestSerializer(),
+        status.HTTP_404_NOT_FOUND: InternalErrorRequestSerializer(),
         status.HTTP_500_INTERNAL_SERVER_ERROR: InternalErrorRequestSerializer})
 @api_view(http_method_names=['POST'])
 def model_parser(request, *args, **kwargs):
