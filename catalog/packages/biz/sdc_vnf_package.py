@@ -217,6 +217,9 @@ class NfPackage(object):
     def get_csars(self):
         csars = []
         nf_pkgs = VnfPackageModel.objects.filter()
+        if not nf_pkgs.exists():
+            logger.debug("NF package infos does not exist.")
+            return []
         for nf_pkg in nf_pkgs:
             ret = self.get_csar(nf_pkg.vnfPackageId)
             csars.append(ret[1])
