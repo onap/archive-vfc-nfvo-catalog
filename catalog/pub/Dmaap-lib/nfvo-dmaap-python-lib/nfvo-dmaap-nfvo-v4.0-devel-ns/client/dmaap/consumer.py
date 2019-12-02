@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 
 
 class ConsumerClient:
-    def __init__(self, host, topic, consumer_group, consumer_id, timeout_ms=-1, limit=-1, filter=''):
+    def __init__(self, host, topic, consumer_group, consumer_id, timeout_ms=-1, limit=-1, filter='',
+                 api_key='', api_secret=''):
         self.host = host
         self.topic = topic
         self.group = consumer_group
@@ -32,8 +33,11 @@ class ConsumerClient:
         self.timeout_ms = timeout_ms
         self.limit = limit
         self.filter = filter
+        self.api_key = api_key
+        self.api_secret = api_secret
 
     def set_api_credentials(self, api_key, api_secret):
+
         self.api_key = api_key
         self.api_secret = api_secret
 
