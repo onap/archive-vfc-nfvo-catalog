@@ -135,6 +135,11 @@ class NsDescriptor(object):
 
         nsd_json = toscaparser.parse_nsd(local_file_name)
         logger.debug("%s", nsd_json)
+        """
+        {"vnffgs": [], "inputs": {}, "pnfs": [], "description": "VCPE Network Service", "graph": {"vgw": [], "vcpe_public_net": ["vgw"]}, "basepath": "/tmp/tmpZ7m7zk", "vnfs": [{"networks": [{"key_name": "virtual_link_public", "vl_id":"vcpe_public_net"}], "dependencies": [{"key_name": "virtual_link_public", "vl_id": "vcpe_public_net"}], "vnf_id": "vgw", "description": "", "properties": {"descriptor_id": "b1bb0ce7-2222-4fa7-95ed-4840d70a1177", "vnfm_info": ["gvnfmdriver"], "software_version": "1.0", "flavour_description": "simple", "descriptor_version": "1.0", "provider": "onap", "id": "b1bb0ce7-2222-4fa7-95ed-4840d70a1177", "flavour_id": "simple", "product_name": "vcpe_vgw"}}], "ns_exposed": {}, "fps": [], "vls": [{"vl_id": "vcpe_public_net", "description": "", "properties": {"connectivity_type": {"layer_protocol": "ipv4"}, "vl_profile": {"cidr": "10.0.0.0/16", "max_bit_rate_requirements": {"root": 10000000, "leaf": 10000000}, "networkName": "oam_onap", "min_bit_rate_requirements": {"root": 10000000, "leaf": 10000000}, "dhcpEnabled": false}, "version": "1.0.0"}}], "ns": {"requirements": {}, "properties": {"descriptor_id": "ffdddc5d-a44b-45ae-8fc3-e6551cce350f", "designer": "ONAP", "invariant_id": "c3887fb3-d1b2-477f-86c4-fd641ee9a7cf", "name": "vcpe", "verison": "1.0.0"}, "capabilities": {}, "metadata": {"nsd_file_structure_version": "1.0.0", "nsd_invariant_id": "c3887fb3-d1b2-477f-86c4-fd641ee9a7cf", "nsd_designer": "ONAP", "nsd_id": "ffdddc5d-a44b-45ae-8fc3-e6551cce350f", "nsd_release_date_time": "2018-11-05 12:00:00", "nsd_name": "vcpe"}}, "nested_ns": [], "metadata": {"nsd_file_structure_version": "1.0.0", "nsd_invariant_id": "c3887fb3-d1b2-477f-86c4-fd641ee9a7cf", "nsd_designer": "ONAP", "nsd_id": "ffdddc5d-a44b-45ae-8fc3-e6551cce350f", "nsd_release_date_time": "2018-11-05 12:00:00", "nsd_name": "vcpe"}}
+2019-11-26 01:33:39,032:[catalog.packages.biz.ns_descriptor]:[ns_descriptor.py]-[154] [ERROR]:[vgw] is not distributed.
+
+        """
         nsd = json.JSONDecoder().decode(nsd_json)
 
         nsd_id = nsd.get("ns", {}).get("properties", {}).get("descriptor_id", "")
