@@ -39,7 +39,7 @@ class IdentityClient:
             ret = ret.json()
             resp_data = {
                 'apiKey': ret.get('key', ''),
-                'apiSecret': ret.get('secret', '')
+                'apiSecret': ret.get('secret', ''),
             }
             return resp_data
         except Exception as e:

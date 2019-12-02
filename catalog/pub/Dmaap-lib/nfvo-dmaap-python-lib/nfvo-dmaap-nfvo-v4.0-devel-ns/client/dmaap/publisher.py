@@ -38,6 +38,7 @@ class BatchPublisherClient:
         self.closed = False
         self.dont_send_until_ms = 0
         self.scheduler = Scheduler(standalone=False)
+        self.api_key=''
 
         @self.scheduler.interval_schedule(second=1)
         def crawl_job():
