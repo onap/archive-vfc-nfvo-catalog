@@ -22,7 +22,8 @@ realtime_discussion: ''
 meetings:
     - type: 'zoom'
       agenda: 'https://wiki.onap.org/pages/viewpage.action?pageId=6590138'
-      url: 'https://wiki.onap.org/display/DW/Virtual+Function+Controller+Project'
+      url: 'https://wiki.onap.org/display/DW/Virtual+Function+Controller+
+            Project'
       server: 'n/a'
       channel: 'n/a'
       repeats: 'weekly'
