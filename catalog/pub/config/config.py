@@ -13,8 +13,11 @@
 # limitations under the License.
 
 # [MSB]
+
+MSB_SERVICE_PROTOCOL = 'http'
 MSB_SERVICE_IP = '127.0.0.1'
 MSB_SERVICE_PORT = '443'
+MSB_BASE_URL = "%s://%s:%s" % (MSB_SERVICE_PROTOCOL, MSB_SERVICE_IP, MSB_SERVICE_PORT)
 
 # [REDIS]
 REDIS_HOST = '127.0.0.1'
@@ -82,5 +85,11 @@ CATALOG_URL_PATH = None
 SDC_BASE_URL = "http://msb-iag/api"
 SDC_USER = "aai"
 SDC_PASSWD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"
+
+# [aai config]
+AAI_BASE_URL = "http://10.0.14.1:80/aai/v11"
+AAI_USER = "AAI"
+AAI_PASSWD = "AAI"
+REPORT_TO_AAI = True
 
 VNFD_SCHEMA_VERSION_DEFAULT = "base"

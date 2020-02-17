@@ -132,7 +132,8 @@ STATICFILES_DIRS = [
 
 pub_config.CATALOG_ROOT_PATH = os.path.join(STATICFILES_DIRS[0], "catalog")
 pub_config.CATALOG_URL_PATH = "static/catalog"
-pub_config.SDC_BASE_URL = "https://%s:%s/api" % (pub_config.MSB_SERVICE_IP, pub_config.MSB_SERVICE_PORT)
+pub_config.SDC_BASE_URL = "%s://%s:%s/api" % (pub_config.MSB_SERVICE_PROTOCOL, pub_config.MSB_SERVICE_IP,
+                                              pub_config.MSB_SERVICE_PORT)
 
 if platform.system() == 'Windows' or 'test' in sys.argv:
     LOGGING = {

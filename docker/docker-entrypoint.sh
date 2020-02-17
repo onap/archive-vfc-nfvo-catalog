@@ -30,7 +30,11 @@ done
 # Wait for DB initialization
 echo "Wait for DB initialization"
 for i in {1..5}; do
-    curl -sS -m 1 $MYSQL_ADDR > /dev/null && break
+    curl -sS -m 1 $MSB_PROTO:$MSB_ADDR/msb -k > /dev/null
+    res=$i?
+    if [ $res -ne 0 ]; then
+        break
+    fi
     sleep $i
 done
 
