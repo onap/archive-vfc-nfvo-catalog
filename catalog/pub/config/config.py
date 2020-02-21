@@ -28,8 +28,8 @@ REDIS_PASSWD = ''
 DB_IP = "127.0.0.1"
 DB_PORT = 3306
 DB_NAME = "nfvocatalog"
-DB_USER = "nfvocatalog"
-DB_PASSWD = "nfvocatalog"
+DB_USER = "liuksyter"
+DB_PASSWD = "liuskyter"
 
 # [MDC]
 SERVICE_NAME = "catalog"
