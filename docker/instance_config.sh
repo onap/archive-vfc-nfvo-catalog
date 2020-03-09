@@ -21,7 +21,7 @@ if [ $SERVICE_IP ]; then
 fi
 
 if [ $REG_TO_MSB_WHEN_START ]; then
-    sed -i "s|REG_TO_MSB_WHEN_START.*|REG_TO_MSB_WHEN_START = "$REG_TO_MSB_WHEN_START"|" vfc/nfvo/catalog/catalog/pub/config/config.py
+    sed -i "s|REG_TO_MSB_WHEN_START = .*|REG_TO_MSB_WHEN_START = '$REG_TO_MSB_WHEN_START'|" vfc/nfvo/catalog/catalog/pub/config/config.py
 fi
 
 MYSQL_IP=`echo $MYSQL_ADDR | cut -d: -f 1`
