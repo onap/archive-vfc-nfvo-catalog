@@ -1,0 +1,10 @@
+distribution_type: 'container'
+container_release_tag: '1.3.8'
+project: 'vfc-nfvo-catalog'
+container_pull_registry: nexus3.onap.org:10003
+container_push_registry: nexus3.onap.org:10002
+log_dir: 'vfc-nfvo-catalog-master-docker-java-version-shell-daily/1008/'
+ref: '100a234c34e38094adff0e136c99ed7c3dcce9ae'
+containers:
+    - name: 'vfc/catalog'
+      version: '1.3.8-STAGING-20200310T081017'
